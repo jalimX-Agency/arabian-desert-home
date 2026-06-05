@@ -1,26 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 
 const navLinks = [
-  { label: "Experience", href: "#experience" },
-  { label: "Suites", href: "#suites" },
-  { label: "Adventures", href: "#adventures" },
-  { label: "Dining", href: "#dining" },
-  { label: "Events", href: "#events" },
+  { label: "L'ADH", href: "/" },
+  { label: "Tentes", href: "/les-tentes" },
+  { label: "Restaurant", href: "/restaurant" },
+  { label: "Activités", href: "/les-activites" },
+  { label: "Day Pass", href: "/day-pass" },
+  { label: "Événement", href: "/les-evenements" },
+  { label: "Spa", href: "/spa" },
+  { label: "Contact", href: "/contact" },
 ];
 
-interface NavigationProps {
-  onBookingOpen: () => void;
-}
-
-export function Navigation({ onBookingOpen }: NavigationProps) {
+export function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function Navigation({ onBookingOpen }: NavigationProps) {
       >
         <nav className="max-w-7xl mx-auto px-6 md:px-10 h-20 flex items-center justify-between">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-3 group">
+          <Link href="/" className="flex items-center gap-3 group">
             <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
               <div className="w-3 h-3 rounded-full bg-gold" />
             </div>
@@ -55,19 +57,27 @@ export function Navigation({ onBookingOpen }: NavigationProps) {
                 Desert Home
               </span>
             </div>
-          </a>
+          </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
-                className="text-luxury-label text-muted-foreground hover:text-foreground transition-colors duration-300 relative group"
+                className={`text-luxury-label transition-colors duration-300 relative group ${
+                  pathname === link.href
+                    ? "text-gold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-gold transition-all duration-300 group-hover:w-full" />
-              </a>
+                <span
+                  className={`absolute -bottom-1 left-0 h-px bg-gold transition-all duration-300 ${
+                    pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
+                />
+              </Link>
             ))}
           </div>
 
@@ -75,22 +85,23 @@ export function Navigation({ onBookingOpen }: NavigationProps) {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="relative w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-gold transition-colors duration-300"
+              className="relative w-9 h-9 hidden md:flex items-center justify-center text-muted-foreground hover:text-gold transition-colors duration-300"
               aria-label="Toggle theme"
             >
               <Sun className="w-4 h-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute w-4 h-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </button>
-            <Button
-              onClick={onBookingOpen}
-              variant="outline"
-              className="hidden md:flex text-luxury-label border-gold/40 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold rounded-none px-6"
-            >
-              Reserve
-            </Button>
+            <Link href="/reservez-votre-sejour">
+              <Button
+                variant="outline"
+                className="hidden md:flex text-luxury-label border-gold/40 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold rounded-none px-6"
+              >
+                Réserver
+              </Button>
+            </Link>
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden w-10 h-10 flex items-center justify-center"
+              className="lg:hidden w-10 h-10 flex items-center justify-center"
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -111,17 +122,22 @@ export function Navigation({ onBookingOpen }: NavigationProps) {
           >
             <div className="flex flex-col gap-1">
               {navLinks.map((link, i) => (
-                <motion.a
+                <motion.div
                   key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.08 }}
-                  className="font-serif text-4xl py-3 border-b border-border/30 hover:text-gold transition-colors"
+                  transition={{ delay: i * 0.06 }}
                 >
-                  {link.label}
-                </motion.a>
+                  <Link
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`font-serif text-4xl py-3 border-b border-border/30 hover:text-gold transition-colors block ${
+                      pathname === link.href ? "text-gold" : ""
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                </motion.div>
               ))}
               <motion.div
                 initial={{ opacity: 0 }}
@@ -129,15 +145,11 @@ export function Navigation({ onBookingOpen }: NavigationProps) {
                 transition={{ delay: 0.5 }}
                 className="mt-8"
               >
-                <Button
-                  onClick={() => {
-                    setMobileOpen(false);
-                    onBookingOpen();
-                  }}
-                  className="w-full bg-gold text-charcoal hover:bg-gold-light rounded-none py-6 text-luxury-label"
-                >
-                  Reserve Your Escape
-                </Button>
+                <Link href="/reservez-votre-sejour" onClick={() => setMobileOpen(false)}>
+                  <Button className="w-full bg-gold text-charcoal hover:bg-gold-light rounded-none py-6 text-luxury-label">
+                    Réservez Votre Séjour
+                  </Button>
+                </Link>
               </motion.div>
             </div>
           </motion.div>
