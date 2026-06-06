@@ -183,7 +183,7 @@ export default function ReservezPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold/80 mb-4"
+              className="text-luxury-label text-terracotta/80 mb-4"
             >
               Séjournez au cœur du désert d&apos;Agafay
             </motion.span>
@@ -194,13 +194,13 @@ export default function ReservezPage() {
               className="heading-display text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
             >
               Réservez Votre <br />
-              <span className="italic text-gold">Séjour</span>
+              <span className="italic text-terracotta">Séjour</span>
             </motion.h1>
             <motion.div
               initial={{ scaleX: 0 }}
               animate={heroInView ? { scaleX: 1 } : {}}
               transition={{ duration: 1.5, delay: 0.6 }}
-              className="divider-gold-wide mt-8 max-w-xs origin-left"
+              className="h-px w-16 bg-terracotta/30 mt-8 max-w-xs origin-left"
             />
           </div>
         </section>
@@ -214,23 +214,23 @@ export default function ReservezPage() {
                 <div key={step.number} className="flex items-center">
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-500 ${
+                      className={`w-10 h-10 flex items-center justify-center border transition-all duration-500 ${
                         currentStep > step.number
-                          ? "bg-gold border-gold text-charcoal"
+                          ? "bg-terracotta border-terracotta text-obsidian"
                           : currentStep === step.number
-                          ? "border-gold text-gold"
+                          ? "border-terracotta text-terracotta"
                           : "border-border text-muted-foreground"
                       }`}
                     >
                       {currentStep > step.number ? (
                         <Check className="w-4 h-4" />
                       ) : (
-                        <span className="text-sm font-medium">{step.number}</span>
+                        <span className="text-sm text-mono-number">{step.number}</span>
                       )}
                     </div>
                     <span
                       className={`text-[10px] tracking-[0.1em] uppercase mt-2 hidden sm:block ${
-                        currentStep >= step.number ? "text-gold" : "text-muted-foreground"
+                        currentStep >= step.number ? "text-terracotta" : "text-muted-foreground"
                       }`}
                     >
                       {step.label}
@@ -239,7 +239,7 @@ export default function ReservezPage() {
                   {index < steps.length - 1 && (
                     <div
                       className={`w-12 md:w-20 h-px mx-3 transition-colors duration-500 ${
-                        currentStep > step.number ? "bg-gold" : "bg-border"
+                        currentStep > step.number ? "bg-terracotta" : "bg-border"
                       }`}
                     />
                   )}
@@ -276,7 +276,7 @@ export default function ReservezPage() {
                           value={personalInfo.firstName}
                           onChange={handlePersonalChange}
                           required
-                          className="border-border/50 focus:border-gold/50 rounded-none"
+                          className="border-border/50 focus:border-terracotta/50 rounded-none"
                           placeholder="Votre prénom"
                         />
                       </div>
@@ -290,7 +290,7 @@ export default function ReservezPage() {
                           value={personalInfo.lastName}
                           onChange={handlePersonalChange}
                           required
-                          className="border-border/50 focus:border-gold/50 rounded-none"
+                          className="border-border/50 focus:border-terracotta/50 rounded-none"
                           placeholder="Votre nom"
                         />
                       </div>
@@ -308,7 +308,7 @@ export default function ReservezPage() {
                           value={personalInfo.email}
                           onChange={handlePersonalChange}
                           required
-                          className="border-border/50 focus:border-gold/50 rounded-none"
+                          className="border-border/50 focus:border-terracotta/50 rounded-none"
                           placeholder="votre@email.com"
                         />
                       </div>
@@ -322,7 +322,7 @@ export default function ReservezPage() {
                           type="tel"
                           value={personalInfo.phone}
                           onChange={handlePersonalChange}
-                          className="border-border/50 focus:border-gold/50 rounded-none"
+                          className="border-border/50 focus:border-terracotta/50 rounded-none"
                           placeholder="+212 6XX-XXX-XXX"
                         />
                       </div>
@@ -333,7 +333,7 @@ export default function ReservezPage() {
                     <Button
                       onClick={() => setCurrentStep(2)}
                       disabled={!isStep1Valid}
-                      className="bg-gold text-charcoal hover:bg-gold-light rounded-none px-8 py-5 text-luxury-label disabled:opacity-50"
+                      className="bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none px-8 py-5 text-luxury-label tracking-[0.2em] disabled:opacity-50"
                     >
                        Suivant
                       <ArrowRight className="ml-2 w-4 h-4" />
@@ -368,7 +368,7 @@ export default function ReservezPage() {
                           setStayInfo((prev) => ({ ...prev, suiteId: value }))
                         }
                       >
-                        <SelectTrigger className="w-full border-border/50 focus:border-gold/50 rounded-none">
+                        <SelectTrigger className="w-full border-border/50 focus:border-terracotta/50 rounded-none">
                           <SelectValue placeholder="Sélectionnez votre suite" />
                         </SelectTrigger>
                         <SelectContent>
@@ -389,9 +389,9 @@ export default function ReservezPage() {
                           <DialogTrigger asChild>
                             <Button
                               variant="outline"
-                              className="w-full justify-start border-border/50 hover:border-gold/50 rounded-none text-left font-normal"
+                              className="w-full justify-start border-border/50 hover:border-terracotta/50 rounded-none text-left font-normal"
                             >
-                              <CalendarIcon className="mr-2 h-4 w-4 text-gold/70" />
+                              <CalendarIcon className="mr-2 h-4 w-4 text-terracotta/70" />
                               {stayInfo.checkIn
                                 ? format(stayInfo.checkIn, "dd MMMM yyyy", { locale: fr })
                                 : "Sélectionnez une date"}
@@ -421,9 +421,9 @@ export default function ReservezPage() {
                           <DialogTrigger asChild>
                             <Button
                               variant="outline"
-                              className="w-full justify-start border-border/50 hover:border-gold/50 rounded-none text-left font-normal"
+                              className="w-full justify-start border-border/50 hover:border-terracotta/50 rounded-none text-left font-normal"
                             >
-                              <CalendarIcon className="mr-2 h-4 w-4 text-gold/70" />
+                              <CalendarIcon className="mr-2 h-4 w-4 text-terracotta/70" />
                               {stayInfo.checkOut
                                 ? format(stayInfo.checkOut, "dd MMMM yyyy", { locale: fr })
                                 : "Sélectionnez une date"}
@@ -460,11 +460,11 @@ export default function ReservezPage() {
                           size="icon"
                           onClick={decrementGuests}
                           disabled={stayInfo.guests <= 1}
-                          className="border-border/50 hover:border-gold/50 rounded-none h-10 w-10"
+                          className="border-border/50 hover:border-terracotta/50 rounded-none h-10 w-10"
                         >
                           <Minus className="w-4 h-4" />
                         </Button>
-                        <span className="text-2xl font-serif w-12 text-center">
+                        <span className="text-2xl text-mono-number w-12 text-center">
                           {stayInfo.guests}
                         </span>
                         <Button
@@ -473,7 +473,7 @@ export default function ReservezPage() {
                           size="icon"
                           onClick={incrementGuests}
                           disabled={stayInfo.guests >= 10}
-                          className="border-border/50 hover:border-gold/50 rounded-none h-10 w-10"
+                          className="border-border/50 hover:border-terracotta/50 rounded-none h-10 w-10"
                         >
                           <Plus className="w-4 h-4" />
                         </Button>
@@ -495,7 +495,7 @@ export default function ReservezPage() {
                           }))
                         }
                         rows={4}
-                        className="border-border/50 focus:border-gold/50 rounded-none resize-none"
+                        className="border-border/50 focus:border-terracotta/50 rounded-none resize-none"
                         placeholder="Toute demande particulière (allergies, anniversaire, etc.)"
                       />
                     </div>
@@ -505,7 +505,7 @@ export default function ReservezPage() {
                     <Button
                       onClick={() => setCurrentStep(1)}
                       variant="outline"
-                      className="border-border/50 hover:border-gold/50 rounded-none px-8 py-5 text-luxury-label"
+                      className="border-border/50 hover:border-terracotta/50 rounded-none px-8 py-5 text-luxury-label tracking-[0.2em]"
                     >
                       <ArrowLeft className="mr-2 w-4 h-4" />
                       Retour
@@ -513,11 +513,11 @@ export default function ReservezPage() {
                     <Button
                       onClick={handleSubmit}
                       disabled={!isStep2Valid || isSubmitting}
-                      className="bg-gold text-charcoal hover:bg-gold-light rounded-none px-8 py-5 text-luxury-label disabled:opacity-50"
+                      className="bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none px-8 py-5 text-luxury-label tracking-[0.2em] disabled:opacity-50"
                     >
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
-                          <span className="w-4 h-4 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" />
+                          <span className="w-4 h-4 border-2 border-terracotta/30 border-t-terracotta rounded-full animate-spin" />
                           Réservation...
                         </span>
                       ) : (
@@ -540,8 +540,8 @@ export default function ReservezPage() {
                   transition={{ duration: 0.6 }}
                   className="text-center py-12"
                 >
-                  <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-gold/10 flex items-center justify-center">
-                    <Check className="w-8 h-8 text-gold" />
+                  <div className="w-20 h-20 mx-auto mb-8 border border-terracotta/20 flex items-center justify-center">
+                    <Check className="w-8 h-8 text-terracotta" />
                   </div>
                   <h2 className="heading-editorial text-3xl md:text-4xl mb-4">
                     Réservation <span className="italic">Confirmée</span>
@@ -552,15 +552,15 @@ export default function ReservezPage() {
                   </p>
 
                   {/* Booking Summary */}
-                  <div className="max-w-md mx-auto p-8 border border-border/50 text-left space-y-4 mb-10">
-                    <p className="text-luxury-label text-gold mb-4">Résumé de votre séjour</p>
+                  <div className="max-w-md mx-auto p-8 border border-terracotta/15 text-left space-y-4 mb-10">
+                    <p className="text-luxury-label text-terracotta mb-4">Résumé de votre séjour</p>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Suite</span>
                       <span>
                         {suites.find((s) => s.id === stayInfo.suiteId)?.name || "—"}
                       </span>
                     </div>
-                    <div className="divider-gold" />
+                    <div className="divider-accent" />
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Arrivée</span>
                       <span>
@@ -577,7 +577,7 @@ export default function ReservezPage() {
                           : "—"}
                       </span>
                     </div>
-                    <div className="divider-gold" />
+                    <div className="divider-accent" />
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Convives</span>
                       <span>{stayInfo.guests}</span>
@@ -597,7 +597,7 @@ export default function ReservezPage() {
                       });
                     }}
                     variant="outline"
-                    className="border-gold/40 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold rounded-none px-8 py-5 text-luxury-label"
+                    className="border-terracotta/40 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-8 py-5 text-luxury-label tracking-[0.2em]"
                   >
                     Nouvelle réservation
                   </Button>

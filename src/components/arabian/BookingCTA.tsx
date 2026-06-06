@@ -34,17 +34,25 @@ export function BookingCTA() {
     <section
       ref={sectionRef}
       id="booking"
-      className="relative py-24 md:py-36 px-6 md:px-10 bg-charcoal/[0.03] dark:bg-charcoal/50"
+      className="relative py-24 md:py-36 px-6 md:px-10 bg-obsidian/[0.03] dark:bg-obsidian/50 pattern-dots"
     >
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left — Text */}
           <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-4"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block mb-4"
+              className="text-luxury-label text-terracotta block mb-4"
             >
               {t("booking.label")}
             </motion.span>
@@ -82,7 +90,7 @@ export function BookingCTA() {
                 t("booking.perk4"),
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+                  <Check className="w-4 h-4 text-terracotta mt-0.5 shrink-0" />
                   <span className="text-sm text-muted-foreground">{item}</span>
                 </div>
               ))}
@@ -94,7 +102,7 @@ export function BookingCTA() {
               transition={{ duration: 0.8, delay: 0.8 }}
             >
               <p className="text-xs text-muted-foreground/50 mb-6">
-                {t("booking.startingFrom")} <span className="text-gold font-serif text-lg">$1,200</span> {t("booking.perNight")} · {t("booking.minimumStay")}
+                {t("booking.startingFrom")} <span className="text-terracotta text-mono-number text-lg">$1,200</span> {t("booking.perNight")} · {t("booking.minimumStay")}
               </p>
             </motion.div>
           </div>
@@ -167,11 +175,11 @@ function BookingForm() {
 
   if (step === 3) {
     return (
-      <div className="bg-background/50 backdrop-blur-sm border border-border/50 p-10 text-center">
-        <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-6">
-          <Check className="w-8 h-8 text-gold" />
+      <div className="bg-background/50 backdrop-blur-sm border border-terracotta/15 p-10 text-center">
+        <div className="w-16 h-16 border border-terracotta/20 flex items-center justify-center mx-auto mb-6">
+          <Check className="w-8 h-8 text-terracotta" />
         </div>
-        <h3 className="font-serif text-2xl mb-3">{t("booking.thankYou")}</h3>
+        <h3 className="heading-editorial text-2xl mb-3">{t("booking.thankYou")}</h3>
         <p className="text-sm text-muted-foreground">
           {t("booking.successMessage")}
         </p>
@@ -180,15 +188,15 @@ function BookingForm() {
   }
 
   return (
-    <div className="bg-background/50 backdrop-blur-sm border border-border/50 p-8 md:p-10">
+    <div className="bg-background/50 backdrop-blur-sm border border-terracotta/15 p-8 md:p-10">
       <div className="flex items-center gap-3 mb-8">
         <div className="flex gap-2">
           {[1, 2].map((s) => (
             <div
               key={s}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-all duration-300 ${
+              className={`w-8 h-8 flex items-center justify-center text-xs transition-all duration-300 ${
                 step >= s
-                  ? "bg-gold text-charcoal"
+                  ? "bg-terracotta text-obsidian"
                   : "border border-border text-muted-foreground"
               }`}
             >
@@ -213,7 +221,7 @@ function BookingForm() {
                 onChange={(e) =>
                   setForm({ ...form, firstName: e.target.value })
                 }
-                className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-gold"
+                className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-terracotta"
                 placeholder={t("booking.firstNamePlaceholder")}
               />
             </div>
@@ -226,7 +234,7 @@ function BookingForm() {
                 onChange={(e) =>
                   setForm({ ...form, lastName: e.target.value })
                 }
-                className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-gold"
+                className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-terracotta"
                 placeholder={t("booking.lastNamePlaceholder")}
               />
             </div>
@@ -239,7 +247,7 @@ function BookingForm() {
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-gold"
+              className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-terracotta"
               placeholder={t("booking.emailPlaceholder")}
             />
           </div>
@@ -250,14 +258,14 @@ function BookingForm() {
             <Input
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-gold"
+              className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-terracotta"
               placeholder={t("booking.phonePlaceholder")}
             />
           </div>
           <Button
             onClick={() => setStep(2)}
             disabled={!form.firstName || !form.lastName || !form.email}
-            className="w-full bg-gold text-charcoal hover:bg-gold-light rounded-none py-6 text-luxury-label"
+            className="w-full bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none py-6 text-luxury-label tracking-[0.2em]"
           >
             {t("booking.continue")}
           </Button>
@@ -323,18 +331,18 @@ function BookingForm() {
                 onClick={() =>
                   setForm({ ...form, guests: Math.max(1, form.guests - 1) })
                 }
-                className="w-10 h-10 border border-border/50 flex items-center justify-center hover:border-gold transition-colors"
+                className="w-10 h-10 border border-border/50 flex items-center justify-center hover:border-terracotta transition-colors"
               >
                 <Minus className="w-4 h-4" />
               </button>
-              <span className="text-lg font-serif w-8 text-center">
+              <span className="text-lg text-mono-number w-8 text-center">
                 {form.guests}
               </span>
               <button
                 onClick={() =>
                   setForm({ ...form, guests: Math.min(4, form.guests + 1) })
                 }
-                className="w-10 h-10 border border-border/50 flex items-center justify-center hover:border-gold transition-colors"
+                className="w-10 h-10 border border-border/50 flex items-center justify-center hover:border-terracotta transition-colors"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -348,7 +356,7 @@ function BookingForm() {
             <Textarea
               value={form.specialReqs}
               onChange={(e) => setForm({ ...form, specialReqs: e.target.value })}
-              className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-gold min-h-[80px]"
+              className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-terracotta min-h-[80px]"
               placeholder={t("booking.specialRequestsPlaceholder")}
             />
           </div>
@@ -357,14 +365,14 @@ function BookingForm() {
             <Button
               onClick={() => setStep(1)}
               variant="outline"
-              className="flex-1 rounded-none border-border/50 py-6"
+              className="flex-1 rounded-none border-border/50 py-6 text-luxury-label tracking-[0.2em]"
             >
               {t("booking.back")}
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={loading || !form.suiteType || !form.checkIn || !form.checkOut}
-              className="flex-1 bg-gold text-charcoal hover:bg-gold-light rounded-none py-6 text-luxury-label"
+              className="flex-1 bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none py-6 text-luxury-label tracking-[0.2em]"
             >
               {loading ? (
                 t("booking.submitting")
@@ -397,7 +405,7 @@ function PopoverDate({
     <Dialog open={open} onOpenChange={setOpen}>
       <button
         onClick={() => setOpen(true)}
-        className="w-full mt-1.5 h-10 border border-border/50 flex items-center px-3 text-sm text-left hover:border-gold transition-colors bg-transparent"
+        className="w-full mt-1.5 h-10 border border-border/50 flex items-center px-3 text-sm text-left hover:border-terracotta transition-colors bg-transparent"
       >
         <CalendarIcon className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
         {date ? format(date, "MMM dd, yyyy") : (

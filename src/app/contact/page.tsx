@@ -103,8 +103,8 @@ export default function ContactPage() {
 
       <main className="flex-1 pt-20">
         {/* Hero Section */}
-        <section ref={heroRef} className="relative h-[50vh] min-h-[400px] w-full overflow-hidden bg-charcoal">
-          <div className="absolute inset-0 bg-charcoal" />
+        <section ref={heroRef} className="relative h-[50vh] min-h-[400px] w-full overflow-hidden bg-obsidian">
+          <div className="absolute inset-0 bg-obsidian" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
 
           <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
@@ -112,7 +112,7 @@ export default function ContactPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold/80 mb-4"
+              className="text-luxury-label text-terracotta/80 mb-4"
             >
               Nous Contacter
             </motion.span>
@@ -128,7 +128,7 @@ export default function ContactPage() {
               initial={{ scaleX: 0 }}
               animate={heroInView ? { scaleX: 1 } : {}}
               transition={{ duration: 1.5, delay: 0.6 }}
-              className="divider-gold-wide mt-8 max-w-[120px] origin-center"
+              className="h-px w-16 bg-terracotta/30 mt-8 max-w-[120px] origin-center"
             />
           </div>
         </section>
@@ -143,12 +143,12 @@ export default function ContactPage() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={infoInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.8, delay: 0.2 + index * 0.15 }}
-                  className="p-8 border border-border/50 hover:border-gold/30 transition-all duration-500 text-center"
+                  className="p-8 border border-border/50 hover:border-terracotta/30 transition-all duration-500 text-center"
                 >
-                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-                    <info.icon className="w-5 h-5 text-gold" />
+                  <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center border border-terracotta/20">
+                    <info.icon className="w-5 h-5 text-terracotta" />
                   </div>
-                  <p className="text-luxury-label text-gold/60 mb-2">{info.label}</p>
+                  <p className="text-luxury-label text-terracotta/60 mb-2">{info.label}</p>
                   <p className="text-sm text-muted-foreground">{info.value}</p>
                 </motion.div>
               ))}
@@ -159,11 +159,19 @@ export default function ContactPage() {
         {/* Contact Form */}
         <section ref={formRef} className="py-12 md:py-20 px-6 md:px-10 bg-muted/30">
           <div className="max-w-2xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={formInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-4 text-center"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={formInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block text-center mb-4"
+              className="text-luxury-label text-terracotta block text-center mb-4"
             >
               Écrivez-nous
             </motion.span>
@@ -194,7 +202,7 @@ export default function ContactPage() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="bg-background border-border/50 focus:border-gold/50 rounded-none"
+                    className="bg-background border-border/50 focus:border-terracotta/50 rounded-none"
                     placeholder="Votre nom"
                   />
                 </div>
@@ -209,7 +217,7 @@ export default function ContactPage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="bg-background border-border/50 focus:border-gold/50 rounded-none"
+                    className="bg-background border-border/50 focus:border-terracotta/50 rounded-none"
                     placeholder="votre@email.com"
                   />
                 </div>
@@ -226,7 +234,7 @@ export default function ContactPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="bg-background border-border/50 focus:border-gold/50 rounded-none"
+                    className="bg-background border-border/50 focus:border-terracotta/50 rounded-none"
                     placeholder="+212 6XX-XXX-XXX"
                   />
                 </div>
@@ -240,7 +248,7 @@ export default function ContactPage() {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="bg-background border-border/50 focus:border-gold/50 rounded-none"
+                    className="bg-background border-border/50 focus:border-terracotta/50 rounded-none"
                     placeholder="Objet de votre message"
                   />
                 </div>
@@ -257,7 +265,7 @@ export default function ContactPage() {
                   onChange={handleChange}
                   required
                   rows={6}
-                  className="bg-background border-border/50 focus:border-gold/50 rounded-none resize-none"
+                  className="bg-background border-border/50 focus:border-terracotta/50 rounded-none resize-none"
                   placeholder="Décrivez votre demande..."
                 />
               </div>
@@ -266,11 +274,11 @@ export default function ContactPage() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-gold text-charcoal hover:bg-gold-light rounded-none px-10 py-6 text-luxury-label"
+                  className="bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none px-10 py-6 text-luxury-label tracking-[0.2em]"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
-                      <span className="w-4 h-4 border-2 border-charcoal/30 border-t-charcoal rounded-full animate-spin" />
+                      <span className="w-4 h-4 border-2 border-terracotta/30 border-t-terracotta rounded-full animate-spin" />
                       Envoi en cours...
                     </span>
                   ) : (

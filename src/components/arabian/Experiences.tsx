@@ -77,16 +77,24 @@ export function Experiences() {
     <section
       ref={sectionRef}
       id="adventures"
-      className="relative py-24 md:py-36 px-6 md:px-10 bg-charcoal/[0.03] dark:bg-charcoal/50"
+      className="relative py-24 md:py-36 px-6 md:px-10 bg-obsidian/[0.03] dark:bg-obsidian/50 pattern-lines"
     >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="mb-16 md:mb-24">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8 }}
+            className="mb-4"
+          >
+            <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+          </motion.div>
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
-            className="text-luxury-label text-gold block mb-4"
+            className="text-luxury-label text-terracotta block mb-4"
           >
             {t("experiences.label")}
           </motion.span>
@@ -131,7 +139,7 @@ export function Experiences() {
                 {/* Price Tag */}
                 <div className="absolute bottom-6 right-6">
                   <div className="bg-black/30 backdrop-blur-sm px-4 py-2">
-                    <span className="text-gold font-serif text-lg">
+                    <span className="text-terracotta text-mono-number text-lg">
                       ${active.price}
                     </span>
                     <span className="text-white/50 text-xs ml-1">{t("experiences.perPerson")}</span>
@@ -151,17 +159,17 @@ export function Experiences() {
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <Clock className="w-4 h-4 text-gold" />
+                  <Clock className="w-4 h-4 text-terracotta" />
                   <span className="text-sm text-muted-foreground">
                     {active.duration}
                   </span>
                 </div>
 
-                <h3 className="font-serif text-3xl md:text-4xl mb-4">
+                <h3 className="heading-editorial text-3xl md:text-4xl mb-4">
                   {active.name}
                 </h3>
 
-                <div className="w-12 h-px bg-gold mb-6" />
+                <div className="w-12 h-px bg-terracotta mb-6" />
 
                 <p className="text-editorial text-muted-foreground mb-4">
                   {active.description}
@@ -170,7 +178,7 @@ export function Experiences() {
                   {active.longDescription}
                 </p>
 
-                <button className="flex items-center gap-2 text-gold text-sm tracking-wider uppercase group/link">
+                <button className="flex items-center gap-2 text-terracotta text-sm tracking-wider uppercase group/link">
                   {t("experiences.exploreJourney")}
                   <ArrowUpRight className="w-4 h-4 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
                 </button>
@@ -185,13 +193,13 @@ export function Experiences() {
                   onClick={() => setActiveIndex(i)}
                   className={`flex-1 transition-all duration-500 text-left py-3 border-b-2 ${
                     i === activeIndex
-                      ? "border-gold"
+                      ? "border-terracotta"
                       : "border-transparent hover:border-border"
                   }`}
                 >
                   <span
-                    className={`text-sm font-medium transition-colors duration-300 ${
-                      i === activeIndex ? "text-gold" : "text-muted-foreground"
+                    className={`text-sm text-mono-number transition-colors duration-300 ${
+                      i === activeIndex ? "text-terracotta" : "text-muted-foreground"
                     }`}
                   >
                     {String(i + 1).padStart(2, "0")}

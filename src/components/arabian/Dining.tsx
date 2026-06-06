@@ -19,11 +19,19 @@ export function Dining() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           {/* Left — Content */}
           <div className="lg:col-span-5 order-2 lg:order-1">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-4"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block mb-4"
+              className="text-luxury-label text-terracotta block mb-4"
             >
               {t("dining.label")}
             </motion.span>
@@ -43,7 +51,7 @@ export function Dining() {
               initial={{ scaleX: 0 }}
               animate={isInView ? { scaleX: 1 } : {}}
               transition={{ duration: 1.2, delay: 0.4 }}
-              className="divider-gold-wide origin-left max-w-[120px] mb-8"
+              className="h-px w-16 bg-terracotta/30 origin-left max-w-[120px] mb-8"
             />
 
             <motion.p
@@ -89,9 +97,9 @@ export function Dining() {
                   key={i}
                   className="flex items-start gap-4 py-3 border-b border-border/30 group cursor-default"
                 >
-                  <div className="w-1 h-1 rounded-full bg-gold mt-2 shrink-0" />
+                  <div className="w-4 h-px bg-terracotta mt-2 shrink-0" />
                   <div>
-                    <span className="font-serif text-lg group-hover:text-gold transition-colors duration-300">
+                    <span className="heading-editorial text-lg group-hover:text-terracotta transition-colors duration-300">
                       {item.name}
                     </span>
                     <p className="text-xs text-muted-foreground mt-0.5">
@@ -124,12 +132,12 @@ export function Dining() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 1 }}
-                className="absolute -bottom-6 -left-4 md:-left-8 bg-background/90 backdrop-blur-sm border border-border/50 p-6 max-w-xs"
+                className="absolute -bottom-6 -left-4 md:-left-8 bg-background/90 backdrop-blur-sm border border-terracotta/15 p-6 max-w-xs"
               >
-                <p className="font-serif italic text-lg leading-snug">
+                <p className="heading-editorial italic text-lg leading-snug">
                   &ldquo;{t("dining.quote")}&rdquo;
                 </p>
-                <span className="text-luxury-label text-gold mt-3 block">
+                <span className="text-luxury-label text-terracotta mt-3 block">
                   {t("dining.quoteAuthor")}
                 </span>
               </motion.div>

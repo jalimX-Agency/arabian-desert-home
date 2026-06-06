@@ -44,7 +44,7 @@ export function Hero() {
         >
           {t("hero.heading1")}
           <br />
-          <span className="italic text-gold">{t("hero.heading2")}</span>
+          <span className="italic text-terracotta">{t("hero.heading2")}</span>
         </motion.h1>
 
         {/* Subline */}
@@ -62,7 +62,7 @@ export function Hero() {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 1.5, delay: 1.2 }}
-          className="divider-gold-wide mt-10 max-w-xs origin-left"
+          className="h-px w-16 bg-terracotta/30 mt-10 max-w-xs origin-left"
         />
       </div>
 
@@ -91,7 +91,7 @@ export function Hero() {
         transition={{ delay: 1.5, duration: 1 }}
         className="absolute top-24 right-8 md:right-12 hidden md:flex flex-col items-end gap-2"
       >
-        <div className="w-16 h-px bg-gold/40" />
+        <div className="w-16 h-px bg-terracotta/40" />
         <span className="text-[9px] tracking-[0.4em] text-white/40 uppercase">
           {t("hero.established")}
         </span>

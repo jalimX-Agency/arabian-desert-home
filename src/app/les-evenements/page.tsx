@@ -62,7 +62,7 @@ export default function EvenementsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold/80 mb-4"
+              className="text-luxury-label text-terracotta/80 mb-4"
             >
               Célébrez l&apos;Amour !
             </motion.span>
@@ -78,7 +78,7 @@ export default function EvenementsPage() {
               initial={{ scaleX: 0 }}
               animate={heroInView ? { scaleX: 1 } : {}}
               transition={{ duration: 1.5, delay: 0.6 }}
-              className="divider-gold-wide mt-8 max-w-xs origin-left"
+              className="h-px w-16 bg-terracotta/30 mt-8 max-w-xs origin-left"
             />
           </div>
         </section>
@@ -101,6 +101,14 @@ export default function EvenementsPage() {
         {/* Event Types Cards */}
         <section ref={cardsRef} className="py-12 md:py-20 px-6 md:px-10">
           <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={cardsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-4 text-center"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+            </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
               {eventTypes.map((event, index) => (
                 <motion.div
@@ -108,11 +116,11 @@ export default function EvenementsPage() {
                   initial={{ opacity: 0, y: 40 }}
                   animate={cardsInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.8, delay: 0.2 + index * 0.15 }}
-                  className="group p-8 md:p-10 border border-border/50 hover:border-gold/30 transition-all duration-500 bg-background/50 backdrop-blur-sm"
+                  className="group p-8 md:p-10 border border-border/50 hover:border-terracotta/30 transition-all duration-500 bg-background/50 backdrop-blur-sm"
                 >
-                  <event.icon className="w-6 h-6 text-gold mb-6" />
-                  <h3 className="font-serif text-2xl mb-4">{event.title}</h3>
-                  <div className="w-8 h-px bg-gold/50 mb-6 group-hover:w-16 transition-all duration-500" />
+                  <event.icon className="w-6 h-6 text-terracotta mb-6" />
+                  <h3 className="heading-editorial text-2xl mb-4">{event.title}</h3>
+                  <div className="w-8 h-px bg-terracotta/50 mb-6 group-hover:w-16 transition-all duration-500" />
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {event.description}
                   </p>
@@ -126,16 +134,16 @@ export default function EvenementsPage() {
         <section ref={quoteRef} className="py-20 md:py-32 px-6 md:px-10">
           <div className="max-w-4xl mx-auto text-center">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={quoteInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1 }}
-              className="divider-gold-wide max-w-[120px] mx-auto mb-12"
+              initial={{ scaleX: 0 }}
+              animate={quoteInView ? { scaleX: 1 } : {}}
+              transition={{ duration: 1.2 }}
+              className="h-px w-16 bg-terracotta/30 max-w-[120px] mx-auto mb-12"
             />
             <motion.blockquote
               initial={{ opacity: 0, y: 20 }}
               animate={quoteInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1, delay: 0.3 }}
-              className="font-serif text-2xl md:text-3xl lg:text-4xl italic leading-snug"
+              className="heading-display text-2xl md:text-3xl lg:text-4xl italic leading-snug"
             >
               &ldquo;L&apos;alliance de traditions ancestrales et de prestations haut de gamme confère à ces soirées un caractère intemporel&rdquo;
             </motion.blockquote>
@@ -143,13 +151,13 @@ export default function EvenementsPage() {
         </section>
 
         {/* CTA Section */}
-        <section ref={ctaRef} className="py-20 md:py-28 px-6 md:px-10 bg-charcoal dark:bg-charcoal">
+        <section ref={ctaRef} className="py-20 md:py-28 px-6 md:px-10 bg-obsidian dark:bg-obsidian">
           <div className="max-w-3xl mx-auto text-center">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={ctaInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold/60 block mb-4"
+              className="text-luxury-label text-terracotta/60 block mb-4"
             >
               Votre événement sur mesure
             </motion.span>
@@ -157,7 +165,7 @@ export default function EvenementsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={ctaInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="font-serif text-3xl md:text-4xl text-white mb-8"
+              className="heading-display text-3xl md:text-4xl text-white mb-8"
             >
               Créons ensemble un moment inoubliable
             </motion.h3>
@@ -169,7 +177,7 @@ export default function EvenementsPage() {
               <Link href="/contact">
                 <Button
                   variant="outline"
-                  className="border-gold/40 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold rounded-none px-10 py-6 text-luxury-label"
+                  className="border-terracotta/40 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-10 py-6 text-luxury-label tracking-[0.2em]"
                 >
                   Planifiez votre événement
                   <ArrowRight className="ml-2 w-4 h-4" />

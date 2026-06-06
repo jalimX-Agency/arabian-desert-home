@@ -90,7 +90,7 @@ export default function LesActivitesPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block mb-4"
+              className="text-luxury-label text-terracotta block mb-4"
             >
               Expériences
             </motion.span>
@@ -98,7 +98,7 @@ export default function LesActivitesPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1, delay: 0.2 }}
-              className="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6"
+              className="heading-display text-5xl md:text-7xl lg:text-8xl text-white mb-6"
             >
               Activités
             </motion.h1>
@@ -106,7 +106,7 @@ export default function LesActivitesPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="font-serif italic text-xl md:text-2xl text-white/70"
+              className="heading-editorial italic text-xl md:text-2xl text-white/70"
             >
               Aventure et découverte au désert
             </motion.p>
@@ -119,11 +119,19 @@ export default function LesActivitesPage() {
           className="py-20 md:py-28 px-6 md:px-10"
         >
           <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={individualInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-4"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={individualInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block mb-4"
+              className="text-luxury-label text-terracotta block mb-4"
             >
               Activités Individuelles
             </motion.span>
@@ -131,7 +139,7 @@ export default function LesActivitesPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={individualInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1, delay: 0.2 }}
-              className="font-serif text-3xl md:text-5xl mb-4"
+              className="heading-editorial text-3xl md:text-5xl mb-4"
             >
               À votre <span className="italic">rythme</span>
             </motion.h2>
@@ -151,7 +159,7 @@ export default function LesActivitesPage() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="animate-pulse h-80 bg-muted rounded"
+                    className="animate-pulse h-80 bg-muted rounded-none"
                   />
                 ))}
               </div>
@@ -163,7 +171,7 @@ export default function LesActivitesPage() {
                     initial={{ opacity: 0, y: 40 }}
                     animate={individualInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.8, delay: 0.4 + i * 0.15 }}
-                    className="group bg-card border border-border/50 overflow-hidden hover:border-gold/30 transition-all duration-500"
+                    className="group bg-card border border-border/50 overflow-hidden hover:border-terracotta/30 transition-all duration-500"
                   >
                     <div className="aspect-[4/3] overflow-hidden relative">
                       <img
@@ -172,19 +180,19 @@ export default function LesActivitesPage() {
                         className="w-full h-full object-cover img-luxury"
                       />
                       <div className="absolute top-4 right-4 bg-black/30 backdrop-blur-sm px-3 py-1.5">
-                        <span className="text-gold font-serif text-lg">
+                        <span className="text-terracotta text-mono-number text-lg">
                           {activity.price} {activity.currency}
                         </span>
                       </div>
                     </div>
                     <div className="p-6">
                       <div className="flex items-center gap-2 mb-3">
-                        <Clock className="w-4 h-4 text-gold" />
+                        <Clock className="w-4 h-4 text-terracotta" />
                         <span className="text-sm text-muted-foreground">
                           {activity.duration}
                         </span>
                       </div>
-                      <h3 className="font-serif text-xl md:text-2xl mb-2 group-hover:text-gold transition-colors duration-300">
+                      <h3 className="heading-editorial text-xl md:text-2xl mb-2 group-hover:text-terracotta transition-colors duration-300">
                         {activity.name}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-4">
@@ -196,7 +204,7 @@ export default function LesActivitesPage() {
                             key={j}
                             className="flex items-center gap-2 text-sm text-muted-foreground/70"
                           >
-                            <Check className="w-3.5 h-3.5 text-gold shrink-0" />
+                            <Check className="w-3.5 h-3.5 text-terracotta shrink-0" />
                             <span>{item.trim()}</span>
                           </div>
                         ))}
@@ -210,19 +218,27 @@ export default function LesActivitesPage() {
         </section>
 
         {/* Divider */}
-        <div className="divider-gold-wide max-w-7xl mx-auto" />
+        <div className="h-px w-16 bg-terracotta/30 max-w-7xl mx-auto" />
 
         {/* Full Experiences Section */}
         <section
           ref={experiencesRef}
-          className="py-20 md:py-28 px-6 md:px-10 bg-charcoal/[0.03] dark:bg-charcoal/50"
+          className="py-20 md:py-28 px-6 md:px-10 bg-obsidian/[0.03] dark:bg-obsidian/50"
         >
           <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={experiencesInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-4"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">02</span>
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={experiencesInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block mb-4"
+              className="text-luxury-label text-terracotta block mb-4"
             >
               Expériences Complètes
             </motion.span>
@@ -230,7 +246,7 @@ export default function LesActivitesPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={experiencesInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1, delay: 0.2 }}
-              className="font-serif text-3xl md:text-5xl mb-4"
+              className="heading-editorial text-3xl md:text-5xl mb-4"
             >
               Vivez le désert <span className="italic">en entier</span>
             </motion.h2>
@@ -250,7 +266,7 @@ export default function LesActivitesPage() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="animate-pulse h-64 bg-muted rounded"
+                    className="animate-pulse h-64 bg-muted rounded-none"
                   />
                 ))}
               </div>
@@ -262,7 +278,7 @@ export default function LesActivitesPage() {
                     initial={{ opacity: 0, y: 40 }}
                     animate={experiencesInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.8, delay: 0.4 + i * 0.2 }}
-                    className="group grid grid-cols-1 lg:grid-cols-12 gap-0 bg-card border border-border/50 overflow-hidden hover:border-gold/30 transition-all duration-500"
+                    className="group grid grid-cols-1 lg:grid-cols-12 gap-0 bg-card border border-border/50 overflow-hidden hover:border-terracotta/30 transition-all duration-500"
                   >
                     {/* Image */}
                     <div className="lg:col-span-5 aspect-[4/3] lg:aspect-auto overflow-hidden relative">
@@ -281,23 +297,23 @@ export default function LesActivitesPage() {
                     {/* Content */}
                     <div className="lg:col-span-7 p-8 md:p-10 flex flex-col justify-center">
                       <div className="flex items-center gap-3 mb-4">
-                        <Clock className="w-4 h-4 text-gold" />
+                        <Clock className="w-4 h-4 text-terracotta" />
                         <span className="text-sm text-muted-foreground">
                           {activity.duration}
                         </span>
                         {activity.transportIncluded && (
                           <div className="flex items-center gap-1.5 text-sm text-muted-foreground ml-4">
-                            <Bus className="w-4 h-4 text-gold" />
+                            <Bus className="w-4 h-4 text-terracotta" />
                             <span>Transport inclus</span>
                           </div>
                         )}
                       </div>
 
-                      <h3 className="font-serif text-2xl md:text-3xl mb-2 group-hover:text-gold transition-colors duration-300">
+                      <h3 className="heading-editorial text-2xl md:text-3xl mb-2 group-hover:text-terracotta transition-colors duration-300">
                         {activity.name}
                       </h3>
 
-                      <div className="w-12 h-px bg-gold mb-4" />
+                      <div className="w-12 h-px bg-terracotta mb-4" />
 
                       <p className="text-sm text-muted-foreground mb-2">
                         {activity.description}
@@ -308,7 +324,7 @@ export default function LesActivitesPage() {
 
                       {/* Includes List */}
                       <div className="mb-6">
-                        <span className="text-luxury-label text-gold block mb-3">
+                        <span className="text-luxury-label text-terracotta block mb-3">
                           Inclus
                         </span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -317,7 +333,7 @@ export default function LesActivitesPage() {
                               key={j}
                               className="flex items-center gap-2 text-sm text-muted-foreground/70"
                             >
-                              <Check className="w-3.5 h-3.5 text-gold shrink-0" />
+                              <Check className="w-3.5 h-3.5 text-terracotta shrink-0" />
                               <span>{item.trim()}</span>
                             </div>
                           ))}
@@ -327,7 +343,7 @@ export default function LesActivitesPage() {
                       {/* Schedule */}
                       {activity.schedule && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground/70 mb-4">
-                          <Calendar className="w-3.5 h-3.5 text-gold shrink-0" />
+                          <Calendar className="w-3.5 h-3.5 text-terracotta shrink-0" />
                           <span>{activity.schedule}</span>
                         </div>
                       )}
@@ -335,7 +351,7 @@ export default function LesActivitesPage() {
                       {/* Price */}
                       <div className="mt-auto pt-4 border-t border-border/30">
                         <div className="flex items-baseline gap-2">
-                          <span className="font-serif text-3xl text-gold">
+                          <span className="text-mono-number text-3xl text-terracotta">
                             {activity.price}
                           </span>
                           <span className="text-sm text-muted-foreground">
@@ -354,13 +370,13 @@ export default function LesActivitesPage() {
         {/* CTA Section */}
         <section
           ref={ctaRef}
-          className="py-20 md:py-28 px-6 md:px-10 bg-charcoal dark:bg-charcoal text-center"
+          className="py-20 md:py-28 px-6 md:px-10 bg-obsidian dark:bg-obsidian text-center"
         >
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={ctaInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
-            className="text-luxury-label text-gold/60 block mb-4"
+            className="text-luxury-label text-terracotta/60 block mb-4"
           >
             Réservez Votre Aventure
           </motion.span>
@@ -368,7 +384,7 @@ export default function LesActivitesPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={ctaInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1, delay: 0.2 }}
-            className="font-serif text-3xl md:text-5xl text-white mb-8"
+            className="heading-display text-3xl md:text-5xl text-white mb-8"
           >
             Prêt pour le désert ?
           </motion.h2>
@@ -380,7 +396,7 @@ export default function LesActivitesPage() {
             <Link href="/reservez-votre-sejour">
               <Button
                 variant="outline"
-                className="border-gold/50 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold rounded-none px-10 py-6 text-luxury-label"
+                className="border-terracotta/50 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-10 py-6 text-luxury-label tracking-[0.2em]"
               >
                 Réserver Maintenant
                 <ArrowRight className="w-4 h-4 ml-2" />

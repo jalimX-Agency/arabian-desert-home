@@ -23,7 +23,8 @@ export function Philosophy() {
           transition={{ duration: 0.8 }}
           className="mb-16 md:mb-24"
         >
-          <span className="text-luxury-label text-gold">{t("philosophy.label")}</span>
+          <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none block mb-3">01</span>
+          <span className="text-luxury-label text-terracotta">{t("philosophy.label")}</span>
         </motion.div>
 
         {/* Editorial Layout */}
@@ -42,14 +43,14 @@ export function Philosophy() {
               <br />
               {t("philosophy.title3")}
               <br />
-              <span className="italic text-gold">{t("philosophy.title4")}</span>
+              <span className="italic text-terracotta">{t("philosophy.title4")}</span>
             </motion.h2>
 
             <motion.div
               initial={{ scaleX: 0 }}
               animate={isInView ? { scaleX: 1 } : {}}
               transition={{ duration: 1.2, delay: 0.5 }}
-              className="divider-gold-wide mt-10 origin-left max-w-[120px]"
+              className="h-px w-16 bg-terracotta/30 mt-10 origin-left max-w-[120px]"
             />
           </div>
 
@@ -101,7 +102,7 @@ export function Philosophy() {
                 { value: "5★", label: t("philosophy.stats.experience") },
               ].map((stat) => (
                 <div key={stat.label} className="text-center lg:text-left">
-                  <div className="font-serif text-3xl md:text-4xl text-gold">
+                  <div className="text-mono-number text-3xl md:text-4xl text-terracotta">
                     {stat.value}
                   </div>
                   <div className="text-luxury-label text-muted-foreground mt-1">

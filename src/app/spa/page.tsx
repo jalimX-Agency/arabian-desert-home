@@ -85,7 +85,7 @@ export default function SpaPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold/80 mb-4"
+              className="text-luxury-label text-terracotta/80 mb-4"
             >
               Un havre de paix pour votre bien-être
             </motion.span>
@@ -101,7 +101,7 @@ export default function SpaPage() {
               initial={{ scaleX: 0 }}
               animate={heroInView ? { scaleX: 1 } : {}}
               transition={{ duration: 1.5, delay: 0.6 }}
-              className="divider-gold-wide mt-8 max-w-xs origin-left"
+              className="h-px w-16 bg-terracotta/30 mt-8 max-w-xs origin-left"
             />
           </div>
         </section>
@@ -124,11 +124,19 @@ export default function SpaPage() {
         {/* Treatments Grid */}
         <section ref={treatmentsRef} className="py-12 md:py-20 px-6 md:px-10">
           <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={treatmentsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-4 text-center"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={treatmentsInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block text-center mb-4"
+              className="text-luxury-label text-terracotta block text-center mb-4"
             >
               Nos Soins
             </motion.span>
@@ -146,8 +154,8 @@ export default function SpaPage() {
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="animate-pulse">
                     <div className="h-64 bg-muted rounded-none mb-6" />
-                    <div className="h-6 bg-muted rounded w-3/4 mb-3" />
-                    <div className="h-4 bg-muted rounded w-1/2" />
+                    <div className="h-6 bg-muted rounded-none w-3/4 mb-3" />
+                    <div className="h-4 bg-muted rounded-none w-1/2" />
                   </div>
                 ))}
               </div>
@@ -159,7 +167,7 @@ export default function SpaPage() {
                     initial={{ opacity: 0, y: 40 }}
                     animate={treatmentsInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.8, delay: 0.3 + index * 0.15 }}
-                    className="group border border-border/50 hover:border-gold/30 transition-all duration-500 overflow-hidden"
+                    className="group border border-border/50 hover:border-terracotta/30 transition-all duration-500 overflow-hidden"
                   >
                     <div className="relative h-64 overflow-hidden">
                       <img
@@ -167,18 +175,18 @@ export default function SpaPage() {
                         alt={treatment.name}
                         className="w-full h-full object-cover img-luxury"
                       />
-                      <div className="absolute top-4 right-4 bg-charcoal/80 backdrop-blur-sm px-4 py-2">
-                        <span className="text-gold font-serif text-lg">
+                      <div className="absolute top-4 right-4 bg-obsidian/80 backdrop-blur-sm px-4 py-2">
+                        <span className="text-terracotta text-mono-number text-lg">
                           {treatment.price} {treatment.currency}
                         </span>
                       </div>
                     </div>
                     <div className="p-6 md:p-8">
-                      <h3 className="font-serif text-xl md:text-2xl mb-2">
+                      <h3 className="heading-editorial text-xl md:text-2xl mb-2">
                         {treatment.name}
                       </h3>
                       <div className="flex items-center gap-2 mb-4">
-                        <Clock className="w-4 h-4 text-gold/70" />
+                        <Clock className="w-4 h-4 text-terracotta/70" />
                         <span className="text-sm text-muted-foreground">{treatment.duration}</span>
                       </div>
                       <p className="text-sm text-muted-foreground leading-relaxed">
@@ -194,13 +202,21 @@ export default function SpaPage() {
 
         {/* Testimonials Section */}
         {testimonials.length > 0 && (
-          <section ref={testimonialsRef} className="py-20 md:py-28 px-6 md:px-10 bg-muted/30">
+          <section ref={testimonialsRef} className="py-20 md:py-28 px-6 md:px-10 bg-muted/30 pattern-dots">
             <div className="max-w-5xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8 }}
+                className="mb-4 text-center"
+              >
+                <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">02</span>
+              </motion.div>
               <motion.span
                 initial={{ opacity: 0, y: 20 }}
                 animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8 }}
-                className="text-luxury-label text-gold block text-center mb-4"
+                className="text-luxury-label text-terracotta block text-center mb-4"
               >
                 Témoignages
               </motion.span>
@@ -220,16 +236,17 @@ export default function SpaPage() {
                     initial={{ opacity: 0, y: 30 }}
                     animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.8, delay: 0.3 + index * 0.15 }}
-                    className="p-8 border border-border/50 bg-background"
+                    className="p-8 border border-terracotta/15 bg-background"
                   >
                     <div className="flex gap-1 mb-4">
                       {Array.from({ length: testimonial.rating }).map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-gold fill-gold" />
+                        <Star key={i} className="w-4 h-4 text-terracotta fill-terracotta" />
                       ))}
                     </div>
-                    <p className="font-serif text-lg md:text-xl italic mb-6 leading-relaxed">
+                    <p className="heading-editorial text-lg md:text-xl italic mb-6 leading-relaxed">
                       &ldquo;{testimonial.quote}&rdquo;
                     </p>
+                    <div className="h-px w-8 bg-terracotta/30 mb-4" />
                     <div>
                       <p className="text-sm font-medium">{testimonial.author}</p>
                       <p className="text-xs text-muted-foreground">{testimonial.location}</p>
@@ -242,13 +259,13 @@ export default function SpaPage() {
         )}
 
         {/* CTA Section */}
-        <section ref={ctaRef} className="py-20 md:py-28 px-6 md:px-10 bg-charcoal dark:bg-charcoal">
+        <section ref={ctaRef} className="py-20 md:py-28 px-6 md:px-10 bg-obsidian dark:bg-obsidian">
           <div className="max-w-3xl mx-auto text-center">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={ctaInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold/60 block mb-4"
+              className="text-luxury-label text-terracotta/60 block mb-4"
             >
               Réservation
             </motion.span>
@@ -256,7 +273,7 @@ export default function SpaPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={ctaInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="font-serif text-3xl md:text-4xl text-white mb-8"
+              className="heading-display text-3xl md:text-4xl text-white mb-8"
             >
               Offrez-vous un moment de sérénité
             </motion.h3>
@@ -268,7 +285,7 @@ export default function SpaPage() {
               <Link href="/contact">
                 <Button
                   variant="outline"
-                  className="border-gold/40 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold rounded-none px-10 py-6 text-luxury-label"
+                  className="border-terracotta/40 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-10 py-6 text-luxury-label tracking-[0.2em]"
                 >
                   Réservez vos soins
                   <ArrowRight className="ml-2 w-4 h-4" />

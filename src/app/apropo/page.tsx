@@ -49,7 +49,7 @@ export default function ApropoPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold/80 mb-4"
+              className="text-luxury-label text-terracotta/80 mb-4"
             >
               Notre Histoire
             </motion.span>
@@ -65,7 +65,7 @@ export default function ApropoPage() {
               initial={{ scaleX: 0 }}
               animate={heroInView ? { scaleX: 1 } : {}}
               transition={{ duration: 1.5, delay: 0.6 }}
-              className="divider-gold-wide mt-8 max-w-xs origin-left"
+              className="h-px w-16 bg-terracotta/30 mt-8 max-w-xs origin-left"
             />
           </div>
         </section>
@@ -73,6 +73,14 @@ export default function ApropoPage() {
         {/* Story Section */}
         <section ref={storyRef} className="py-20 md:py-32 px-6 md:px-10">
           <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={storyInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-8"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+            </motion.div>
             <motion.p
               initial={{ opacity: 0, y: 30 }}
               animate={storyInView ? { opacity: 1, y: 0 } : {}}
@@ -93,7 +101,7 @@ export default function ApropoPage() {
         </section>
 
         {/* Stats Section */}
-        <section ref={statsRef} className="py-20 md:py-28 px-6 md:px-10 bg-muted/30">
+        <section ref={statsRef} className="py-20 md:py-28 px-6 md:px-10 bg-muted/30 pattern-dots">
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
               {stats.map((stat, index) => (
@@ -104,8 +112,8 @@ export default function ApropoPage() {
                   transition={{ duration: 0.8, delay: 0.2 + index * 0.15 }}
                   className="text-center"
                 >
-                  <div className="divider-gold-wide max-w-[60px] mx-auto mb-6" />
-                  <p className="font-serif text-5xl md:text-6xl text-gold mb-3">
+                  <div className="h-px w-16 bg-terracotta/30 max-w-[60px] mx-auto mb-6" />
+                  <p className="text-mono-number text-5xl md:text-6xl text-terracotta mb-3">
                     {stat.value}
                   </p>
                   <p className="text-luxury-label text-muted-foreground">
@@ -120,11 +128,19 @@ export default function ApropoPage() {
         {/* Image Gallery */}
         <section ref={galleryRef} className="py-20 md:py-32 px-6 md:px-10">
           <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={galleryInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-4"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none block text-center">02</span>
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={galleryInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block text-center mb-4"
+              className="text-luxury-label text-terracotta block text-center mb-4"
             >
               Galerie
             </motion.span>
@@ -176,13 +192,13 @@ export default function ApropoPage() {
         </section>
 
         {/* CTA Section */}
-        <section ref={ctaRef} className="py-20 md:py-28 px-6 md:px-10 bg-charcoal dark:bg-charcoal">
+        <section ref={ctaRef} className="py-20 md:py-28 px-6 md:px-10 bg-obsidian dark:bg-obsidian">
           <div className="max-w-3xl mx-auto text-center">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={ctaInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold/60 block mb-4"
+              className="text-luxury-label text-terracotta/60 block mb-4"
             >
               Votre séjour
             </motion.span>
@@ -190,7 +206,7 @@ export default function ApropoPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={ctaInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="font-serif text-3xl md:text-4xl text-white mb-8"
+              className="heading-display text-3xl md:text-4xl text-white mb-8"
             >
               Découvrez nos tentes-suites
             </motion.h3>
@@ -202,7 +218,7 @@ export default function ApropoPage() {
               <Link href="/les-tentes">
                 <Button
                   variant="outline"
-                  className="border-gold/40 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold rounded-none px-10 py-6 text-luxury-label"
+                  className="border-terracotta/40 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-10 py-6 text-luxury-label tracking-[0.2em]"
                 >
                   Explorer les tentes
                   <ArrowRight className="ml-2 w-4 h-4" />

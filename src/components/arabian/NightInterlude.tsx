@@ -39,7 +39,7 @@ export function NightInterlude() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-luxury-label text-gold/80 block mb-6"
+          className="text-luxury-label text-terracotta/80 block mb-6"
         >
           {t("night.label")}
         </motion.span>
@@ -52,14 +52,14 @@ export function NightInterlude() {
         >
           {t("night.title1")}
           <br />
-          <span className="italic text-gold">{t("night.title2")}</span>
+          <span className="italic text-terracotta">{t("night.title2")}</span>
         </motion.h2>
 
         <motion.div
           initial={{ scaleX: 0 }}
           animate={isInView ? { scaleX: 1 } : {}}
           transition={{ duration: 1.2, delay: 0.6 }}
-          className="divider-gold-wide mt-8 mb-8 mx-auto max-w-[120px]"
+          className="h-px w-16 bg-terracotta/30 mt-8 mb-8 mx-auto max-w-[120px]"
         />
 
         <motion.p

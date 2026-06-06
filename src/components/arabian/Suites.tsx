@@ -86,11 +86,19 @@ export function Suites() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16 md:mb-24">
           <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-4"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block mb-4"
+              className="text-luxury-label text-terracotta block mb-4"
             >
               {t("suites.label")}
             </motion.span>
@@ -147,12 +155,12 @@ export function Suites() {
                   {/* Always visible content */}
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-6 h-px bg-gold" />
-                      <span className="text-luxury-label text-gold text-[10px]">
+                      <div className="w-6 h-px bg-terracotta" />
+                      <span className="text-luxury-label text-terracotta text-[10px]">
                         {suite.size} · {t("suites.upTo")} {suite.maxGuests}
                       </span>
                     </div>
-                    <h3 className="font-serif text-2xl md:text-3xl text-white mb-2">
+                    <h3 className="heading-editorial text-2xl md:text-3xl text-white mb-2">
                       {suite.name}
                     </h3>
                     <p className="text-sm text-white/60 mb-4 line-clamp-2">
@@ -177,14 +185,14 @@ export function Suites() {
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-gold font-serif text-xl">
+                          <span className="text-terracotta text-mono-number text-xl">
                             ${suite.price}
                           </span>
                           <span className="text-white/40 text-sm ml-1">
                             {t("suites.perNight")}
                           </span>
                         </div>
-                        <span className="flex items-center gap-2 text-gold text-sm group/link">
+                        <span className="flex items-center gap-2 text-terracotta text-sm group/link">
                           {t("suites.viewTent")}
                           <ArrowRight className="w-3 h-3 transition-transform group-hover/link:translate-x-1" />
                         </span>

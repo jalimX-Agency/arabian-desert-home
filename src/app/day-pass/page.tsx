@@ -80,7 +80,7 @@ export default function DayPassPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block mb-4"
+              className="text-luxury-label text-terracotta block mb-4"
             >
               Day Pass
             </motion.span>
@@ -88,7 +88,7 @@ export default function DayPassPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1, delay: 0.2 }}
-              className="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6"
+              className="heading-display text-5xl md:text-7xl lg:text-8xl text-white mb-6"
             >
               Day Pass
             </motion.h1>
@@ -96,7 +96,7 @@ export default function DayPassPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="font-serif italic text-xl md:text-2xl text-white/70"
+              className="heading-editorial italic text-xl md:text-2xl text-white/70"
             >
               Une journée au désert
             </motion.p>
@@ -111,13 +111,13 @@ export default function DayPassPage() {
                 initial={{ scaleX: 0 }}
                 animate={passesInView ? { scaleX: 1 } : {}}
                 transition={{ duration: 1.2 }}
-                className="divider-gold-wide max-w-[120px] mx-auto mb-10"
+                className="h-px w-16 bg-terracotta/30 max-w-[120px] mx-auto mb-10"
               />
               <motion.h2
                 initial={{ opacity: 0, y: 30 }}
                 animate={passesInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 1, delay: 0.2 }}
-                className="font-serif text-3xl md:text-5xl mb-4"
+                className="heading-editorial text-3xl md:text-5xl mb-4"
               >
                 Choisissez votre <span className="italic">expérience</span>
               </motion.h2>
@@ -138,7 +138,7 @@ export default function DayPassPage() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="animate-pulse h-96 bg-muted rounded"
+                    className="animate-pulse h-96 bg-muted rounded-none"
                   />
                 ))}
               </div>
@@ -152,7 +152,7 @@ export default function DayPassPage() {
                       initial={{ opacity: 0, y: 50 }}
                       animate={passesInView ? { opacity: 1, y: 0 } : {}}
                       transition={{ duration: 0.8, delay: 0.4 + i * 0.2 }}
-                      className="group bg-card border border-border/50 overflow-hidden hover:border-gold/30 transition-all duration-500 flex flex-col"
+                      className="group bg-card border border-border/50 overflow-hidden hover:border-terracotta/30 transition-all duration-500 flex flex-col"
                     >
                       {/* Header with image */}
                       <div className="relative aspect-[4/3] overflow-hidden">
@@ -164,12 +164,12 @@ export default function DayPassPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                         <div className="absolute bottom-4 left-6 right-6">
                           <div className="flex items-center gap-2 mb-2">
-                            <Icon className="w-5 h-5 text-gold" />
+                            <Icon className="w-5 h-5 text-terracotta" />
                             <span className="text-luxury-label text-white/80">
                               Day Pass
                             </span>
                           </div>
-                          <h3 className="font-serif text-2xl text-white">
+                          <h3 className="heading-editorial text-2xl text-white">
                             {pass.name}
                           </h3>
                         </div>
@@ -183,7 +183,7 @@ export default function DayPassPage() {
 
                         {/* Includes */}
                         <div className="mb-6 flex-1">
-                          <span className="text-luxury-label text-gold block mb-3">
+                          <span className="text-luxury-label text-terracotta block mb-3">
                             Inclus
                           </span>
                           <div className="space-y-2">
@@ -192,7 +192,7 @@ export default function DayPassPage() {
                                 key={j}
                                 className="flex items-center gap-2 text-sm text-muted-foreground/70"
                               >
-                                <Check className="w-3.5 h-3.5 text-gold shrink-0" />
+                                <Check className="w-3.5 h-3.5 text-terracotta shrink-0" />
                                 <span>{item.trim()}</span>
                               </div>
                             ))}
@@ -202,7 +202,7 @@ export default function DayPassPage() {
                         {/* Price */}
                         <div className="pt-4 border-t border-border/30">
                           <div className="flex items-baseline gap-2">
-                            <span className="font-serif text-4xl text-gold">
+                            <span className="text-mono-number text-4xl text-terracotta">
                               {pass.price}
                             </span>
                             <span className="text-sm text-muted-foreground">
@@ -222,14 +222,22 @@ export default function DayPassPage() {
         {/* Rules Section */}
         <section
           ref={rulesRef}
-          className="py-20 md:py-28 px-6 md:px-10 bg-charcoal/[0.03] dark:bg-charcoal/50"
+          className="py-20 md:py-28 px-6 md:px-10 bg-obsidian/[0.03] dark:bg-obsidian/50 pattern-lines"
         >
           <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={rulesInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-4"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">02</span>
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={rulesInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block mb-4"
+              className="text-luxury-label text-terracotta block mb-4"
             >
               Informations Pratiques
             </motion.span>
@@ -237,7 +245,7 @@ export default function DayPassPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={rulesInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1, delay: 0.2 }}
-              className="font-serif text-3xl md:text-4xl mb-12"
+              className="heading-editorial text-3xl md:text-4xl mb-12"
             >
               Bon à <span className="italic">savoir</span>
             </motion.h2>
@@ -249,8 +257,8 @@ export default function DayPassPage() {
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="bg-card border border-border/50 p-6"
               >
-                <Clock className="w-6 h-6 text-gold mb-4" />
-                <h3 className="font-serif text-lg mb-2">Horaires</h3>
+                <Clock className="w-6 h-6 text-terracotta mb-4" />
+                <h3 className="heading-editorial text-lg mb-2">Horaires</h3>
                 <p className="text-sm text-muted-foreground">
                   Ouvert tous les jours de 11h à 16h
                 </p>
@@ -262,8 +270,8 @@ export default function DayPassPage() {
                 transition={{ duration: 0.8, delay: 0.55 }}
                 className="bg-card border border-border/50 p-6"
               >
-                <Baby className="w-6 h-6 text-gold mb-4" />
-                <h3 className="font-serif text-lg mb-2">Enfants</h3>
+                <Baby className="w-6 h-6 text-terracotta mb-4" />
+                <h3 className="heading-editorial text-lg mb-2">Enfants</h3>
                 <p className="text-sm text-muted-foreground">
                   -50% sur toutes les offres pour les enfants
                 </p>
@@ -275,8 +283,8 @@ export default function DayPassPage() {
                 transition={{ duration: 0.8, delay: 0.7 }}
                 className="bg-card border border-border/50 p-6"
               >
-                <AlertCircle className="w-6 h-6 text-gold mb-4" />
-                <h3 className="font-serif text-lg mb-2">Réservation</h3>
+                <AlertCircle className="w-6 h-6 text-terracotta mb-4" />
+                <h3 className="heading-editorial text-lg mb-2">Réservation</h3>
                 <p className="text-sm text-muted-foreground">
                   Réservation 24h à l&apos;avance requise
                 </p>
@@ -288,13 +296,13 @@ export default function DayPassPage() {
         {/* CTA Section */}
         <section
           ref={ctaRef}
-          className="py-20 md:py-28 px-6 md:px-10 bg-charcoal dark:bg-charcoal text-center"
+          className="py-20 md:py-28 px-6 md:px-10 bg-obsidian dark:bg-obsidian text-center"
         >
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={ctaInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
-            className="text-luxury-label text-gold/60 block mb-4"
+            className="text-luxury-label text-terracotta/60 block mb-4"
           >
             Réservez Votre Journée
           </motion.span>
@@ -302,7 +310,7 @@ export default function DayPassPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={ctaInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1, delay: 0.2 }}
-            className="font-serif text-3xl md:text-5xl text-white mb-8"
+            className="heading-display text-3xl md:text-5xl text-white mb-8"
           >
             Échappez-vous au désert
           </motion.h2>
@@ -314,7 +322,7 @@ export default function DayPassPage() {
             <Link href="/contact">
               <Button
                 variant="outline"
-                className="border-gold/50 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold rounded-none px-10 py-6 text-luxury-label"
+                className="border-terracotta/50 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-10 py-6 text-luxury-label tracking-[0.2em]"
               >
                 Nous Contacter
                 <ArrowRight className="w-4 h-4 ml-2" />

@@ -1,16 +1,17 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Star,
-  Crown,
-  Heart,
-  Shield,
   ArrowRight,
   ChevronDown,
   Quote,
+  Compass,
+  Gem,
+  Flame,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/i18n/context";
@@ -51,14 +52,23 @@ interface Testimonial {
 }
 
 // ============================================
-// Animation Variants
+// Animation Variants — Saharan Minimalism
 // ============================================
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
+const revealUp = {
+  hidden: { opacity: 0, y: 60 },
   visible: (delay: number = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, delay, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 1, delay, ease: [0.16, 1, 0.3, 1] },
+  }),
+};
+
+const revealScale = {
+  hidden: { opacity: 0, scale: 0.94 },
+  visible: (delay: number = 0) => ({
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 1, delay, ease: [0.16, 1, 0.3, 1] },
   }),
 };
 
@@ -70,117 +80,128 @@ const fadeIn = {
   }),
 };
 
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: (delay: number = 0) => ({
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.8, delay, ease: [0.25, 0.46, 0.45, 0.94] },
-  }),
-};
-
 // ============================================
-// 1. HERO SECTION
+// 1. HERO SECTION — Cinematic Split + Parallax
 // ============================================
 function HeroSection() {
   const { t } = useLanguage();
+  const sectionRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0">
+    <section ref={sectionRef} className="relative h-screen w-full overflow-hidden">
+      {/* Background Image with Parallax */}
+      <motion.div className="absolute inset-0" style={{ y: imgY }}>
         <img
           src="/images/hero.png"
           alt="Arabian Desert Home — Luxury retreat at golden hour in the Agafay Desert"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover scale-110"
         />
-        {/* Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
-      </div>
+        {/* Dark Cinematic Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/10 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/30 to-transparent" />
+      </motion.div>
 
-      {/* Content */}
-      <div className="relative z-10 h-full flex flex-col justify-end pb-20 md:pb-28 px-6 md:px-10 max-w-7xl mx-auto">
+      {/* Content — Asymmetric Left-Aligned */}
+      <motion.div
+        style={{ y: textY, opacity }}
+        className="relative z-10 h-full flex flex-col justify-end pb-24 md:pb-32 px-6 md:px-10 max-w-7xl mx-auto"
+      >
+        {/* Geometric Accent — Large Number */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+          className="absolute top-32 right-8 md:right-10 font-serif text-[180px] md:text-[280px] leading-none text-terracotta/5 select-none pointer-events-none"
+        >
+          01
+        </motion.div>
+
         {/* Location Tag */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="mb-6"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="mb-6 flex items-center gap-4"
         >
-          <span className="text-luxury-label text-white/70">
+          <div className="w-12 h-px bg-terracotta" />
+          <span className="text-luxury-label text-terracotta/70">
             {t("hero.location")}
           </span>
         </motion.div>
 
-        {/* Main Heading */}
+        {/* Main Heading — Architectural Typography */}
         <motion.h1
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="heading-display text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl max-w-5xl text-balance"
+          transition={{ duration: 1.2, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="heading-display text-foreground text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] max-w-5xl text-balance"
         >
           {t("hero.heading1")}
           <br />
-          <span className="italic text-gold">{t("hero.heading2")}</span>
+          <span className="text-terracotta">{t("hero.heading2")}</span>
         </motion.h1>
 
         {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.9 }}
-          className="text-editorial text-white/70 text-lg md:text-xl max-w-xl mt-6"
+          transition={{ duration: 1, delay: 1.1 }}
+          className="text-editorial text-muted-foreground text-base md:text-lg max-w-lg mt-8"
         >
           {t("hero.subtitle")}
         </motion.p>
 
-        {/* Decorative Gold Line */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1.5, delay: 1.2 }}
-          className="divider-gold-wide mt-10 max-w-xs origin-left"
-        />
-
-        {/* Reserve Button */}
+        {/* CTA Row */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.5 }}
-          className="mt-8"
+          className="mt-10 flex items-center gap-6"
         >
           <Link href="/reservez-votre-sejour">
-            <Button className="bg-gold text-charcoal hover:bg-gold-light rounded-none px-10 py-6 text-luxury-label tracking-[0.2em] transition-all duration-300">
+            <Button className="bg-terracotta text-white hover:bg-terracotta-light rounded-none px-10 py-6 text-luxury-label tracking-[0.2em] transition-all duration-500 hover:shadow-[0_0_40px_oklch(0.62_0.08_30/20%)]">
               {t("hero.reserve")}
             </Button>
           </Link>
+          <Link
+            href="/les-tentes"
+            className="hidden md:flex items-center gap-3 text-luxury-label text-terracotta/60 hover:text-terracotta transition-colors duration-500 group"
+          >
+            {t("suites.title")}
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+          </Link>
         </motion.div>
-      </div>
+      </motion.div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator — Minimal */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        transition={{ delay: 2.5, duration: 1 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
       >
-        <span className="text-luxury-label text-white/50 text-[10px]">
+        <span className="text-luxury-label text-muted-foreground/50 text-[9px]">
           {t("hero.discover")}
         </span>
         <motion.div
-          animate={{ y: [0, 8, 0] }}
+          animate={{ y: [0, 6, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ChevronDown className="w-4 h-4 text-white/50" />
-        </motion.div>
+          className="w-px h-8 bg-gradient-to-b from-terracotta/40 to-transparent"
+        />
       </motion.div>
     </section>
   );
 }
 
 // ============================================
-// 2. FEATURES SECTION
+// 2. FEATURES SECTION — Geometric Grid
 // ============================================
 function FeaturesSection() {
   const { t } = useLanguage();
@@ -189,77 +210,90 @@ function FeaturesSection() {
 
   const features = [
     {
-      icon: Star,
+      icon: Gem,
       title: t("features.classAmenities"),
       description: t("features.classAmenitiesDesc"),
+      number: "01",
     },
     {
-      icon: Crown,
+      icon: Flame,
       title: t("features.luxuryLifestyle"),
       description: t("features.luxuryLifestyleDesc"),
+      number: "02",
     },
     {
-      icon: Heart,
+      icon: Compass,
       title: t("features.friendlyService"),
       description: t("features.friendlyServiceDesc"),
+      number: "03",
     },
     {
-      icon: Shield,
+      icon: ShieldCheck,
       title: t("features.lifeguard"),
       description: t("features.lifeguardDesc"),
+      number: "04",
     },
   ];
 
   return (
     <section
       ref={sectionRef}
-      className="relative py-24 md:py-36 px-6 md:px-10 bg-background"
+      className="relative py-28 md:py-40 px-6 md:px-10 bg-background pattern-dots"
     >
       <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-16 md:mb-24">
-          <motion.span
-            variants={fadeInUp}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            custom={0}
-            className="text-luxury-label text-gold block mb-4"
-          >
-            {t("features.label")}
-          </motion.span>
-          <motion.h2
-            variants={fadeInUp}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            custom={0.2}
-            className="heading-editorial text-4xl md:text-5xl lg:text-6xl"
-          >
-            {t("features.title1")}
-            <br />
-            <span className="italic">{t("features.title2")}</span>
-          </motion.h2>
+        {/* Section Header — Asymmetric */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-20 md:mb-28">
+          <div className="md:col-span-4">
+            <motion.span
+              variants={revealUp}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
+              custom={0}
+              className="text-luxury-label text-terracotta block mb-4"
+            >
+              {t("features.label")}
+            </motion.span>
+          </div>
+          <div className="md:col-span-8">
+            <motion.h2
+              variants={revealUp}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
+              custom={0.2}
+              className="heading-display text-4xl md:text-6xl lg:text-7xl"
+            >
+              {t("features.title1")}
+              <br />
+              <span className="text-terracotta">{t("features.title2")}</span>
+            </motion.h2>
+          </div>
         </div>
 
-        {/* Feature Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        {/* Feature Cards — Asymmetric Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-terracotta/10">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <motion.div
                 key={index}
-                variants={scaleIn}
+                variants={revealScale}
                 initial="hidden"
                 animate={isInView ? "visible" : "hidden"}
-                custom={0.3 + index * 0.15}
-                className="group relative p-8 md:p-10 border border-border/50 bg-card hover:border-gold/30 transition-all duration-500 text-center"
+                custom={0.4 + index * 0.15}
+                className="group relative p-10 md:p-14 bg-background transition-all duration-700 hover:bg-terracotta/[0.03]"
               >
+                {/* Number Accent */}
+                <span className="absolute top-6 right-8 font-serif text-6xl text-terracotta/[0.06] group-hover:text-terracotta/10 transition-colors duration-700">
+                  {feature.number}
+                </span>
+
                 {/* Icon */}
-                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors duration-500">
-                  <Icon className="w-6 h-6 text-gold" />
+                <div className="w-12 h-12 mb-8 border border-terracotta/20 flex items-center justify-center group-hover:border-terracotta/50 group-hover:bg-terracotta/5 transition-all duration-500">
+                  <Icon className="w-5 h-5 text-terracotta" />
                 </div>
 
                 {/* Title */}
-                <h3 className="font-serif text-xl md:text-2xl mb-4">
+                <h3 className="font-serif text-2xl md:text-3xl mb-4">
                   {feature.title}
                 </h3>
 
@@ -268,9 +302,8 @@ function FeaturesSection() {
                   {feature.description}
                 </p>
 
-                {/* Decorative corner accent */}
-                <div className="absolute top-0 left-0 w-6 h-6 border-t border-l border-gold/20 group-hover:border-gold/50 transition-colors duration-500" />
-                <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-gold/20 group-hover:border-gold/50 transition-colors duration-500" />
+                {/* Bottom Line Accent */}
+                <div className="absolute bottom-0 left-0 h-px w-0 group-hover:w-full bg-terracotta/30 transition-all duration-700" />
               </motion.div>
             );
           })}
@@ -281,7 +314,7 @@ function FeaturesSection() {
 }
 
 // ============================================
-// 3. SUITES PREVIEW SECTION
+// 3. SUITES SECTION — Horizontal Scroll + Cinematic Cards
 // ============================================
 function SuitesSection() {
   const { t } = useLanguage();
@@ -289,6 +322,7 @@ function SuitesSection() {
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [suites, setSuites] = useState<Suite[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const fallbackSuites: Suite[] = [
     {
@@ -373,44 +407,48 @@ function SuitesSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-24 md:py-36 px-6 md:px-10"
+      className="relative py-28 md:py-40 px-6 md:px-10"
     >
       <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16 md:mb-24">
+        {/* Section Header — Two Column */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16 md:mb-24">
           <div>
             <motion.span
-              variants={fadeInUp}
+              variants={revealUp}
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
               custom={0}
-              className="text-luxury-label text-gold block mb-4"
+              className="text-luxury-label text-terracotta block mb-4"
             >
               {t("suites.label")}
             </motion.span>
             <motion.h2
-              variants={fadeInUp}
+              variants={revealUp}
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
               custom={0.2}
-              className="heading-editorial text-4xl md:text-5xl lg:text-6xl"
+              className="heading-display text-4xl md:text-6xl lg:text-7xl"
             >
               {t("suites.title")}
             </motion.h2>
           </div>
           <motion.p
-            variants={fadeInUp}
+            variants={revealUp}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
             custom={0.4}
-            className="text-editorial text-muted-foreground max-w-md"
+            className="text-editorial text-muted-foreground max-w-sm text-sm"
           >
             {t("suites.subtitle")}
           </motion.p>
         </div>
 
-        {/* Suite Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4">
+        {/* Horizontal Scroll Suite Cards */}
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-5 md:gap-6 overflow-x-auto pb-6 -mx-6 px-6 md:-mx-10 md:px-10 snap-x snap-mandatory scrollbar-hide"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
           {displaySuites.slice(0, 3).map((suite, index) => {
             const isHovered = hoveredIndex === index;
             const features = suite.features.split(",");
@@ -418,59 +456,69 @@ function SuitesSection() {
             return (
               <motion.div
                 key={suite.id}
-                variants={fadeInUp}
+                variants={revealScale}
                 initial="hidden"
                 animate={isInView ? "visible" : "hidden"}
-                custom={0.5 + index * 0.15}
+                custom={0.5 + index * 0.2}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                className="group relative cursor-pointer"
+                className="group relative cursor-pointer snap-start shrink-0 w-[85vw] md:w-[400px] lg:w-[440px]"
               >
                 <Link href={`/les-tentes/${suite.slug}`}>
-                  {/* Image Container */}
-                  <div
-                    className={`relative overflow-hidden transition-all duration-700 ${
-                      isHovered ? "aspect-[3/4]" : "aspect-[3/5]"
-                    }`}
-                  >
+                  {/* Image Container — Tall Cinematic Ratio */}
+                  <div className="relative overflow-hidden aspect-[3/4]">
                     <img
                       src={suite.image}
                       alt={suite.name}
-                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-[1.4s] cubic-bezier(0.16,1,0.3,1) group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
 
-                    {/* Card Content */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-6 h-px bg-gold" />
-                        <span className="text-luxury-label text-gold text-[10px]">
-                          {suite.size} · {t("suites.upTo")} {suite.maxGuests}
+                    {/* Diagonal Top-Right Accent */}
+                    <div className="absolute top-0 right-0 w-20 h-20">
+                      <div className="absolute top-0 right-0 w-full h-full bg-terracotta/10 clip-path-triangle"
+                        style={{ clipPath: "polygon(100% 0, 100% 100%, 0 0)" }}
+                      />
+                    </div>
+
+                    {/* Card Content — Bottom Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-7 md:p-8">
+                      {/* Size + Guests Label */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="text-luxury-label text-terracotta text-[9px]">
+                          {suite.size}
+                        </span>
+                        <div className="w-4 h-px bg-terracotta/30" />
+                        <span className="text-luxury-label text-terracotta text-[9px]">
+                          {t("suites.upTo")} {suite.maxGuests}
                         </span>
                       </div>
-                      <h3 className="font-serif text-2xl md:text-3xl text-white mb-2">
+
+                      {/* Suite Name */}
+                      <h3 className="font-serif text-3xl md:text-4xl text-foreground mb-2">
                         {suite.name}
                       </h3>
-                      <p className="text-sm text-white/60 mb-1 line-clamp-1">
+                      <p className="text-sm text-muted-foreground mb-1 line-clamp-1">
                         {suite.tagline}
                       </p>
-                      <p className="text-sm text-white/50 mb-4 line-clamp-2">
-                        {suite.description}
-                      </p>
 
-                      {/* Hover Content */}
+                      {/* Hover Content — Expand Up */}
                       <div
-                        className={`transition-all duration-500 overflow-hidden ${
+                        className={`transition-all duration-700 overflow-hidden ${
                           isHovered
-                            ? "max-h-40 opacity-100"
-                            : "max-h-0 opacity-0"
+                            ? "max-h-48 opacity-100 mt-4"
+                            : "max-h-0 opacity-0 mt-0"
                         }`}
                       >
-                        <div className="flex flex-wrap gap-2 mb-4">
+                        <p className="text-xs text-muted-foreground/70 mb-4 line-clamp-2">
+                          {suite.description}
+                        </p>
+                        <div className="flex flex-wrap gap-2 mb-5">
                           {features.slice(0, 4).map((f) => (
                             <span
                               key={f}
-                              className="text-[10px] tracking-widest uppercase text-white/50 border border-white/20 px-2 py-1"
+                              className="text-[9px] tracking-[0.15em] uppercase text-terracotta/50 border border-terracotta/15 px-2.5 py-1"
                             >
                               {f.trim()}
                             </span>
@@ -478,14 +526,14 @@ function SuitesSection() {
                         </div>
                         <div className="flex items-center justify-between">
                           <div>
-                            <span className="text-gold font-serif text-xl">
+                            <span className="text-mono-number text-2xl text-terracotta">
                               {suite.price}€
                             </span>
-                            <span className="text-white/40 text-sm ml-1">
+                            <span className="text-muted-foreground text-xs ml-1.5">
                               {t("suites.perNight")}
                             </span>
                           </div>
-                          <span className="flex items-center gap-2 text-gold text-sm group/link">
+                          <span className="flex items-center gap-2 text-terracotta text-xs group/link">
                             {t("suites.viewTent")}
                             <ArrowRight className="w-3 h-3 transition-transform group-hover/link:translate-x-1" />
                           </span>
@@ -498,68 +546,117 @@ function SuitesSection() {
             );
           })}
         </div>
+
+        {/* Scroll Hint */}
+        <motion.div
+          variants={fadeIn}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          custom={1}
+          className="flex items-center gap-3 mt-6 text-muted-foreground"
+        >
+          <div className="w-8 h-px bg-terracotta/30" />
+          <span className="text-[10px] tracking-[0.2em] uppercase">Scroll</span>
+        </motion.div>
       </div>
     </section>
   );
 }
 
 // ============================================
-// 4. GALLERY SECTION
+// 4. GALLERY SECTION — Masonry + Geometric Pattern
 // ============================================
 function GallerySection() {
   const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
 
+  const galleryImages = [
+    {
+      src: "/images/about.png",
+      alt: "Aerial view of Arabian Desert Home camp in Agafay Desert",
+      span: "md:col-span-2 md:row-span-2",
+    },
+    {
+      src: "/images/dining.png",
+      alt: "Fine dining under the stars in Agafay desert",
+      span: "",
+    },
+    {
+      src: "/images/night.png",
+      alt: "Magical night ambiance at the luxury camp",
+      span: "",
+    },
+    {
+      src: "/images/exp-camel.png",
+      alt: "Camel ride at sunset",
+      span: "md:col-span-2",
+    },
+  ];
+
   return (
     <section
       ref={sectionRef}
-      className="relative py-24 md:py-36 px-6 md:px-10 bg-charcoal/[0.03] dark:bg-charcoal/50"
+      className="relative py-28 md:py-40 px-6 md:px-10 bg-obsidian-light/50 dark:bg-obsidian-light/30"
     >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-16 md:mb-24">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16 md:mb-24">
+          <div>
+            <motion.span
+              variants={revealUp}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
+              custom={0}
+              className="text-luxury-label text-terracotta block mb-4"
+            >
+              {t("gallery.label")}
+            </motion.span>
+            <motion.h2
+              variants={revealUp}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
+              custom={0.2}
+              className="heading-display text-4xl md:text-6xl lg:text-7xl"
+            >
+              {t("gallery.title1")}
+              <br />
+              <span className="text-terracotta">{t("gallery.title2")}</span>
+            </motion.h2>
+          </div>
+
+          {/* Decorative Number */}
           <motion.span
-            variants={fadeInUp}
+            variants={fadeIn}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
-            custom={0}
-            className="text-luxury-label text-gold block mb-4"
+            custom={0.4}
+            className="font-serif text-8xl md:text-9xl text-terracotta/5 select-none"
           >
-            {t("gallery.label")}
+            03
           </motion.span>
-          <motion.h2
-            variants={fadeInUp}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            custom={0.2}
-            className="heading-editorial text-4xl md:text-5xl lg:text-6xl"
-          >
-            {t("gallery.title1")}
-            <br />
-            <span className="italic">{t("gallery.title2")}</span>
-          </motion.h2>
         </div>
 
-        {/* Image Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {/* Masonry Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[200px] md:auto-rows-[240px]">
           {galleryImages.map((image, index) => (
             <motion.div
               key={image.src}
-              variants={fadeInUp}
+              variants={revealScale}
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
-              custom={0.4 + index * 0.15}
-              className="group relative overflow-hidden aspect-[3/4] cursor-pointer"
+              custom={0.5 + index * 0.15}
+              className={`group relative overflow-hidden cursor-pointer ${image.span}`}
             >
               <img
                 src={image.src}
                 alt={image.alt}
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-[1.4s] cubic-bezier(0.16,1,0.3,1) group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-500" />
-              {/* Subtle border accent on hover */}
-              <div className="absolute inset-0 border-2 border-transparent group-hover:border-gold/30 transition-all duration-500" />
+              {/* Hover Overlay */}
+              <div className="absolute inset-0 bg-terracotta/0 group-hover:bg-terracotta/20 transition-all duration-700" />
+              {/* Corner Frame on Hover */}
+              <div className="absolute inset-3 border border-terracotta/0 group-hover:border-terracotta/40 transition-all duration-700" />
             </motion.div>
           ))}
         </div>
@@ -568,27 +665,8 @@ function GallerySection() {
   );
 }
 
-const galleryImages = [
-  {
-    src: "/images/about.png",
-    alt: "Vue aérienne du camp Arabian Desert Home dans le désert d'Agafay",
-  },
-  {
-    src: "/images/dining.png",
-    alt: "Dîner raffiné sous les étoiles au désert d'Agafay",
-  },
-  {
-    src: "/images/night.png",
-    alt: "Ambiance nocturne magique au campement de luxe",
-  },
-  {
-    src: "/images/exp-camel.png",
-    alt: "Promenade en dromadaire au coucher du soleil",
-  },
-];
-
 // ============================================
-// 5. PACKAGES SECTION
+// 5. PACKAGES SECTION — Architectural Cards
 // ============================================
 function PackagesSection() {
   const { t, tArray } = useLanguage();
@@ -629,50 +707,50 @@ function PackagesSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-24 md:py-36 px-6 md:px-10"
+      className="relative py-28 md:py-40 px-6 md:px-10 pattern-lines"
     >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-16 md:mb-24">
+        <div className="text-center mb-20 md:mb-28">
           <motion.span
-            variants={fadeInUp}
+            variants={revealUp}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
             custom={0}
-            className="text-luxury-label text-gold block mb-4"
+            className="text-luxury-label text-terracotta block mb-4"
           >
             {t("packages.label")}
           </motion.span>
           <motion.h2
-            variants={fadeInUp}
+            variants={revealUp}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
             custom={0.2}
-            className="heading-editorial text-4xl md:text-5xl lg:text-6xl"
+            className="heading-display text-4xl md:text-6xl lg:text-7xl"
           >
             {t("packages.title")}
           </motion.h2>
         </div>
 
-        {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        {/* Pricing Cards — Asymmetric */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {packages.map((pkg, index) => (
             <motion.div
               key={index}
-              variants={scaleIn}
+              variants={revealScale}
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
-              custom={0.3 + index * 0.15}
-              className={`group relative flex flex-col p-8 md:p-10 border transition-all duration-500 ${
+              custom={0.3 + index * 0.12}
+              className={`group relative flex flex-col p-8 md:p-10 border transition-all duration-700 ${
                 pkg.highlighted
-                  ? "border-gold bg-gold/5 dark:bg-gold/10"
-                  : "border-border/50 bg-card hover:border-gold/30"
+                  ? "border-terracotta bg-terracotta/5"
+                  : "border-border/30 bg-card hover:border-terracotta/30"
               }`}
             >
-              {/* Popular Badge */}
+              {/* Popular Badge — Sharp */}
               {pkg.highlighted && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="bg-gold text-charcoal text-luxury-label text-[10px] px-4 py-1">
+                <div className="absolute -top-px -right-px">
+                  <span className="bg-terracotta text-white text-luxury-label text-[9px] px-4 py-1.5 block">
                     {t("packages.popular")}
                   </span>
                 </div>
@@ -684,22 +762,22 @@ function PackagesSection() {
               </h3>
 
               {/* Description */}
-              <p className="text-editorial text-xs text-muted-foreground mb-6 leading-relaxed">
+              <p className="text-editorial text-xs text-muted-foreground mb-8 leading-relaxed">
                 {pkg.description}
               </p>
 
-              {/* Price */}
-              <div className="mb-6">
-                <span className="heading-display text-4xl md:text-5xl text-gold">
+              {/* Price — Bold Mono Number */}
+              <div className="mb-8">
+                <span className="text-mono-number text-5xl md:text-6xl text-terracotta">
                   {pkg.price}€
                 </span>
-                <span className="text-muted-foreground text-sm ml-2">
+                <span className="text-muted-foreground text-xs ml-2">
                   {t("packages.perNight")}
                 </span>
               </div>
 
               {/* Divider */}
-              <div className="divider-gold mb-6" />
+              <div className="h-px w-full bg-terracotta/15 mb-8" />
 
               {/* Features */}
               <ul className="space-y-3 mb-8 flex-1">
@@ -708,19 +786,19 @@ function PackagesSection() {
                     key={i}
                     className="flex items-start gap-3 text-sm text-muted-foreground"
                   >
-                    <Star className="w-3.5 h-3.5 text-gold mt-0.5 shrink-0 fill-gold" />
-                    <span>{feature}</span>
+                    <Star className="w-3 h-3 text-terracotta mt-1 shrink-0 fill-terracotta" />
+                    <span className="text-xs">{feature}</span>
                   </li>
                 ))}
               </ul>
 
-              {/* CTA Button */}
+              {/* CTA Button — Sharp Architectural */}
               <Link href="/reservez-votre-sejour" className="block">
                 <Button
-                  className={`w-full rounded-none py-5 text-luxury-label tracking-[0.15em] transition-all duration-300 ${
+                  className={`w-full rounded-none py-5 text-luxury-label tracking-[0.15em] transition-all duration-500 ${
                     pkg.highlighted
-                      ? "bg-gold text-charcoal hover:bg-gold-light"
-                      : "bg-transparent border border-gold/40 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold"
+                      ? "bg-terracotta text-white hover:bg-terracotta-light hover:shadow-[0_0_30px_oklch(0.62_0.08_30/15%)]"
+                      : "bg-transparent border border-terracotta/30 text-terracotta hover:bg-terracotta/10 hover:border-terracotta"
                   }`}
                 >
                   {t("packages.book")}
@@ -735,7 +813,7 @@ function PackagesSection() {
 }
 
 // ============================================
-// 6. TESTIMONIALS SECTION
+// 6. TESTIMONIALS SECTION — Full-Width Quote Slider
 // ============================================
 function TestimonialsSection() {
   const { t } = useLanguage();
@@ -798,81 +876,87 @@ function TestimonialsSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-24 md:py-36 px-6 md:px-10 overflow-hidden bg-charcoal/[0.03] dark:bg-charcoal/50"
+      className="relative py-28 md:py-40 px-6 md:px-10 overflow-hidden bg-obsidian-light/50 dark:bg-obsidian-light/30"
     >
-      <div className="max-w-4xl mx-auto text-center">
+      <div className="max-w-5xl mx-auto text-center">
         {/* Section Label */}
         <motion.span
-          variants={fadeInUp}
+          variants={revealUp}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           custom={0}
-          className="text-luxury-label text-gold block mb-6"
+          className="text-luxury-label text-terracotta block mb-8"
         >
           {t("testimonials.label")}
         </motion.span>
 
         <motion.h2
-          variants={fadeInUp}
+          variants={revealUp}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           custom={0.2}
-          className="heading-editorial text-4xl md:text-5xl mb-16"
+          className="heading-display text-4xl md:text-5xl mb-20"
         >
           {t("testimonials.title1")}
           <br />
-          <span className="italic">{t("testimonials.title2")}</span>
+          <span className="text-terracotta">{t("testimonials.title2")}</span>
         </motion.h2>
 
         {/* Testimonial Content */}
-        <div className="relative min-h-[280px]">
+        <div className="relative min-h-[320px]">
           {displayTestimonials.map((testimonial, i) => (
             <motion.div
               key={testimonial.id}
               initial={false}
               animate={{
                 opacity: i === active ? 1 : 0,
-                y: i === active ? 0 : 20,
-                scale: i === active ? 1 : 0.98,
+                y: i === active ? 0 : 30,
+                scale: i === active ? 1 : 0.97,
               }}
-              transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className={`absolute inset-0 flex flex-col items-center ${
                 i !== active ? "pointer-events-none" : ""
               }`}
             >
-              <Quote className="w-8 h-8 text-gold/30 mb-8" />
+              {/* Terracotta Quote Mark */}
+              <div className="text-terracotta/20 mb-8">
+                <Quote className="w-10 h-10" />
+              </div>
 
-              <p className="font-serif text-xl md:text-2xl lg:text-3xl leading-relaxed text-balance mb-8 italic">
+              {/* Quote Text — Large Serif */}
+              <p className="font-serif text-xl md:text-2xl lg:text-[1.75rem] leading-relaxed text-balance mb-10 italic">
                 &ldquo;{testimonial.quote}&rdquo;
               </p>
 
-              <div className="flex gap-1 mb-4">
+              {/* Rating Stars */}
+              <div className="flex gap-1 mb-5">
                 {Array.from({ length: testimonial.rating }).map((_, j) => (
                   <Star
                     key={j}
-                    className="w-3.5 h-3.5 fill-gold text-gold"
+                    className="w-3 h-3 fill-terracotta text-terracotta"
                   />
                 ))}
               </div>
 
+              {/* Author */}
               <p className="font-serif text-lg">{testimonial.author}</p>
-              <p className="text-luxury-label text-muted-foreground mt-1">
+              <p className="text-luxury-label text-muted-foreground mt-1.5 text-[9px]">
                 {testimonial.location}
               </p>
             </motion.div>
           ))}
         </div>
 
-        {/* Navigation Dots */}
-        <div className="flex justify-center gap-3 mt-8">
+        {/* Navigation Dots — Terracotta */}
+        <div className="flex justify-center gap-2 mt-10">
           {displayTestimonials.map((_, i) => (
             <button
               key={i}
               onClick={() => setActive(i)}
-              className={`w-2 h-2 rounded-full transition-all duration-500 ${
+              className={`h-px transition-all duration-700 ${
                 i === active
-                  ? "bg-gold w-8"
-                  : "bg-border hover:bg-muted-foreground"
+                  ? "bg-terracotta w-12"
+                  : "bg-border w-6 hover:bg-muted-foreground"
               }`}
               aria-label={`${t("testimonials.goTo")} ${i + 1}`}
             />
@@ -884,7 +968,7 @@ function TestimonialsSection() {
 }
 
 // ============================================
-// 7. CTA SECTION
+// 7. CTA SECTION — Full-Bleed Cinematic
 // ============================================
 function CTASection() {
   const { t } = useLanguage();
@@ -894,70 +978,80 @@ function CTASection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-24 md:py-36 px-6 md:px-10 overflow-hidden"
+      className="relative py-32 md:py-48 px-6 md:px-10 overflow-hidden"
     >
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <img
           src="/images/night.png"
-          alt="Nuit magique au désert d'Agafay"
+          alt="Magical night at Agafay Desert"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
       </div>
 
-      <div className="relative z-10 max-w-3xl mx-auto text-center">
+      {/* Geometric Pattern Overlay */}
+      <div className="absolute inset-0 pattern-dots opacity-30" />
+
+      <div className="relative z-10 max-w-4xl mx-auto">
         <motion.span
-          variants={fadeInUp}
+          variants={revealUp}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           custom={0}
-          className="text-luxury-label text-gold block mb-6"
+          className="text-luxury-label text-terracotta block mb-6"
         >
           {t("cta.label")}
         </motion.span>
 
         <motion.h2
-          variants={fadeInUp}
+          variants={revealUp}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           custom={0.2}
-          className="heading-editorial text-4xl md:text-5xl lg:text-6xl text-white mb-6"
+          className="heading-display text-4xl md:text-6xl lg:text-7xl text-foreground mb-8"
         >
           {t("cta.title1")}
           <br />
-          <span className="italic text-gold">{t("cta.title2")}</span> {t("cta.title3")}{" "}
-          <span className="italic text-gold">{t("cta.title4")}</span>
+          <span className="text-terracotta">{t("cta.title2")}</span>
         </motion.h2>
 
         <motion.div
           variants={fadeIn}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          custom={0.5}
-          className="divider-gold-wide max-w-[200px] mx-auto mb-8"
+          custom={0.4}
+          className="h-px w-24 bg-terracotta/50 mb-8"
         />
 
         <motion.p
-          variants={fadeInUp}
+          variants={revealUp}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          custom={0.6}
-          className="text-editorial text-white/60 mb-10 max-w-lg mx-auto"
+          custom={0.5}
+          className="text-editorial text-muted-foreground mb-12 max-w-lg"
         >
           {t("cta.description")}
         </motion.p>
 
         <motion.div
-          variants={fadeInUp}
+          variants={revealUp}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          custom={0.8}
+          custom={0.7}
+          className="flex items-center gap-4"
         >
           <Link href="/reservez-votre-sejour">
-            <Button className="bg-gold text-charcoal hover:bg-gold-light rounded-none px-12 py-7 text-luxury-label tracking-[0.2em] transition-all duration-300">
+            <Button className="bg-terracotta text-white hover:bg-terracotta-light rounded-none px-12 py-7 text-luxury-label tracking-[0.2em] transition-all duration-500 hover:shadow-[0_0_40px_oklch(0.62_0.08_30/20%)]">
               {t("cta.bookYourStay")}
             </Button>
+          </Link>
+          <Link
+            href="/contact"
+            className="text-luxury-label text-terracotta/60 hover:text-terracotta transition-colors duration-500"
+          >
+            {t("nav.contact")}
           </Link>
         </motion.div>
       </div>

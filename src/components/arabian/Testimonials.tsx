@@ -46,11 +46,19 @@ export function Testimonials() {
     >
       <div className="max-w-4xl mx-auto text-center">
         {/* Section Label */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+          className="mb-4"
+        >
+          <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+        </motion.div>
         <motion.span
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-luxury-label text-gold block mb-6"
+          className="text-luxury-label text-terracotta block mb-6"
         >
           {t("reflections.label")}
         </motion.span>
@@ -82,9 +90,9 @@ export function Testimonials() {
                 i !== active ? "pointer-events-none" : ""
               }`}
             >
-              <Quote className="w-8 h-8 text-gold/30 mb-8" />
+              <Quote className="w-8 h-8 text-terracotta/30 mb-8" />
 
-              <p className="font-serif text-xl md:text-2xl lg:text-3xl leading-relaxed text-balance mb-8 italic">
+              <p className="heading-editorial text-xl md:text-2xl lg:text-3xl leading-relaxed text-balance mb-8 italic">
                 &ldquo;{testimonial.quote}&rdquo;
               </p>
 
@@ -92,12 +100,12 @@ export function Testimonials() {
                 {Array.from({ length: testimonial.rating }).map((_, j) => (
                   <Star
                     key={j}
-                    className="w-3.5 h-3.5 fill-gold text-gold"
+                    className="w-3.5 h-3.5 fill-terracotta text-terracotta"
                   />
                 ))}
               </div>
 
-              <p className="font-serif text-lg">{testimonial.author}</p>
+              <p className="heading-editorial text-lg">{testimonial.author}</p>
               <p className="text-luxury-label text-muted-foreground mt-1">
                 {testimonial.location}
               </p>
@@ -105,16 +113,16 @@ export function Testimonials() {
           ))}
         </div>
 
-        {/* Navigation Dots */}
+        {/* Navigation Dots — h-px lines instead of circles */}
         <div className="flex justify-center gap-3 mt-8">
           {testimonials.map((_, i) => (
             <button
               key={i}
               onClick={() => setActive(i)}
-              className={`w-2 h-2 rounded-full transition-all duration-500 ${
+              className={`h-px transition-all duration-500 ${
                 i === active
-                  ? "bg-gold w-8"
-                  : "bg-border hover:bg-muted-foreground"
+                  ? "bg-terracotta w-8"
+                  : "bg-border hover:bg-muted-foreground w-4"
               }`}
               aria-label={`Go to testimonial ${i + 1}`}
             />

@@ -71,7 +71,7 @@ export default function RestaurantPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block mb-4"
+              className="text-luxury-label text-terracotta block mb-4"
             >
               Gastronomie
             </motion.span>
@@ -79,7 +79,7 @@ export default function RestaurantPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1, delay: 0.2 }}
-              className="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6"
+              className="heading-display text-5xl md:text-7xl lg:text-8xl text-white mb-6"
             >
               Restaurant
             </motion.h1>
@@ -87,7 +87,7 @@ export default function RestaurantPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="font-serif italic text-xl md:text-2xl text-white/70"
+              className="heading-editorial italic text-xl md:text-2xl text-white/70"
             >
               Laissez vos sens s&apos;évader
             </motion.p>
@@ -101,7 +101,7 @@ export default function RestaurantPage() {
               initial={{ scaleX: 0 }}
               animate={introInView ? { scaleX: 1 } : {}}
               transition={{ duration: 1.2 }}
-              className="divider-gold-wide max-w-[120px] mx-auto mb-10"
+              className="h-px w-16 bg-terracotta/30 max-w-[120px] mx-auto mb-10"
             />
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -119,14 +119,22 @@ export default function RestaurantPage() {
         {/* Venues Section */}
         <section
           ref={venuesRef}
-          className="py-16 md:py-24 px-6 md:px-10 bg-charcoal/[0.03] dark:bg-charcoal/50"
+          className="py-16 md:py-24 px-6 md:px-10 bg-obsidian/[0.03] dark:bg-obsidian/50"
         >
           <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={venuesInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="mb-4"
+            >
+              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={venuesInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-gold block mb-4"
+              className="text-luxury-label text-terracotta block mb-4"
             >
               Nos Espaces
             </motion.span>
@@ -134,7 +142,7 @@ export default function RestaurantPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={venuesInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1, delay: 0.2 }}
-              className="font-serif text-3xl md:text-5xl mb-16"
+              className="heading-editorial text-3xl md:text-5xl mb-16"
             >
               Trois lieux, <span className="italic">une même passion</span>
             </motion.h2>
@@ -144,7 +152,7 @@ export default function RestaurantPage() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="animate-pulse aspect-[4/3] bg-muted rounded"
+                    className="animate-pulse aspect-[4/3] bg-muted rounded-none"
                   />
                 ))}
               </div>
@@ -156,7 +164,7 @@ export default function RestaurantPage() {
                     initial={{ opacity: 0, y: 40 }}
                     animate={venuesInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.8, delay: 0.3 + i * 0.15 }}
-                    className="group bg-card border border-border/50 overflow-hidden hover:border-gold/30 transition-all duration-500"
+                    className="group bg-card border border-border/50 overflow-hidden hover:border-terracotta/30 transition-all duration-500"
                   >
                     <div className="aspect-[4/3] overflow-hidden">
                       <img
@@ -167,7 +175,7 @@ export default function RestaurantPage() {
                     </div>
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-serif text-xl md:text-2xl group-hover:text-gold transition-colors duration-300">
+                        <h3 className="heading-editorial text-xl md:text-2xl group-hover:text-terracotta transition-colors duration-300">
                           {venue.name}
                         </h3>
                         {venue.capacity && (
@@ -177,7 +185,7 @@ export default function RestaurantPage() {
                           </div>
                         )}
                       </div>
-                      <div className="w-8 h-px bg-gold mb-4" />
+                      <div className="w-8 h-px bg-terracotta mb-4" />
                       <p className="text-sm text-muted-foreground mb-3">
                         {venue.description}
                       </p>
@@ -204,13 +212,14 @@ export default function RestaurantPage() {
                 animate={entertainmentInView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 1 }}
               >
-                <span className="text-luxury-label text-gold block mb-4">
+                <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none block mb-4">02</span>
+                <span className="text-luxury-label text-terracotta block mb-4">
                   Animations
                 </span>
-                <h2 className="font-serif text-3xl md:text-4xl mb-6">
+                <h2 className="heading-editorial text-3xl md:text-4xl mb-6">
                   Des soirées <span className="italic">magiques</span>
                 </h2>
-                <div className="w-12 h-px bg-gold mb-8" />
+                <div className="w-12 h-px bg-terracotta mb-8" />
                 <p className="text-editorial text-muted-foreground mb-6">
                   Spectacles de danse orientale, jeux de lumières projetés sur
                   les dunes — chaque soirée au Arabian Desert Home est un
@@ -219,9 +228,9 @@ export default function RestaurantPage() {
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-start gap-4 py-3 border-b border-border/30">
-                    <Sparkles className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                    <Sparkles className="w-5 h-5 text-terracotta shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-serif text-base">
+                      <span className="heading-editorial text-base">
                         Danse orientale
                       </span>
                       <p className="text-xs text-muted-foreground mt-0.5">
@@ -230,9 +239,9 @@ export default function RestaurantPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-4 py-3 border-b border-border/30">
-                    <Music className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                    <Music className="w-5 h-5 text-terracotta shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-serif text-base">
+                      <span className="heading-editorial text-base">
                         Musique live
                       </span>
                       <p className="text-xs text-muted-foreground mt-0.5">
@@ -241,9 +250,9 @@ export default function RestaurantPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-4 py-3">
-                    <Sparkles className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                    <Sparkles className="w-5 h-5 text-terracotta shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-serif text-base">
+                      <span className="heading-editorial text-base">
                         Jeux de lumières
                       </span>
                       <p className="text-xs text-muted-foreground mt-0.5">
@@ -268,11 +277,11 @@ export default function RestaurantPage() {
                   />
                 </div>
                 {/* Pricing Note */}
-                <div className="absolute -bottom-6 -left-4 md:-left-8 bg-background/90 backdrop-blur-sm border border-border/50 p-6 max-w-sm">
+                <div className="absolute -bottom-6 -left-4 md:-left-8 bg-background/90 backdrop-blur-sm border border-terracotta/15 p-6 max-w-sm">
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     Le tarif pour les adultes varie entre{" "}
-                    <span className="text-gold font-semibold">200</span> et{" "}
-                    <span className="text-gold font-semibold">250 DH</span>,
+                    <span className="text-terracotta text-mono-number">200</span> et{" "}
+                    <span className="text-terracotta text-mono-number">250 DH</span>,
                     selon le menu choisi.
                   </p>
                 </div>
@@ -284,13 +293,13 @@ export default function RestaurantPage() {
         {/* CTA Section */}
         <section
           ref={ctaRef}
-          className="py-20 md:py-28 px-6 md:px-10 bg-charcoal dark:bg-charcoal text-center"
+          className="py-20 md:py-28 px-6 md:px-10 bg-obsidian dark:bg-obsidian text-center"
         >
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={ctaInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
-            className="text-luxury-label text-gold/60 block mb-4"
+            className="text-luxury-label text-terracotta/60 block mb-4"
           >
             Réservez Votre Table
           </motion.span>
@@ -298,7 +307,7 @@ export default function RestaurantPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={ctaInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1, delay: 0.2 }}
-            className="font-serif text-3xl md:text-5xl text-white mb-8"
+            className="heading-display text-3xl md:text-5xl text-white mb-8"
           >
             Le désert vous attend
           </motion.h2>
@@ -310,7 +319,7 @@ export default function RestaurantPage() {
             <Link href="/reservez-votre-sejour">
               <Button
                 variant="outline"
-                className="border-gold/50 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold rounded-none px-10 py-6 text-luxury-label"
+                className="border-terracotta/50 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-10 py-6 text-luxury-label tracking-[0.2em]"
               >
                 Réserver Maintenant
                 <ArrowRight className="w-4 h-4 ml-2" />

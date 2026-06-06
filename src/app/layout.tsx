@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Cormorant_Garamond, Space_Grotesk } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/lib/i18n/context";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -29,7 +31,6 @@ export const metadata: Metadata = {
     "glamping Morocco",
     "desert tent",
     "romantic escape Morocco",
-    "Aman style retreat",
     "private desert experience",
     "luxury Morocco",
     "desert wedding",
@@ -77,7 +78,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
@@ -118,7 +119,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${playfair.variable} ${inter.variable} antialiased bg-background text-foreground`}
+        className={`${cormorant.variable} ${spaceGrotesk.variable} antialiased bg-background text-foreground`}
       >
         <ThemeProvider
           attribute="class"
