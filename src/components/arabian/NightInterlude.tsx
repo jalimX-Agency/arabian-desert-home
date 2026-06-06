@@ -2,8 +2,10 @@
 
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { useLanguage } from "@/lib/i18n/context";
 
 export function NightInterlude() {
+  const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-50px" });
   const { scrollYProgress } = useScroll({
@@ -39,7 +41,7 @@ export function NightInterlude() {
           transition={{ duration: 0.8 }}
           className="text-luxury-label text-gold/80 block mb-6"
         >
-          When Night Falls
+          {t("night.label")}
         </motion.span>
 
         <motion.h2
@@ -48,9 +50,9 @@ export function NightInterlude() {
           transition={{ duration: 1.2, delay: 0.3 }}
           className="heading-display text-white text-4xl md:text-6xl lg:text-7xl text-balance"
         >
-          The Desert Speaks
+          {t("night.title1")}
           <br />
-          <span className="italic text-gold">in Stars</span>
+          <span className="italic text-gold">{t("night.title2")}</span>
         </motion.h2>
 
         <motion.div
@@ -66,8 +68,7 @@ export function NightInterlude() {
           transition={{ duration: 0.8, delay: 0.8 }}
           className="text-editorial text-white/60 text-lg"
         >
-          When the last light fades, the Agafay reveals its most intimate
-          secret—a sky so vast it makes philosophers of us all.
+          {t("night.description")}
         </motion.p>
       </motion.div>
     </section>

@@ -3,42 +3,41 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Star, Quote } from "lucide-react";
-
-const testimonials = [
-  {
-    quote:
-      "We came for a night and stayed for three. The silence, the stars, the way the light moves across the stone—nothing prepares you for how deeply this place touches your soul.",
-    author: "Isabelle & Marc",
-    location: "Paris, France",
-    rating: 5,
-  },
-  {
-    quote:
-      "I've stayed at Aman, Six Senses, and One&Only around the world. Arabian Desert Home stands shoulder to shoulder with all of them—yet feels utterly unlike any of them. That is its magic.",
-    author: "James Worthington",
-    location: "London, UK",
-    rating: 5,
-  },
-  {
-    quote:
-      "The hammam under the stars was transcendent. Our butler, Hassan, anticipated every need before we knew we had it. This is not a hotel—it is a portal to another way of being.",
-    author: "Ayumi Tanaka",
-    location: "Tokyo, Japan",
-    rating: 5,
-  },
-];
+import { useLanguage } from "@/lib/i18n/context";
 
 export function Testimonials() {
+  const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [active, setActive] = useState(0);
+
+  const testimonials = [
+    {
+      quote: t("reflections.t1Quote"),
+      author: t("reflections.t1Author"),
+      location: t("reflections.t1Location"),
+      rating: 5,
+    },
+    {
+      quote: t("reflections.t2Quote"),
+      author: t("reflections.t2Author"),
+      location: t("reflections.t2Location"),
+      rating: 5,
+    },
+    {
+      quote: t("reflections.t3Quote"),
+      author: t("reflections.t3Author"),
+      location: t("reflections.t3Location"),
+      rating: 5,
+    },
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
       setActive((prev) => (prev + 1) % testimonials.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [testimonials.length]);
 
   return (
     <section
@@ -53,7 +52,7 @@ export function Testimonials() {
           transition={{ duration: 0.8 }}
           className="text-luxury-label text-gold block mb-6"
         >
-          Reflections
+          {t("reflections.label")}
         </motion.span>
 
         <motion.h2
@@ -62,14 +61,14 @@ export function Testimonials() {
           transition={{ duration: 1, delay: 0.2 }}
           className="heading-editorial text-4xl md:text-5xl mb-16"
         >
-          Words from the
+          {t("reflections.title1")}
           <br />
-          <span className="italic">Desert</span>
+          <span className="italic">{t("reflections.title2")}</span>
         </motion.h2>
 
         {/* Testimonial Content */}
         <div className="relative min-h-[280px]">
-          {testimonials.map((t, i) => (
+          {testimonials.map((testimonial, i) => (
             <motion.div
               key={i}
               initial={false}
@@ -86,11 +85,11 @@ export function Testimonials() {
               <Quote className="w-8 h-8 text-gold/30 mb-8" />
 
               <p className="font-serif text-xl md:text-2xl lg:text-3xl leading-relaxed text-balance mb-8 italic">
-                &ldquo;{t.quote}&rdquo;
+                &ldquo;{testimonial.quote}&rdquo;
               </p>
 
               <div className="flex gap-1 mb-4">
-                {Array.from({ length: t.rating }).map((_, j) => (
+                {Array.from({ length: testimonial.rating }).map((_, j) => (
                   <Star
                     key={j}
                     className="w-3.5 h-3.5 fill-gold text-gold"
@@ -98,9 +97,9 @@ export function Testimonials() {
                 ))}
               </div>
 
-              <p className="font-serif text-lg">{t.author}</p>
+              <p className="font-serif text-lg">{testimonial.author}</p>
               <p className="text-luxury-label text-muted-foreground mt-1">
-                {t.location}
+                {testimonial.location}
               </p>
             </motion.div>
           ))}

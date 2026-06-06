@@ -7,16 +7,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
+import { useLanguage } from "@/lib/i18n/context";
 
-const navLinks = [
-  { label: "L'ADH", href: "/" },
-  { label: "Tentes", href: "/les-tentes" },
-  { label: "Restaurant", href: "/restaurant" },
-  { label: "Activités", href: "/les-activites" },
-  { label: "Day Pass", href: "/day-pass" },
-  { label: "Événement", href: "/les-evenements" },
-  { label: "Spa", href: "/spa" },
-  { label: "Contact", href: "/contact" },
+const navLinkKeys = [
+  { labelKey: "nav.home", href: "/" },
+  { labelKey: "nav.tents", href: "/les-tentes" },
+  { labelKey: "nav.restaurant", href: "/restaurant" },
+  { labelKey: "nav.activities", href: "/les-activites" },
+  { labelKey: "nav.dayPass", href: "/day-pass" },
+  { labelKey: "nav.events", href: "/les-evenements" },
+  { labelKey: "nav.spa", href: "/spa" },
+  { labelKey: "nav.contact", href: "/contact" },
 ];
 
 export function Navigation() {
@@ -24,6 +25,7 @@ export function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -61,7 +63,7 @@ export function Navigation() {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-6">
-            {navLinks.map((link) => (
+            {navLinkKeys.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -71,7 +73,7 @@ export function Navigation() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {link.label}
+                {t(link.labelKey)}
                 <span
                   className={`absolute -bottom-1 left-0 h-px bg-gold transition-all duration-300 ${
                     pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
@@ -81,7 +83,7 @@ export function Navigation() {
             ))}
           </div>
 
-          {/* CTA + Theme + Mobile Toggle */}
+          {/* CTA + Theme + Language + Mobile Toggle */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -91,12 +93,21 @@ export function Navigation() {
               <Sun className="w-4 h-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute w-4 h-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </button>
+            <button
+              onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
+              className="hidden md:flex items-center gap-1 text-xs font-medium tracking-wider px-2 h-9 text-muted-foreground hover:text-gold transition-colors duration-300"
+              aria-label="Toggle language"
+            >
+              <span className={language === "fr" ? "text-gold" : ""}>FR</span>
+              <span className="text-border mx-0.5">|</span>
+              <span className={language === "en" ? "text-gold" : ""}>EN</span>
+            </button>
             <Link href="/reservez-votre-sejour">
               <Button
                 variant="outline"
                 className="hidden md:flex text-luxury-label border-gold/40 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold rounded-none px-6"
               >
-                Réserver
+                {t("nav.bookNow")}
               </Button>
             </Link>
             <button
@@ -121,7 +132,7 @@ export function Navigation() {
             className="fixed inset-0 z-40 bg-background/98 backdrop-blur-xl pt-24 px-8"
           >
             <div className="flex flex-col gap-1">
-              {navLinks.map((link, i) => (
+              {navLinkKeys.map((link, i) => (
                 <motion.div
                   key={link.href}
                   initial={{ opacity: 0, x: -20 }}
@@ -135,7 +146,7 @@ export function Navigation() {
                       pathname === link.href ? "text-gold" : ""
                     }`}
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 </motion.div>
               ))}
@@ -143,13 +154,22 @@ export function Navigation() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="mt-8"
+                className="mt-8 flex flex-col gap-4"
               >
                 <Link href="/reservez-votre-sejour" onClick={() => setMobileOpen(false)}>
                   <Button className="w-full bg-gold text-charcoal hover:bg-gold-light rounded-none py-6 text-luxury-label">
-                    Réservez Votre Séjour
+                    {t("nav.bookYourStay")}
                   </Button>
                 </Link>
+                <button
+                  onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
+                  className="flex items-center justify-center gap-1.5 text-sm font-medium tracking-wider py-3 text-muted-foreground hover:text-gold transition-colors duration-300"
+                  aria-label="Toggle language"
+                >
+                  <span className={language === "fr" ? "text-gold" : ""}>FR</span>
+                  <span className="text-border mx-0.5">|</span>
+                  <span className={language === "en" ? "text-gold" : ""}>EN</span>
+                </button>
               </motion.div>
             </div>
           </motion.div>

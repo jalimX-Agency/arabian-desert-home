@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/context";
 
 interface Suite {
   id: string;
@@ -23,6 +24,7 @@ export function Suites() {
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [suites, setSuites] = useState<Suite[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetch("/api/suites")
@@ -90,7 +92,7 @@ export function Suites() {
               transition={{ duration: 0.8 }}
               className="text-luxury-label text-gold block mb-4"
             >
-              Accommodations
+              {t("suites.label")}
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 30 }}
@@ -98,9 +100,9 @@ export function Suites() {
               transition={{ duration: 1, delay: 0.2 }}
               className="heading-editorial text-4xl md:text-5xl lg:text-6xl"
             >
-              Sleep Beneath
+              {t("suites.heading1")}
               <br />
-              <span className="italic">a Billion Stars</span>
+              <span className="italic">{t("suites.heading2")}</span>
             </motion.h2>
           </div>
           <motion.p
@@ -109,8 +111,7 @@ export function Suites() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-editorial text-muted-foreground max-w-md"
           >
-            Each tent is a world unto itself—crafted with intention, designed
-            for surrender, and appointed with every indulgence.
+            {t("suites.subtitle")}
           </motion.p>
         </div>
 
@@ -148,7 +149,7 @@ export function Suites() {
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-6 h-px bg-gold" />
                       <span className="text-luxury-label text-gold text-[10px]">
-                        {suite.size} · Up to {suite.maxGuests}
+                        {suite.size} · {t("suites.upTo")} {suite.maxGuests}
                       </span>
                     </div>
                     <h3 className="font-serif text-2xl md:text-3xl text-white mb-2">
@@ -180,11 +181,11 @@ export function Suites() {
                             ${suite.price}
                           </span>
                           <span className="text-white/40 text-sm ml-1">
-                            / night
+                            {t("suites.perNight")}
                           </span>
                         </div>
                         <span className="flex items-center gap-2 text-gold text-sm group/link">
-                          View Suite
+                          {t("suites.viewTent")}
                           <ArrowRight className="w-3 h-3 transition-transform group-hover/link:translate-x-1" />
                         </span>
                       </div>

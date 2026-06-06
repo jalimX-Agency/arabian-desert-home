@@ -1,0 +1,387 @@
+export const fr: Record<string, unknown> = {
+  // Navigation
+  nav: {
+    home: "L'ADH",
+    tents: "Tentes",
+    restaurant: "Restaurant",
+    activities: "Activités",
+    dayPass: "Day Pass",
+    events: "Événement",
+    spa: "Spa",
+    contact: "Contact",
+    bookNow: "Réserver",
+    bookYourStay: "Réservez Votre Séjour",
+  },
+
+  // Hero Section
+  hero: {
+    location: "Désert d'Agafay · Marrakech",
+    heading1: "Là où le silence",
+    heading2: "Parle",
+    subtitle: "Une retraite désertique ultra-premium où le temps se dissout dans une lumière dorée et l'horizon s'étend au-delà de l'imaginaire.",
+    discover: "Défiler pour découvrir",
+    reserve: "Réserver",
+    established: "Établi 2024",
+  },
+
+  // Features Section
+  features: {
+    label: "Nos Atouts",
+    title1: "L'excellence au",
+    title2: "cœur du désert",
+    classAmenities: "Commodités de Classe",
+    classAmenitiesDesc: "Des prestations haut de gamme soigneusement sélectionnées pour votre confort absolu au cœur du désert.",
+    luxuryLifestyle: "Mode de Vie Luxueux",
+    luxuryLifestyleDesc: "Un art de vivre raffiné où chaque détail est pensé pour sublimer votre séjour dans notre écrin désertique.",
+    friendlyService: "Friendly Services",
+    friendlyServiceDesc: "Une équipe dévouée et attentionnée, disponible à chaque instant pour anticiper vos moindres désirs.",
+    lifeguard: "Lifeguard 24/7",
+    lifeguardDesc: "Sécurité et tranquillité d'esprit assurées jour et nuit par notre équipe de surveillance qualifiée.",
+  },
+
+  // Suites / Tents Section
+  suites: {
+    label: "Hébergement",
+    title: "Nos Tentes",
+    heading1: "Dormez sous",
+    heading2: "un milliard d'étoiles",
+    subtitle: "Chaque tente est un monde à part—conçue avec intention, pensée pour l'abandon, et dotée de toutes les indulgences.",
+    upTo: "Jusqu'à",
+    perNight: "/ nuit",
+    viewTent: "Voir la suite",
+    size: "Taille",
+    guests: "Personnes",
+  },
+
+  // Suite Detail Page
+  suiteDetail: {
+    suiteNotFound: "Suite introuvable",
+    suiteNotFoundDesc: "La suite que vous recherchez n'existe pas.",
+    backToTents: "Retour aux tentes",
+    allTents: "Toutes les tentes",
+    suite: "Suite",
+    room: "Chambre",
+    persons: "personnes",
+    person: "personne",
+    airConditioning: "Climatisation",
+    about: "À propos",
+    aboutTitle1: "Un refuge",
+    aboutTitle2: "d'exception",
+    features: "Caractéristiques",
+    featuresTitle1: "Ce qui rend cette suite",
+    featuresTitle2: "unique",
+    gallery: "Galerie",
+    galleryTitle1: "En",
+    galleryTitle2: "images",
+    rate: "Tarif",
+    perNight: "/ nuit",
+    fullBoard: "En pension complète",
+    maxPersons: "max",
+    amenities: "Équipements",
+    bookThisSuite: "Réserver cette suite",
+    seeAllTents: "Voir toutes les tentes",
+    book: "Réservez",
+    startingFrom: "À partir de",
+    perNight2: "par nuit. Réservez dès maintenant et préparez-vous à vivre une expérience inoubliable au cœur du désert d'Agafay.",
+    previousImage: "Image précédente",
+    nextImage: "Image suivante",
+    image: "Image",
+  },
+
+  // Gallery Section
+  gallery: {
+    label: "Galerie",
+    title1: "Expérience à travers",
+    title2: "les images",
+  },
+
+  // Packages Section
+  packages: {
+    label: "Nos Offres",
+    title: "Forfaits & Séjours",
+    perNight: "/ Nuit",
+    popular: "Populaire",
+    book: "Réserver",
+    honeymoon: {
+      name: "Honeymoon Suite Package",
+      description: "Suite lune de miel avec dîner aux chandelles, spa privé et coucher de soleil exclusif au désert.",
+      features: [
+        "Suite lune de miel privée",
+        "Dîner aux chandelles",
+        "Soin spa pour couple",
+        "Balade dromadaire offerte",
+        "Petit déjeuner au lit",
+      ],
+    },
+    suiteRoom: {
+      name: "Suite Room Package",
+      description: "Suite premium avec terrasse privée et vue panoramique sur les montagnes de l'Atlas.",
+      features: [
+        "Suite avec terrasse privée",
+        "Vue panoramique Atlas",
+        "Accès spa & hammam",
+        "Dîner gastronomique inclus",
+        "Conciergerie 24h/24",
+      ],
+    },
+    deluxe: {
+      name: "Deluxe Room Package",
+      description: "Chambre deluxe tout confort avec accès complet aux installations du camp.",
+      features: [
+        "Chambre deluxe climatisée",
+        "Accès piscine & spa",
+        "Petit déjeuner inclus",
+        "Restaurant du camp",
+        "Wi-Fi gratuit",
+      ],
+    },
+    superior: {
+      name: "Superior Room Package",
+      description: "Chambre supérieure authentique pour une expérience désertique accessible et mémorable.",
+      features: [
+        "Chambre supérieure",
+        "Petit déjeuner marocain",
+        "Accès piscine",
+        "Douche chaude privative",
+        "Parking gratuit",
+      ],
+    },
+  },
+
+  // Testimonials Section
+  testimonials: {
+    label: "Témoignages",
+    title1: "Ce que disent nos",
+    title2: "invités",
+    goTo: "Aller au témoignage",
+    testimonial1: {
+      quote: "Une expérience incroyable au cœur du désert d'Agafay. L'accueil chaleureux et la beauté des lieux nous ont transportés. Un séjour inoubliable que nous recommandons à tous.",
+      author: "Marie & Pierre D.",
+      location: "Lyon, France",
+    },
+    testimonial2: {
+      quote: "Les tentes sont magnifiques et le confort est au rendez-vous. Le dîner sous les étoiles avec la musique live était un moment magique. Merci pour cette pause hors du temps.",
+      author: "Sophie L.",
+      location: "Bruxelles, Belgique",
+    },
+    testimonial3: {
+      quote: "Le personnel est aux petits soins, la piscine avec vue sur le désert est un rêve éveillé. On reviendra pour le hammam et les balades à cheval !",
+      author: "Ahmed B.",
+      location: "Casablanca, Maroc",
+    },
+  },
+
+  // CTA Section
+  cta: {
+    label: "Votre séjour vous attend",
+    title1: "Réservez maintenant pour un luxe",
+    title2: "inoubliable",
+    title3: "et une",
+    title4: "tranquillité",
+    title5: "",
+    description: "Le désert d'Agafay vous offre une évasion hors du commun. Réservez dès maintenant et laissez-vous transporter par la magie des lieux.",
+    bookYourStay: "Réservez Votre Séjour",
+  },
+
+  // Philosophy Section
+  philosophy: {
+    label: "L'Expérience",
+    title1: "Dans le désert,",
+    title2: "vous ne fuyez pas",
+    title3: "le monde —",
+    title4: "vous le trouvez",
+    paragraph1: "Arabian Desert Home est né d'une vision singulière : créer un sanctuaire où le luxe existe en parfaite harmonie avec la beauté brute du désert d'Agafay. Chaque détail — des textiles berbères cousus main aux formes organiques de notre architecture — a été sélectionné pour honorer la terre et élever l'esprit.",
+    paragraph2: "Ici, le temps suit le rythme du soleil. Les matins commencent dans le silence et le thé à la menthe. Les après-midi se déploient avec purpose — que ce soit en explorant des sentiers ancestraux, en se abandonnant au hammam, ou simplement en observant la lumière glisser sur la pierre. Et quand la nuit tombe, le désert révèle son secret le plus intime : un ciel si vaste qu'il nous rend tous philosophes.",
+    stats: {
+      suites: "Suites de Luxe",
+      distance: "De Marrakech",
+      experience: "Expérience",
+    },
+  },
+
+  // Night Interlude Section
+  night: {
+    label: "Quand la nuit tombe",
+    title1: "Le désert parle",
+    title2: "en étoiles",
+    description: "Quand la dernière lumière s'éteint, l'Agafay révèle son secret le plus intime — un ciel si vaste qu'il nous rend tous philosophes.",
+  },
+
+  // Dining Section
+  dining: {
+    label: "Gastronomie",
+    title1: "Un festin pour",
+    title2: "les sens",
+    paragraph1: "Sous la voûte d'un milliard d'étoiles, notre chef orchestre une symphonie de saveurs marocaines et de techniques internationales. Chaque plat raconte une histoire — d'anciennes routes des épices, de fermiers locaux qui cultivent la terre, d'une tradition culinaire qui a nourri le corps et l'âme pendant des millénaires.",
+    paragraph2: "Du tagine d'agneau mijoté aux citrons confits au couscous infusé au safran, chaque repas est un événement. Dîner privé sous les étoiles, petit déjeuner avec les montagnes de l'Atlas en toile de fond, ou pique-nique clandestin dans une oasis cachée — le choix est vôtre.",
+    menu1Name: "Le Jardin Secret",
+    menu1Desc: "Dîner en jardin privé à la lueur des lanternes",
+    menu2Name: "Dunes & Vin",
+    menu2Desc: "Accord mets-vins sur la crête des dunes",
+    menu3Name: "Brunch Oasis",
+    menu3Desc: "Festin matinal au bord du bassin",
+    quote: "Les meilleurs repas se mangent avec du sable entre les orteils",
+    quoteAuthor: "— Notre Chef",
+  },
+
+  // Experiences Section
+  experiences: {
+    label: "Voyages Sur Mesure",
+    title1: "Au-delà de",
+    title2: "l'horizon",
+    perPerson: "/ personne",
+    exploreJourney: "Découvrir ce voyage",
+    camelTrek: {
+      name: "Promenade en Dromadaire à l'Heure Dorée",
+      description: "Voyagez à travers le temps à bord du vaisseau du désert",
+      longDescription: "Alors que le soleil peint l'Agafay en nuances d'ambre et de rose, embarquez pour un voyage intemporel à bord de nos doux dromadaires. Guidés par des guides nomades dont les familles traversent ces sentiers depuis des générations, ceci n'est pas qu'une simple promenade — c'est un passage vers l'âme du Sahara.",
+      duration: "3 heures",
+      category: "Aventure",
+    },
+    hammam: {
+      name: "Rituel Hammam du Désert",
+      description: "Bien-être ancestral renaissant dans le silence sacré",
+      longDescription: "Abandonnez-vous à un rituel séculaire sous le ciel ouvert. Notre hammam du désert utilise du savon noir de Marrakech, de l'argile rhassoul des montagnes de l'Atlas et de l'eau de rose de Kelaat M'gouna. Chaque soin est une méditation — un retour à la simplicité élémentaire.",
+      duration: "2h30",
+      category: "Bien-être",
+    },
+    balloon: {
+      name: "Voyage en Montgolfière à l'Aube",
+      description: "Élevez-vous au-dessus de la terre alors que le désert s'éveille",
+      longDescription: "Avant que le monde ne s'éveille, montez dans l'air cristallin du matin. Notre montgolfière privée vous emporte au-dessus du paysage lunaire de l'Agafay, des murs en terre cuite des kasbahs lointaines, et des montagnes de l'Atlas enneigées perçant l'horizon.",
+      duration: "4 heures",
+      category: "Aventure",
+    },
+  },
+
+  // Events Section
+  events: {
+    label: "Occasions Sur Mesure",
+    title1: "Des moments qui",
+    title2: "défient le temps",
+    intimateTitle: "Célébrations Intimes",
+    intimateDesc: "Une demande en mariage sous la Voie Lactée. Un dîner d'anniversaire entouré de mille bougies. Un anniversaire qui devient légende. Nous créons des moments qui transcendent l'occasion.",
+    weddingTitle: "Mariages au Désert",
+    weddingDesc: "Échangez vos vœux là où la terre rencontre le ciel. Nos mariages au désert sont des rêves architecturaux — soie drapée, lanternes en cascade, et un horizon qui s'étend à l'infini comme témoin.",
+    retreatTitle: "Retraites Privées",
+    retreatDesc: "Séminaires d'entreprise, résidences créatives et retraites de leadership dans une intimité absolue. Le désert élimine le bruit, révélant une clarté et une connexion qu'aucune salle de réunion ne peut offrir.",
+    enquire: "Demander →",
+    everyEvent: "Chaque événement est une toile vierge. Laissez-nous peindre votre chef-d'œuvre.",
+    planEvent: "Planifier Votre Événement",
+  },
+
+  // Testimonials (standalone component)
+  reflections: {
+    label: "Réflexions",
+    title1: "Les mots du",
+    title2: "Désert",
+    t1Quote: "Nous sommes venus pour une nuit et sommes restés trois. Le silence, les étoiles, la façon dont la lumière glisse sur la pierre — rien ne vous prépare à la profondeur avec laquelle ce lieu touche votre âme.",
+    t1Author: "Isabelle & Marc",
+    t1Location: "Paris, France",
+    t2Quote: "J'ai séjourné dans des Aman, Six Senses et One&Only à travers le monde. Arabian Desert Home se tient aux côtés de tous — tout en étant radicalement différent. C'est là que réside sa magie.",
+    t2Author: "James Worthington",
+    t2Location: "Londres, Royaume-Uni",
+    t3Quote: "Le hammam sous les étoiles était transcendant. Notre majordome, Hassan, anticipait chaque besoin avant même que nous ne le sachions. Ce n'est pas un hôtel — c'est un portail vers une autre façon d'être.",
+    t3Author: "Ayumi Tanaka",
+    t3Location: "Tokyo, Japon",
+  },
+
+  // Booking Section
+  booking: {
+    label: "Votre voyage vous attend",
+    title1: "Commencez votre",
+    title2: "histoire du désert",
+    description: "Chaque séjour à Arabian Desert Home est une expérience sur mesure. Dès votre demande, notre équipe de conciergerie crée un voyage entièrement adapté à vos désirs. Aucune demande n'est trop extraordinaire, aucun détail trop petit.",
+    perk1: "Transfert aéroport gratuit depuis Marrakech",
+    perk2: "Majordome personnel assigné à votre suite",
+    perk3: "Programme d'expériences personnalisé à l'arrivée",
+    perk4: "Service en suite et conciergerie 24h/24",
+    startingFrom: "À partir de",
+    perNight: "par nuit",
+    minimumStay: "Séjour minimum 2 nuits",
+    // Form
+    step1Label: "Vos informations",
+    step2Label: "Votre séjour",
+    firstName: "Prénom",
+    firstNamePlaceholder: "Prénom",
+    lastName: "Nom",
+    lastNamePlaceholder: "Nom",
+    email: "Email",
+    emailPlaceholder: "votre@email.com",
+    phone: "Téléphone",
+    phoneOptional: "(facultatif)",
+    phonePlaceholder: "+212 6XX XXX XXX",
+    continue: "Continuer",
+    suite: "Suite",
+    selectSuite: "Sélectionnez votre suite",
+    royalTent: "La Tente Royale — 1 200€/nuit",
+    oasisPavilion: "Le Pavillon Oasis — 1 800€/nuit",
+    sultanSuite: "La Suite Sultan — 2 200€/nuit",
+    checkIn: "Arrivée",
+    checkOut: "Départ",
+    selectDate: "Sélectionner une date",
+    guests: "Invités",
+    specialRequests: "Demandes spéciales",
+    specialRequestsOptional: "(facultatif)",
+    specialRequestsPlaceholder: "Régime alimentaire, célébrations, arrangements spéciaux...",
+    back: "Retour",
+    submit: "Demander une réservation",
+    submitting: "Envoi en cours...",
+    // Success
+    thankYou: "Merci",
+    successMessage: "Votre demande de réservation a été reçue. Notre équipe de conciergerie vous contactera dans les 24 heures pour finaliser votre expérience désertique.",
+    // Toasts
+    reservationReceived: "Réservation reçue",
+    conciergeContact: "Notre équipe de conciergerie vous contactera dans les 24 heures.",
+    somethingWrong: "Une erreur est survenue",
+    tryAgain: "Veuillez réessayer ou nous contacter directement.",
+    selectDateTitle: "Sélectionner la date",
+  },
+
+  // Footer
+  footer: {
+    bookYourStay: "Réservez Votre Séjour",
+    desertAwaits: "Le désert vous attend",
+    bookNow: "Réserver Maintenant",
+    explore: "Explorer",
+    navHome: "L'ADH",
+    navTents: "Nos Tentes",
+    navRestaurant: "Restaurant",
+    navActivities: "Activités",
+    navDayPass: "Day Pass",
+    navEvents: "Événements",
+    navSpa: "Spa",
+    navAbout: "À Propos",
+    contact: "Contact",
+    address: "Douar Ait Said Lchou, Agafay, Marrakech",
+    followUs: "Suivez-nous",
+    stayInformed: "Restez informé de nos offres",
+    emailPlaceholder: "votre@email.com",
+    copyright: "Arabian Desert Home. Tous droits réservés.",
+    privacy: "Politique de confidentialité",
+    terms: "Conditions générales",
+    brandDesc: "Bivouac de luxe dans le désert d'Agafay, à 30 minutes de Marrakech. Six hectares de pure splendeur pour une expérience inoubliable.",
+  },
+
+  // Suite data (fallback)
+  suiteData: {
+    chorfa: {
+      name: "Suite Chorfa",
+      tagline: "L'élégance au cœur du désert",
+      description: "Suite double avec lit king-size et vue imprenable sur les montagnes de l'Atlas",
+      features: "Lit King Size,Vue Montagne,Salle de Bain Privative,Petit Déjeuner Inclus",
+    },
+    junior: {
+      name: "Suite Junior",
+      tagline: "Intimité et confort au désert",
+      description: "Suite junior avec lit double et aménagements premium pour un séjour inoubliable",
+      features: "Lit Double,Salle de Bain Privative,Terrasse Privée,Petit Déjeuner Inclus",
+    },
+    familiale: {
+      name: "Suite Familiale",
+      tagline: "Le désert en famille, le luxe en partage",
+      description: "Suite familiale avec lit double et lit simple, idéale pour les familles",
+      features: "Lit Double + Lit Simple,Vue Montagne,Salle de Bain Privative,Petit Déjeuner Inclus",
+    },
+  },
+};

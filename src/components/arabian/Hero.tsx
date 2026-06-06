@@ -2,8 +2,11 @@
 
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/context";
 
 export function Hero() {
+  const { t } = useLanguage();
+
   return (
     <section className="relative h-screen w-full overflow-hidden">
       {/* Background Image */}
@@ -28,7 +31,7 @@ export function Hero() {
           className="mb-6"
         >
           <span className="text-luxury-label text-white/70">
-            Agafay Desert · Marrakech
+            {t("hero.location")}
           </span>
         </motion.div>
 
@@ -39,9 +42,9 @@ export function Hero() {
           transition={{ duration: 1.2, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="heading-display text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl max-w-5xl text-balance"
         >
-          Where Silence
+          {t("hero.heading1")}
           <br />
-          <span className="italic text-gold">Speaks</span>
+          <span className="italic text-gold">{t("hero.heading2")}</span>
         </motion.h1>
 
         {/* Subline */}
@@ -51,8 +54,7 @@ export function Hero() {
           transition={{ duration: 1, delay: 0.9 }}
           className="text-editorial text-white/70 text-lg md:text-xl max-w-xl mt-6"
         >
-          An ultra-premium desert retreat where time dissolves into golden light
-          and the horizon stretches beyond imagination.
+          {t("hero.subtitle")}
         </motion.p>
 
         {/* Decorative Line */}
@@ -72,7 +74,7 @@ export function Hero() {
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
         <span className="text-luxury-label text-white/50 text-[10px]">
-          Scroll to Discover
+          {t("hero.discover")}
         </span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
@@ -91,7 +93,7 @@ export function Hero() {
       >
         <div className="w-16 h-px bg-gold/40" />
         <span className="text-[9px] tracking-[0.4em] text-white/40 uppercase">
-          Est. 2024
+          {t("hero.established")}
         </span>
       </motion.div>
     </section>

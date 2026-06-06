@@ -3,29 +3,28 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Sparkles, Heart, Gem } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/context";
 
 export function Events() {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
+  const { t } = useLanguage();
 
   const eventTypes = [
     {
       icon: Heart,
-      title: "Intimate Celebrations",
-      description:
-        "A proposal under the Milky Way. An anniversary dinner surrounded by a thousand candles. A birthday that becomes legend. We curate moments that transcend occasion.",
+      title: t("events.intimateTitle"),
+      description: t("events.intimateDesc"),
     },
     {
       icon: Sparkles,
-      title: "Desert Weddings",
-      description:
-        "Exchange vows where the earth meets the sky. Our desert weddings are architectural dreams—draped silk, cascading lanterns, and a horizon that stretches to infinity as your witness.",
+      title: t("events.weddingTitle"),
+      description: t("events.weddingDesc"),
     },
     {
       icon: Gem,
-      title: "Private Retreats",
-      description:
-        "Corporate offsites, creative residencies, and leadership retreats in absolute privacy. The desert strips away the noise, revealing clarity and connection that no boardroom can offer.",
+      title: t("events.retreatTitle"),
+      description: t("events.retreatDesc"),
     },
   ];
 
@@ -55,7 +54,7 @@ export function Events() {
             transition={{ duration: 0.8 }}
             className="text-luxury-label text-gold block mb-4"
           >
-            Bespoke Occasions
+            {t("events.label")}
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
@@ -63,9 +62,9 @@ export function Events() {
             transition={{ duration: 1, delay: 0.2 }}
             className="heading-editorial text-4xl md:text-5xl lg:text-6xl"
           >
-            Moments That
+            {t("events.title1")}
             <br />
-            <span className="italic">Defy Time</span>
+            <span className="italic">{t("events.title2")}</span>
           </motion.h2>
         </div>
 
@@ -90,7 +89,7 @@ export function Events() {
               </p>
 
               <button className="mt-8 text-luxury-label text-gold hover:text-gold-light transition-colors">
-                Enquire →
+                {t("events.enquire")}
               </button>
             </motion.div>
           ))}
@@ -104,13 +103,13 @@ export function Events() {
           className="text-center mt-16 md:mt-24"
         >
           <p className="text-editorial text-muted-foreground mb-6">
-            Every event is a blank canvas. Let us paint your masterpiece.
+            {t("events.everyEvent")}
           </p>
           <a
             href="#booking"
             className="inline-flex items-center gap-2 text-gold border border-gold/40 px-8 py-4 text-luxury-label hover:bg-gold/10 transition-all duration-300"
           >
-            Plan Your Event
+            {t("events.planEvent")}
           </a>
         </motion.div>
       </div>

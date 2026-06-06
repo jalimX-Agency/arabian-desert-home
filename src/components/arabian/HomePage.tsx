@@ -13,6 +13,7 @@ import {
   Quote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n/context";
 
 // ============================================
 // Types
@@ -82,6 +83,8 @@ const scaleIn = {
 // 1. HERO SECTION
 // ============================================
 function HeroSection() {
+  const { t } = useLanguage();
+
   return (
     <section className="relative h-screen w-full overflow-hidden">
       {/* Background Image */}
@@ -106,7 +109,7 @@ function HeroSection() {
           className="mb-6"
         >
           <span className="text-luxury-label text-white/70">
-            Agafay Desert · Marrakech
+            {t("hero.location")}
           </span>
         </motion.div>
 
@@ -117,9 +120,9 @@ function HeroSection() {
           transition={{ duration: 1.2, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="heading-display text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl max-w-5xl text-balance"
         >
-          Découvrez l&apos;art de
+          {t("hero.heading1")}
           <br />
-          <span className="italic text-gold">RelaxVacances</span>
+          <span className="italic text-gold">{t("hero.heading2")}</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -129,7 +132,7 @@ function HeroSection() {
           transition={{ duration: 1, delay: 0.9 }}
           className="text-editorial text-white/70 text-lg md:text-xl max-w-xl mt-6"
         >
-          Vivez une expérience unique au cœur du désert d&apos;Agafay
+          {t("hero.subtitle")}
         </motion.p>
 
         {/* Decorative Gold Line */}
@@ -149,7 +152,7 @@ function HeroSection() {
         >
           <Link href="/reservez-votre-sejour">
             <Button className="bg-gold text-charcoal hover:bg-gold-light rounded-none px-10 py-6 text-luxury-label tracking-[0.2em] transition-all duration-300">
-              Réserver
+              {t("hero.reserve")}
             </Button>
           </Link>
         </motion.div>
@@ -163,7 +166,7 @@ function HeroSection() {
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
         <span className="text-luxury-label text-white/50 text-[10px]">
-          Découvrir
+          {t("hero.discover")}
         </span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
@@ -179,36 +182,33 @@ function HeroSection() {
 // ============================================
 // 2. FEATURES SECTION
 // ============================================
-const features = [
-  {
-    icon: Star,
-    title: "Commodités de Classe",
-    description:
-      "Des prestations haut de gamme soigneusement sélectionnées pour votre confort absolu au cœur du désert.",
-  },
-  {
-    icon: Crown,
-    title: "Mode de Vie Luxueux",
-    description:
-      "Un art de vivre raffiné où chaque détail est pensé pour sublimer votre séjour dans notre écrin désertique.",
-  },
-  {
-    icon: Heart,
-    title: "Friendly Services",
-    description:
-      "Une équipe dévouée et attentionnée, disponible à chaque instant pour anticiper vos moindres désirs.",
-  },
-  {
-    icon: Shield,
-    title: "Lifeguard 24/7",
-    description:
-      "Sécurité et tranquillité d'esprit assurées jour et nuit par notre équipe de surveillance qualifiée.",
-  },
-];
-
 function FeaturesSection() {
+  const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
+
+  const features = [
+    {
+      icon: Star,
+      title: t("features.classAmenities"),
+      description: t("features.classAmenitiesDesc"),
+    },
+    {
+      icon: Crown,
+      title: t("features.luxuryLifestyle"),
+      description: t("features.luxuryLifestyleDesc"),
+    },
+    {
+      icon: Heart,
+      title: t("features.friendlyService"),
+      description: t("features.friendlyServiceDesc"),
+    },
+    {
+      icon: Shield,
+      title: t("features.lifeguard"),
+      description: t("features.lifeguardDesc"),
+    },
+  ];
 
   return (
     <section
@@ -225,7 +225,7 @@ function FeaturesSection() {
             custom={0}
             className="text-luxury-label text-gold block mb-4"
           >
-            Nos Atouts
+            {t("features.label")}
           </motion.span>
           <motion.h2
             variants={fadeInUp}
@@ -234,9 +234,9 @@ function FeaturesSection() {
             custom={0.2}
             className="heading-editorial text-4xl md:text-5xl lg:text-6xl"
           >
-            L&apos;excellence au
+            {t("features.title1")}
             <br />
-            <span className="italic">cœur du désert</span>
+            <span className="italic">{t("features.title2")}</span>
           </motion.h2>
         </div>
 
@@ -246,7 +246,7 @@ function FeaturesSection() {
             const Icon = feature.icon;
             return (
               <motion.div
-                key={feature.title}
+                key={index}
                 variants={scaleIn}
                 initial="hidden"
                 animate={isInView ? "visible" : "hidden"}
@@ -283,83 +283,78 @@ function FeaturesSection() {
 // ============================================
 // 3. SUITES PREVIEW SECTION
 // ============================================
-const fallbackSuites: Suite[] = [
-  {
-    id: "1",
-    name: "Suite Chorfa",
-    slug: "suite-chorfa",
-    tagline: "L'élégance au cœur du désert",
-    description:
-      "Suite double avec lit king-size et vue imprenable sur les montagnes de l'Atlas",
-    longDescription: "",
-    price: 300,
-    currency: "EUR",
-    features:
-      "Lit King Size,Vue Montagne,Salle de Bain Privative,Petit Déjeuner Inclus",
-    amenities: "",
-    image: "/images/suite-royal.png",
-    images: "",
-    maxGuests: 2,
-    bedType: "1 très grand lit double",
-    size: "45m²",
-    hasAC: true,
-    order: 1,
-    featured: true,
-    type: "suite",
-  },
-  {
-    id: "2",
-    name: "Suite Junior",
-    slug: "suite-junior",
-    tagline: "Intimité et confort au désert",
-    description:
-      "Suite junior avec lit double et aménagements premium pour un séjour inoubliable",
-    longDescription: "",
-    price: 300,
-    currency: "EUR",
-    features:
-      "Lit Double,Salle de Bain Privative,Terrasse Privée,Petit Déjeuner Inclus",
-    amenities: "",
-    image: "/images/suite-sultan.png",
-    images: "",
-    maxGuests: 2,
-    bedType: "1 très grand lit double",
-    size: "40m²",
-    hasAC: true,
-    order: 2,
-    featured: true,
-    type: "suite",
-  },
-  {
-    id: "3",
-    name: "Suite Familiale",
-    slug: "suite-familiale",
-    tagline: "Le désert en famille, le luxe en partage",
-    description:
-      "Suite familiale avec lit double et lit simple, idéale pour les familles",
-    longDescription: "",
-    price: 300,
-    currency: "EUR",
-    features:
-      "Lit Double + Lit Simple,Vue Montagne,Salle de Bain Privative,Petit Déjeuner Inclus",
-    amenities: "",
-    image: "/images/suite-oasis.png",
-    images: "",
-    maxGuests: 4,
-    bedType: "1 très grand lit double + 1 lit simple",
-    size: "55m²",
-    hasAC: true,
-    order: 3,
-    featured: true,
-    type: "suite",
-  },
-];
-
 function SuitesSection() {
+  const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [suites, setSuites] = useState<Suite[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const fallbackSuites: Suite[] = [
+    {
+      id: "1",
+      name: t("suiteData.chorfa.name"),
+      slug: "suite-chorfa",
+      tagline: t("suiteData.chorfa.tagline"),
+      description: t("suiteData.chorfa.description"),
+      longDescription: "",
+      price: 300,
+      currency: "EUR",
+      features: t("suiteData.chorfa.features"),
+      amenities: "",
+      image: "/images/suite-royal.png",
+      images: "",
+      maxGuests: 2,
+      bedType: "1 très grand lit double",
+      size: "45m²",
+      hasAC: true,
+      order: 1,
+      featured: true,
+      type: "suite",
+    },
+    {
+      id: "2",
+      name: t("suiteData.junior.name"),
+      slug: "suite-junior",
+      tagline: t("suiteData.junior.tagline"),
+      description: t("suiteData.junior.description"),
+      longDescription: "",
+      price: 300,
+      currency: "EUR",
+      features: t("suiteData.junior.features"),
+      amenities: "",
+      image: "/images/suite-sultan.png",
+      images: "",
+      maxGuests: 2,
+      bedType: "1 très grand lit double",
+      size: "40m²",
+      hasAC: true,
+      order: 2,
+      featured: true,
+      type: "suite",
+    },
+    {
+      id: "3",
+      name: t("suiteData.familiale.name"),
+      slug: "suite-familiale",
+      tagline: t("suiteData.familiale.tagline"),
+      description: t("suiteData.familiale.description"),
+      longDescription: "",
+      price: 300,
+      currency: "EUR",
+      features: t("suiteData.familiale.features"),
+      amenities: "",
+      image: "/images/suite-oasis.png",
+      images: "",
+      maxGuests: 4,
+      bedType: "1 très grand lit double + 1 lit simple",
+      size: "55m²",
+      hasAC: true,
+      order: 3,
+      featured: true,
+      type: "suite",
+    },
+  ];
 
   useEffect(() => {
     fetch("/api/suites?featured=true")
@@ -391,7 +386,7 @@ function SuitesSection() {
               custom={0}
               className="text-luxury-label text-gold block mb-4"
             >
-              Hébergement
+              {t("suites.label")}
             </motion.span>
             <motion.h2
               variants={fadeInUp}
@@ -400,7 +395,7 @@ function SuitesSection() {
               custom={0.2}
               className="heading-editorial text-4xl md:text-5xl lg:text-6xl"
             >
-              Nos Tentes
+              {t("suites.title")}
             </motion.h2>
           </div>
           <motion.p
@@ -410,8 +405,7 @@ function SuitesSection() {
             custom={0.4}
             className="text-editorial text-muted-foreground max-w-md"
           >
-            Chaque tente est un monde à part — conçue avec intention, pensée
-            pour la sérénité, et dotée de toutes les indulgences.
+            {t("suites.subtitle")}
           </motion.p>
         </div>
 
@@ -451,7 +445,7 @@ function SuitesSection() {
                       <div className="flex items-center gap-3 mb-3">
                         <div className="w-6 h-px bg-gold" />
                         <span className="text-luxury-label text-gold text-[10px]">
-                          {suite.size} · Jusqu&apos;à {suite.maxGuests}
+                          {suite.size} · {t("suites.upTo")} {suite.maxGuests}
                         </span>
                       </div>
                       <h3 className="font-serif text-2xl md:text-3xl text-white mb-2">
@@ -488,11 +482,11 @@ function SuitesSection() {
                               {suite.price}€
                             </span>
                             <span className="text-white/40 text-sm ml-1">
-                              / nuit
+                              {t("suites.perNight")}
                             </span>
                           </div>
                           <span className="flex items-center gap-2 text-gold text-sm group/link">
-                            Voir la tente
+                            {t("suites.viewTent")}
                             <ArrowRight className="w-3 h-3 transition-transform group-hover/link:translate-x-1" />
                           </span>
                         </div>
@@ -512,26 +506,8 @@ function SuitesSection() {
 // ============================================
 // 4. GALLERY SECTION
 // ============================================
-const galleryImages = [
-  {
-    src: "/images/about.png",
-    alt: "Vue aérienne du camp Arabian Desert Home dans le désert d'Agafay",
-  },
-  {
-    src: "/images/dining.png",
-    alt: "Dîner raffiné sous les étoiles au désert d'Agafay",
-  },
-  {
-    src: "/images/night.png",
-    alt: "Ambiance nocturne magique au campement de luxe",
-  },
-  {
-    src: "/images/exp-camel.png",
-    alt: "Promenade en dromadaire au coucher du soleil",
-  },
-];
-
 function GallerySection() {
+  const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
 
@@ -550,7 +526,7 @@ function GallerySection() {
             custom={0}
             className="text-luxury-label text-gold block mb-4"
           >
-            Galerie
+            {t("gallery.label")}
           </motion.span>
           <motion.h2
             variants={fadeInUp}
@@ -559,9 +535,9 @@ function GallerySection() {
             custom={0.2}
             className="heading-editorial text-4xl md:text-5xl lg:text-6xl"
           >
-            Expérience à travers
+            {t("gallery.title1")}
             <br />
-            <span className="italic">les images</span>
+            <span className="italic">{t("gallery.title2")}</span>
           </motion.h2>
         </div>
 
@@ -592,71 +568,63 @@ function GallerySection() {
   );
 }
 
-// ============================================
-// 5. PACKAGES SECTION
-// ============================================
-const packages = [
+const galleryImages = [
   {
-    name: "Honeymoon Suite Package",
-    price: 249,
-    description:
-      "Suite lune de miel avec dîner aux chandelles, spa privé et coucher de soleil exclusif au désert.",
-    features: [
-      "Suite lune de miel privée",
-      "Dîner aux chandelles",
-      "Soin spa pour couple",
-      "Balade dromadaire offerte",
-      "Petit déjeuner au lit",
-    ],
-    highlighted: true,
+    src: "/images/about.png",
+    alt: "Vue aérienne du camp Arabian Desert Home dans le désert d'Agafay",
   },
   {
-    name: "Suite Room Package",
-    price: 209,
-    description:
-      "Suite premium avec terrasse privée et vue panoramique sur les montagnes de l'Atlas.",
-    features: [
-      "Suite avec terrasse privée",
-      "Vue panoramique Atlas",
-      "Accès spa & hammam",
-      "Dîner gastronomique inclus",
-      "Conciergerie 24h/24",
-    ],
-    highlighted: false,
+    src: "/images/dining.png",
+    alt: "Dîner raffiné sous les étoiles au désert d'Agafay",
   },
   {
-    name: "Deluxe Room Package",
-    price: 149,
-    description:
-      "Chambre deluxe tout confort avec accès complet aux installations du camp.",
-    features: [
-      "Chambre deluxe climatisée",
-      "Accès piscine & spa",
-      "Petit déjeuner inclus",
-      "Restaurant du camp",
-      "Wi-Fi gratuit",
-    ],
-    highlighted: false,
+    src: "/images/night.png",
+    alt: "Ambiance nocturne magique au campement de luxe",
   },
   {
-    name: "Superior Room Package",
-    price: 109,
-    description:
-      "Chambre supérieure authentique pour une expérience désertique accessible et mémorable.",
-    features: [
-      "Chambre supérieure",
-      "Petit déjeuner marocain",
-      "Accès piscine",
-      "Douche chaude privative",
-      "Parking gratuit",
-    ],
-    highlighted: false,
+    src: "/images/exp-camel.png",
+    alt: "Promenade en dromadaire au coucher du soleil",
   },
 ];
 
+// ============================================
+// 5. PACKAGES SECTION
+// ============================================
 function PackagesSection() {
+  const { t, tArray } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
+
+  const packages = [
+    {
+      name: t("packages.honeymoon.name"),
+      price: 249,
+      description: t("packages.honeymoon.description"),
+      features: tArray("packages.honeymoon.features"),
+      highlighted: true,
+    },
+    {
+      name: t("packages.suiteRoom.name"),
+      price: 209,
+      description: t("packages.suiteRoom.description"),
+      features: tArray("packages.suiteRoom.features"),
+      highlighted: false,
+    },
+    {
+      name: t("packages.deluxe.name"),
+      price: 149,
+      description: t("packages.deluxe.description"),
+      features: tArray("packages.deluxe.features"),
+      highlighted: false,
+    },
+    {
+      name: t("packages.superior.name"),
+      price: 109,
+      description: t("packages.superior.description"),
+      features: tArray("packages.superior.features"),
+      highlighted: false,
+    },
+  ];
 
   return (
     <section
@@ -673,7 +641,7 @@ function PackagesSection() {
             custom={0}
             className="text-luxury-label text-gold block mb-4"
           >
-            Nos Offres
+            {t("packages.label")}
           </motion.span>
           <motion.h2
             variants={fadeInUp}
@@ -682,7 +650,7 @@ function PackagesSection() {
             custom={0.2}
             className="heading-editorial text-4xl md:text-5xl lg:text-6xl"
           >
-            Forfaits &amp; Séjours
+            {t("packages.title")}
           </motion.h2>
         </div>
 
@@ -690,7 +658,7 @@ function PackagesSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {packages.map((pkg, index) => (
             <motion.div
-              key={pkg.name}
+              key={index}
               variants={scaleIn}
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
@@ -705,7 +673,7 @@ function PackagesSection() {
               {pkg.highlighted && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <span className="bg-gold text-charcoal text-luxury-label text-[10px] px-4 py-1">
-                    Populaire
+                    {t("packages.popular")}
                   </span>
                 </div>
               )}
@@ -726,7 +694,7 @@ function PackagesSection() {
                   {pkg.price}€
                 </span>
                 <span className="text-muted-foreground text-sm ml-2">
-                  / Nuit
+                  {t("packages.perNight")}
                 </span>
               </div>
 
@@ -735,9 +703,9 @@ function PackagesSection() {
 
               {/* Features */}
               <ul className="space-y-3 mb-8 flex-1">
-                {pkg.features.map((feature) => (
+                {pkg.features.map((feature, i) => (
                   <li
-                    key={feature}
+                    key={i}
                     className="flex items-start gap-3 text-sm text-muted-foreground"
                   >
                     <Star className="w-3.5 h-3.5 text-gold mt-0.5 shrink-0 fill-gold" />
@@ -755,7 +723,7 @@ function PackagesSection() {
                       : "bg-transparent border border-gold/40 text-gold hover:bg-gold/10 hover:text-gold hover:border-gold"
                   }`}
                 >
-                  Réserver
+                  {t("packages.book")}
                 </Button>
               </Link>
             </motion.div>
@@ -770,6 +738,7 @@ function PackagesSection() {
 // 6. TESTIMONIALS SECTION
 // ============================================
 function TestimonialsSection() {
+  const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -778,30 +747,27 @@ function TestimonialsSection() {
   const fallbackTestimonials: Testimonial[] = [
     {
       id: "1",
-      quote:
-        "Une expérience incroyable au cœur du désert d'Agafay. L'accueil chaleureux et la beauté des lieux nous ont transportés. Un séjour inoubliable que nous recommandons à tous.",
-      author: "Marie & Pierre D.",
-      location: "Lyon, France",
+      quote: t("testimonials.testimonial1.quote"),
+      author: t("testimonials.testimonial1.author"),
+      location: t("testimonials.testimonial1.location"),
       rating: 5,
       source: "general",
       order: 1,
     },
     {
       id: "2",
-      quote:
-        "Les tentes sont magnifiques et le confort est au rendez-vous. Le dîner sous les étoiles avec la musique live était un moment magique. Merci pour cette pause hors du temps.",
-      author: "Sophie L.",
-      location: "Bruxelles, Belgique",
+      quote: t("testimonials.testimonial2.quote"),
+      author: t("testimonials.testimonial2.author"),
+      location: t("testimonials.testimonial2.location"),
       rating: 5,
       source: "general",
       order: 2,
     },
     {
       id: "3",
-      quote:
-        "Le personnel est aux petits soins, la piscine avec vue sur le désert est un rêve éveillé. On reviendra pour le hammam et les balades à cheval !",
-      author: "Ahmed B.",
-      location: "Casablanca, Maroc",
+      quote: t("testimonials.testimonial3.quote"),
+      author: t("testimonials.testimonial3.author"),
+      location: t("testimonials.testimonial3.location"),
       rating: 5,
       source: "general",
       order: 3,
@@ -843,7 +809,7 @@ function TestimonialsSection() {
           custom={0}
           className="text-luxury-label text-gold block mb-6"
         >
-          Témoignages
+          {t("testimonials.label")}
         </motion.span>
 
         <motion.h2
@@ -853,16 +819,16 @@ function TestimonialsSection() {
           custom={0.2}
           className="heading-editorial text-4xl md:text-5xl mb-16"
         >
-          Ce que disent nos
+          {t("testimonials.title1")}
           <br />
-          <span className="italic">invités</span>
+          <span className="italic">{t("testimonials.title2")}</span>
         </motion.h2>
 
         {/* Testimonial Content */}
         <div className="relative min-h-[280px]">
-          {displayTestimonials.map((t, i) => (
+          {displayTestimonials.map((testimonial, i) => (
             <motion.div
-              key={t.id}
+              key={testimonial.id}
               initial={false}
               animate={{
                 opacity: i === active ? 1 : 0,
@@ -877,11 +843,11 @@ function TestimonialsSection() {
               <Quote className="w-8 h-8 text-gold/30 mb-8" />
 
               <p className="font-serif text-xl md:text-2xl lg:text-3xl leading-relaxed text-balance mb-8 italic">
-                &ldquo;{t.quote}&rdquo;
+                &ldquo;{testimonial.quote}&rdquo;
               </p>
 
               <div className="flex gap-1 mb-4">
-                {Array.from({ length: t.rating }).map((_, j) => (
+                {Array.from({ length: testimonial.rating }).map((_, j) => (
                   <Star
                     key={j}
                     className="w-3.5 h-3.5 fill-gold text-gold"
@@ -889,9 +855,9 @@ function TestimonialsSection() {
                 ))}
               </div>
 
-              <p className="font-serif text-lg">{t.author}</p>
+              <p className="font-serif text-lg">{testimonial.author}</p>
               <p className="text-luxury-label text-muted-foreground mt-1">
-                {t.location}
+                {testimonial.location}
               </p>
             </motion.div>
           ))}
@@ -908,7 +874,7 @@ function TestimonialsSection() {
                   ? "bg-gold w-8"
                   : "bg-border hover:bg-muted-foreground"
               }`}
-              aria-label={`Aller au témoignage ${i + 1}`}
+              aria-label={`${t("testimonials.goTo")} ${i + 1}`}
             />
           ))}
         </div>
@@ -921,6 +887,7 @@ function TestimonialsSection() {
 // 7. CTA SECTION
 // ============================================
 function CTASection() {
+  const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
 
@@ -947,7 +914,7 @@ function CTASection() {
           custom={0}
           className="text-luxury-label text-gold block mb-6"
         >
-          Votre séjour vous attend
+          {t("cta.label")}
         </motion.span>
 
         <motion.h2
@@ -957,10 +924,10 @@ function CTASection() {
           custom={0.2}
           className="heading-editorial text-4xl md:text-5xl lg:text-6xl text-white mb-6"
         >
-          Réservez maintenant pour un luxe
+          {t("cta.title1")}
           <br />
-          <span className="italic text-gold">inoubliable</span> et une{" "}
-          <span className="italic text-gold">tranquillité</span>
+          <span className="italic text-gold">{t("cta.title2")}</span> {t("cta.title3")}{" "}
+          <span className="italic text-gold">{t("cta.title4")}</span>
         </motion.h2>
 
         <motion.div
@@ -978,9 +945,7 @@ function CTASection() {
           custom={0.6}
           className="text-editorial text-white/60 mb-10 max-w-lg mx-auto"
         >
-          Le désert d&apos;Agafay vous offre une évasion hors du commun.
-          Réservez dès maintenant et laissez-vous transporter par la magie des
-          lieux.
+          {t("cta.description")}
         </motion.p>
 
         <motion.div
@@ -991,7 +956,7 @@ function CTASection() {
         >
           <Link href="/reservez-votre-sejour">
             <Button className="bg-gold text-charcoal hover:bg-gold-light rounded-none px-12 py-7 text-luxury-label tracking-[0.2em] transition-all duration-300">
-              Réservez Votre Séjour
+              {t("cta.bookYourStay")}
             </Button>
           </Link>
         </motion.div>

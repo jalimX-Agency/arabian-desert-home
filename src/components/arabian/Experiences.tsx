@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Clock, ArrowUpRight } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/context";
 
 interface Experience {
   id: string;
@@ -18,6 +19,7 @@ interface Experience {
 }
 
 export function Experiences() {
+  const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -31,43 +33,43 @@ export function Experiences() {
         setExperiences([
           {
             id: "1",
-            name: "Golden Hour Camel Trek",
+            name: t("experiences.camelTrek.name"),
             slug: "camel-trek",
-            description: "Journey through time aboard the ship of the desert",
-            longDescription: "As the sun paints the Agafay in shades of amber and rose, embark on a timeless journey aboard our gentle camels. Led by nomadic guides whose families have traversed these paths for generations, this is not merely a ride—it is a passage into the soul of the Sahara.",
-            duration: "3 hours",
+            description: t("experiences.camelTrek.description"),
+            longDescription: t("experiences.camelTrek.longDescription"),
+            duration: t("experiences.camelTrek.duration"),
             price: 250,
             image: "/images/exp-camel.png",
-            category: "Adventure",
+            category: t("experiences.camelTrek.category"),
             featured: true,
           },
           {
             id: "2",
-            name: "Desert Hammam Ritual",
+            name: t("experiences.hammam.name"),
             slug: "desert-hammam",
-            description: "Ancient wellness reborn in sacred stillness",
-            longDescription: "Surrender to a centuries-old ritual beneath the open sky. Our desert hammam uses black soap from Marrakech, rhassoul clay from the Atlas Mountains, and rose water from Kelaat M'gouna. Each treatment is a meditation—a return to elemental simplicity.",
-            duration: "2.5 hours",
+            description: t("experiences.hammam.description"),
+            longDescription: t("experiences.hammam.longDescription"),
+            duration: t("experiences.hammam.duration"),
             price: 350,
             image: "/images/exp-spa.png",
-            category: "Wellness",
+            category: t("experiences.hammam.category"),
             featured: true,
           },
           {
             id: "3",
-            name: "Dawn Balloon Voyage",
+            name: t("experiences.balloon.name"),
             slug: "balloon-voyage",
-            description: "Rise above the earth as the desert awakens",
-            longDescription: "Before the world stirs, ascend into the crystalline morning air. Our private balloon carries you over the lunar landscape of Agafay, the terracotta walls of distant kasbahs, and the snow-capped Atlas Mountains piercing the horizon.",
-            duration: "4 hours",
+            description: t("experiences.balloon.description"),
+            longDescription: t("experiences.balloon.longDescription"),
+            duration: t("experiences.balloon.duration"),
             price: 550,
             image: "/images/exp-balloon.png",
-            category: "Adventure",
+            category: t("experiences.balloon.category"),
             featured: true,
           },
         ]);
       });
-  }, []);
+  }, [t]);
 
   const active = experiences[activeIndex];
 
@@ -86,7 +88,7 @@ export function Experiences() {
             transition={{ duration: 0.8 }}
             className="text-luxury-label text-gold block mb-4"
           >
-            Curated Journeys
+            {t("experiences.label")}
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
@@ -94,9 +96,9 @@ export function Experiences() {
             transition={{ duration: 1, delay: 0.2 }}
             className="heading-editorial text-4xl md:text-5xl lg:text-6xl"
           >
-            Beyond the
+            {t("experiences.title1")}
             <br />
-            <span className="italic">Horizon</span>
+            <span className="italic">{t("experiences.title2")}</span>
           </motion.h2>
         </div>
 
@@ -132,7 +134,7 @@ export function Experiences() {
                     <span className="text-gold font-serif text-lg">
                       ${active.price}
                     </span>
-                    <span className="text-white/50 text-xs ml-1">/ person</span>
+                    <span className="text-white/50 text-xs ml-1">{t("experiences.perPerson")}</span>
                   </div>
                 </div>
               </motion.div>
@@ -169,7 +171,7 @@ export function Experiences() {
                 </p>
 
                 <button className="flex items-center gap-2 text-gold text-sm tracking-wider uppercase group/link">
-                  Explore This Journey
+                  {t("experiences.exploreJourney")}
                   <ArrowUpRight className="w-4 h-4 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
                 </button>
               </motion.div>

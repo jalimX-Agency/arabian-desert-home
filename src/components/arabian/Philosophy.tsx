@@ -2,10 +2,12 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { useLanguage } from "@/lib/i18n/context";
 
 export function Philosophy() {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const { t } = useLanguage();
 
   return (
     <section
@@ -21,7 +23,7 @@ export function Philosophy() {
           transition={{ duration: 0.8 }}
           className="mb-16 md:mb-24"
         >
-          <span className="text-luxury-label text-gold">The Experience</span>
+          <span className="text-luxury-label text-gold">{t("philosophy.label")}</span>
         </motion.div>
 
         {/* Editorial Layout */}
@@ -34,13 +36,13 @@ export function Philosophy() {
               transition={{ duration: 1, delay: 0.2 }}
               className="heading-editorial text-4xl md:text-5xl lg:text-6xl text-balance"
             >
-              In the desert,
+              {t("philosophy.title1")}
               <br />
-              you don&apos;t escape
+              {t("philosophy.title2")}
               <br />
-              the world—
+              {t("philosophy.title3")}
               <br />
-              <span className="italic text-gold">you find it</span>
+              <span className="italic text-gold">{t("philosophy.title4")}</span>
             </motion.h2>
 
             <motion.div
@@ -59,11 +61,7 @@ export function Philosophy() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-editorial text-lg md:text-xl text-muted-foreground leading-relaxed"
             >
-              Arabian Desert Home was born from a singular vision: to create a
-              sanctuary where luxury exists in perfect harmony with the raw
-              beauty of the Agafay Desert. Every detail—from the hand-stitched
-              Berber textiles to the organic shapes of our architecture—has been
-              curated to honor the land and elevate the spirit.
+              {t("philosophy.paragraph1")}
             </motion.p>
 
             <motion.p
@@ -72,12 +70,7 @@ export function Philosophy() {
               transition={{ duration: 0.8, delay: 0.6 }}
               className="text-editorial text-muted-foreground leading-relaxed"
             >
-              Here, time moves to the rhythm of the sun. Mornings begin with
-              silence and mint tea. Afternoons unfold with purpose—whether
-              exploring ancient trails, surrendering to the hammam, or simply
-              watching the light shift across the stone. And when night falls,
-              the desert reveals its most intimate secret: a sky so vast it
-              makes philosophers of us all.
+              {t("philosophy.paragraph2")}
             </motion.p>
 
             {/* Image */}
@@ -103,9 +96,9 @@ export function Philosophy() {
               className="grid grid-cols-3 gap-8 pt-6 border-t border-border/50"
             >
               {[
-                { value: "12", label: "Luxury Suites" },
-                { value: "40km", label: "From Marrakech" },
-                { value: "5★", label: "Experience" },
+                { value: "12", label: t("philosophy.stats.suites") },
+                { value: "40km", label: t("philosophy.stats.distance") },
+                { value: "5★", label: t("philosophy.stats.experience") },
               ].map((stat) => (
                 <div key={stat.label} className="text-center lg:text-left">
                   <div className="font-serif text-3xl md:text-4xl text-gold">

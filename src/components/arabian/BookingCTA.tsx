@@ -23,8 +23,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { CalendarIcon, Minus, Plus, Send, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/lib/i18n/context";
 
 export function BookingCTA() {
+  const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
 
@@ -44,7 +46,7 @@ export function BookingCTA() {
               transition={{ duration: 0.8 }}
               className="text-luxury-label text-gold block mb-4"
             >
-              Your Journey Awaits
+              {t("booking.label")}
             </motion.span>
 
             <motion.h2
@@ -53,9 +55,9 @@ export function BookingCTA() {
               transition={{ duration: 1, delay: 0.2 }}
               className="heading-editorial text-4xl md:text-5xl lg:text-6xl mb-8"
             >
-              Begin Your
+              {t("booking.title1")}
               <br />
-              <span className="italic">Desert Story</span>
+              <span className="italic">{t("booking.title2")}</span>
             </motion.h2>
 
             <motion.p
@@ -64,10 +66,7 @@ export function BookingCTA() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-editorial text-muted-foreground mb-8"
             >
-              Every stay at Arabian Desert Home is a bespoke experience. From
-              the moment you enquire, our concierge team crafts a journey
-              tailored entirely to your desires. No request is too extraordinary,
-              no detail too small.
+              {t("booking.description")}
             </motion.p>
 
             <motion.div
@@ -77,10 +76,10 @@ export function BookingCTA() {
               className="space-y-4 mb-10"
             >
               {[
-                "Complimentary airport transfer from Marrakech",
-                "Personal butler assigned to your suite",
-                "Curated experience itinerary upon arrival",
-                "24-hour in-suite dining and concierge",
+                t("booking.perk1"),
+                t("booking.perk2"),
+                t("booking.perk3"),
+                t("booking.perk4"),
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <Check className="w-4 h-4 text-gold mt-0.5 shrink-0" />
@@ -95,7 +94,7 @@ export function BookingCTA() {
               transition={{ duration: 0.8, delay: 0.8 }}
             >
               <p className="text-xs text-muted-foreground/50 mb-6">
-                Starting from <span className="text-gold font-serif text-lg">$1,200</span> per night · Minimum 2-night stay
+                {t("booking.startingFrom")} <span className="text-gold font-serif text-lg">$1,200</span> {t("booking.perNight")} · {t("booking.minimumStay")}
               </p>
             </motion.div>
           </div>
@@ -115,6 +114,7 @@ export function BookingCTA() {
 }
 
 function BookingForm() {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -147,8 +147,8 @@ function BookingForm() {
 
       if (res.ok) {
         toast({
-          title: "Reservation Received",
-          description: "Our concierge team will contact you within 24 hours.",
+          title: t("booking.reservationReceived"),
+          description: t("booking.conciergeContact"),
         });
         setStep(3);
       } else {
@@ -156,8 +156,8 @@ function BookingForm() {
       }
     } catch {
       toast({
-        title: "Something went wrong",
-        description: "Please try again or contact us directly.",
+        title: t("booking.somethingWrong"),
+        description: t("booking.tryAgain"),
         variant: "destructive",
       });
     } finally {
@@ -171,10 +171,9 @@ function BookingForm() {
         <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-6">
           <Check className="w-8 h-8 text-gold" />
         </div>
-        <h3 className="font-serif text-2xl mb-3">Thank You</h3>
+        <h3 className="font-serif text-2xl mb-3">{t("booking.thankYou")}</h3>
         <p className="text-sm text-muted-foreground">
-          Your reservation request has been received. Our concierge team will
-          reach out within 24 hours to finalize your desert experience.
+          {t("booking.successMessage")}
         </p>
       </div>
     );
@@ -198,7 +197,7 @@ function BookingForm() {
           ))}
         </div>
         <span className="text-luxury-label text-muted-foreground ml-2">
-          {step === 1 ? "Your Details" : "Your Stay"}
+          {step === 1 ? t("booking.step1Label") : t("booking.step2Label")}
         </span>
       </div>
 
@@ -207,7 +206,7 @@ function BookingForm() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-luxury-label text-muted-foreground">
-                First Name
+                {t("booking.firstName")}
               </Label>
               <Input
                 value={form.firstName}
@@ -215,12 +214,12 @@ function BookingForm() {
                   setForm({ ...form, firstName: e.target.value })
                 }
                 className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-gold"
-                placeholder="First name"
+                placeholder={t("booking.firstNamePlaceholder")}
               />
             </div>
             <div>
               <Label className="text-luxury-label text-muted-foreground">
-                Last Name
+                {t("booking.lastName")}
               </Label>
               <Input
                 value={form.lastName}
@@ -228,31 +227,31 @@ function BookingForm() {
                   setForm({ ...form, lastName: e.target.value })
                 }
                 className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-gold"
-                placeholder="Last name"
+                placeholder={t("booking.lastNamePlaceholder")}
               />
             </div>
           </div>
           <div>
             <Label className="text-luxury-label text-muted-foreground">
-              Email
+              {t("booking.email")}
             </Label>
             <Input
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-gold"
-              placeholder="your@email.com"
+              placeholder={t("booking.emailPlaceholder")}
             />
           </div>
           <div>
             <Label className="text-luxury-label text-muted-foreground">
-              Phone <span className="normal-case tracking-normal text-muted-foreground/50">(optional)</span>
+              {t("booking.phone")} <span className="normal-case tracking-normal text-muted-foreground/50">{t("booking.phoneOptional")}</span>
             </Label>
             <Input
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-gold"
-              placeholder="+212 6XX XXX XXX"
+              placeholder={t("booking.phonePlaceholder")}
             />
           </div>
           <Button
@@ -260,7 +259,7 @@ function BookingForm() {
             disabled={!form.firstName || !form.lastName || !form.email}
             className="w-full bg-gold text-charcoal hover:bg-gold-light rounded-none py-6 text-luxury-label"
           >
-            Continue
+            {t("booking.continue")}
           </Button>
         </div>
       )}
@@ -269,24 +268,24 @@ function BookingForm() {
         <div className="space-y-5">
           <div>
             <Label className="text-luxury-label text-muted-foreground">
-              Suite
+              {t("booking.suite")}
             </Label>
             <Select
               value={form.suiteType}
               onValueChange={(v) => setForm({ ...form, suiteType: v })}
             >
               <SelectTrigger className="mt-1.5 bg-transparent border-border/50 rounded-none">
-                <SelectValue placeholder="Select your suite" />
+                <SelectValue placeholder={t("booking.selectSuite")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="royal-tent">
-                  The Royal Tent — $1,200/night
+                  {t("booking.royalTent")}
                 </SelectItem>
                 <SelectItem value="oasis-pavilion">
-                  The Oasis Pavilion — $1,800/night
+                  {t("booking.oasisPavilion")}
                 </SelectItem>
                 <SelectItem value="sultan-suite">
-                  The Sultan Suite — $2,200/night
+                  {t("booking.sultanSuite")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -295,29 +294,29 @@ function BookingForm() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-luxury-label text-muted-foreground">
-                Check In
+                {t("booking.checkIn")}
               </Label>
               <PopoverDate
                 date={form.checkIn}
                 onSelect={(d) => setForm({ ...form, checkIn: d })}
-                placeholder="Select date"
+                placeholder={t("booking.selectDate")}
               />
             </div>
             <div>
               <Label className="text-luxury-label text-muted-foreground">
-                Check Out
+                {t("booking.checkOut")}
               </Label>
               <PopoverDate
                 date={form.checkOut}
                 onSelect={(d) => setForm({ ...form, checkOut: d })}
-                placeholder="Select date"
+                placeholder={t("booking.selectDate")}
               />
             </div>
           </div>
 
           <div>
             <Label className="text-luxury-label text-muted-foreground">
-              Guests
+              {t("booking.guests")}
             </Label>
             <div className="flex items-center gap-4 mt-1.5">
               <button
@@ -344,13 +343,13 @@ function BookingForm() {
 
           <div>
             <Label className="text-luxury-label text-muted-foreground">
-              Special Requests <span className="normal-case tracking-normal text-muted-foreground/50">(optional)</span>
+              {t("booking.specialRequests")} <span className="normal-case tracking-normal text-muted-foreground/50">{t("booking.specialRequestsOptional")}</span>
             </Label>
             <Textarea
               value={form.specialReqs}
               onChange={(e) => setForm({ ...form, specialReqs: e.target.value })}
               className="mt-1.5 bg-transparent border-border/50 rounded-none focus:border-gold min-h-[80px]"
-              placeholder="Dietary requirements, celebrations, special arrangements..."
+              placeholder={t("booking.specialRequestsPlaceholder")}
             />
           </div>
 
@@ -360,7 +359,7 @@ function BookingForm() {
               variant="outline"
               className="flex-1 rounded-none border-border/50 py-6"
             >
-              Back
+              {t("booking.back")}
             </Button>
             <Button
               onClick={handleSubmit}
@@ -368,11 +367,11 @@ function BookingForm() {
               className="flex-1 bg-gold text-charcoal hover:bg-gold-light rounded-none py-6 text-luxury-label"
             >
               {loading ? (
-                "Submitting..."
+                t("booking.submitting")
               ) : (
                 <>
                   <Send className="w-4 h-4 mr-2" />
-                  Request Reservation
+                  {t("booking.submit")}
                 </>
               )}
             </Button>
@@ -392,6 +391,7 @@ function PopoverDate({
   onSelect: (d: Date | undefined) => void;
   placeholder: string;
 }) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -406,7 +406,7 @@ function PopoverDate({
       </button>
       <DialogContent className="w-auto p-0 bg-background border-border/50">
         <DialogHeader>
-          <DialogTitle>Select Date</DialogTitle>
+          <DialogTitle>{t("booking.selectDateTitle")}</DialogTitle>
         </DialogHeader>
         <Calendar
           mode="single"

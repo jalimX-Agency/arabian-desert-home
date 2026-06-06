@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/lib/i18n/context";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -42,6 +43,7 @@ interface SuiteDetailPageProps {
 }
 
 export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
+  const { t } = useLanguage();
   const [suite, setSuite] = useState<Suite | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -80,16 +82,16 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-serif text-3xl mb-4">Suite introuvable</h1>
+          <h1 className="font-serif text-3xl mb-4">{t("suiteDetail.suiteNotFound")}</h1>
           <p className="text-muted-foreground mb-8">
-            La suite que vous recherchez n&apos;existe pas.
+            {t("suiteDetail.suiteNotFoundDesc")}
           </p>
           <Link
             href="/les-tentes"
             className="inline-flex items-center gap-2 text-gold hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
-            Retour aux tentes
+            {t("suiteDetail.backToTents")}
           </Link>
         </div>
       </div>
@@ -121,14 +123,14 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
             <button
               onClick={prevImage}
               className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-black/30 backdrop-blur-sm text-white/80 hover:bg-black/50 hover:text-white transition-all duration-300"
-              aria-label="Image précédente"
+              aria-label={t("suiteDetail.previousImage")}
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
             <button
               onClick={nextImage}
               className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-black/30 backdrop-blur-sm text-white/80 hover:bg-black/50 hover:text-white transition-all duration-300"
-              aria-label="Image suivante"
+              aria-label={t("suiteDetail.nextImage")}
             >
               <ChevronRight className="w-6 h-6" />
             </button>
@@ -144,7 +146,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                       ? "bg-gold w-6"
                       : "bg-white/40 hover:bg-white/60"
                   }`}
-                  aria-label={`Image ${idx + 1}`}
+                  aria-label={`${t("suiteDetail.image")} ${idx + 1}`}
                 />
               ))}
             </div>
@@ -164,7 +166,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                 className="inline-flex items-center gap-2 text-white/50 hover:text-gold text-sm mb-6 transition-colors duration-300"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Toutes les tentes
+                {t("suiteDetail.allTents")}
               </Link>
             </motion.div>
 
@@ -174,7 +176,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
               transition={{ duration: 1, delay: 0.4 }}
             >
               <span className="text-luxury-label text-gold block mb-3">
-                {isChambre ? "Chambre" : "Suite"}
+                {isChambre ? t("suiteDetail.room") : t("suiteDetail.suite")}
               </span>
               <h1 className="heading-editorial text-4xl md:text-5xl lg:text-6xl text-white mb-3">
                 {suite.name}
@@ -187,7 +189,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
               <div className="flex flex-wrap items-center gap-6 text-white/60 text-sm">
                 <span className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-gold/60" />
-                  {suite.maxGuests} personnes
+                  {suite.maxGuests} {t("suiteDetail.persons")}
                 </span>
                 <span className="flex items-center gap-2">
                   <Maximize2 className="w-4 h-4 text-gold/60" />
@@ -200,7 +202,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                 {suite.hasAC && (
                   <span className="flex items-center gap-2">
                     <Wind className="w-4 h-4 text-gold/60" />
-                    Climatisation
+                    {t("suiteDetail.airConditioning")}
                   </span>
                 )}
               </div>
@@ -224,10 +226,10 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                 className="mb-16"
               >
                 <span className="text-luxury-label text-gold block mb-4">
-                  À propos
+                  {t("suiteDetail.about")}
                 </span>
                 <h2 className="heading-editorial text-2xl md:text-3xl mb-6">
-                  Un refuge <span className="italic">d&apos;exception</span>
+                  {t("suiteDetail.aboutTitle1")} <span className="italic">{t("suiteDetail.aboutTitle2")}</span>
                 </h2>
                 <div className="divider-gold max-w-xs mb-8" />
                 <p className="text-editorial text-muted-foreground leading-relaxed text-lg">
@@ -244,10 +246,10 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                 className="mb-16"
               >
                 <span className="text-luxury-label text-gold block mb-4">
-                  Caractéristiques
+                  {t("suiteDetail.features")}
                 </span>
                 <h2 className="heading-editorial text-2xl md:text-3xl mb-6">
-                  Ce qui rend cette suite <span className="italic">unique</span>
+                  {t("suiteDetail.featuresTitle1")} <span className="italic">{t("suiteDetail.featuresTitle2")}</span>
                 </h2>
                 <div className="divider-gold max-w-xs mb-8" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -279,10 +281,10 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                   className="mb-16"
                 >
                   <span className="text-luxury-label text-gold block mb-4">
-                    Galerie
+                    {t("suiteDetail.gallery")}
                   </span>
                   <h2 className="heading-editorial text-2xl md:text-3xl mb-6">
-                    En <span className="italic">images</span>
+                    {t("suiteDetail.galleryTitle1")} <span className="italic">{t("suiteDetail.galleryTitle2")}</span>
                   </h2>
                   <div className="divider-gold max-w-xs mb-8" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -299,7 +301,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                       >
                         <img
                           src={img}
-                          alt={`${suite.name} — Image ${idx + 1}`}
+                          alt={`${suite.name} — ${t("suiteDetail.image")} ${idx + 1}`}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                         />
                         <div className="absolute inset-0 bg-black/10 hover:bg-transparent transition-all duration-300" />
@@ -323,19 +325,19 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                 <div className="border border-border/50 p-8 mb-6">
                   <div className="mb-6">
                     <span className="text-luxury-label text-gold block mb-2">
-                      Tarif
+                      {t("suiteDetail.rate")}
                     </span>
                     <div className="flex items-baseline gap-2">
                       <span className="font-serif text-4xl text-gold">
                         {priceLabel}
                       </span>
                       <span className="text-muted-foreground text-sm">
-                        / nuit
+                        {t("suiteDetail.perNight")}
                       </span>
                     </div>
                     {isChambre && (
                       <p className="text-xs text-muted-foreground mt-2">
-                        En pension complète
+                        {t("suiteDetail.fullBoard")}
                       </p>
                     )}
                   </div>
@@ -347,7 +349,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                     <div className="flex items-center gap-3">
                       <Users className="w-4 h-4 text-gold/60" />
                       <span className="text-sm">
-                        {suite.maxGuests} personne{suite.maxGuests > 1 ? "s" : ""} max
+                        {suite.maxGuests} {suite.maxGuests > 1 ? t("suiteDetail.persons") : t("suiteDetail.person")} {t("suiteDetail.maxPersons")}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -361,7 +363,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                     {suite.hasAC && (
                       <div className="flex items-center gap-3">
                         <Wind className="w-4 h-4 text-gold/60" />
-                        <span className="text-sm">Climatisation</span>
+                        <span className="text-sm">{t("suiteDetail.airConditioning")}</span>
                       </div>
                     )}
                   </div>
@@ -370,14 +372,14 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                     href="/reservez-votre-sejour"
                     className="block w-full bg-gold text-charcoal hover:bg-gold-light transition-colors duration-300 py-4 text-center text-luxury-label"
                   >
-                    Réserver cette suite
+                    {t("suiteDetail.bookThisSuite")}
                   </Link>
                 </div>
 
                 {/* Amenities Card */}
                 <div className="border border-border/50 p-8">
                   <span className="text-luxury-label text-gold block mb-4">
-                    Équipements
+                    {t("suiteDetail.amenities")}
                   </span>
                   <div className="space-y-3">
                     {amenities.map((amenity, idx) => (
@@ -401,7 +403,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                     className="inline-flex items-center gap-2 text-muted-foreground hover:text-gold text-sm transition-colors duration-300"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    Voir toutes les tentes
+                    {t("suiteDetail.seeAllTents")}
                   </Link>
                 </div>
               </motion.div>
@@ -420,7 +422,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
           className="max-w-3xl mx-auto"
         >
           <span className="text-luxury-label text-gold block mb-4">
-            Réservez
+            {t("suiteDetail.book")}
           </span>
           <h2 className="heading-editorial text-3xl md:text-4xl text-white mb-4">
             {suite.name}
@@ -429,15 +431,13 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
             {suite.tagline}
           </p>
           <p className="text-editorial text-white/60 mb-10 max-w-xl mx-auto">
-            À partir de {priceLabel} par nuit. Réservez dès maintenant et
-            préparez-vous à vivre une expérience inoubliable au cœur du
-            désert d&apos;Agafay.
+            {t("suiteDetail.startingFrom")} {priceLabel} {t("suiteDetail.perNight2")}
           </p>
           <Link
             href="/reservez-votre-sejour"
             className="inline-flex items-center gap-3 bg-gold text-charcoal hover:bg-gold-light px-10 py-4 text-luxury-label transition-colors duration-300"
           >
-            Réserver cette suite
+            {t("suiteDetail.bookThisSuite")}
             <ArrowRight className="w-4 h-4" />
           </Link>
         </motion.div>

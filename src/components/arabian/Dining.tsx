@@ -2,10 +2,12 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { useLanguage } from "@/lib/i18n/context";
 
 export function Dining() {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
+  const { t } = useLanguage();
 
   return (
     <section
@@ -23,7 +25,7 @@ export function Dining() {
               transition={{ duration: 0.8 }}
               className="text-luxury-label text-gold block mb-4"
             >
-              Gastronomy
+              {t("dining.label")}
             </motion.span>
 
             <motion.h2
@@ -32,9 +34,9 @@ export function Dining() {
               transition={{ duration: 1, delay: 0.2 }}
               className="heading-editorial text-4xl md:text-5xl lg:text-6xl mb-8"
             >
-              A Feast for
+              {t("dining.title1")}
               <br />
-              <span className="italic">the Senses</span>
+              <span className="italic">{t("dining.title2")}</span>
             </motion.h2>
 
             <motion.div
@@ -50,11 +52,7 @@ export function Dining() {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="text-editorial text-muted-foreground mb-6"
             >
-              Under the canopy of a billion stars, our chef orchestrates a
-              symphony of Moroccan flavors and international technique. Each dish
-              tells a story—of ancient spice routes, of local farmers who tend
-              the earth, of a culinary tradition that has nourished body and soul
-              for millennia.
+              {t("dining.paragraph1")}
             </motion.p>
 
             <motion.p
@@ -63,11 +61,7 @@ export function Dining() {
               transition={{ duration: 0.8, delay: 0.7 }}
               className="text-sm text-muted-foreground/70 mb-10"
             >
-              From the slow-braised lamb tagine with preserved lemons to the
-              saffron-infused couscous, every meal is an event. Private dining
-              under the stars, breakfast with the Atlas Mountains as your
-              backdrop, or a clandestine picnic in a hidden oasis—the choice is
-              yours.
+              {t("dining.paragraph2")}
             </motion.p>
 
             {/* Menu Highlights */}
@@ -79,16 +73,16 @@ export function Dining() {
             >
               {[
                 {
-                  name: "Le Jardin Secret",
-                  desc: "Private garden dining under lantern light",
+                  name: t("dining.menu1Name"),
+                  desc: t("dining.menu1Desc"),
                 },
                 {
-                  name: "Dunes & Wine",
-                  desc: "Curated wine pairing on the dune crest",
+                  name: t("dining.menu2Name"),
+                  desc: t("dining.menu2Desc"),
                 },
                 {
-                  name: "Oasis Brunch",
-                  desc: "Morning feast beside the reflecting pool",
+                  name: t("dining.menu3Name"),
+                  desc: t("dining.menu3Desc"),
                 },
               ].map((item, i) => (
                 <div
@@ -133,11 +127,10 @@ export function Dining() {
                 className="absolute -bottom-6 -left-4 md:-left-8 bg-background/90 backdrop-blur-sm border border-border/50 p-6 max-w-xs"
               >
                 <p className="font-serif italic text-lg leading-snug">
-                  &ldquo;The best meals are eaten with sand between your
-                  toes&rdquo;
+                  &ldquo;{t("dining.quote")}&rdquo;
                 </p>
                 <span className="text-luxury-label text-gold mt-3 block">
-                  — Our Chef
+                  {t("dining.quoteAuthor")}
                 </span>
               </motion.div>
             </motion.div>

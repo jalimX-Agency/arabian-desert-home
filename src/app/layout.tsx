@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { LanguageProvider } from "@/lib/i18n/context";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -125,8 +126,10 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          <LanguageProvider>
+            {children}
+            <Toaster />
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

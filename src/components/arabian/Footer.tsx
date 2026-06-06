@@ -2,24 +2,27 @@
 
 import Link from "next/link";
 import { Instagram, Mail, MapPin, Phone, Facebook } from "lucide-react";
+import { useLanguage } from "@/lib/i18n/context";
 
 export function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="bg-charcoal dark:bg-charcoal text-white/70">
       {/* Pre-footer CTA */}
       <div className="border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-20 text-center">
           <p className="text-luxury-label text-gold/60 mb-4">
-            Réservez Votre Séjour
+            {t("footer.bookYourStay")}
           </p>
           <h3 className="font-serif text-3xl md:text-4xl text-white mb-6">
-            Le désert vous attend
+            {t("footer.desertAwaits")}
           </h3>
           <Link
             href="/reservez-votre-sejour"
             className="inline-flex items-center gap-2 border border-gold/50 text-gold px-10 py-4 text-luxury-label hover:bg-gold/10 transition-all duration-300"
           >
-            Réserver Maintenant
+            {t("footer.bookNow")}
           </Link>
         </div>
       </div>
@@ -43,24 +46,23 @@ export function Footer() {
               </div>
             </div>
             <p className="text-sm text-white/40 leading-relaxed">
-              Bivouac de luxe dans le désert d&apos;Agafay, à 30 minutes de Marrakech.
-              Six hectares de pure splendeur pour une expérience inoubliable.
+              {t("footer.brandDesc")}
             </p>
           </div>
 
           {/* Navigation */}
           <div>
-            <h4 className="text-luxury-label text-gold/60 mb-6">Explorer</h4>
+            <h4 className="text-luxury-label text-gold/60 mb-6">{t("footer.explore")}</h4>
             <div className="space-y-3">
               {[
-                { label: "L'ADH", href: "/" },
-                { label: "Nos Tentes", href: "/les-tentes" },
-                { label: "Restaurant", href: "/restaurant" },
-                { label: "Activités", href: "/les-activites" },
-                { label: "Day Pass", href: "/day-pass" },
-                { label: "Événements", href: "/les-evenements" },
-                { label: "Spa", href: "/spa" },
-                { label: "À Propos", href: "/apropo" },
+                { label: t("footer.navHome"), href: "/" },
+                { label: t("footer.navTents"), href: "/les-tentes" },
+                { label: t("footer.navRestaurant"), href: "/restaurant" },
+                { label: t("footer.navActivities"), href: "/les-activites" },
+                { label: t("footer.navDayPass"), href: "/day-pass" },
+                { label: t("footer.navEvents"), href: "/les-evenements" },
+                { label: t("footer.navSpa"), href: "/spa" },
+                { label: t("footer.navAbout"), href: "/apropo" },
               ].map((link) => (
                 <Link
                   key={link.href}
@@ -75,14 +77,12 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-luxury-label text-gold/60 mb-6">Contact</h4>
+            <h4 className="text-luxury-label text-gold/60 mb-6">{t("footer.contact")}</h4>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-gold/50 mt-0.5 shrink-0" />
                 <span className="text-sm text-white/40">
-                  Douar Ait Said Lchou,
-                  <br />
-                  Agafay, Marrakech
+                  {t("footer.address")}
                 </span>
               </div>
               <div className="flex items-center gap-3">
@@ -100,7 +100,7 @@ export function Footer() {
 
           {/* Social + Newsletter */}
           <div>
-            <h4 className="text-luxury-label text-gold/60 mb-6">Suivez-nous</h4>
+            <h4 className="text-luxury-label text-gold/60 mb-6">{t("footer.followUs")}</h4>
             <div className="flex gap-4 mb-8">
               <a
                 href="#"
@@ -118,12 +118,12 @@ export function Footer() {
               </a>
             </div>
             <p className="text-xs text-white/30 mb-3">
-              Restez informé de nos offres
+              {t("footer.stayInformed")}
             </p>
             <div className="flex">
               <input
                 type="email"
-                placeholder="votre@email.com"
+                placeholder={t("footer.emailPlaceholder")}
                 className="flex-1 bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:border-gold/50 focus:outline-none"
               />
               <button className="bg-gold text-charcoal px-4 py-2.5 text-luxury-label hover:bg-gold-light transition-colors">
@@ -138,14 +138,14 @@ export function Footer() {
       <div className="border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 md:px-10 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-white/20">
-            © {new Date().getFullYear()} Arabian Desert Home. Tous droits réservés.
+            © {new Date().getFullYear()} {t("footer.copyright")}
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-xs text-white/20 hover:text-white/40 transition-colors">
-              Politique de confidentialité
+              {t("footer.privacy")}
             </a>
             <a href="#" className="text-xs text-white/20 hover:text-white/40 transition-colors">
-              Conditions générales
+              {t("footer.terms")}
             </a>
           </div>
         </div>
