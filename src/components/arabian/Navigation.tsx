@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, Moon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Menu, X, Sun, Moon, Globe } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useLanguage } from "@/lib/i18n/context";
 
@@ -28,149 +27,271 @@ export function Navigation() {
   const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 60);
+    const handleScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  }, [theme, setTheme]);
+
+  const toggleLanguage = useCallback(() => {
+    setLanguage(language === "fr" ? "en" : "fr");
+  }, [language, setLanguage]);
+
+  const closeMobile = useCallback(() => {
+    setMobileOpen(false);
+  }, []);
+
+  // Smooth easing curves for Desert Aurora
+  const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
+  const flowingEase = [0.16, 1, 0.3, 1] as const;
+
   return (
     <>
+      {/* ── Desktop & Mobile Header ── */}
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
+        transition={{ duration: 0.9, ease: flowingEase }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-background/90 backdrop-blur-2xl border-b border-terracotta/10"
+            ? "glass-premium shadow-lg shadow-amber/[0.03]"
             : "bg-transparent"
         }`}
       >
-        <nav className="max-w-7xl mx-auto px-6 md:px-10 h-20 flex items-center justify-between">
-          {/* Logo — Geometric Diamond Mark */}
-          <Link href="/" className="flex items-center gap-4 group">
-            <div className="relative w-10 h-10">
-              <div className="absolute inset-0 rotate-45 border border-terracotta/60 group-hover:border-terracotta transition-colors duration-500" />
-              <div className="absolute inset-2 rotate-45 bg-terracotta/20 group-hover:bg-terracotta/40 transition-colors duration-500" />
+        <nav className="max-w-7xl mx-auto px-5 sm:px-8 md:px-10 h-20 flex items-center justify-between">
+          {/* ── Logo: Warm Circular Mark + Typography ── */}
+          <Link href="/" className="flex items-center gap-3.5 group cursor-pointer">
+            {/* Organic circular mark — warm amber glow */}
+            <div className="relative w-10 h-10 flex-shrink-0">
+              {/* Outer ring — amber with glow */}
+              <div className="absolute inset-0 rounded-full border border-amber/40 group-hover:border-amber/70 transition-all duration-400" />
+              {/* Inner fill — warm amber pulse */}
+              <div className="absolute inset-1.5 rounded-full bg-gradient-to-br from-amber/25 to-amber-dark/20 group-hover:from-amber/40 group-hover:to-amber-dark/30 transition-all duration-400" />
+              {/* Center dot — warm glow */}
+              <div className="absolute inset-[11px] rounded-full bg-amber/60 group-hover:bg-amber/80 transition-all duration-400 group-hover:shadow-[0_0_12px_rgba(202,138,4,0.4)]" />
             </div>
+            {/* Logo type */}
             <div className="flex flex-col">
-              <span className="font-serif text-xl tracking-wide leading-tight">
+              <span className="font-serif text-xl tracking-wider leading-tight text-foreground group-hover:text-amber transition-colors duration-300">
                 Arabian
               </span>
-              <span className="text-[9px] tracking-[0.35em] uppercase text-muted-foreground leading-tight">
+              <span className="text-[9px] tracking-[0.35em] uppercase text-muted-foreground leading-tight font-sans font-light group-hover:text-amber/70 transition-colors duration-300">
                 Desert Home
               </span>
             </div>
           </Link>
 
-          {/* Desktop Nav — Minimal Horizontal */}
-          <div className="hidden lg:flex items-center gap-8">
-            {navLinkKeys.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-luxury-label transition-all duration-500 relative group ${
-                  pathname === link.href
-                    ? "text-terracotta"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t(link.labelKey)}
-                <span
-                  className={`absolute -bottom-1 left-0 h-px bg-terracotta transition-all duration-500 ${
-                    pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
+          {/* ── Desktop Nav Links — Smooth Underline ── */}
+          <div className="hidden lg:flex items-center gap-7">
+            {navLinkKeys.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`luxury-label relative group cursor-pointer transition-colors duration-300 ${
+                    isActive
+                      ? "text-amber"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
-                />
-              </Link>
-            ))}
+                >
+                  {t(link.labelKey)}
+                  {/* Underline indicator — smooth amber slide */}
+                  <span
+                    className={`absolute -bottom-1.5 left-0 h-[1.5px] rounded-full bg-gradient-to-r from-amber to-amber-light transition-all duration-300 ease-out ${
+                      isActive ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
+                  />
+                </Link>
+              );
+            })}
           </div>
 
-          {/* CTA + Theme + Language + Mobile Toggle */}
-          <div className="flex items-center gap-4">
+          {/* ── Right Controls: Theme · Language · Book · Mobile Toggle ── */}
+          <div className="flex items-center gap-3">
+            {/* Theme Toggle — Rounded glass circle */}
             <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="relative w-9 h-9 hidden md:flex items-center justify-center text-muted-foreground hover:text-terracotta transition-colors duration-500"
+              onClick={toggleTheme}
+              className="relative w-9 h-9 hidden md:flex items-center justify-center rounded-full border border-amber/15 bg-amber/[0.04] text-muted-foreground hover:text-amber hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
               aria-label="Toggle theme"
             >
-              <Sun className="w-4 h-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute w-4 h-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <Sun className="w-4 h-4 rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute w-4 h-4 rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
             </button>
+
+            {/* Language Toggle — Rounded Pill */}
             <button
-              onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
-              className="hidden md:flex items-center gap-1.5 text-xs font-medium tracking-[0.15em] px-3 h-9 border border-terracotta/20 text-muted-foreground hover:text-terracotta hover:border-terracotta/40 transition-all duration-500"
+              onClick={toggleLanguage}
+              className="hidden md:flex items-center gap-1 luxury-label px-3.5 h-9 rounded-full border border-amber/15 bg-amber/[0.04] text-muted-foreground hover:text-amber hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
               aria-label="Toggle language"
             >
-              <span className={language === "fr" ? "text-terracotta" : ""}>FR</span>
-              <span className="text-border mx-0.5">|</span>
-              <span className={language === "en" ? "text-terracotta" : ""}>EN</span>
+              <Globe className="w-3.5 h-3.5 mr-0.5" />
+              <span className={`transition-colors duration-200 ${language === "fr" ? "text-amber" : ""}`}>FR</span>
+              <span className="text-border/50 mx-0.5">·</span>
+              <span className={`transition-colors duration-200 ${language === "en" ? "text-amber" : ""}`}>EN</span>
             </button>
-            <Link href="/reservez-votre-sejour">
-              <Button
-                variant="outline"
-                className="hidden md:flex text-luxury-label border-terracotta/30 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-6 transition-all duration-500"
-              >
+
+            {/* Book Now — Amber Gradient Pill */}
+            <Link href="/reservez-votre-sejour" className="hidden md:block">
+              <span className="btn-primary inline-block cursor-pointer hover:no-underline">
                 {t("nav.bookNow")}
-              </Button>
+              </span>
             </Link>
+
+            {/* Mobile Hamburger — Rounded */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center"
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full border border-amber/15 bg-amber/[0.04] text-foreground hover:text-amber hover:border-amber/30 transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40"
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <AnimatePresence mode="wait" initial={false}>
+                {mobileOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.2, ease: smoothEase }}
+                  >
+                    <X className="w-5 h-5" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.2, ease: smoothEase }}
+                  >
+                    <Menu className="w-5 h-5" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </button>
           </div>
         </nav>
+
+        {/* Bottom amber line when scrolled — subtle divider */}
+        <div
+          className={`h-px transition-opacity duration-500 ${
+            scrolled ? "opacity-100" : "opacity-0"
+          }`}
+          style={{
+            background: "linear-gradient(90deg, transparent, var(--amber), transparent)",
+          }}
+        />
       </motion.header>
 
-      {/* Mobile Menu — Full-screen Obsidian Overlay */}
+      {/* ── Mobile Menu — Full-Screen Glass Overlay ── */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-40 bg-background pt-24 px-8"
+            transition={{ duration: 0.4, ease: smoothEase }}
+            className="fixed inset-0 z-40 glass-premium grain-overlay overflow-hidden"
           >
-            <div className="flex flex-col gap-2">
-              {navLinkKeys.map((link, i) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.06, duration: 0.5 }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={`font-serif text-4xl py-3 border-b border-terracotta/10 hover:text-terracotta transition-colors block ${
-                      pathname === link.href ? "text-terracotta" : ""
-                    }`}
-                  >
-                    {t(link.labelKey)}
-                  </Link>
-                </motion.div>
-              ))}
+            <div className="h-full flex flex-col pt-28 pb-10 px-8">
+              {/* Nav Links — Large serif, staggered entrance */}
+              <div className="flex-1 flex flex-col justify-center gap-1">
+                {navLinkKeys.map((link, i) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <motion.div
+                      key={link.href}
+                      initial={{ opacity: 0, x: -40 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{
+                        delay: 0.08 + i * 0.05,
+                        duration: 0.5,
+                        ease: flowingEase,
+                      }}
+                    >
+                      <Link
+                        href={link.href}
+                        onClick={closeMobile}
+                        className={`font-serif text-4xl sm:text-5xl py-3 flex items-center gap-4 group cursor-pointer transition-colors duration-300 ${
+                          isActive
+                            ? "text-amber"
+                            : "text-foreground/80 hover:text-amber"
+                        }`}
+                      >
+                        {/* Active indicator dot */}
+                        <span
+                          className={`w-2 h-2 rounded-full bg-amber transition-all duration-300 ${
+                            isActive
+                              ? "opacity-100 scale-100"
+                              : "opacity-0 scale-0 group-hover:opacity-60 group-hover:scale-100"
+                          }`}
+                        />
+                        {t(link.labelKey)}
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Bottom controls — Book + Language + Theme */}
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="mt-8 flex flex-col gap-4"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5, ease: smoothEase }}
+                className="flex flex-col gap-4"
               >
-                <Link href="/reservez-votre-sejour" onClick={() => setMobileOpen(false)}>
-                  <Button className="w-full bg-terracotta text-white hover:bg-terracotta-light rounded-none py-6 text-luxury-label">
+                {/* Divider */}
+                <div className="divider-accent mb-2" />
+
+                {/* Book Now Button */}
+                <Link href="/reservez-votre-sejour" onClick={closeMobile}>
+                  <span className="btn-primary block text-center cursor-pointer w-full py-4">
                     {t("nav.bookYourStay")}
-                  </Button>
+                  </span>
                 </Link>
-                <button
-                  onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
-                  className="flex items-center justify-center gap-1.5 text-sm font-medium tracking-[0.15em] py-3 text-muted-foreground hover:text-terracotta transition-colors duration-500"
-                  aria-label="Toggle language"
-                >
-                  <span className={language === "fr" ? "text-terracotta" : ""}>FR</span>
-                  <span className="text-border mx-0.5">|</span>
-                  <span className={language === "en" ? "text-terracotta" : ""}>EN</span>
-                </button>
+
+                {/* Language & Theme row */}
+                <div className="flex items-center justify-between">
+                  {/* Language Toggle — Pill */}
+                  <button
+                    onClick={toggleLanguage}
+                    className="flex items-center gap-1.5 luxury-label px-5 h-11 rounded-full border border-amber/15 bg-amber/[0.04] text-muted-foreground hover:text-amber hover:border-amber/30 transition-all duration-300 cursor-pointer"
+                    aria-label="Toggle language"
+                  >
+                    <Globe className="w-4 h-4" />
+                    <span className={language === "fr" ? "text-amber" : ""}>FR</span>
+                    <span className="text-border/50 mx-0.5">·</span>
+                    <span className={language === "en" ? "text-amber" : ""}>EN</span>
+                  </button>
+
+                  {/* Theme Toggle — Pill */}
+                  <button
+                    onClick={toggleTheme}
+                    className="relative flex items-center gap-2 luxury-label px-5 h-11 rounded-full border border-amber/15 bg-amber/[0.04] text-muted-foreground hover:text-amber hover:border-amber/30 transition-all duration-300 cursor-pointer"
+                    aria-label="Toggle theme"
+                  >
+                    <span className="relative w-4 h-4">
+                      <Sun className="absolute inset-0 w-4 h-4 rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0" />
+                      <Moon className="absolute inset-0 w-4 h-4 rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
+                    </span>
+                    <span className="dark:hidden">Dark</span>
+                    <span className="hidden dark:inline">Light</span>
+                  </button>
+                </div>
               </motion.div>
             </div>
           </motion.div>

@@ -2,12 +2,21 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { CalendarIcon, Minus, Plus, Check, ArrowRight, ArrowLeft } from "lucide-react";
+import {
+  CalendarIcon,
+  Minus,
+  Plus,
+  Check,
+  ArrowRight,
+  ArrowLeft,
+  Users,
+  Sparkles,
+} from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +36,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/lib/i18n/context";
 
 interface Suite {
   id: string;
@@ -37,11 +47,7 @@ interface Suite {
   maxGuests: number;
 }
 
-const steps = [
-  { number: 1, label: "Vos Coordonnées" },
-  { number: 2, label: "Votre Séjour" },
-  { number: 3, label: "Confirmation" },
-];
+const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
 export default function ReservezPage() {
   const heroRef = useRef(null);
@@ -50,6 +56,8 @@ export default function ReservezPage() {
   const formInView = useInView(formRef, { once: true, margin: "-80px" });
 
   const { toast } = useToast();
+  const { language, t } = useLanguage();
+  const dateLocale = language === "fr" ? fr : enUS;
 
   const [currentStep, setCurrentStep] = useState(1);
   const [suites, setSuites] = useState<Suite[]>([]);
@@ -140,20 +148,20 @@ export default function ReservezPage() {
       if (res.ok) {
         setCurrentStep(3);
         toast({
-          title: "Réservation confirmée",
-          description: "Nous vous contacterons sous 24h pour confirmer votre séjour.",
+          title: t("booking.reservationReceived"),
+          description: t("booking.conciergeContact"),
         });
       } else {
         toast({
-          title: "Erreur",
-          description: "Impossible de créer la réservation. Veuillez réessayer.",
+          title: t("booking.somethingWrong"),
+          description: t("booking.tryAgain"),
           variant: "destructive",
         });
       }
     } catch {
       toast({
-        title: "Erreur",
-        description: "Une erreur est survenue. Veuillez réessayer.",
+        title: t("booking.somethingWrong"),
+        description: t("booking.tryAgain"),
         variant: "destructive",
       });
     } finally {
@@ -161,76 +169,106 @@ export default function ReservezPage() {
     }
   };
 
+  const steps = [
+    { number: 1, label: t("booking.step1Label") },
+    { number: 2, label: t("booking.step2Label") },
+    { number: 3, label: "✓" },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
 
       <main className="flex-1 pt-20">
-        {/* Hero Section */}
+        {/* Hero Section — Night desert with warm gradients */}
         <section ref={heroRef} className="relative h-[60vh] min-h-[450px] w-full overflow-hidden">
           <div className="absolute inset-0">
             <img
-              src="/images/hero.png"
-              alt="Réservez votre séjour au désert d'Agafay"
+              src="/images/night.png"
+              alt="Book your stay at Arabian Desert Home"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+            <div className="absolute inset-0 gradient-warm" />
+            <div className="absolute inset-0 gradient-amber" />
+            <div className="absolute inset-0 bg-black/30" />
           </div>
+
+          {/* Decorative blobs */}
+          <div className="absolute top-20 right-20 w-72 h-72 bg-amber/[0.04] blob-1" />
+          <div className="absolute bottom-20 left-10 w-56 h-56 bg-amber/[0.03] blob-2" />
+
+          {/* Grain overlay */}
+          <div className="absolute inset-0 grain-overlay" />
 
           <div className="relative z-10 h-full flex flex-col justify-end pb-16 md:pb-24 px-6 md:px-10 max-w-7xl mx-auto">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta/80 mb-4"
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="luxury-label text-amber/80 mb-4"
             >
-              Séjournez au cœur du désert d&apos;Agafay
+              {t("booking.label")}
             </motion.span>
             <motion.h1
               initial={{ opacity: 0, y: 40 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1.2, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 1.2, delay: 0.2, ease: smoothEase }}
               className="heading-display text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
             >
-              Réservez Votre <br />
-              <span className="italic text-terracotta">Séjour</span>
+              {t("booking.title1")} <br />
+              <span className="italic text-amber">{t("booking.title2")}</span>
             </motion.h1>
             <motion.div
               initial={{ scaleX: 0 }}
               animate={heroInView ? { scaleX: 1 } : {}}
               transition={{ duration: 1.5, delay: 0.6 }}
-              className="h-px w-16 bg-terracotta/30 mt-8 max-w-xs origin-left"
+              className="divider-accent mt-8 max-w-[120px] origin-left"
             />
           </div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5 }}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          >
+            <div className="w-6 h-10 rounded-full border border-amber/30 flex items-start justify-center pt-2">
+              <motion.div
+                animate={{ y: [0, 12, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="w-1.5 h-1.5 rounded-full bg-amber"
+              />
+            </div>
+          </motion.div>
         </section>
 
         {/* Booking Form */}
-        <section ref={formRef} className="py-20 md:py-28 px-6 md:px-10">
+        <section ref={formRef} className="relative py-20 md:py-28 px-6 md:px-10 pattern-dots">
           <div className="max-w-3xl mx-auto">
-            {/* Step Indicators */}
-            <div className="flex items-center justify-center gap-4 mb-16">
+            {/* Step Indicators — Rounded amber pills */}
+            <div className="flex items-center justify-center gap-3 mb-16">
               {steps.map((step, index) => (
                 <div key={step.number} className="flex items-center">
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-10 h-10 flex items-center justify-center border transition-all duration-500 ${
+                      className={`w-12 h-12 flex items-center justify-center rounded-full transition-all duration-400 cursor-pointer ${
                         currentStep > step.number
-                          ? "bg-terracotta border-terracotta text-obsidian"
+                          ? "bg-amber text-warm-black shadow-lg shadow-amber/20"
                           : currentStep === step.number
-                          ? "border-terracotta text-terracotta"
-                          : "border-border text-muted-foreground"
+                          ? "border-2 border-amber text-amber bg-amber/10"
+                          : "border border-border text-muted-foreground bg-background/50"
                       }`}
                     >
                       {currentStep > step.number ? (
-                        <Check className="w-4 h-4" />
+                        <Check className="w-5 h-5" />
                       ) : (
-                        <span className="text-sm text-mono-number">{step.number}</span>
+                        <span className="text-sm mono-number">{step.number}</span>
                       )}
                     </div>
                     <span
-                      className={`text-[10px] tracking-[0.1em] uppercase mt-2 hidden sm:block ${
-                        currentStep >= step.number ? "text-terracotta" : "text-muted-foreground"
+                      className={`text-[10px] tracking-[0.1em] uppercase mt-2 hidden sm:block transition-colors duration-300 ${
+                        currentStep >= step.number ? "text-amber" : "text-muted-foreground"
                       }`}
                     >
                       {step.label}
@@ -238,8 +276,10 @@ export default function ReservezPage() {
                   </div>
                   {index < steps.length - 1 && (
                     <div
-                      className={`w-12 md:w-20 h-px mx-3 transition-colors duration-500 ${
-                        currentStep > step.number ? "bg-terracotta" : "bg-border"
+                      className={`w-12 md:w-20 h-[2px] mx-3 rounded-full transition-colors duration-500 ${
+                        currentStep > step.number
+                          ? "bg-gradient-to-r from-amber to-amber-light"
+                          : "bg-border"
                       }`}
                     />
                   )}
@@ -255,20 +295,21 @@ export default function ReservezPage() {
                   initial={{ opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -30 }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.5, ease: smoothEase }}
+                  className="glass-card card-warm p-8 md:p-10"
                 >
                   <h2 className="heading-editorial text-2xl md:text-3xl mb-2">
-                    Vos Coordonnées
+                    {t("booking.step1Label")}
                   </h2>
-                  <p className="text-sm text-muted-foreground mb-8">
-                    Renseignez vos informations personnelles pour la réservation
+                  <p className="text-sm text-muted-foreground mb-8 body-editorial">
+                    {t("booking.description")}
                   </p>
 
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="firstName" className="text-luxury-label text-xs">
-                          Prénom *
+                        <Label htmlFor="firstName" className="luxury-label text-xs">
+                          {t("booking.firstName")} *
                         </Label>
                         <Input
                           id="firstName"
@@ -276,13 +317,13 @@ export default function ReservezPage() {
                           value={personalInfo.firstName}
                           onChange={handlePersonalChange}
                           required
-                          className="border-border/50 focus:border-terracotta/50 rounded-none"
-                          placeholder="Votre prénom"
+                          className="rounded-2xl border-border/50 focus:border-amber/50 focus:ring-amber/20 bg-background/50 transition-all duration-300"
+                          placeholder={t("booking.firstNamePlaceholder")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="lastName" className="text-luxury-label text-xs">
-                          Nom *
+                        <Label htmlFor="lastName" className="luxury-label text-xs">
+                          {t("booking.lastName")} *
                         </Label>
                         <Input
                           id="lastName"
@@ -290,16 +331,16 @@ export default function ReservezPage() {
                           value={personalInfo.lastName}
                           onChange={handlePersonalChange}
                           required
-                          className="border-border/50 focus:border-terracotta/50 rounded-none"
-                          placeholder="Votre nom"
+                          className="rounded-2xl border-border/50 focus:border-amber/50 focus:ring-amber/20 bg-background/50 transition-all duration-300"
+                          placeholder={t("booking.lastNamePlaceholder")}
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="email" className="text-luxury-label text-xs">
-                          Email *
+                        <Label htmlFor="email" className="luxury-label text-xs">
+                          {t("booking.email")} *
                         </Label>
                         <Input
                           id="email"
@@ -308,13 +349,13 @@ export default function ReservezPage() {
                           value={personalInfo.email}
                           onChange={handlePersonalChange}
                           required
-                          className="border-border/50 focus:border-terracotta/50 rounded-none"
-                          placeholder="votre@email.com"
+                          className="rounded-2xl border-border/50 focus:border-amber/50 focus:ring-amber/20 bg-background/50 transition-all duration-300"
+                          placeholder={t("booking.emailPlaceholder")}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-luxury-label text-xs">
-                          Téléphone
+                        <Label htmlFor="phone" className="luxury-label text-xs">
+                          {t("booking.phone")} <span className="text-muted-foreground">{t("booking.phoneOptional")}</span>
                         </Label>
                         <Input
                           id="phone"
@@ -322,22 +363,22 @@ export default function ReservezPage() {
                           type="tel"
                           value={personalInfo.phone}
                           onChange={handlePersonalChange}
-                          className="border-border/50 focus:border-terracotta/50 rounded-none"
-                          placeholder="+212 6XX-XXX-XXX"
+                          className="rounded-2xl border-border/50 focus:border-amber/50 focus:ring-amber/20 bg-background/50 transition-all duration-300"
+                          placeholder={t("booking.phonePlaceholder")}
                         />
                       </div>
                     </div>
                   </div>
 
                   <div className="flex justify-end mt-10">
-                    <Button
+                    <button
                       onClick={() => setCurrentStep(2)}
                       disabled={!isStep1Valid}
-                      className="bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none px-8 py-5 text-luxury-label tracking-[0.2em] disabled:opacity-50"
+                      className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
-                       Suivant
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
+                      {t("booking.continue")}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   </div>
                 </motion.div>
               )}
@@ -349,29 +390,32 @@ export default function ReservezPage() {
                   initial={{ opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -30 }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.5, ease: smoothEase }}
+                  className="glass-card card-warm p-8 md:p-10"
                 >
                   <h2 className="heading-editorial text-2xl md:text-3xl mb-2">
-                    Votre Séjour
+                    {t("booking.step2Label")}
                   </h2>
-                  <p className="text-sm text-muted-foreground mb-8">
-                    Choisissez votre suite et vos dates de séjour
+                  <p className="text-sm text-muted-foreground mb-8 body-editorial">
+                    {t("booking.description")}
                   </p>
 
                   <div className="space-y-6">
                     {/* Suite Select */}
                     <div className="space-y-2">
-                      <Label className="text-luxury-label text-xs">Suite / Chambre *</Label>
+                      <Label className="luxury-label text-xs">
+                        {t("booking.suite")} *
+                      </Label>
                       <Select
                         value={stayInfo.suiteId}
                         onValueChange={(value) =>
                           setStayInfo((prev) => ({ ...prev, suiteId: value }))
                         }
                       >
-                        <SelectTrigger className="w-full border-border/50 focus:border-terracotta/50 rounded-none">
-                          <SelectValue placeholder="Sélectionnez votre suite" />
+                        <SelectTrigger className="w-full rounded-2xl border-border/50 focus:border-amber/50 focus:ring-amber/20 bg-background/50 transition-all duration-300">
+                          <SelectValue placeholder={t("booking.selectSuite")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="rounded-2xl">
                           {suites.map((suite) => (
                             <SelectItem key={suite.id} value={suite.id}>
                               {suite.name} — {suite.price} {suite.currency}/nuit
@@ -381,25 +425,63 @@ export default function ReservezPage() {
                       </Select>
                     </div>
 
+                    {/* Suite Selection Cards */}
+                    {suites.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {suites.map((suite) => (
+                          <button
+                            key={suite.id}
+                            type="button"
+                            onClick={() => setStayInfo((prev) => ({ ...prev, suiteId: suite.id }))}
+                            className={`relative overflow-hidden rounded-2xl p-4 text-left transition-all duration-400 cursor-pointer ${
+                              stayInfo.suiteId === suite.id
+                                ? "border-2 border-amber bg-amber/[0.08] shadow-lg shadow-amber/10"
+                                : "border border-border/50 bg-background/50 hover:border-amber/30 hover:bg-amber/[0.04]"
+                            }`}
+                          >
+                            <p className="font-serif text-sm mb-1">{suite.name}</p>
+                            <p className="mono-number text-amber text-lg">
+                              {suite.price} <span className="text-xs text-muted-foreground font-sans font-normal">{suite.currency}/nuit</span>
+                            </p>
+                            <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
+                              <Users className="w-3.5 h-3.5 text-amber/60" />
+                              <span>{suite.maxGuests} {suite.maxGuests > 1 ? (language === "fr" ? "personnes" : "persons") : (language === "fr" ? "personne" : "person")}</span>
+                            </div>
+                            {stayInfo.suiteId === suite.id && (
+                              <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
+                                <Check className="w-3 h-3 text-warm-black" />
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
                     {/* Date Pickers */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label className="text-luxury-label text-xs">Date d&apos;arrivée *</Label>
+                        <Label className="luxury-label text-xs">
+                          {t("booking.checkIn")} *
+                        </Label>
                         <Dialog open={checkInOpen} onOpenChange={setCheckInOpen}>
                           <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className="w-full justify-start border-border/50 hover:border-terracotta/50 rounded-none text-left font-normal"
+                            <button
+                              type="button"
+                              className="w-full flex items-center gap-3 rounded-2xl border border-border/50 bg-background/50 hover:border-amber/30 px-4 py-3 text-left text-sm transition-all duration-300 cursor-pointer"
                             >
-                              <CalendarIcon className="mr-2 h-4 w-4 text-terracotta/70" />
-                              {stayInfo.checkIn
-                                ? format(stayInfo.checkIn, "dd MMMM yyyy", { locale: fr })
-                                : "Sélectionnez une date"}
-                            </Button>
+                              <div className="w-8 h-8 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center flex-shrink-0">
+                                <CalendarIcon className="w-4 h-4 text-amber/70" />
+                              </div>
+                              <span className={stayInfo.checkIn ? "text-foreground" : "text-muted-foreground"}>
+                                {stayInfo.checkIn
+                                  ? format(stayInfo.checkIn, "dd MMMM yyyy", { locale: dateLocale })
+                                  : t("booking.selectDate")}
+                              </span>
+                            </button>
                           </DialogTrigger>
-                          <DialogContent className="p-0 max-w-auto w-auto">
+                          <DialogContent className="p-0 max-w-auto w-auto rounded-3xl">
                             <DialogHeader className="sr-only">
-                              <DialogTitle>Date d&apos;arrivée</DialogTitle>
+                              <DialogTitle>{t("booking.checkIn")}</DialogTitle>
                             </DialogHeader>
                             <Calendar
                               mode="single"
@@ -410,28 +492,35 @@ export default function ReservezPage() {
                               }}
                               disabled={(date) => date < new Date()}
                               initialFocus
+                              className="rounded-3xl"
                             />
                           </DialogContent>
                         </Dialog>
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-luxury-label text-xs">Date de départ *</Label>
+                        <Label className="luxury-label text-xs">
+                          {t("booking.checkOut")} *
+                        </Label>
                         <Dialog open={checkOutOpen} onOpenChange={setCheckOutOpen}>
                           <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className="w-full justify-start border-border/50 hover:border-terracotta/50 rounded-none text-left font-normal"
+                            <button
+                              type="button"
+                              className="w-full flex items-center gap-3 rounded-2xl border border-border/50 bg-background/50 hover:border-amber/30 px-4 py-3 text-left text-sm transition-all duration-300 cursor-pointer"
                             >
-                              <CalendarIcon className="mr-2 h-4 w-4 text-terracotta/70" />
-                              {stayInfo.checkOut
-                                ? format(stayInfo.checkOut, "dd MMMM yyyy", { locale: fr })
-                                : "Sélectionnez une date"}
-                            </Button>
+                              <div className="w-8 h-8 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center flex-shrink-0">
+                                <CalendarIcon className="w-4 h-4 text-amber/70" />
+                              </div>
+                              <span className={stayInfo.checkOut ? "text-foreground" : "text-muted-foreground"}>
+                                {stayInfo.checkOut
+                                  ? format(stayInfo.checkOut, "dd MMMM yyyy", { locale: dateLocale })
+                                  : t("booking.selectDate")}
+                              </span>
+                            </button>
                           </DialogTrigger>
-                          <DialogContent className="p-0 max-w-auto w-auto">
+                          <DialogContent className="p-0 max-w-auto w-auto rounded-3xl">
                             <DialogHeader className="sr-only">
-                              <DialogTitle>Date de départ</DialogTitle>
+                              <DialogTitle>{t("booking.checkOut")}</DialogTitle>
                             </DialogHeader>
                             <Calendar
                               mode="single"
@@ -444,6 +533,7 @@ export default function ReservezPage() {
                                 date < (stayInfo.checkIn || new Date())
                               }
                               initialFocus
+                              className="rounded-3xl"
                             />
                           </DialogContent>
                         </Dialog>
@@ -452,38 +542,36 @@ export default function ReservezPage() {
 
                     {/* Guests Counter */}
                     <div className="space-y-2">
-                      <Label className="text-luxury-label text-xs">Nombre de convives</Label>
+                      <Label className="luxury-label text-xs">
+                        {t("booking.guests")}
+                      </Label>
                       <div className="flex items-center gap-4">
-                        <Button
+                        <button
                           type="button"
-                          variant="outline"
-                          size="icon"
                           onClick={decrementGuests}
                           disabled={stayInfo.guests <= 1}
-                          className="border-border/50 hover:border-terracotta/50 rounded-none h-10 w-10"
+                          className="w-10 h-10 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 disabled:opacity-30 cursor-pointer"
                         >
                           <Minus className="w-4 h-4" />
-                        </Button>
-                        <span className="text-2xl text-mono-number w-12 text-center">
+                        </button>
+                        <span className="text-2xl mono-number text-amber w-12 text-center">
                           {stayInfo.guests}
                         </span>
-                        <Button
+                        <button
                           type="button"
-                          variant="outline"
-                          size="icon"
                           onClick={incrementGuests}
                           disabled={stayInfo.guests >= 10}
-                          className="border-border/50 hover:border-terracotta/50 rounded-none h-10 w-10"
+                          className="w-10 h-10 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 disabled:opacity-30 cursor-pointer"
                         >
                           <Plus className="w-4 h-4" />
-                        </Button>
+                        </button>
                       </div>
                     </div>
 
                     {/* Special Requests */}
                     <div className="space-y-2">
-                      <Label htmlFor="specialReqs" className="text-luxury-label text-xs">
-                        Demandes spéciales
+                      <Label htmlFor="specialReqs" className="luxury-label text-xs">
+                        {t("booking.specialRequests")} <span className="text-muted-foreground">{t("booking.specialRequestsOptional")}</span>
                       </Label>
                       <Textarea
                         id="specialReqs"
@@ -495,38 +583,37 @@ export default function ReservezPage() {
                           }))
                         }
                         rows={4}
-                        className="border-border/50 focus:border-terracotta/50 rounded-none resize-none"
-                        placeholder="Toute demande particulière (allergies, anniversaire, etc.)"
+                        className="rounded-2xl border-border/50 focus:border-amber/50 focus:ring-amber/20 bg-background/50 resize-none transition-all duration-300"
+                        placeholder={t("booking.specialRequestsPlaceholder")}
                       />
                     </div>
                   </div>
 
                   <div className="flex justify-between mt-10">
-                    <Button
+                    <button
                       onClick={() => setCurrentStep(1)}
-                      variant="outline"
-                      className="border-border/50 hover:border-terracotta/50 rounded-none px-8 py-5 text-luxury-label tracking-[0.2em]"
+                      className="btn-outline inline-flex items-center gap-2 cursor-pointer"
                     >
-                      <ArrowLeft className="mr-2 w-4 h-4" />
-                      Retour
-                    </Button>
-                    <Button
+                      <ArrowLeft className="w-4 h-4" />
+                      {t("booking.back")}
+                    </button>
+                    <button
                       onClick={handleSubmit}
                       disabled={!isStep2Valid || isSubmitting}
-                      className="bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none px-8 py-5 text-luxury-label tracking-[0.2em] disabled:opacity-50"
+                      className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
-                          <span className="w-4 h-4 border-2 border-terracotta/30 border-t-terracotta rounded-full animate-spin" />
-                          Réservation...
+                          <span className="w-4 h-4 border-2 border-amber/30 border-t-amber rounded-full animate-spin" />
+                          {t("booking.submitting")}
                         </span>
                       ) : (
                         <span className="flex items-center gap-2">
-                          Confirmer
-                          <Check className="w-4 h-4" />
+                          <Sparkles className="w-4 h-4" />
+                          {t("booking.submit")}
                         </span>
                       )}
-                    </Button>
+                    </button>
                   </div>
                 </motion.div>
               )}
@@ -537,54 +624,55 @@ export default function ReservezPage() {
                   key="step3"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6 }}
-                  className="text-center py-12"
+                  transition={{ duration: 0.6, ease: smoothEase }}
+                  className="glass-card card-warm p-8 md:p-12 text-center"
                 >
-                  <div className="w-20 h-20 mx-auto mb-8 border border-terracotta/20 flex items-center justify-center">
-                    <Check className="w-8 h-8 text-terracotta" />
+                  <div className="w-20 h-20 mx-auto mb-8 rounded-full border-2 border-amber/30 bg-amber/10 flex items-center justify-center">
+                    <Check className="w-8 h-8 text-amber" />
                   </div>
-                  <h2 className="heading-editorial text-3xl md:text-4xl mb-4">
-                    Réservation <span className="italic">Confirmée</span>
+                  <h2 className="heading-display text-3xl md:text-4xl mb-4">
+                    {t("booking.thankYou")}
                   </h2>
-                  <p className="text-muted-foreground max-w-md mx-auto mb-8">
-                    Merci {personalInfo.firstName} ! Votre demande de réservation a été enregistrée.
-                    Notre équipe vous contactera sous 24 heures pour confirmer les détails de votre séjour.
+                  <p className="text-muted-foreground max-w-md mx-auto mb-8 body-editorial">
+                    {t("booking.successMessage")}
                   </p>
 
                   {/* Booking Summary */}
-                  <div className="max-w-md mx-auto p-8 border border-terracotta/15 text-left space-y-4 mb-10">
-                    <p className="text-luxury-label text-terracotta mb-4">Résumé de votre séjour</p>
+                  <div className="max-w-md mx-auto glass-card p-8 text-left space-y-4 mb-10">
+                    <p className="luxury-label text-amber mb-4">
+                      {language === "fr" ? "Résumé de votre séjour" : "Your stay summary"}
+                    </p>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Suite</span>
+                      <span className="text-muted-foreground">{t("booking.suite")}</span>
                       <span>
                         {suites.find((s) => s.id === stayInfo.suiteId)?.name || "—"}
                       </span>
                     </div>
                     <div className="divider-accent" />
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Arrivée</span>
+                      <span className="text-muted-foreground">{t("booking.checkIn")}</span>
                       <span>
                         {stayInfo.checkIn
-                          ? format(stayInfo.checkIn, "dd MMMM yyyy", { locale: fr })
+                          ? format(stayInfo.checkIn, "dd MMMM yyyy", { locale: dateLocale })
                           : "—"}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Départ</span>
+                      <span className="text-muted-foreground">{t("booking.checkOut")}</span>
                       <span>
                         {stayInfo.checkOut
-                          ? format(stayInfo.checkOut, "dd MMMM yyyy", { locale: fr })
+                          ? format(stayInfo.checkOut, "dd MMMM yyyy", { locale: dateLocale })
                           : "—"}
                       </span>
                     </div>
                     <div className="divider-accent" />
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Convives</span>
+                      <span className="text-muted-foreground">{t("booking.guests")}</span>
                       <span>{stayInfo.guests}</span>
                     </div>
                   </div>
 
-                  <Button
+                  <button
                     onClick={() => {
                       setCurrentStep(1);
                       setPersonalInfo({ firstName: "", lastName: "", email: "", phone: "" });
@@ -596,11 +684,11 @@ export default function ReservezPage() {
                         specialReqs: "",
                       });
                     }}
-                    variant="outline"
-                    className="border-terracotta/40 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-8 py-5 text-luxury-label tracking-[0.2em]"
+                    className="btn-outline inline-flex items-center gap-2 cursor-pointer"
                   >
-                    Nouvelle réservation
-                  </Button>
+                    {language === "fr" ? "Nouvelle réservation" : "New Reservation"}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>

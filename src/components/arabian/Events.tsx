@@ -54,13 +54,13 @@ export function Events() {
             transition={{ duration: 0.8 }}
             className="mb-4"
           >
-            <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+            <span className="mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
           </motion.div>
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
-            className="text-luxury-label text-terracotta block mb-4"
+            className="luxury-label text-terracotta block mb-4"
           >
             {t("events.label")}
           </motion.span>
@@ -96,7 +96,7 @@ export function Events() {
                 {event.description}
               </p>
 
-              <button className="mt-8 text-luxury-label text-terracotta tracking-[0.2em] hover:text-terracotta-light transition-colors">
+              <button className="mt-8 luxury-label text-terracotta tracking-[0.2em] hover:text-terracotta-light transition-colors">
                 {t("events.enquire")}
               </button>
             </motion.div>
@@ -110,12 +110,12 @@ export function Events() {
           transition={{ duration: 0.8, delay: 0.9 }}
           className="text-center mt-16 md:mt-24"
         >
-          <p className="text-editorial text-muted-foreground mb-6">
+          <p className="body-editorial text-muted-foreground mb-6">
             {t("events.everyEvent")}
           </p>
           <a
             href="#booking"
-            className="inline-flex items-center gap-2 text-terracotta border border-terracotta/40 px-8 py-4 text-luxury-label tracking-[0.2em] hover:bg-terracotta/10 transition-all duration-300"
+            className="inline-flex items-center gap-2 text-terracotta border border-terracotta/40 px-8 py-4 luxury-label tracking-[0.2em] hover:bg-terracotta/10 transition-all duration-300"
           >
             {t("events.planEvent")}
           </a>

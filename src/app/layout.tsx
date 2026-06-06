@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Space_Grotesk } from "next/font/google";
+import { Cinzel, Josefin_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/lib/i18n/context";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space",
+const josefin = Josefin_Sans({
+  variable: "--font-josefin",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -119,7 +119,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${cormorant.variable} ${spaceGrotesk.variable} antialiased bg-background text-foreground`}
+        className={`${cinzel.variable} ${josefin.variable} antialiased bg-background text-foreground`}
       >
         <ThemeProvider
           attribute="class"

@@ -2,16 +2,59 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles, Heart, Shield, Wind } from "lucide-react";
 import Link from "next/link";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n/context";
+
+const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
+
+const values = [
+  {
+    icon: Heart,
+    titleKey: "about.value1Title",
+    descKey: "about.value1Desc",
+  },
+  {
+    icon: Shield,
+    titleKey: "about.value2Title",
+    descKey: "about.value2Desc",
+  },
+  {
+    icon: Wind,
+    titleKey: "about.value3Title",
+    descKey: "about.value3Desc",
+  },
+];
 
 const stats = [
-  { value: "6", label: "Hectares" },
-  { value: "10", label: "Tentes-Suites" },
-  { value: "30 min", label: "de Marrakech" },
+  { valueKey: "about.stat1Value", labelKey: "about.stat1Label" },
+  { valueKey: "about.stat2Value", labelKey: "about.stat2Label" },
+  { valueKey: "about.stat3Value", labelKey: "about.stat3Label" },
+];
+
+const galleryImages = [
+  {
+    src: "/images/night.png",
+    altKey: "about.galleryImage1Alt",
+    captionKey: "about.galleryImage1Caption",
+  },
+  {
+    src: "/images/dining.png",
+    altKey: "about.galleryImage2Alt",
+    captionKey: "about.galleryImage2Caption",
+  },
+  {
+    src: "/images/exp-camel.png",
+    altKey: "about.galleryImage3Alt",
+    captionKey: "about.galleryImage3Caption",
+  },
+  {
+    src: "/images/hero.png",
+    altKey: "about.galleryImage4Alt",
+    captionKey: "about.galleryImage4Caption",
+  },
 ];
 
 export default function ApropoPage() {
@@ -19,55 +62,83 @@ export default function ApropoPage() {
   const storyRef = useRef(null);
   const statsRef = useRef(null);
   const galleryRef = useRef(null);
+  const valuesRef = useRef(null);
   const ctaRef = useRef(null);
 
   const heroInView = useInView(heroRef, { once: true });
   const storyInView = useInView(storyRef, { once: true, margin: "-80px" });
   const statsInView = useInView(statsRef, { once: true, margin: "-80px" });
   const galleryInView = useInView(galleryRef, { once: true, margin: "-80px" });
+  const valuesInView = useInView(valuesRef, { once: true, margin: "-80px" });
   const ctaInView = useInView(ctaRef, { once: true, margin: "-80px" });
+
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
 
       <main className="flex-1 pt-20">
-        {/* Hero Section */}
+        {/* Hero Section — about.png with warm gradients */}
         <section ref={heroRef} className="relative h-[70vh] min-h-[500px] w-full overflow-hidden">
           <div className="absolute inset-0">
             <img
               src="/images/about.png"
-              alt="Arabian Desert Home — Notre histoire"
+              alt="Arabian Desert Home — Our Story"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+            <div className="absolute inset-0 gradient-warm" />
+            <div className="absolute inset-0 gradient-amber" />
+            <div className="absolute inset-0 bg-black/30" />
           </div>
+
+          {/* Decorative blobs */}
+          <div className="absolute top-16 right-16 w-72 h-72 bg-amber/[0.04] blob-1" />
+          <div className="absolute bottom-10 left-10 w-56 h-56 bg-amber/[0.03] blob-2" />
+
+          {/* Grain overlay */}
+          <div className="absolute inset-0 grain-overlay" />
 
           <div className="relative z-10 h-full flex flex-col justify-end pb-16 md:pb-24 px-6 md:px-10 max-w-7xl mx-auto">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta/80 mb-4"
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="luxury-label text-amber/80 mb-4"
             >
-              Notre Histoire
+              {t("about.heroLabel")}
             </motion.span>
             <motion.h1
               initial={{ opacity: 0, y: 40 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1.2, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 1.2, delay: 0.2, ease: smoothEase }}
               className="heading-display text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
             >
-              À Propos
+              {t("about.heroTitle1")}
             </motion.h1>
             <motion.div
               initial={{ scaleX: 0 }}
               animate={heroInView ? { scaleX: 1 } : {}}
               transition={{ duration: 1.5, delay: 0.6 }}
-              className="h-px w-16 bg-terracotta/30 mt-8 max-w-xs origin-left"
+              className="divider-accent mt-8 max-w-[120px] origin-left"
             />
           </div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5 }}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          >
+            <div className="w-6 h-10 rounded-full border border-amber/30 flex items-start justify-center pt-2">
+              <motion.div
+                animate={{ y: [0, 12, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="w-1.5 h-1.5 rounded-full bg-amber"
+              />
+            </div>
+          </motion.div>
         </section>
 
         {/* Story Section */}
@@ -76,48 +147,104 @@ export default function ApropoPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={storyInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="mb-8"
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="mb-4"
             >
-              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+              <span className="mono-number text-amber/10 text-6xl md:text-7xl leading-none">
+                {t("about.storySectionNumber")}
+              </span>
             </motion.div>
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={storyInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="luxury-label text-amber block mb-4"
+            >
+              {t("about.storyLabel")}
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              animate={storyInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
+              className="heading-editorial text-3xl md:text-4xl lg:text-5xl mb-8"
+            >
+              {t("about.storyTitle1")}{" "}
+              <span className="italic text-amber">{t("about.storyTitle2")}</span>
+            </motion.h2>
+
             <motion.p
               initial={{ opacity: 0, y: 30 }}
               animate={storyInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1 }}
-              className="text-editorial text-lg md:text-xl text-muted-foreground leading-relaxed mb-8"
+              transition={{ duration: 1, delay: 0.3, ease: smoothEase }}
+              className="body-editorial text-lg md:text-xl text-muted-foreground leading-relaxed mb-8"
             >
-              Niché entre les dunes dorées du désert d&apos;Agafay et la vue imprenable sur les montagnes de l&apos;Atlas, notre hôtel offre une expérience unique et authentique à quelques kilomètres de Marrakech.
+              {t("about.storyParagraph1")}
             </motion.p>
             <motion.p
               initial={{ opacity: 0, y: 30 }}
               animate={storyInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.3 }}
-              className="text-editorial text-lg md:text-xl text-muted-foreground leading-relaxed"
+              transition={{ duration: 1, delay: 0.5, ease: smoothEase }}
+              className="body-editorial text-lg md:text-xl text-muted-foreground leading-relaxed"
             >
-              Notre établissement est bien plus qu&apos;un simple lieu de séjour – c&apos;est une immersion dans la culture marocaine, un havre de paix où luxe, nature, et tranquillité se rencontrent.
+              {t("about.storyParagraph2")}
             </motion.p>
+
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={storyInView ? { scaleX: 1 } : {}}
+              transition={{ duration: 1.2, delay: 0.6 }}
+              className="divider-accent mt-12 max-w-[120px] origin-left"
+            />
           </div>
         </section>
 
         {/* Stats Section */}
-        <section ref={statsRef} className="py-20 md:py-28 px-6 md:px-10 bg-muted/30 pattern-dots">
+        <section ref={statsRef} className="py-20 md:py-28 px-6 md:px-10 pattern-dots">
           <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+            {/* Section header */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={statsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="text-center mb-4"
+            >
+              <span className="mono-number text-amber/10 text-6xl md:text-7xl leading-none">
+                {t("about.statsSectionNumber")}
+              </span>
+            </motion.div>
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={statsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="luxury-label text-amber block text-center mb-4"
+            >
+              {t("about.statsLabel")}
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              animate={statsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
+              className="heading-editorial text-3xl md:text-4xl text-center mb-16"
+            >
+              {t("about.statsTitle1")}{" "}
+              <span className="italic text-amber">{t("about.statsTitle2")}</span>
+            </motion.h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {stats.map((stat, index) => (
                 <motion.div
-                  key={stat.label}
+                  key={stat.valueKey}
                   initial={{ opacity: 0, y: 30 }}
                   animate={statsInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.8, delay: 0.2 + index * 0.15 }}
-                  className="text-center"
+                  transition={{ duration: 0.8, delay: 0.2 + index * 0.15, ease: smoothEase }}
+                  className="glass-card card-warm p-8 text-center"
                 >
-                  <div className="h-px w-16 bg-terracotta/30 max-w-[60px] mx-auto mb-6" />
-                  <p className="text-mono-number text-5xl md:text-6xl text-terracotta mb-3">
-                    {stat.value}
+                  <div className="divider-accent max-w-[60px] mx-auto mb-6" />
+                  <p className="mono-number text-5xl md:text-6xl text-amber mb-3">
+                    {t(stat.valueKey)}
                   </p>
-                  <p className="text-luxury-label text-muted-foreground">
-                    {stat.label}
+                  <p className="luxury-label text-muted-foreground">
+                    {t(stat.labelKey)}
                   </p>
                 </motion.div>
               ))}
@@ -131,101 +258,215 @@ export default function ApropoPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={galleryInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="mb-4"
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="mb-4 text-center"
             >
-              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none block text-center">02</span>
+              <span className="mono-number text-amber/10 text-6xl md:text-7xl leading-none block">
+                {t("about.gallerySectionNumber")}
+              </span>
             </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={galleryInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta block text-center mb-4"
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="luxury-label text-amber block text-center mb-4"
             >
-              Galerie
+              {t("about.galleryLabel")}
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 30 }}
               animate={galleryInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.2 }}
+              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
               className="heading-editorial text-3xl md:text-4xl lg:text-5xl text-center mb-16"
             >
-              Découvrez notre <span className="italic">univers</span>
+              {t("about.galleryTitle1")}{" "}
+              <span className="italic text-amber">{t("about.galleryTitle2")}</span>
             </motion.h2>
 
+            {/* Bento-style grid: 2 large + 2 small */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* First image — large */}
               <motion.div
                 initial={{ opacity: 0, x: -40 }}
                 animate={galleryInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 1, delay: 0.3 }}
-                className="relative h-80 md:h-[450px] overflow-hidden group"
+                transition={{ duration: 1, delay: 0.3, ease: smoothEase }}
+                className="relative h-80 md:h-[450px] overflow-hidden group rounded-2xl"
               >
                 <img
-                  src="/images/night.png"
-                  alt="Nuit au désert — Arabian Desert Home"
+                  src={galleryImages[0].src}
+                  alt={t(galleryImages[0].altKey)}
                   className="w-full h-full object-cover img-luxury"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <p className="text-luxury-label text-white/80">Sous les étoiles</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-amber/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-colors duration-400 rounded-2xl" />
+                <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-400">
+                  <p className="luxury-label text-white/90">{t(galleryImages[0].captionKey)}</p>
                 </div>
               </motion.div>
 
+              {/* Second image — large */}
               <motion.div
                 initial={{ opacity: 0, x: 40 }}
                 animate={galleryInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 1, delay: 0.5 }}
-                className="relative h-80 md:h-[450px] overflow-hidden group"
+                transition={{ duration: 1, delay: 0.5, ease: smoothEase }}
+                className="relative h-80 md:h-[450px] overflow-hidden group rounded-2xl"
               >
                 <img
-                  src="/images/dining.png"
-                  alt="Restaurant — Arabian Desert Home"
+                  src={galleryImages[1].src}
+                  alt={t(galleryImages[1].altKey)}
                   className="w-full h-full object-cover img-luxury"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <p className="text-luxury-label text-white/80">Art de la table</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-amber/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-colors duration-400 rounded-2xl" />
+                <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-400">
+                  <p className="luxury-label text-white/90">{t(galleryImages[1].captionKey)}</p>
+                </div>
+              </motion.div>
+
+              {/* Third image — smaller */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={galleryInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 1, delay: 0.6, ease: smoothEase }}
+                className="relative h-72 md:h-[350px] overflow-hidden group rounded-2xl"
+              >
+                <img
+                  src={galleryImages[2].src}
+                  alt={t(galleryImages[2].altKey)}
+                  className="w-full h-full object-cover img-luxury"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-amber/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-colors duration-400 rounded-2xl" />
+                <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-400">
+                  <p className="luxury-label text-white/90">{t(galleryImages[2].captionKey)}</p>
+                </div>
+              </motion.div>
+
+              {/* Fourth image — smaller */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={galleryInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 1, delay: 0.8, ease: smoothEase }}
+                className="relative h-72 md:h-[350px] overflow-hidden group rounded-2xl"
+              >
+                <img
+                  src={galleryImages[3].src}
+                  alt={t(galleryImages[3].altKey)}
+                  className="w-full h-full object-cover img-luxury"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-amber/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-colors duration-400 rounded-2xl" />
+                <div className="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-400">
+                  <p className="luxury-label text-white/90">{t(galleryImages[3].captionKey)}</p>
                 </div>
               </motion.div>
             </div>
           </div>
         </section>
 
+        {/* Values Section */}
+        <section ref={valuesRef} className="py-20 md:py-28 px-6 md:px-10 pattern-organic opacity-100">
+          <div className="max-w-5xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={valuesInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="mb-4 text-center"
+            >
+              <span className="mono-number text-amber/10 text-6xl md:text-7xl leading-none block">
+                {t("about.valuesSectionNumber")}
+              </span>
+            </motion.div>
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={valuesInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="luxury-label text-amber block text-center mb-4"
+            >
+              {t("about.valuesLabel")}
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              animate={valuesInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
+              className="heading-editorial text-3xl md:text-4xl text-center mb-16"
+            >
+              {t("about.valuesTitle1")}{" "}
+              <span className="italic text-amber">{t("about.valuesTitle2")}</span>
+            </motion.h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {values.map((value, index) => (
+                <motion.div
+                  key={value.titleKey}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={valuesInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.8, delay: 0.2 + index * 0.15, ease: smoothEase }}
+                  className="glass-card card-warm p-8 text-center"
+                >
+                  <div className="w-14 h-14 mx-auto mb-5 rounded-xl bg-amber/10 border border-amber/15 flex items-center justify-center">
+                    <value.icon className="w-6 h-6 text-amber" />
+                  </div>
+                  <h3 className="heading-editorial text-lg mb-3">
+                    {t(value.titleKey)}
+                  </h3>
+                  <p className="text-sm text-muted-foreground body-editorial">
+                    {t(value.descKey)}
+                  </p>
+                  <div className="divider-accent max-w-[60px] mx-auto mt-5" />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
-        <section ref={ctaRef} className="py-20 md:py-28 px-6 md:px-10 bg-obsidian dark:bg-obsidian">
-          <div className="max-w-3xl mx-auto text-center">
+        <section ref={ctaRef} className="relative py-20 md:py-28 px-6 md:px-10 bg-warm-black overflow-hidden">
+          {/* Decorative blobs */}
+          <div className="absolute top-10 left-10 w-72 h-72 bg-amber/[0.04] blob-1" />
+          <div className="absolute bottom-10 right-10 w-56 h-56 bg-amber/[0.03] blob-3" />
+
+          {/* Grain overlay */}
+          <div className="absolute inset-0 grain-overlay" />
+
+          {/* Top accent */}
+          <div className="absolute top-0 left-0 right-0 divider-accent-wide" />
+
+          <div className="relative z-10 max-w-3xl mx-auto text-center">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta/60 block mb-4"
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="luxury-label text-amber/60 block mb-4"
             >
-              Votre séjour
+              {t("about.ctaLabel")}
             </motion.span>
             <motion.h3
               initial={{ opacity: 0, y: 20 }}
               animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="heading-display text-3xl md:text-4xl text-white mb-8"
+              transition={{ duration: 0.8, delay: 0.2, ease: smoothEase }}
+              className="heading-display text-3xl md:text-4xl text-foreground mb-8"
             >
-              Découvrez nos tentes-suites
+              {t("about.ctaTitle1")}{" "}
+              <span className="italic text-amber">{t("about.ctaTitle2")}</span>
             </motion.h3>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.4 }}
+              transition={{ duration: 0.8, delay: 0.4, ease: smoothEase }}
             >
               <Link href="/les-tentes">
-                <Button
-                  variant="outline"
-                  className="border-terracotta/40 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-10 py-6 text-luxury-label tracking-[0.2em]"
-                >
-                  Explorer les tentes
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
+                <span className="btn-primary inline-flex items-center gap-2 cursor-pointer hover:no-underline">
+                  <Sparkles className="w-4 h-4" />
+                  {t("about.ctaButton")}
+                  <ArrowRight className="w-4 h-4" />
+                </span>
               </Link>
             </motion.div>
           </div>
+
+          {/* Bottom accent */}
+          <div className="absolute bottom-0 left-0 right-0 divider-accent-wide" />
         </section>
       </main>
 

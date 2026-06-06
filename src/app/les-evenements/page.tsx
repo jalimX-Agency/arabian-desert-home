@@ -6,185 +6,461 @@ import { Heart, Sparkles, Gem, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n/context";
 
-const eventTypes = [
-  {
-    icon: Heart,
-    title: "Mariages au Désert",
-    description:
-      "Échangez vos vœux où la terre rencontre le ciel. Nos mariages au désert sont des rêves architecturaux — soieries drapées, lanternes en cascade, et un horizon qui s'étend à l'infini pour témoin.",
-  },
-  {
-    icon: Sparkles,
-    title: "Galas & Soirées",
-    description:
-      "Des soirées extraordinaires sous les étoiles du désert. Galas enchanteurs, dîners prestigieux et celebrations inoubliables dans un cadre naturel époustouflant.",
-  },
-  {
-    icon: Gem,
-    title: "Retraites Privées",
-    description:
-      "Séminaires d'entreprise, résidences créatives et retraites de direction dans une intimité absolue. Le désert dépouille le bruit, révélant clarté et connexion.",
-  },
-];
+// ============================================
+// Animation Constants — Desert Aurora
+// ============================================
+const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
+const revealUp = {
+  hidden: { opacity: 0, y: 50 },
+  visible: (delay: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.9, delay, ease: smoothEase },
+  }),
+};
+
+const revealScale = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: (delay: number = 0) => ({
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.9, delay, ease: smoothEase },
+  }),
+};
+
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: (delay: number = 0) => ({
+    opacity: 1,
+    transition: { duration: 0.8, delay },
+  }),
+};
+
+// ============================================
+// Events Page — Desert Aurora Design
+// ============================================
 export default function EvenementsPage() {
-  const heroRef = useRef(null);
-  const cardsRef = useRef(null);
-  const quoteRef = useRef(null);
-  const ctaRef = useRef(null);
+  const { t } = useLanguage();
 
+  const heroRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true });
+
+  const introRef = useRef(null);
+  const introInView = useInView(introRef, { once: true, margin: "-80px" });
+
+  const cardsRef = useRef(null);
   const cardsInView = useInView(cardsRef, { once: true, margin: "-80px" });
+
+  const quoteRef = useRef(null);
   const quoteInView = useInView(quoteRef, { once: true, margin: "-80px" });
+
+  const galleryRef = useRef(null);
+  const galleryInView = useInView(galleryRef, { once: true, margin: "-80px" });
+
+  const ctaRef = useRef(null);
   const ctaInView = useInView(ctaRef, { once: true, margin: "-80px" });
+
+  const eventTypes = [
+    {
+      icon: Heart,
+      titleKey: "evenements.weddingTitle",
+      descKey: "evenements.weddingDesc",
+    },
+    {
+      icon: Sparkles,
+      titleKey: "evenements.galaTitle",
+      descKey: "evenements.galaDesc",
+    },
+    {
+      icon: Gem,
+      titleKey: "evenements.retreatTitle",
+      descKey: "evenements.retreatDesc",
+    },
+  ];
+
+  const galleryImages = [
+    { src: "/images/events-gala.png", alt: "Gala evening under the stars" },
+    { src: "/images/events.png", alt: "Desert wedding ceremony" },
+    { src: "/images/dining.png", alt: "Elegant outdoor dining" },
+    { src: "/images/exp-camel.png", alt: "Sunset camel procession" },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
 
       <main className="flex-1 pt-20">
-        {/* Hero Section */}
-        <section ref={heroRef} className="relative h-[70vh] min-h-[500px] w-full overflow-hidden">
+        {/* ── Hero Section ── */}
+        <section
+          ref={heroRef}
+          className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden"
+        >
+          {/* Background Image */}
           <div className="absolute inset-0">
             <img
-              src="/images/events-gala.png"
+              src="/images/events.png"
               alt="Événements de luxe au désert d'Agafay"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+            {/* Warm Gradient Overlays */}
+            <div className="absolute inset-0 gradient-warm" />
+            <div className="absolute inset-0 gradient-amber" />
+            <div className="absolute inset-0 bg-black/40" />
           </div>
 
-          <div className="relative z-10 h-full flex flex-col justify-end pb-16 md:pb-24 px-6 md:px-10 max-w-7xl mx-auto">
+          {/* Decorative Blobs */}
+          <div className="absolute top-20 right-10 w-80 h-80 bg-amber/[0.04] blob-1 blur-3xl" />
+          <div className="absolute bottom-10 left-10 w-60 h-60 bg-amber/[0.03] blob-3 blur-3xl" />
+
+          {/* Grain Texture */}
+          <div className="absolute inset-0 grain-overlay pointer-events-none" />
+
+          {/* Hero Content */}
+          <div className="relative z-10 text-center px-6">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta/80 mb-4"
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="luxury-label text-amber block mb-4"
             >
-              Célébrez l&apos;Amour !
+              {t("evenements.heroLabel")}
             </motion.span>
             <motion.h1
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1.2, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="heading-display text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
+              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
+              className="heading-display text-4xl md:text-6xl lg:text-8xl text-white mb-6"
             >
-              Événements
+              {t("evenements.heroTitle")}
             </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
+              className="heading-editorial italic text-xl md:text-2xl text-white/70 max-w-3xl mx-auto"
+            >
+              {t("evenements.heroSubtitle")}
+            </motion.p>
+
+            {/* Scroll Indicator */}
             <motion.div
-              initial={{ scaleX: 0 }}
-              animate={heroInView ? { scaleX: 1 } : {}}
-              transition={{ duration: 1.5, delay: 0.6 }}
-              className="h-px w-16 bg-terracotta/30 mt-8 max-w-xs origin-left"
-            />
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.2, duration: 1 }}
+              className="mt-12 flex justify-center"
+            >
+              <div className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center pt-2">
+                <motion.div
+                  animate={{ y: [0, 12, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-1.5 h-1.5 rounded-full bg-amber"
+                />
+              </div>
+            </motion.div>
           </div>
         </section>
 
-        {/* Intro Text */}
-        <section className="py-20 md:py-28 px-6 md:px-10">
-          <div className="max-w-3xl mx-auto text-center">
+        {/* ── Intro Section ── */}
+        <section ref={introRef} className="py-20 md:py-28 px-6 md:px-10 relative">
+          <div className="absolute inset-0 pattern-dots pointer-events-none" />
+
+          <div className="max-w-3xl mx-auto text-center relative z-10">
+            <motion.div
+              variants={fadeIn}
+              initial="hidden"
+              animate={introInView ? "visible" : "hidden"}
+              custom={0}
+              className="divider-accent max-w-[120px] mx-auto mb-10"
+            />
             <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1 }}
-              className="text-editorial text-lg md:text-xl text-muted-foreground"
+              variants={revealUp}
+              initial="hidden"
+              animate={introInView ? "visible" : "hidden"}
+              custom={0.3}
+              className="body-editorial text-lg md:text-xl text-muted-foreground"
             >
-              Une expérience sensorielle unique, mêlant l&apos;émerveillement de la nature à la sophistication d&apos;événements raffinés
+              {t("evenements.introText")}
             </motion.p>
           </div>
         </section>
 
-        {/* Event Types Cards */}
-        <section ref={cardsRef} className="py-12 md:py-20 px-6 md:px-10">
-          <div className="max-w-7xl mx-auto">
+        {/* ── Event Types Cards ── */}
+        <section
+          ref={cardsRef}
+          className="py-16 md:py-24 px-6 md:px-10 relative"
+        >
+          <div className="absolute inset-0 pattern-organic opacity-50 pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto relative z-10">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={cardsInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="mb-4 text-center"
+              variants={fadeIn}
+              initial="hidden"
+              animate={cardsInView ? "visible" : "hidden"}
+              custom={0}
+              className="mb-4"
             >
-              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+              <span className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block">
+                {t("evenements.eventTypesSectionNumber")}
+              </span>
             </motion.div>
+            <motion.span
+              variants={revealUp}
+              initial="hidden"
+              animate={cardsInView ? "visible" : "hidden"}
+              custom={0.1}
+              className="luxury-label text-amber block mb-4"
+            >
+              {t("evenements.eventTypesLabel")}
+            </motion.span>
+            <motion.h2
+              variants={revealUp}
+              initial="hidden"
+              animate={cardsInView ? "visible" : "hidden"}
+              custom={0.2}
+              className="heading-display text-3xl md:text-5xl mb-4"
+            >
+              {t("evenements.eventTypesTitle1")}
+              <br />
+              <span className="italic text-amber">{t("evenements.eventTypesTitle2")}</span>
+            </motion.h2>
+            <motion.div
+              variants={fadeIn}
+              initial="hidden"
+              animate={cardsInView ? "visible" : "hidden"}
+              custom={0.3}
+              className="divider-accent max-w-xs mb-16"
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
-              {eventTypes.map((event, index) => (
-                <motion.div
-                  key={event.title}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={cardsInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.8, delay: 0.2 + index * 0.15 }}
-                  className="group p-8 md:p-10 border border-border/50 hover:border-terracotta/30 transition-all duration-500 bg-background/50 backdrop-blur-sm"
-                >
-                  <event.icon className="w-6 h-6 text-terracotta mb-6" />
-                  <h3 className="heading-editorial text-2xl mb-4">{event.title}</h3>
-                  <div className="w-8 h-px bg-terracotta/50 mb-6 group-hover:w-16 transition-all duration-500" />
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {event.description}
-                  </p>
-                </motion.div>
-              ))}
+              {eventTypes.map((event, index) => {
+                const Icon = event.icon;
+                return (
+                  <motion.div
+                    key={event.titleKey}
+                    variants={revealScale}
+                    initial="hidden"
+                    animate={cardsInView ? "visible" : "hidden"}
+                    custom={0.4 + index * 0.15}
+                    className="group glass-card card-warm p-8 md:p-10"
+                  >
+                    {/* Icon */}
+                    <div className="w-12 h-12 rounded-xl bg-amber/10 border border-amber/15 flex items-center justify-center mb-6 group-hover:bg-amber/20 group-hover:border-amber/30 transition-all duration-400">
+                      <Icon className="w-6 h-6 text-amber" />
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="heading-editorial text-2xl mb-4 group-hover:text-amber transition-colors duration-400">
+                      {t(event.titleKey)}
+                    </h3>
+
+                    {/* Amber Divider */}
+                    <div className="divider-accent max-w-[60px] mb-6 group-hover:max-w-[100px] transition-all duration-500" />
+
+                    {/* Description */}
+                    <p className="text-sm text-muted-foreground leading-relaxed body-editorial">
+                      {t(event.descKey)}
+                    </p>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        {/* Quote Section */}
-        <section ref={quoteRef} className="py-20 md:py-32 px-6 md:px-10">
-          <div className="max-w-4xl mx-auto text-center">
+        {/* ── Quote Section ── */}
+        <section ref={quoteRef} className="py-20 md:py-32 px-6 md:px-10 relative">
+          <div className="absolute inset-0 pattern-dots pointer-events-none" />
+
+          <div className="max-w-4xl mx-auto text-center relative z-10">
             <motion.div
-              initial={{ scaleX: 0 }}
-              animate={quoteInView ? { scaleX: 1 } : {}}
-              transition={{ duration: 1.2 }}
-              className="h-px w-16 bg-terracotta/30 max-w-[120px] mx-auto mb-12"
+              variants={fadeIn}
+              initial="hidden"
+              animate={quoteInView ? "visible" : "hidden"}
+              custom={0}
+              className="divider-accent max-w-[120px] mx-auto mb-12"
             />
             <motion.blockquote
-              initial={{ opacity: 0, y: 20 }}
-              animate={quoteInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.3 }}
+              variants={revealUp}
+              initial="hidden"
+              animate={quoteInView ? "visible" : "hidden"}
+              custom={0.3}
               className="heading-display text-2xl md:text-3xl lg:text-4xl italic leading-snug"
             >
-              &ldquo;L&apos;alliance de traditions ancestrales et de prestations haut de gamme confère à ces soirées un caractère intemporel&rdquo;
+              &ldquo;{t("evenements.quoteText")}&rdquo;
             </motion.blockquote>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section ref={ctaRef} className="py-20 md:py-28 px-6 md:px-10 bg-obsidian dark:bg-obsidian">
-          <div className="max-w-3xl mx-auto text-center">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta/60 block mb-4"
-            >
-              Votre événement sur mesure
-            </motion.span>
-            <motion.h3
-              initial={{ opacity: 0, y: 20 }}
-              animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="heading-display text-3xl md:text-4xl text-white mb-8"
-            >
-              Créons ensemble un moment inoubliable
-            </motion.h3>
+        {/* ── Image Gallery ── */}
+        <section
+          ref={galleryRef}
+          className="py-16 md:py-24 px-6 md:px-10 relative"
+        >
+          <div className="max-w-7xl mx-auto relative z-10">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.4 }}
+              variants={fadeIn}
+              initial="hidden"
+              animate={galleryInView ? "visible" : "hidden"}
+              custom={0}
+              className="mb-4"
             >
-              <Link href="/contact">
-                <Button
-                  variant="outline"
-                  className="border-terracotta/40 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-10 py-6 text-luxury-label tracking-[0.2em]"
-                >
-                  Planifiez votre événement
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
+              <span className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block">
+                {t("evenements.gallerySectionNumber")}
+              </span>
             </motion.div>
+            <motion.span
+              variants={revealUp}
+              initial="hidden"
+              animate={galleryInView ? "visible" : "hidden"}
+              custom={0.1}
+              className="luxury-label text-amber block mb-4"
+            >
+              {t("evenements.galleryLabel")}
+            </motion.span>
+            <motion.h2
+              variants={revealUp}
+              initial="hidden"
+              animate={galleryInView ? "visible" : "hidden"}
+              custom={0.2}
+              className="heading-display text-3xl md:text-5xl mb-16"
+            >
+              {t("evenements.galleryTitle1")}
+              <br />
+              <span className="italic text-amber">{t("evenements.galleryTitle2")}</span>
+            </motion.h2>
+
+            {/* Gallery Grid — Bento/Masonry layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {/* Large image — spans 2 cols on first row */}
+              <motion.div
+                variants={revealScale}
+                initial="hidden"
+                animate={galleryInView ? "visible" : "hidden"}
+                custom={0.3}
+                className="md:col-span-1 aspect-[4/3] overflow-hidden rounded-2xl relative group cursor-pointer"
+              >
+                <img
+                  src={galleryImages[0].src}
+                  alt={galleryImages[0].alt}
+                  className="w-full h-full object-cover img-luxury"
+                />
+                {/* Amber hover overlay */}
+                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
+                {/* Inner frame border on hover */}
+                <div className="absolute inset-3 rounded-xl border border-amber/0 group-hover:border-amber/20 transition-all duration-500" />
+              </motion.div>
+
+              <motion.div
+                variants={revealScale}
+                initial="hidden"
+                animate={galleryInView ? "visible" : "hidden"}
+                custom={0.4}
+                className="aspect-[4/3] overflow-hidden rounded-2xl relative group cursor-pointer"
+              >
+                <img
+                  src={galleryImages[1].src}
+                  alt={galleryImages[1].alt}
+                  className="w-full h-full object-cover img-luxury"
+                />
+                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
+                <div className="absolute inset-3 rounded-xl border border-amber/0 group-hover:border-amber/20 transition-all duration-500" />
+              </motion.div>
+
+              <motion.div
+                variants={revealScale}
+                initial="hidden"
+                animate={galleryInView ? "visible" : "hidden"}
+                custom={0.5}
+                className="aspect-[4/3] overflow-hidden rounded-2xl relative group cursor-pointer"
+              >
+                <img
+                  src={galleryImages[2].src}
+                  alt={galleryImages[2].alt}
+                  className="w-full h-full object-cover img-luxury"
+                />
+                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
+                <div className="absolute inset-3 rounded-xl border border-amber/0 group-hover:border-amber/20 transition-all duration-500" />
+              </motion.div>
+
+              <motion.div
+                variants={revealScale}
+                initial="hidden"
+                animate={galleryInView ? "visible" : "hidden"}
+                custom={0.6}
+                className="aspect-[4/3] overflow-hidden rounded-2xl relative group cursor-pointer"
+              >
+                <img
+                  src={galleryImages[3].src}
+                  alt={galleryImages[3].alt}
+                  className="w-full h-full object-cover img-luxury"
+                />
+                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
+                <div className="absolute inset-3 rounded-xl border border-amber/0 group-hover:border-amber/20 transition-all duration-500" />
+              </motion.div>
+            </div>
           </div>
+        </section>
+
+        {/* ── CTA Section ── */}
+        <section
+          ref={ctaRef}
+          className="relative py-20 md:py-28 px-6 md:px-10 bg-warm-black text-center overflow-hidden"
+        >
+          {/* Decorative Blobs */}
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber/[0.03] blob-2 blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-amber/[0.04] blob-1 blur-3xl" />
+
+          {/* Grain Texture */}
+          <div className="absolute inset-0 grain-overlay pointer-events-none" />
+
+          {/* Divider Top */}
+          <div className="absolute top-0 left-0 right-0 divider-accent-wide" />
+
+          <motion.span
+            variants={revealUp}
+            initial="hidden"
+            animate={ctaInView ? "visible" : "hidden"}
+            custom={0}
+            className="luxury-label text-amber block mb-4"
+          >
+            {t("evenements.ctaLabel")}
+          </motion.span>
+          <motion.h2
+            variants={revealUp}
+            initial="hidden"
+            animate={ctaInView ? "visible" : "hidden"}
+            custom={0.2}
+            className="heading-display text-3xl md:text-5xl text-foreground mb-6"
+          >
+            {t("evenements.ctaTitle")}
+          </motion.h2>
+          <motion.div
+            variants={fadeIn}
+            initial="hidden"
+            animate={ctaInView ? "visible" : "hidden"}
+            custom={0.4}
+            className="divider-accent-wide max-w-[120px] mx-auto mb-8"
+          />
+          <motion.div
+            variants={revealUp}
+            initial="hidden"
+            animate={ctaInView ? "visible" : "hidden"}
+            custom={0.5}
+          >
+            <Link
+              href="/contact"
+              className="btn-primary inline-flex items-center gap-3 cursor-pointer"
+            >
+              {t("evenements.ctaButton")}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </motion.div>
+
+          {/* Divider Bottom */}
+          <div className="absolute bottom-0 left-0 right-0 divider-accent-wide" />
         </section>
       </main>
 

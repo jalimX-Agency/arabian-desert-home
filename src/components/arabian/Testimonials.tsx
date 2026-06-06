@@ -52,13 +52,13 @@ export function Testimonials() {
           transition={{ duration: 0.8 }}
           className="mb-4"
         >
-          <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+          <span className="mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
         </motion.div>
         <motion.span
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-luxury-label text-terracotta block mb-6"
+          className="luxury-label text-terracotta block mb-6"
         >
           {t("reflections.label")}
         </motion.span>
@@ -106,7 +106,7 @@ export function Testimonials() {
               </div>
 
               <p className="heading-editorial text-lg">{testimonial.author}</p>
-              <p className="text-luxury-label text-muted-foreground mt-1">
+              <p className="luxury-label text-muted-foreground mt-1">
                 {testimonial.location}
               </p>
             </motion.div>

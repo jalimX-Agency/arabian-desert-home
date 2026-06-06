@@ -88,13 +88,13 @@ export function Experiences() {
             transition={{ duration: 0.8 }}
             className="mb-4"
           >
-            <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+            <span className="mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
           </motion.div>
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
-            className="text-luxury-label text-terracotta block mb-4"
+            className="luxury-label text-terracotta block mb-4"
           >
             {t("experiences.label")}
           </motion.span>
@@ -131,7 +131,7 @@ export function Experiences() {
 
                 {/* Category Tag */}
                 <div className="absolute top-6 left-6">
-                  <span className="text-luxury-label text-white/80 bg-black/30 backdrop-blur-sm px-4 py-2">
+                  <span className="luxury-label text-white/80 bg-black/30 backdrop-blur-sm px-4 py-2">
                     {active.category}
                   </span>
                 </div>
@@ -139,7 +139,7 @@ export function Experiences() {
                 {/* Price Tag */}
                 <div className="absolute bottom-6 right-6">
                   <div className="bg-black/30 backdrop-blur-sm px-4 py-2">
-                    <span className="text-terracotta text-mono-number text-lg">
+                    <span className="text-terracotta mono-number text-lg">
                       ${active.price}
                     </span>
                     <span className="text-white/50 text-xs ml-1">{t("experiences.perPerson")}</span>
@@ -171,7 +171,7 @@ export function Experiences() {
 
                 <div className="w-12 h-px bg-terracotta mb-6" />
 
-                <p className="text-editorial text-muted-foreground mb-4">
+                <p className="body-editorial text-muted-foreground mb-4">
                   {active.description}
                 </p>
                 <p className="text-sm text-muted-foreground/70 leading-relaxed mb-8">
@@ -198,7 +198,7 @@ export function Experiences() {
                   }`}
                 >
                   <span
-                    className={`text-sm text-mono-number transition-colors duration-300 ${
+                    className={`text-sm mono-number transition-colors duration-300 ${
                       i === activeIndex ? "text-terracotta" : "text-muted-foreground"
                     }`}
                   >

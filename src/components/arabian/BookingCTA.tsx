@@ -46,13 +46,13 @@ export function BookingCTA() {
               transition={{ duration: 0.8 }}
               className="mb-4"
             >
-              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+              <span className="mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
             </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta block mb-4"
+              className="luxury-label text-terracotta block mb-4"
             >
               {t("booking.label")}
             </motion.span>
@@ -72,7 +72,7 @@ export function BookingCTA() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-editorial text-muted-foreground mb-8"
+              className="body-editorial text-muted-foreground mb-8"
             >
               {t("booking.description")}
             </motion.p>
@@ -102,7 +102,7 @@ export function BookingCTA() {
               transition={{ duration: 0.8, delay: 0.8 }}
             >
               <p className="text-xs text-muted-foreground/50 mb-6">
-                {t("booking.startingFrom")} <span className="text-terracotta text-mono-number text-lg">$1,200</span> {t("booking.perNight")} · {t("booking.minimumStay")}
+                {t("booking.startingFrom")} <span className="text-terracotta mono-number text-lg">$1,200</span> {t("booking.perNight")} · {t("booking.minimumStay")}
               </p>
             </motion.div>
           </div>
@@ -204,7 +204,7 @@ function BookingForm() {
             </div>
           ))}
         </div>
-        <span className="text-luxury-label text-muted-foreground ml-2">
+        <span className="luxury-label text-muted-foreground ml-2">
           {step === 1 ? t("booking.step1Label") : t("booking.step2Label")}
         </span>
       </div>
@@ -213,7 +213,7 @@ function BookingForm() {
         <div className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-luxury-label text-muted-foreground">
+              <Label className="luxury-label text-muted-foreground">
                 {t("booking.firstName")}
               </Label>
               <Input
@@ -226,7 +226,7 @@ function BookingForm() {
               />
             </div>
             <div>
-              <Label className="text-luxury-label text-muted-foreground">
+              <Label className="luxury-label text-muted-foreground">
                 {t("booking.lastName")}
               </Label>
               <Input
@@ -240,7 +240,7 @@ function BookingForm() {
             </div>
           </div>
           <div>
-            <Label className="text-luxury-label text-muted-foreground">
+            <Label className="luxury-label text-muted-foreground">
               {t("booking.email")}
             </Label>
             <Input
@@ -252,7 +252,7 @@ function BookingForm() {
             />
           </div>
           <div>
-            <Label className="text-luxury-label text-muted-foreground">
+            <Label className="luxury-label text-muted-foreground">
               {t("booking.phone")} <span className="normal-case tracking-normal text-muted-foreground/50">{t("booking.phoneOptional")}</span>
             </Label>
             <Input
@@ -265,7 +265,7 @@ function BookingForm() {
           <Button
             onClick={() => setStep(2)}
             disabled={!form.firstName || !form.lastName || !form.email}
-            className="w-full bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none py-6 text-luxury-label tracking-[0.2em]"
+            className="w-full bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none py-6 luxury-label tracking-[0.2em]"
           >
             {t("booking.continue")}
           </Button>
@@ -275,7 +275,7 @@ function BookingForm() {
       {step === 2 && (
         <div className="space-y-5">
           <div>
-            <Label className="text-luxury-label text-muted-foreground">
+            <Label className="luxury-label text-muted-foreground">
               {t("booking.suite")}
             </Label>
             <Select
@@ -301,7 +301,7 @@ function BookingForm() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-luxury-label text-muted-foreground">
+              <Label className="luxury-label text-muted-foreground">
                 {t("booking.checkIn")}
               </Label>
               <PopoverDate
@@ -311,7 +311,7 @@ function BookingForm() {
               />
             </div>
             <div>
-              <Label className="text-luxury-label text-muted-foreground">
+              <Label className="luxury-label text-muted-foreground">
                 {t("booking.checkOut")}
               </Label>
               <PopoverDate
@@ -323,7 +323,7 @@ function BookingForm() {
           </div>
 
           <div>
-            <Label className="text-luxury-label text-muted-foreground">
+            <Label className="luxury-label text-muted-foreground">
               {t("booking.guests")}
             </Label>
             <div className="flex items-center gap-4 mt-1.5">
@@ -335,7 +335,7 @@ function BookingForm() {
               >
                 <Minus className="w-4 h-4" />
               </button>
-              <span className="text-lg text-mono-number w-8 text-center">
+              <span className="text-lg mono-number w-8 text-center">
                 {form.guests}
               </span>
               <button
@@ -350,7 +350,7 @@ function BookingForm() {
           </div>
 
           <div>
-            <Label className="text-luxury-label text-muted-foreground">
+            <Label className="luxury-label text-muted-foreground">
               {t("booking.specialRequests")} <span className="normal-case tracking-normal text-muted-foreground/50">{t("booking.specialRequestsOptional")}</span>
             </Label>
             <Textarea
@@ -365,14 +365,14 @@ function BookingForm() {
             <Button
               onClick={() => setStep(1)}
               variant="outline"
-              className="flex-1 rounded-none border-border/50 py-6 text-luxury-label tracking-[0.2em]"
+              className="flex-1 rounded-none border-border/50 py-6 luxury-label tracking-[0.2em]"
             >
               {t("booking.back")}
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={loading || !form.suiteType || !form.checkIn || !form.checkOut}
-              className="flex-1 bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none py-6 text-luxury-label tracking-[0.2em]"
+              className="flex-1 bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none py-6 luxury-label tracking-[0.2em]"
             >
               {loading ? (
                 t("booking.submitting")

@@ -25,13 +25,13 @@ export function Dining() {
               transition={{ duration: 0.8 }}
               className="mb-4"
             >
-              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+              <span className="mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
             </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta block mb-4"
+              className="luxury-label text-terracotta block mb-4"
             >
               {t("dining.label")}
             </motion.span>
@@ -58,7 +58,7 @@ export function Dining() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="text-editorial text-muted-foreground mb-6"
+              className="body-editorial text-muted-foreground mb-6"
             >
               {t("dining.paragraph1")}
             </motion.p>
@@ -137,7 +137,7 @@ export function Dining() {
                 <p className="heading-editorial italic text-lg leading-snug">
                   &ldquo;{t("dining.quote")}&rdquo;
                 </p>
-                <span className="text-luxury-label text-terracotta mt-3 block">
+                <span className="luxury-label text-terracotta mt-3 block">
                   {t("dining.quoteAuthor")}
                 </span>
               </motion.div>

@@ -92,13 +92,13 @@ export function Suites() {
               transition={{ duration: 0.8 }}
               className="mb-4"
             >
-              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
+              <span className="mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
             </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta block mb-4"
+              className="luxury-label text-terracotta block mb-4"
             >
               {t("suites.label")}
             </motion.span>
@@ -117,7 +117,7 @@ export function Suites() {
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-editorial text-muted-foreground max-w-md"
+            className="body-editorial text-muted-foreground max-w-md"
           >
             {t("suites.subtitle")}
           </motion.p>
@@ -156,7 +156,7 @@ export function Suites() {
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-6 h-px bg-terracotta" />
-                      <span className="text-luxury-label text-terracotta text-[10px]">
+                      <span className="luxury-label text-terracotta text-[10px]">
                         {suite.size} · {t("suites.upTo")} {suite.maxGuests}
                       </span>
                     </div>
@@ -185,7 +185,7 @@ export function Suites() {
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-terracotta text-mono-number text-xl">
+                          <span className="text-terracotta mono-number text-xl">
                             ${suite.price}
                           </span>
                           <span className="text-white/40 text-sm ml-1">

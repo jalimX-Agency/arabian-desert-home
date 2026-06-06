@@ -5,7 +5,7 @@ import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n/context";
 import {
   ArrowRight,
   Check,
@@ -15,9 +15,11 @@ import {
   Sun,
   Utensils,
   Music,
-  Sparkles,
 } from "lucide-react";
 
+// ============================================
+// Types
+// ============================================
 interface DayPass {
   id: string;
   name: string;
@@ -29,7 +31,42 @@ interface DayPass {
   order: number;
 }
 
+// ============================================
+// Animation Constants — Desert Aurora
+// ============================================
+const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
+
+const revealUp = {
+  hidden: { opacity: 0, y: 50 },
+  visible: (delay: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.9, delay, ease: smoothEase },
+  }),
+};
+
+const revealScale = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: (delay: number = 0) => ({
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.9, delay, ease: smoothEase },
+  }),
+};
+
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: (delay: number = 0) => ({
+    opacity: 1,
+    transition: { duration: 0.8, delay },
+  }),
+};
+
+// ============================================
+// Day Pass Page — Desert Aurora Design
+// ============================================
 export default function DayPassPage() {
+  const { t } = useLanguage();
   const [passes, setPasses] = useState<DayPass[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,8 +86,8 @@ export default function DayPassPage() {
   const passesRef = useRef(null);
   const passesInView = useInView(passesRef, { once: true, margin: "-80px" });
 
-  const rulesRef = useRef(null);
-  const rulesInView = useInView(rulesRef, { once: true, margin: "-80px" });
+  const infoRef = useRef(null);
+  const infoInView = useInView(infoRef, { once: true, margin: "-80px" });
 
   const ctaRef = useRef(null);
   const ctaInView = useInView(ctaRef, { once: true, margin: "-80px" });
@@ -60,76 +97,113 @@ export default function DayPassPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
+
       <main className="flex-1 pt-20">
-        {/* Hero Section */}
+        {/* ── Hero Section ── */}
         <section
           ref={heroRef}
-          className="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden"
+          className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden"
         >
+          {/* Background Image */}
           <div className="absolute inset-0">
             <img
               src="/images/daypass-pool.png"
               alt="Piscine avec vue sur le désert"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black/50" />
+            {/* Warm Gradient Overlays */}
+            <div className="absolute inset-0 gradient-warm" />
+            <div className="absolute inset-0 gradient-amber" />
+            <div className="absolute inset-0 bg-black/40" />
           </div>
 
+          {/* Decorative Blobs */}
+          <div className="absolute top-20 right-10 w-80 h-80 bg-amber/[0.04] blob-1 blur-3xl" />
+          <div className="absolute bottom-10 left-10 w-60 h-60 bg-amber/[0.03] blob-2 blur-3xl" />
+
+          {/* Grain Texture */}
+          <div className="absolute inset-0 grain-overlay pointer-events-none" />
+
+          {/* Hero Content */}
           <div className="relative z-10 text-center px-6">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta block mb-4"
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="luxury-label text-amber block mb-4"
             >
-              Day Pass
+              {t("dayPass.heroLabel")}
             </motion.span>
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.2 }}
-              className="heading-display text-5xl md:text-7xl lg:text-8xl text-white mb-6"
+              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
+              className="heading-display text-4xl md:text-6xl lg:text-8xl text-white mb-6"
             >
-              Day Pass
+              {t("dayPass.heroTitle")}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.5 }}
+              transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
               className="heading-editorial italic text-xl md:text-2xl text-white/70"
             >
-              Une journée au désert
+              {t("dayPass.heroSubtitle")}
             </motion.p>
+
+            {/* Scroll Indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.2, duration: 1 }}
+              className="mt-12 flex justify-center"
+            >
+              <div className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center pt-2">
+                <motion.div
+                  animate={{ y: [0, 12, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-1.5 h-1.5 rounded-full bg-amber"
+                />
+              </div>
+            </motion.div>
           </div>
         </section>
 
-        {/* Intro + Passes Section */}
-        <section ref={passesRef} className="py-20 md:py-28 px-6 md:px-10">
-          <div className="max-w-7xl mx-auto">
+        {/* ── Intro + Passes Section ── */}
+        <section
+          ref={passesRef}
+          className="py-20 md:py-28 px-6 md:px-10 relative"
+        >
+          <div className="absolute inset-0 pattern-dots pointer-events-none" />
+
+          <div className="max-w-7xl mx-auto relative z-10">
             <div className="text-center mb-16">
               <motion.div
-                initial={{ scaleX: 0 }}
-                animate={passesInView ? { scaleX: 1 } : {}}
-                transition={{ duration: 1.2 }}
-                className="h-px w-16 bg-terracotta/30 max-w-[120px] mx-auto mb-10"
+                variants={fadeIn}
+                initial="hidden"
+                animate={passesInView ? "visible" : "hidden"}
+                custom={0}
+                className="divider-accent max-w-[120px] mx-auto mb-10"
               />
               <motion.h2
-                initial={{ opacity: 0, y: 30 }}
-                animate={passesInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 1, delay: 0.2 }}
-                className="heading-editorial text-3xl md:text-5xl mb-4"
+                variants={revealUp}
+                initial="hidden"
+                animate={passesInView ? "visible" : "hidden"}
+                custom={0.2}
+                className="heading-display text-3xl md:text-5xl mb-4"
               >
-                Choisissez votre <span className="italic">expérience</span>
+                {t("dayPass.introTitle1")}
+                <br />
+                <span className="italic text-amber">{t("dayPass.introTitle2")}</span>
               </motion.h2>
               <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={passesInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="text-editorial text-muted-foreground max-w-2xl mx-auto"
+                variants={revealUp}
+                initial="hidden"
+                animate={passesInView ? "visible" : "hidden"}
+                custom={0.3}
+                className="body-editorial text-muted-foreground max-w-2xl mx-auto"
               >
-                Profitez de la piscine, savourez notre cuisine et laissez-vous
-                porter par la magie du désert d&apos;Agafay, à seulement 30
-                minutes de Marrakech.
+                {t("dayPass.introText")}
               </motion.p>
             </div>
 
@@ -138,7 +212,7 @@ export default function DayPassPage() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="animate-pulse h-96 bg-muted rounded-none"
+                    className="animate-pulse h-96 bg-muted rounded-2xl"
                   />
                 ))}
               </div>
@@ -149,10 +223,11 @@ export default function DayPassPage() {
                   return (
                     <motion.div
                       key={pass.id}
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={passesInView ? { opacity: 1, y: 0 } : {}}
-                      transition={{ duration: 0.8, delay: 0.4 + i * 0.2 }}
-                      className="group bg-card border border-border/50 overflow-hidden hover:border-terracotta/30 transition-all duration-500 flex flex-col"
+                      variants={revealScale}
+                      initial="hidden"
+                      animate={passesInView ? "visible" : "hidden"}
+                      custom={0.5 + i * 0.15}
+                      className="group glass-card card-warm overflow-hidden flex flex-col"
                     >
                       {/* Header with image */}
                       <div className="relative aspect-[4/3] overflow-hidden">
@@ -162,14 +237,20 @@ export default function DayPassPage() {
                           className="w-full h-full object-cover img-luxury"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                        {/* Warm hover overlay */}
+                        <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
+                        {/* Amber subtle glow */}
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-amber/[0.08] rounded-bl-3xl" />
                         <div className="absolute bottom-4 left-6 right-6">
                           <div className="flex items-center gap-2 mb-2">
-                            <Icon className="w-5 h-5 text-terracotta" />
-                            <span className="text-luxury-label text-white/80">
+                            <div className="w-6 h-6 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center">
+                              <Icon className="w-3.5 h-3.5 text-amber" />
+                            </div>
+                            <span className="luxury-label text-white/80">
                               Day Pass
                             </span>
                           </div>
-                          <h3 className="heading-editorial text-2xl text-white">
+                          <h3 className="heading-editorial text-2xl text-white group-hover:text-amber transition-colors duration-400">
                             {pass.name}
                           </h3>
                         </div>
@@ -177,36 +258,38 @@ export default function DayPassPage() {
 
                       {/* Content */}
                       <div className="p-6 flex-1 flex flex-col">
-                        <p className="text-sm text-muted-foreground mb-6">
+                        <p className="text-sm text-muted-foreground mb-6 body-editorial">
                           {pass.description}
                         </p>
 
                         {/* Includes */}
                         <div className="mb-6 flex-1">
-                          <span className="text-luxury-label text-terracotta block mb-3">
-                            Inclus
+                          <span className="luxury-label text-amber block mb-3">
+                            {t("dayPass.includes")}
                           </span>
-                          <div className="space-y-2">
+                          <div className="space-y-2.5">
                             {pass.includes.split(",").map((item, j) => (
                               <div
                                 key={j}
-                                className="flex items-center gap-2 text-sm text-muted-foreground/70"
+                                className="flex items-center gap-2.5 text-sm text-muted-foreground/70"
                               >
-                                <Check className="w-3.5 h-3.5 text-terracotta shrink-0" />
-                                <span>{item.trim()}</span>
+                                <div className="w-5 h-5 rounded-full bg-amber/10 flex items-center justify-center shrink-0">
+                                  <Check className="w-3 h-3 text-amber" />
+                                </div>
+                                <span className="body-editorial">{item.trim()}</span>
                               </div>
                             ))}
                           </div>
                         </div>
 
                         {/* Price */}
-                        <div className="pt-4 border-t border-border/30">
+                        <div className="pt-4 border-t border-amber/10">
                           <div className="flex items-baseline gap-2">
-                            <span className="text-mono-number text-4xl text-terracotta">
+                            <span className="mono-number text-4xl text-amber">
                               {pass.price}
                             </span>
-                            <span className="text-sm text-muted-foreground">
-                              {pass.currency} / personne
+                            <span className="text-sm text-muted-foreground body-editorial">
+                              {pass.currency} {t("dayPass.perPerson")}
                             </span>
                           </div>
                         </div>
@@ -219,118 +302,168 @@ export default function DayPassPage() {
           </div>
         </section>
 
-        {/* Rules Section */}
+        {/* ── Practical Information Section ── */}
         <section
-          ref={rulesRef}
-          className="py-20 md:py-28 px-6 md:px-10 bg-obsidian/[0.03] dark:bg-obsidian/50 pattern-lines"
+          ref={infoRef}
+          className="py-20 md:py-28 px-6 md:px-10 relative"
         >
-          <div className="max-w-4xl mx-auto">
+          <div className="absolute inset-0 pattern-organic opacity-50 pointer-events-none" />
+
+          <div className="max-w-4xl mx-auto relative z-10">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={rulesInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
+              variants={fadeIn}
+              initial="hidden"
+              animate={infoInView ? "visible" : "hidden"}
+              custom={0}
               className="mb-4"
             >
-              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">02</span>
+              <span className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block">
+                {t("dayPass.infoSectionNumber")}
+              </span>
             </motion.div>
             <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={rulesInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta block mb-4"
+              variants={revealUp}
+              initial="hidden"
+              animate={infoInView ? "visible" : "hidden"}
+              custom={0.1}
+              className="luxury-label text-amber block mb-4"
             >
-              Informations Pratiques
+              {t("dayPass.infoLabel")}
             </motion.span>
             <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              animate={rulesInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.2 }}
-              className="heading-editorial text-3xl md:text-4xl mb-12"
+              variants={revealUp}
+              initial="hidden"
+              animate={infoInView ? "visible" : "hidden"}
+              custom={0.2}
+              className="heading-display text-3xl md:text-5xl mb-4"
             >
-              Bon à <span className="italic">savoir</span>
+              {t("dayPass.infoTitle1")}
+              <br />
+              <span className="italic text-amber">{t("dayPass.infoTitle2")}</span>
             </motion.h2>
+            <motion.div
+              variants={fadeIn}
+              initial="hidden"
+              animate={infoInView ? "visible" : "hidden"}
+              custom={0.3}
+              className="divider-accent max-w-xs mb-12"
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Hours */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={rulesInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="bg-card border border-border/50 p-6"
+                variants={revealScale}
+                initial="hidden"
+                animate={infoInView ? "visible" : "hidden"}
+                custom={0.4}
+                className="glass-card card-warm p-6"
               >
-                <Clock className="w-6 h-6 text-terracotta mb-4" />
-                <h3 className="heading-editorial text-lg mb-2">Horaires</h3>
-                <p className="text-sm text-muted-foreground">
-                  Ouvert tous les jours de 11h à 16h
+                <div className="w-10 h-10 rounded-xl bg-amber/10 border border-amber/15 flex items-center justify-center mb-4">
+                  <Clock className="w-5 h-5 text-amber" />
+                </div>
+                <h3 className="heading-editorial text-lg mb-2">{t("dayPass.hoursTitle")}</h3>
+                <p className="text-sm text-muted-foreground body-editorial">
+                  {t("dayPass.hoursText")}
                 </p>
               </motion.div>
 
+              {/* Children */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={rulesInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.55 }}
-                className="bg-card border border-border/50 p-6"
+                variants={revealScale}
+                initial="hidden"
+                animate={infoInView ? "visible" : "hidden"}
+                custom={0.5}
+                className="glass-card card-warm p-6"
               >
-                <Baby className="w-6 h-6 text-terracotta mb-4" />
-                <h3 className="heading-editorial text-lg mb-2">Enfants</h3>
-                <p className="text-sm text-muted-foreground">
-                  -50% sur toutes les offres pour les enfants
+                <div className="w-10 h-10 rounded-xl bg-amber/10 border border-amber/15 flex items-center justify-center mb-4">
+                  <Baby className="w-5 h-5 text-amber" />
+                </div>
+                <h3 className="heading-editorial text-lg mb-2">{t("dayPass.childrenTitle")}</h3>
+                <p className="text-sm text-muted-foreground body-editorial">
+                  {t("dayPass.childrenText")}
                 </p>
               </motion.div>
 
+              {/* Reservation */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={rulesInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.7 }}
-                className="bg-card border border-border/50 p-6"
+                variants={revealScale}
+                initial="hidden"
+                animate={infoInView ? "visible" : "hidden"}
+                custom={0.6}
+                className="glass-card card-warm p-6"
               >
-                <AlertCircle className="w-6 h-6 text-terracotta mb-4" />
-                <h3 className="heading-editorial text-lg mb-2">Réservation</h3>
-                <p className="text-sm text-muted-foreground">
-                  Réservation 24h à l&apos;avance requise
+                <div className="w-10 h-10 rounded-xl bg-amber/10 border border-amber/15 flex items-center justify-center mb-4">
+                  <AlertCircle className="w-5 h-5 text-amber" />
+                </div>
+                <h3 className="heading-editorial text-lg mb-2">{t("dayPass.bookingTitle")}</h3>
+                <p className="text-sm text-muted-foreground body-editorial">
+                  {t("dayPass.bookingText")}
                 </p>
               </motion.div>
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
+        {/* ── CTA Section ── */}
         <section
           ref={ctaRef}
-          className="py-20 md:py-28 px-6 md:px-10 bg-obsidian dark:bg-obsidian text-center"
+          className="relative py-20 md:py-28 px-6 md:px-10 bg-warm-black text-center overflow-hidden"
         >
+          {/* Decorative Blobs */}
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber/[0.03] blob-2 blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-amber/[0.04] blob-3 blur-3xl" />
+
+          {/* Grain Texture */}
+          <div className="absolute inset-0 grain-overlay pointer-events-none" />
+
+          {/* Divider Top */}
+          <div className="absolute top-0 left-0 right-0 divider-accent-wide" />
+
           <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-            className="text-luxury-label text-terracotta/60 block mb-4"
+            variants={revealUp}
+            initial="hidden"
+            animate={ctaInView ? "visible" : "hidden"}
+            custom={0}
+            className="luxury-label text-amber block mb-4"
           >
-            Réservez Votre Journée
+            {t("dayPass.ctaLabel")}
           </motion.span>
           <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="heading-display text-3xl md:text-5xl text-white mb-8"
+            variants={revealUp}
+            initial="hidden"
+            animate={ctaInView ? "visible" : "hidden"}
+            custom={0.2}
+            className="heading-display text-3xl md:text-5xl text-foreground mb-6"
           >
-            Échappez-vous au désert
+            {t("dayPass.ctaTitle")}
           </motion.h2>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.5 }}
+            variants={fadeIn}
+            initial="hidden"
+            animate={ctaInView ? "visible" : "hidden"}
+            custom={0.4}
+            className="divider-accent-wide max-w-[120px] mx-auto mb-8"
+          />
+          <motion.div
+            variants={revealUp}
+            initial="hidden"
+            animate={ctaInView ? "visible" : "hidden"}
+            custom={0.5}
           >
-            <Link href="/contact">
-              <Button
-                variant="outline"
-                className="border-terracotta/50 text-terracotta hover:bg-terracotta/10 hover:text-terracotta hover:border-terracotta rounded-none px-10 py-6 text-luxury-label tracking-[0.2em]"
-              >
-                Nous Contacter
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+            <Link
+              href="/contact"
+              className="btn-primary inline-flex items-center gap-3 cursor-pointer"
+            >
+              {t("dayPass.ctaButton")}
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
+
+          {/* Divider Bottom */}
+          <div className="absolute bottom-0 left-0 right-0 divider-accent-wide" />
         </section>
       </main>
+
       <Footer />
     </div>
   );

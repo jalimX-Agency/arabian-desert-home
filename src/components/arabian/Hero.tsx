@@ -30,7 +30,7 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="mb-6"
         >
-          <span className="text-luxury-label text-white/70">
+          <span className="luxury-label text-white/70">
             {t("hero.location")}
           </span>
         </motion.div>
@@ -52,7 +52,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.9 }}
-          className="text-editorial text-white/70 text-lg md:text-xl max-w-xl mt-6"
+          className="body-editorial text-white/70 text-lg md:text-xl max-w-xl mt-6"
         >
           {t("hero.subtitle")}
         </motion.p>
@@ -73,7 +73,7 @@ export function Hero() {
         transition={{ delay: 2, duration: 1 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
-        <span className="text-luxury-label text-white/50 text-[10px]">
+        <span className="luxury-label text-white/50 text-[10px]">
           {t("hero.discover")}
         </span>
         <motion.div

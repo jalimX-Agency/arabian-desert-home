@@ -4,9 +4,10 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================
-   ARABIAN DESERT HOME — "Saharan Minimalism"
-   Architectural, Bold, Contemporary
-   Differentiated from arabiandeserthome.com
+   ARABIAN DESERT HOME — "Desert Aurora"
+   Nature Distilled + Liquid Glass Hybrid
+   Warm, Luminous, Organic, Premium
+   UI/UX Pro Max Design Intelligence
    ============================================ */
 
 @theme inline {
@@ -14,22 +15,25 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Brand Colors - Saharan Minimalism */
+  /* Brand Colors — Desert Aurora */
+  --color-amber: var(--amber);
+  --color-amber-light: var(--amber-light);
+  --color-amber-dark: var(--amber-dark);
+  --color-bronze: var(--bronze);
+  --color-bronze-light: var(--bronze-light);
   --color-terracotta: var(--terracotta);
   --color-terracotta-light: var(--terracotta-light);
-  --color-terracotta-dark: var(--terracotta-dark);
   --color-sage: var(--sage);
   --color-sage-light: var(--sage-light);
-  --color-obsidian: var(--obsidian);
-  --color-obsidian-light: var(--obsidian-light);
+  --color-cream: var(--cream);
+  --color-cream-dark: var(--cream-dark);
   --color-sand: var(--sand);
-  --color-sand-light: var(--sand-light);
-  --color-dune: var(--dune);
-  --color-pearl: var(--pearl);
+  --color-warm-black: var(--warm-black);
+  --color-warm-gray: var(--warm-gray);
 
   /* Font Families */
-  --font-serif: var(--font-cormorant);
-  --font-sans: var(--font-space);
+  --font-serif: var(--font-cinzel);
+  --font-sans: var(--font-josefin);
   --font-mono: var(--font-geist-mono);
 
   /* Component Colors */
@@ -67,119 +71,127 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
-  /* Radius */
+  /* Radius — Rounded Organic */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
 }
 
 /* ============================================
-   DARK MODE — Default: Deep Obsidian + Terracotta
+   DARK MODE — Default: Warm Deep + Amber Gold
    ============================================ */
 :root {
-  --radius: 0px;
+  --radius: 16px;
 
-  /* Brand Palette - Saharan Minimalism */
-  --terracotta: oklch(0.62 0.08 30);
-  --terracotta-light: oklch(0.72 0.08 35);
-  --terracotta-dark: oklch(0.48 0.08 25);
+  /* Brand Palette — Desert Aurora Dark */
+  --amber: oklch(0.68 0.15 75);
+  --amber-light: oklch(0.78 0.14 80);
+  --amber-dark: oklch(0.55 0.14 70);
+  --bronze: oklch(0.50 0.08 55);
+  --bronze-light: oklch(0.60 0.08 55);
+  --terracotta: oklch(0.62 0.10 30);
+  --terracotta-light: oklch(0.72 0.10 35);
   --sage: oklch(0.55 0.06 140);
   --sage-light: oklch(0.65 0.05 140);
-  --obsidian: oklch(0.10 0.01 60);
-  --obsidian-light: oklch(0.16 0.01 60);
+  --cream: oklch(0.92 0.015 75);
+  --cream-dark: oklch(0.85 0.02 70);
   --sand: oklch(0.78 0.03 65);
-  --sand-light: oklch(0.88 0.02 65);
-  --dune: oklch(0.68 0.04 55);
-  --pearl: oklch(0.92 0.01 70);
+  --warm-black: oklch(0.12 0.01 55);
+  --warm-gray: oklch(0.25 0.01 55);
 
-  /* Semantic Colors — Dark First */
-  --background: oklch(0.07 0.005 60);
-  --foreground: oklch(0.93 0.005 70);
-  --card: oklch(0.10 0.005 60);
-  --card-foreground: oklch(0.93 0.005 70);
-  --popover: oklch(0.10 0.005 60);
-  --popover-foreground: oklch(0.93 0.005 70);
-  --primary: oklch(0.62 0.08 30);
-  --primary-foreground: oklch(0.07 0.005 60);
-  --secondary: oklch(0.15 0.005 60);
-  --secondary-foreground: oklch(0.88 0.005 70);
-  --muted: oklch(0.15 0.005 60);
-  --muted-foreground: oklch(0.55 0.01 60);
+  /* Semantic Colors — Dark */
+  --background: oklch(0.08 0.008 55);
+  --foreground: oklch(0.94 0.01 75);
+  --card: oklch(0.11 0.008 55);
+  --card-foreground: oklch(0.94 0.01 75);
+  --popover: oklch(0.11 0.008 55);
+  --popover-foreground: oklch(0.94 0.01 75);
+  --primary: oklch(0.68 0.15 75);
+  --primary-foreground: oklch(0.08 0.008 55);
+  --secondary: oklch(0.16 0.008 55);
+  --secondary-foreground: oklch(0.88 0.01 75);
+  --muted: oklch(0.16 0.008 55);
+  --muted-foreground: oklch(0.55 0.015 55);
   --accent: oklch(0.55 0.06 140);
-  --accent-foreground: oklch(0.07 0.005 60);
+  --accent-foreground: oklch(0.08 0.008 55);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.20 0.01 60);
-  --input: oklch(0.20 0.01 60);
-  --ring: oklch(0.62 0.08 30);
+  --border: oklch(0.22 0.012 55);
+  --input: oklch(0.22 0.012 55);
+  --ring: oklch(0.68 0.15 75);
 
   /* Charts */
-  --chart-1: oklch(0.62 0.08 30);
-  --chart-2: oklch(0.55 0.06 140);
-  --chart-3: oklch(0.68 0.04 55);
+  --chart-1: oklch(0.68 0.15 75);
+  --chart-2: oklch(0.62 0.10 30);
+  --chart-3: oklch(0.55 0.06 140);
   --chart-4: oklch(0.78 0.03 65);
-  --chart-5: oklch(0.40 0.06 50);
+  --chart-5: oklch(0.50 0.08 55);
 
   /* Sidebar */
-  --sidebar: oklch(0.10 0.005 60);
-  --sidebar-foreground: oklch(0.93 0.005 70);
-  --sidebar-primary: oklch(0.62 0.08 30);
-  --sidebar-primary-foreground: oklch(0.07 0.005 60);
-  --sidebar-accent: oklch(0.15 0.005 60);
-  --sidebar-accent-foreground: oklch(0.88 0.005 70);
-  --sidebar-border: oklch(0.20 0.01 60);
-  --sidebar-ring: oklch(0.62 0.08 30);
+  --sidebar: oklch(0.11 0.008 55);
+  --sidebar-foreground: oklch(0.94 0.01 75);
+  --sidebar-primary: oklch(0.68 0.15 75);
+  --sidebar-primary-foreground: oklch(0.08 0.008 55);
+  --sidebar-accent: oklch(0.16 0.008 55);
+  --sidebar-accent-foreground: oklch(0.88 0.01 75);
+  --sidebar-border: oklch(0.22 0.012 55);
+  --sidebar-ring: oklch(0.68 0.15 75);
 }
 
 /* ============================================
-   LIGHT MODE — Warm Sand + Terracotta
+   LIGHT MODE — Warm Cream + Amber Gold
    ============================================ */
 .light {
-  --terracotta: oklch(0.55 0.09 25);
-  --terracotta-light: oklch(0.65 0.08 30);
-  --terracotta-dark: oklch(0.42 0.09 20);
+  --amber: oklch(0.62 0.16 70);
+  --amber-light: oklch(0.72 0.15 75);
+  --amber-dark: oklch(0.50 0.15 65);
+  --bronze: oklch(0.45 0.09 50);
+  --bronze-light: oklch(0.55 0.09 50);
+  --terracotta: oklch(0.55 0.11 25);
+  --terracotta-light: oklch(0.65 0.10 30);
   --sage: oklch(0.48 0.07 135);
   --sage-light: oklch(0.58 0.06 135);
-  --obsidian: oklch(0.15 0.01 60);
-  --obsidian-light: oklch(0.22 0.01 60);
+  --cream: oklch(0.96 0.015 75);
+  --cream-dark: oklch(0.90 0.02 70);
   --sand: oklch(0.82 0.03 65);
-  --sand-light: oklch(0.92 0.02 65);
-  --dune: oklch(0.72 0.04 55);
-  --pearl: oklch(0.96 0.01 70);
+  --warm-black: oklch(0.15 0.01 55);
+  --warm-gray: oklch(0.35 0.01 55);
 
-  --background: oklch(0.96 0.005 70);
-  --foreground: oklch(0.12 0.01 60);
-  --card: oklch(0.98 0.003 70);
-  --card-foreground: oklch(0.12 0.01 60);
-  --popover: oklch(0.98 0.003 70);
-  --popover-foreground: oklch(0.12 0.01 60);
-  --primary: oklch(0.55 0.09 25);
-  --primary-foreground: oklch(0.96 0.005 70);
-  --secondary: oklch(0.92 0.01 70);
-  --secondary-foreground: oklch(0.15 0.01 60);
-  --muted: oklch(0.93 0.01 70);
-  --muted-foreground: oklch(0.45 0.01 60);
+  --background: oklch(0.97 0.01 70);
+  --foreground: oklch(0.14 0.015 55);
+  --card: oklch(0.99 0.005 75);
+  --card-foreground: oklch(0.14 0.015 55);
+  --popover: oklch(0.99 0.005 75);
+  --popover-foreground: oklch(0.14 0.015 55);
+  --primary: oklch(0.62 0.16 70);
+  --primary-foreground: oklch(0.97 0.01 70);
+  --secondary: oklch(0.92 0.015 70);
+  --secondary-foreground: oklch(0.15 0.01 55);
+  --muted: oklch(0.93 0.012 70);
+  --muted-foreground: oklch(0.42 0.015 55);
   --accent: oklch(0.48 0.07 135);
-  --accent-foreground: oklch(0.96 0.005 70);
+  --accent-foreground: oklch(0.97 0.01 70);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.88 0.01 70);
-  --input: oklch(0.88 0.01 70);
-  --ring: oklch(0.55 0.09 25);
+  --border: oklch(0.88 0.015 65);
+  --input: oklch(0.88 0.015 65);
+  --ring: oklch(0.62 0.16 70);
 
-  --chart-1: oklch(0.55 0.09 25);
-  --chart-2: oklch(0.48 0.07 135);
-  --chart-3: oklch(0.72 0.04 55);
+  --chart-1: oklch(0.62 0.16 70);
+  --chart-2: oklch(0.55 0.11 25);
+  --chart-3: oklch(0.48 0.07 135);
   --chart-4: oklch(0.82 0.03 65);
-  --chart-5: oklch(0.35 0.06 50);
+  --chart-5: oklch(0.35 0.08 50);
 
-  --sidebar: oklch(0.96 0.005 70);
-  --sidebar-foreground: oklch(0.12 0.01 60);
-  --sidebar-primary: oklch(0.55 0.09 25);
-  --sidebar-primary-foreground: oklch(0.96 0.005 70);
-  --sidebar-accent: oklch(0.92 0.01 70);
-  --sidebar-accent-foreground: oklch(0.15 0.01 60);
-  --sidebar-border: oklch(0.88 0.01 70);
-  --sidebar-ring: oklch(0.55 0.09 25);
+  --sidebar: oklch(0.97 0.01 70);
+  --sidebar-foreground: oklch(0.14 0.015 55);
+  --sidebar-primary: oklch(0.62 0.16 70);
+  --sidebar-primary-foreground: oklch(0.97 0.01 70);
+  --sidebar-accent: oklch(0.92 0.015 70);
+  --sidebar-accent-foreground: oklch(0.15 0.01 55);
+  --sidebar-border: oklch(0.88 0.015 65);
+  --sidebar-ring: oklch(0.62 0.16 70);
 }
 
 /* ============================================
@@ -202,10 +214,10 @@
 }
 
 /* ============================================
-   CUSTOM SCROLLBAR — Terracotta Accent
+   CUSTOM SCROLLBAR — Amber Accent
    ============================================ */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -213,69 +225,69 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.62 0.08 30 / 40%);
-  border-radius: 2px;
+  background: oklch(0.68 0.15 75 / 30%);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.62 0.08 30 / 70%);
+  background: oklch(0.68 0.15 75 / 60%);
 }
 
 /* ============================================
-   TYPOGRAPHY — Architectural & Editorial
+   TYPOGRAPHY — Cinzel Imperial + Josefin Modern
    ============================================ */
 .text-balance {
   text-wrap: balance;
 }
 
-/* Display: Cormorant Garamond — elegant, architectural */
+/* Display: Cinzel — Roman Imperial luxury */
 .heading-display {
-  font-family: var(--font-cormorant), serif;
-  font-weight: 300;
-  letter-spacing: -0.03em;
-  line-height: 1.0;
-}
-
-/* Editorial: Cormorant Garamond medium weight */
-.heading-editorial {
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-cinzel), serif;
   font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
 }
 
-/* Body: Space Grotesk — clean, geometric */
-.text-editorial {
-  font-family: var(--font-space), sans-serif;
-  font-weight: 300;
-  letter-spacing: 0.01em;
-  line-height: 1.75;
-}
-
-/* Label: Space Grotesk — tight tracking */
-.text-luxury-label {
-  font-family: var(--font-space), sans-serif;
+/* Editorial: Cinzel medium weight */
+.heading-editorial {
+  font-family: var(--font-cinzel), serif;
   font-weight: 500;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+/* Body: Josefin Sans — Clean, geometric */
+.body-editorial {
+  font-family: var(--font-josefin), sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1.8;
+}
+
+/* Label: Josefin Sans — Uppercase tracking */
+.luxury-label {
+  font-family: var(--font-josefin), sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-size: 0.65rem;
+  font-size: 0.68rem;
 }
 
 /* Mono number: for prices and stats */
-.text-mono-number {
-  font-family: var(--font-space), sans-serif;
+.mono-number {
+  font-family: var(--font-josefin), sans-serif;
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
 
 /* ============================================
-   ANIMATION UTILITIES
+   ANIMATION UTILITIES — Smooth & Flowing
    ============================================ */
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -291,7 +303,7 @@
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
@@ -299,213 +311,307 @@
   }
 }
 
-@keyframes reveal-right {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-@keyframes reveal-up {
-  from {
-    clip-path: inset(100% 0 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-@keyframes line-expand {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-6px); }
 }
 
-@keyframes pulse-terracotta {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  20% { transform: translate(-15%, 5%); }
+  30% { transform: translate(7%, -25%); }
+  40% { transform: translate(-5%, 25%); }
+  50% { transform: translate(-15%, 10%); }
+  60% { transform: translate(15%, 0%); }
+  70% { transform: translate(0%, 15%); }
+  80% { transform: translate(3%, 35%); }
+  90% { transform: translate(-10%, 10%); }
 }
 
 .animate-fade-in-up {
-  animation: fade-in-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fade-in-up 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .animate-fade-in {
-  animation: fade-in 0.7s ease-out forwards;
+  animation: fade-in 0.6s ease-out forwards;
 }
 
 .animate-scale-in {
-  animation: scale-in 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-reveal-right {
-  animation: reveal-right 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-reveal-up {
-  animation: reveal-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-line-expand {
-  animation: line-expand 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transform-origin: left;
+  animation: scale-in 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .animate-float {
-  animation: float 6s ease-in-out infinite;
+  animation: float 5s ease-in-out infinite;
 }
 
 /* ============================================
-   LUXURY IMAGE TREATMENT — Cinematic Zoom
+   LUXURY IMAGE TREATMENT — Organic Zoom
    ============================================ */
 .img-luxury {
-  transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              filter 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 16px;
 }
 
 .img-luxury:hover {
-  transform: scale(1.08);
+  transform: scale(1.06);
 }
 
 /* ============================================
-   TERRACOTTA DIVIDER — Sharp & Minimal
+   AMBER DIVIDER — Soft Gradient
    ============================================ */
 .divider-accent {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--terracotta), transparent);
+  background: linear-gradient(90deg, transparent, var(--amber), transparent);
 }
 
 .divider-accent-wide {
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--terracotta) / 60%, var(--terracotta), var(--terracotta) / 60%, transparent);
+  background: linear-gradient(90deg, transparent, var(--amber) / 50%, var(--amber), var(--amber) / 50%, transparent);
+  border-radius: 1px;
 }
 
 /* ============================================
-   DIAGONAL SECTION DIVIDER
-   ============================================ */
-.section-diagonal {
-  clip-path: polygon(0 4%, 100% 0, 100% 96%, 0 100%);
-}
-
-/* ============================================
-   GLASS MORPHISM CARD
+   LIQUID GLASS CARD — Frosted & Warm
    ============================================ */
 .glass-card {
-  background: oklch(0.12 0.005 60 / 60%);
-  backdrop-filter: blur(20px) saturate(150%);
-  border: 1px solid oklch(0.93 0.005 70 / 8%);
+  background: oklch(0.14 0.008 55 / 50%);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid oklch(0.94 0.01 75 / 8%);
+  border-radius: 20px;
 }
 
 .light .glass-card {
-  background: oklch(0.96 0.005 70 / 70%);
-  border: 1px solid oklch(0.12 0.01 60 / 8%);
+  background: oklch(0.97 0.01 70 / 60%);
+  border: 1px solid oklch(0.14 0.015 55 / 6%);
+}
+
+/* Premium Glass — More opaque, for navigation and key cards */
+.glass-premium {
+  background: oklch(0.12 0.008 55 / 75%);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid oklch(0.68 0.15 75 / 12%);
+  border-radius: 24px;
+}
+
+.light .glass-premium {
+  background: oklch(0.97 0.01 70 / 80%);
+  border: 1px solid oklch(0.62 0.16 70 / 12%);
 }
 
 /* ============================================
-   SELECTION STYLE — Terracotta
+   GRAIN TEXTURE OVERLAY — Organic Depth
+   ============================================ */
+.grain-overlay::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  animation: grain 8s steps(10) infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================
+   SELECTION STYLE — Amber
    ============================================ */
 ::selection {
-  background: oklch(0.62 0.08 30 / 30%);
-  color: oklch(0.93 0.005 70);
+  background: oklch(0.68 0.15 75 / 25%);
+  color: oklch(0.94 0.01 75);
 }
 
 .light ::selection {
-  background: oklch(0.62 0.08 30 / 25%);
-  color: oklch(0.12 0.01 60);
+  background: oklch(0.62 0.16 70 / 20%);
+  color: oklch(0.14 0.015 55);
 }
 
 /* ============================================
-   GRADIENT OVERLAYS — Cinematic
+   GRADIENT OVERLAYS — Warm & Cinematic
    ============================================ */
-.gradient-cinematic {
+.gradient-warm {
   background: linear-gradient(
     180deg,
-    oklch(0.07 0.005 60 / 0%) 0%,
-    oklch(0.07 0.005 60 / 20%) 40%,
-    oklch(0.07 0.005 60 / 85%) 100%
+    oklch(0.08 0.008 55 / 0%) 0%,
+    oklch(0.08 0.008 55 / 15%) 40%,
+    oklch(0.08 0.008 55 / 90%) 100%
   );
 }
 
-.gradient-diagonal {
+.gradient-amber {
   background: linear-gradient(
     135deg,
-    oklch(0.07 0.005 60 / 70%) 0%,
-    oklch(0.07 0.005 60 / 20%) 100%
+    oklch(0.68 0.15 75 / 8%) 0%,
+    transparent 50%
+  );
+}
+
+.gradient-diagonal-warm {
+  background: linear-gradient(
+    135deg,
+    oklch(0.08 0.008 55 / 80%) 0%,
+    oklch(0.08 0.008 55 / 20%) 100%
   );
 }
 
 /* ============================================
-   GEOMETRIC ACCENT PATTERNS
+   ORGANIC BLOB SHAPES — Decorative
+   ============================================ */
+.blob-1 {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+.blob-2 {
+  border-radius: 30% 70% 70% 30% / 30% 52% 48% 70%;
+}
+
+.blob-3 {
+  border-radius: 50% 60% 40% 70% / 50% 40% 70% 60%;
+}
+
+/* ============================================
+   PATTERN OVERLAYS — Subtle Organic
    ============================================ */
 .pattern-dots {
-  background-image: radial-gradient(oklch(0.93 0.005 70 / 6%) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(oklch(0.68 0.15 75 / 4%) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
-.pattern-lines {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 8px,
-    oklch(0.93 0.005 70 / 4%) 8px,
-    oklch(0.93 0.005 70 / 4%) 9px
-  );
+.pattern-organic {
+  background-image: 
+    radial-gradient(ellipse at 20% 50%, oklch(0.68 0.15 75 / 3%) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, oklch(0.62 0.10 30 / 3%) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, oklch(0.55 0.06 140 / 3%) 0%, transparent 50%);
 }
 
 /* ============================================
-   BUTTON VARIANTS — Sharp & Architectural
+   BUTTON VARIANTS — Rounded & Warm
    ============================================ */
 .btn-primary {
-  background-color: var(--terracotta);
-  color: white;
-  padding: 1rem 2rem;
-  font-family: var(--font-space), sans-serif;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  background: linear-gradient(135deg, var(--amber), var(--amber-dark));
+  color: oklch(0.08 0.008 55);
+  padding: 0.875rem 2.25rem;
+  font-family: var(--font-josefin), sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-size: 0.65rem;
-  transition: all 0.5s;
+  font-size: 0.68rem;
+  border-radius: 100px;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 4px 24px oklch(0.68 0.15 75 / 15%);
 }
 
 .btn-primary:hover {
-  background-color: var(--terracotta-light);
+  box-shadow: 0 8px 40px oklch(0.68 0.15 75 / 25%);
+  transform: translateY(-1px);
 }
 
 .btn-outline {
-  border: 1px solid oklch(0.62 0.08 30 / 40%);
-  color: var(--terracotta);
-  padding: 1rem 2rem;
-  font-family: var(--font-space), sans-serif;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  border: 1px solid oklch(0.68 0.15 75 / 35%);
+  color: var(--amber);
+  padding: 0.875rem 2.25rem;
+  font-family: var(--font-josefin), sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-size: 0.65rem;
-  transition: all 0.5s;
+  font-size: 0.68rem;
+  border-radius: 100px;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  background: transparent;
 }
 
 .btn-outline:hover {
-  background-color: oklch(0.62 0.08 30 / 10%);
-  border-color: var(--terracotta);
+  background: oklch(0.68 0.15 75 / 8%);
+  border-color: oklch(0.68 0.15 75 / 60%);
 }
 
-.btn-sage {
-  background-color: var(--sage);
-  color: white;
-  padding: 1rem 2rem;
-  font-family: var(--font-space), sans-serif;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+.btn-glass {
+  background: oklch(0.14 0.008 55 / 40%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--amber);
+  padding: 0.875rem 2.25rem;
+  font-family: var(--font-josefin), sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-size: 0.65rem;
-  transition: all 0.5s;
+  font-size: 0.68rem;
+  border-radius: 100px;
+  border: 1px solid oklch(0.68 0.15 75 / 15%);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.btn-sage:hover {
-  background-color: var(--sage-light);
+.btn-glass:hover {
+  background: oklch(0.14 0.008 55 / 60%);
+  border-color: oklch(0.68 0.15 75 / 30%);
+}
+
+/* ============================================
+   SHIMMER / LOADING EFFECT
+   ============================================ */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.68 0.15 75 / 6%) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* ============================================
+   CARD HOVER — Warm Glow
+   ============================================ */
+.card-warm {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card-warm:hover {
+  box-shadow: 0 8px 40px oklch(0.68 0.15 75 / 8%);
+  border-color: oklch(0.68 0.15 75 / 20%);
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+@media (max-width: 768px) {
+  .heading-display {
+    letter-spacing: 0.02em;
+  }
+  
+  .luxury-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION — Accessibility
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hide scrollbar for horizontal scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

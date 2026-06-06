@@ -1,19 +1,17 @@
 "use client";
 
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Star,
   ArrowRight,
-  ChevronDown,
   Quote,
   Compass,
   Gem,
   Flame,
   ShieldCheck,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/i18n/context";
 
 // ============================================
@@ -52,23 +50,26 @@ interface Testimonial {
 }
 
 // ============================================
-// Animation Variants — Saharan Minimalism
+// Animation Variants — Desert Aurora
+// Smooth, flowing, organic transitions
 // ============================================
+const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
+
 const revealUp = {
-  hidden: { opacity: 0, y: 60 },
+  hidden: { opacity: 0, y: 50 },
   visible: (delay: number = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 1, delay, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.9, delay, ease: smoothEase },
   }),
 };
 
 const revealScale = {
-  hidden: { opacity: 0, scale: 0.94 },
+  hidden: { opacity: 0, scale: 0.95 },
   visible: (delay: number = 0) => ({
     opacity: 1,
     scale: 1,
-    transition: { duration: 1, delay, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.9, delay, ease: smoothEase },
   }),
 };
 
@@ -81,7 +82,7 @@ const fadeIn = {
 };
 
 // ============================================
-// 1. HERO SECTION — Cinematic Split + Parallax
+// 1. HERO SECTION — Full Viewport + Parallax + Warm Aurora
 // ============================================
 function HeroSection() {
   const { t } = useLanguage();
@@ -90,9 +91,9 @@ function HeroSection() {
     target: sectionRef,
     offset: ["start start", "end start"],
   });
-  const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
 
   return (
     <section ref={sectionRef} className="relative h-screen w-full overflow-hidden">
@@ -103,105 +104,120 @@ function HeroSection() {
           alt="Arabian Desert Home — Luxury retreat at golden hour in the Agafay Desert"
           className="w-full h-full object-cover scale-110"
         />
-        {/* Dark Cinematic Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/10 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/30 to-transparent" />
+        {/* Warm Cinematic Gradients — NOT cold/dark blue */}
+        <div className="absolute inset-0 gradient-warm" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/25 to-transparent" />
+        <div className="absolute inset-0 gradient-amber" />
       </motion.div>
 
-      {/* Content — Asymmetric Left-Aligned */}
+      {/* Organic Decorative Blob */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 2, delay: 0.5, ease: smoothEase }}
+        className="absolute top-[15%] right-[5%] w-[500px] h-[500px] md:w-[700px] md:h-[700px] bg-amber/[0.04] blob-1 pointer-events-none"
+      />
+
+      {/* Large Decorative "01" */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.8, delay: 0.3 }}
+        className="absolute top-28 right-6 md:top-32 md:right-10 font-serif text-[160px] md:text-[260px] leading-none text-amber/[0.04] select-none pointer-events-none"
+      >
+        01
+      </motion.div>
+
+      {/* Content — Left Aligned */}
       <motion.div
         style={{ y: textY, opacity }}
         className="relative z-10 h-full flex flex-col justify-end pb-24 md:pb-32 px-6 md:px-10 max-w-7xl mx-auto"
       >
-        {/* Geometric Accent — Large Number */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5, delay: 0.3 }}
-          className="absolute top-32 right-8 md:right-10 font-serif text-[180px] md:text-[280px] leading-none text-terracotta/5 select-none pointer-events-none"
-        >
-          01
-        </motion.div>
-
         {/* Location Tag */}
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
           className="mb-6 flex items-center gap-4"
         >
-          <div className="w-12 h-px bg-terracotta" />
-          <span className="text-luxury-label text-terracotta/70">
+          <div className="w-10 h-px bg-gradient-to-r from-amber to-amber-light" />
+          <span className="luxury-label text-amber/80">
             {t("hero.location")}
           </span>
         </motion.div>
 
-        {/* Main Heading — Architectural Typography */}
+        {/* Main Heading — "Arabian" in heading-display + "Desert Home" in luxury-label accent */}
         <motion.h1
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="heading-display text-foreground text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] max-w-5xl text-balance"
+          transition={{ duration: 1.2, delay: 0.7, ease: smoothEase }}
+          className="heading-display text-foreground text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8.5rem] max-w-5xl text-balance"
         >
           {t("hero.heading1")}
           <br />
-          <span className="text-terracotta">{t("hero.heading2")}</span>
+          <span className="text-amber">{t("hero.heading2")}</span>
         </motion.h1>
 
         {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.1 }}
-          className="text-editorial text-muted-foreground text-base md:text-lg max-w-lg mt-8"
+          transition={{ duration: 1, delay: 1.1, ease: smoothEase }}
+          className="body-editorial text-muted-foreground text-base md:text-lg max-w-lg mt-8"
         >
           {t("hero.subtitle")}
         </motion.p>
 
-        {/* CTA Row */}
+        {/* CTA Row — Rounded Pill Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.5 }}
+          transition={{ duration: 0.8, delay: 1.5, ease: smoothEase }}
           className="mt-10 flex items-center gap-6"
         >
           <Link href="/reservez-votre-sejour">
-            <Button className="bg-terracotta text-white hover:bg-terracotta-light rounded-none px-10 py-6 text-luxury-label tracking-[0.2em] transition-all duration-500 hover:shadow-[0_0_40px_oklch(0.62_0.08_30/20%)]">
+            <span className="btn-primary inline-block cursor-pointer hover:no-underline">
               {t("hero.reserve")}
-            </Button>
+            </span>
           </Link>
           <Link
             href="/les-tentes"
-            className="hidden md:flex items-center gap-3 text-luxury-label text-terracotta/60 hover:text-terracotta transition-colors duration-500 group"
+            className="hidden md:flex items-center gap-3 luxury-label text-amber/60 hover:text-amber transition-colors duration-400 group cursor-pointer"
           >
             {t("suites.title")}
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </motion.div>
       </motion.div>
 
-      {/* Scroll Indicator — Minimal */}
+      {/* Scroll Indicator — Animated Amber Line */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2.5, duration: 1 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
       >
-        <span className="text-luxury-label text-muted-foreground/50 text-[9px]">
+        <span className="luxury-label text-muted-foreground/50 text-[9px]">
           {t("hero.discover")}
         </span>
         <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="w-px h-8 bg-gradient-to-b from-terracotta/40 to-transparent"
-        />
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          className="w-5 h-8 rounded-full border border-amber/30 flex items-start justify-center pt-1.5"
+        >
+          <motion.div
+            animate={{ opacity: [0.3, 1, 0.3], y: [0, 6, 0] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+            className="w-1 h-1.5 rounded-full bg-amber"
+          />
+        </motion.div>
       </motion.div>
     </section>
   );
 }
 
 // ============================================
-// 2. FEATURES SECTION — Geometric Grid
+// 2. FEATURES SECTION — Rounded Glass Cards Grid
 // ============================================
 function FeaturesSection() {
   const { t } = useLanguage();
@@ -213,25 +229,21 @@ function FeaturesSection() {
       icon: Gem,
       title: t("features.classAmenities"),
       description: t("features.classAmenitiesDesc"),
-      number: "01",
     },
     {
       icon: Flame,
       title: t("features.luxuryLifestyle"),
       description: t("features.luxuryLifestyleDesc"),
-      number: "02",
     },
     {
       icon: Compass,
       title: t("features.friendlyService"),
       description: t("features.friendlyServiceDesc"),
-      number: "03",
     },
     {
       icon: ShieldCheck,
       title: t("features.lifeguard"),
       description: t("features.lifeguardDesc"),
-      number: "04",
     },
   ];
 
@@ -241,7 +253,7 @@ function FeaturesSection() {
       className="relative py-28 md:py-40 px-6 md:px-10 bg-background pattern-dots"
     >
       <div className="max-w-7xl mx-auto">
-        {/* Section Header — Asymmetric */}
+        {/* Section Header */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-20 md:mb-28">
           <div className="md:col-span-4">
             <motion.span
@@ -249,7 +261,7 @@ function FeaturesSection() {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
               custom={0}
-              className="text-luxury-label text-terracotta block mb-4"
+              className="luxury-label text-amber block mb-4"
             >
               {t("features.label")}
             </motion.span>
@@ -264,13 +276,13 @@ function FeaturesSection() {
             >
               {t("features.title1")}
               <br />
-              <span className="text-terracotta">{t("features.title2")}</span>
+              <span className="text-amber">{t("features.title2")}</span>
             </motion.h2>
           </div>
         </div>
 
-        {/* Feature Cards — Asymmetric Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-terracotta/10">
+        {/* Feature Cards — 2x2 Rounded Glass Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
@@ -279,31 +291,26 @@ function FeaturesSection() {
                 variants={revealScale}
                 initial="hidden"
                 animate={isInView ? "visible" : "hidden"}
-                custom={0.4 + index * 0.15}
-                className="group relative p-10 md:p-14 bg-background transition-all duration-700 hover:bg-terracotta/[0.03]"
+                custom={0.4 + index * 0.12}
+                className="group glass-card card-warm p-8 md:p-10 cursor-pointer"
               >
-                {/* Number Accent */}
-                <span className="absolute top-6 right-8 font-serif text-6xl text-terracotta/[0.06] group-hover:text-terracotta/10 transition-colors duration-700">
-                  {feature.number}
-                </span>
-
-                {/* Icon */}
-                <div className="w-12 h-12 mb-8 border border-terracotta/20 flex items-center justify-center group-hover:border-terracotta/50 group-hover:bg-terracotta/5 transition-all duration-500">
-                  <Icon className="w-5 h-5 text-terracotta" />
+                {/* Icon — Rounded Circle */}
+                <div className="w-14 h-14 rounded-2xl bg-amber/10 border border-amber/15 flex items-center justify-center mb-6 group-hover:bg-amber/20 group-hover:border-amber/30 transition-all duration-400">
+                  <Icon className="w-6 h-6 text-amber" />
                 </div>
 
                 {/* Title */}
-                <h3 className="font-serif text-2xl md:text-3xl mb-4">
+                <h3 className="heading-editorial text-2xl md:text-3xl mb-4">
                   {feature.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-editorial text-sm text-muted-foreground leading-relaxed">
+                <p className="body-editorial text-sm text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
 
-                {/* Bottom Line Accent */}
-                <div className="absolute bottom-0 left-0 h-px w-0 group-hover:w-full bg-terracotta/30 transition-all duration-700" />
+                {/* Amber Bottom Accent Line — Appears on Hover */}
+                <div className="mt-6 h-0.5 rounded-full w-0 group-hover:w-full bg-gradient-to-r from-amber to-amber-light transition-all duration-700 ease-out" />
               </motion.div>
             );
           })}
@@ -314,7 +321,7 @@ function FeaturesSection() {
 }
 
 // ============================================
-// 3. SUITES SECTION — Horizontal Scroll + Cinematic Cards
+// 3. SUITES SECTION — Horizontal Scroll Carousel
 // ============================================
 function SuitesSection() {
   const { t } = useLanguage();
@@ -410,7 +417,7 @@ function SuitesSection() {
       className="relative py-28 md:py-40 px-6 md:px-10"
     >
       <div className="max-w-7xl mx-auto">
-        {/* Section Header — Two Column */}
+        {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16 md:mb-24">
           <div>
             <motion.span
@@ -418,7 +425,7 @@ function SuitesSection() {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
               custom={0}
-              className="text-luxury-label text-terracotta block mb-4"
+              className="luxury-label text-amber block mb-4"
             >
               {t("suites.label")}
             </motion.span>
@@ -437,7 +444,7 @@ function SuitesSection() {
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
             custom={0.4}
-            className="text-editorial text-muted-foreground max-w-sm text-sm"
+            className="body-editorial text-muted-foreground max-w-sm text-sm"
           >
             {t("suites.subtitle")}
           </motion.p>
@@ -451,7 +458,7 @@ function SuitesSection() {
         >
           {displaySuites.slice(0, 3).map((suite, index) => {
             const isHovered = hoveredIndex === index;
-            const features = suite.features.split(",");
+            const features = suite.features ? suite.features.split(",") : [];
 
             return (
               <motion.div
@@ -465,38 +472,33 @@ function SuitesSection() {
                 className="group relative cursor-pointer snap-start shrink-0 w-[85vw] md:w-[400px] lg:w-[440px]"
               >
                 <Link href={`/les-tentes/${suite.slug}`}>
-                  {/* Image Container — Tall Cinematic Ratio */}
-                  <div className="relative overflow-hidden aspect-[3/4]">
+                  {/* Image Container — Tall with rounded-2xl corners */}
+                  <div className="relative overflow-hidden rounded-2xl aspect-[3/4]">
                     <img
                       src={suite.image}
                       alt={suite.name}
-                      className="w-full h-full object-cover transition-transform duration-[1.4s] cubic-bezier(0.16,1,0.3,1) group-hover:scale-110"
+                      className="img-luxury w-full h-full object-cover group-hover:scale-110"
                     />
-                    {/* Gradient Overlay */}
+                    {/* Gradient Overlay at Bottom */}
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-
-                    {/* Diagonal Top-Right Accent */}
-                    <div className="absolute top-0 right-0 w-20 h-20">
-                      <div className="absolute top-0 right-0 w-full h-full bg-terracotta/10 clip-path-triangle"
-                        style={{ clipPath: "polygon(100% 0, 100% 100%, 0 0)" }}
-                      />
-                    </div>
+                    {/* Amber subtle glow at top-right */}
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber/[0.08] rounded-bl-3xl" />
 
                     {/* Card Content — Bottom Overlay */}
                     <div className="absolute bottom-0 left-0 right-0 p-7 md:p-8">
                       {/* Size + Guests Label */}
                       <div className="flex items-center gap-3 mb-4">
-                        <span className="text-luxury-label text-terracotta text-[9px]">
+                        <span className="luxury-label text-amber text-[9px]">
                           {suite.size}
                         </span>
-                        <div className="w-4 h-px bg-terracotta/30" />
-                        <span className="text-luxury-label text-terracotta text-[9px]">
+                        <div className="w-4 h-px bg-amber/30" />
+                        <span className="luxury-label text-amber text-[9px]">
                           {t("suites.upTo")} {suite.maxGuests}
                         </span>
                       </div>
 
                       {/* Suite Name */}
-                      <h3 className="font-serif text-3xl md:text-4xl text-foreground mb-2">
+                      <h3 className="heading-editorial text-3xl md:text-4xl text-foreground mb-2">
                         {suite.name}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-1 line-clamp-1">
@@ -505,20 +507,21 @@ function SuitesSection() {
 
                       {/* Hover Content — Expand Up */}
                       <div
-                        className={`transition-all duration-700 overflow-hidden ${
+                        className={`transition-all duration-500 ease-out overflow-hidden ${
                           isHovered
-                            ? "max-h-48 opacity-100 mt-4"
+                            ? "max-h-56 opacity-100 mt-4"
                             : "max-h-0 opacity-0 mt-0"
                         }`}
                       >
                         <p className="text-xs text-muted-foreground/70 mb-4 line-clamp-2">
                           {suite.description}
                         </p>
+                        {/* Feature Pills — Rounded */}
                         <div className="flex flex-wrap gap-2 mb-5">
                           {features.slice(0, 4).map((f) => (
                             <span
                               key={f}
-                              className="text-[9px] tracking-[0.15em] uppercase text-terracotta/50 border border-terracotta/15 px-2.5 py-1"
+                              className="text-[9px] tracking-[0.15em] uppercase text-amber/60 bg-amber/[0.08] border border-amber/15 px-3 py-1 rounded-full"
                             >
                               {f.trim()}
                             </span>
@@ -526,16 +529,16 @@ function SuitesSection() {
                         </div>
                         <div className="flex items-center justify-between">
                           <div>
-                            <span className="text-mono-number text-2xl text-terracotta">
+                            <span className="mono-number text-2xl text-amber">
                               {suite.price}€
                             </span>
                             <span className="text-muted-foreground text-xs ml-1.5">
                               {t("suites.perNight")}
                             </span>
                           </div>
-                          <span className="flex items-center gap-2 text-terracotta text-xs group/link">
+                          <span className="flex items-center gap-2 text-amber text-xs group/link cursor-pointer">
                             {t("suites.viewTent")}
-                            <ArrowRight className="w-3 h-3 transition-transform group-hover/link:translate-x-1" />
+                            <ArrowRight className="w-3 h-3 transition-transform duration-300 group-hover/link:translate-x-1" />
                           </span>
                         </div>
                       </div>
@@ -555,7 +558,7 @@ function SuitesSection() {
           custom={1}
           className="flex items-center gap-3 mt-6 text-muted-foreground"
         >
-          <div className="w-8 h-px bg-terracotta/30" />
+          <div className="w-8 h-px bg-amber/30" />
           <span className="text-[10px] tracking-[0.2em] uppercase">Scroll</span>
         </motion.div>
       </div>
@@ -564,7 +567,7 @@ function SuitesSection() {
 }
 
 // ============================================
-// 4. GALLERY SECTION — Masonry + Geometric Pattern
+// 4. GALLERY SECTION — Masonry/Bento + Rounded Corners
 // ============================================
 function GallerySection() {
   const { t } = useLanguage();
@@ -597,7 +600,7 @@ function GallerySection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-28 md:py-40 px-6 md:px-10 bg-obsidian-light/50 dark:bg-obsidian-light/30"
+      className="relative py-28 md:py-40 px-6 md:px-10 pattern-organic"
     >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
@@ -608,7 +611,7 @@ function GallerySection() {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
               custom={0}
-              className="text-luxury-label text-terracotta block mb-4"
+              className="luxury-label text-amber block mb-4"
             >
               {t("gallery.label")}
             </motion.span>
@@ -621,7 +624,7 @@ function GallerySection() {
             >
               {t("gallery.title1")}
               <br />
-              <span className="text-terracotta">{t("gallery.title2")}</span>
+              <span className="text-amber">{t("gallery.title2")}</span>
             </motion.h2>
           </div>
 
@@ -631,13 +634,13 @@ function GallerySection() {
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
             custom={0.4}
-            className="font-serif text-8xl md:text-9xl text-terracotta/5 select-none"
+            className="font-serif text-8xl md:text-9xl text-amber/[0.04] select-none"
           >
             03
           </motion.span>
         </div>
 
-        {/* Masonry Grid */}
+        {/* Masonry/Bento Grid — All Rounded Corners */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[200px] md:auto-rows-[240px]">
           {galleryImages.map((image, index) => (
             <motion.div
@@ -646,17 +649,17 @@ function GallerySection() {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
               custom={0.5 + index * 0.15}
-              className={`group relative overflow-hidden cursor-pointer ${image.span}`}
+              className={`group relative overflow-hidden cursor-pointer rounded-2xl ${image.span}`}
             >
               <img
                 src={image.src}
                 alt={image.alt}
-                className="w-full h-full object-cover transition-transform duration-[1.4s] cubic-bezier(0.16,1,0.3,1) group-hover:scale-110"
+                className="img-luxury w-full h-full object-cover group-hover:scale-110"
               />
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-terracotta/0 group-hover:bg-terracotta/20 transition-all duration-700" />
-              {/* Corner Frame on Hover */}
-              <div className="absolute inset-3 border border-terracotta/0 group-hover:border-terracotta/40 transition-all duration-700" />
+              {/* Amber Overlay on Hover */}
+              <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/15 transition-all duration-500 rounded-2xl" />
+              {/* Rounded Frame Border on Hover */}
+              <div className="absolute inset-3 border border-amber/0 group-hover:border-amber/40 rounded-xl transition-all duration-500" />
             </motion.div>
           ))}
         </div>
@@ -666,7 +669,7 @@ function GallerySection() {
 }
 
 // ============================================
-// 5. PACKAGES SECTION — Architectural Cards
+// 5. PACKAGES SECTION — Rounded Pricing Cards
 // ============================================
 function PackagesSection() {
   const { t, tArray } = useLanguage();
@@ -707,7 +710,7 @@ function PackagesSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-28 md:py-40 px-6 md:px-10 pattern-lines"
+      className="relative py-28 md:py-40 px-6 md:px-10"
     >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
@@ -717,7 +720,7 @@ function PackagesSection() {
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
             custom={0}
-            className="text-luxury-label text-terracotta block mb-4"
+            className="luxury-label text-amber block mb-4"
           >
             {t("packages.label")}
           </motion.span>
@@ -732,8 +735,8 @@ function PackagesSection() {
           </motion.h2>
         </div>
 
-        {/* Pricing Cards — Asymmetric */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Pricing Cards — Rounded 2xl */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
           {packages.map((pkg, index) => (
             <motion.div
               key={index}
@@ -741,34 +744,34 @@ function PackagesSection() {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
               custom={0.3 + index * 0.12}
-              className={`group relative flex flex-col p-8 md:p-10 border transition-all duration-700 ${
+              className={`group relative flex flex-col p-8 md:p-10 rounded-2xl transition-all duration-400 ${
                 pkg.highlighted
-                  ? "border-terracotta bg-terracotta/5"
-                  : "border-border/30 bg-card hover:border-terracotta/30"
+                  ? "border-2 border-amber bg-amber/[0.04] shadow-lg shadow-amber/[0.05]"
+                  : "glass-card card-warm"
               }`}
             >
-              {/* Popular Badge — Sharp */}
+              {/* Popular Badge — Rounded Pill */}
               {pkg.highlighted && (
-                <div className="absolute -top-px -right-px">
-                  <span className="bg-terracotta text-white text-luxury-label text-[9px] px-4 py-1.5 block">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="bg-gradient-to-r from-amber to-amber-dark text-warm-black luxury-label text-[9px] px-5 py-1.5 rounded-full block shadow-md shadow-amber/20">
                     {t("packages.popular")}
                   </span>
                 </div>
               )}
 
               {/* Package Name */}
-              <h3 className="font-serif text-lg md:text-xl mb-2">
+              <h3 className="heading-editorial text-lg md:text-xl mb-2">
                 {pkg.name}
               </h3>
 
               {/* Description */}
-              <p className="text-editorial text-xs text-muted-foreground mb-8 leading-relaxed">
+              <p className="body-editorial text-xs text-muted-foreground mb-8 leading-relaxed">
                 {pkg.description}
               </p>
 
-              {/* Price — Bold Mono Number */}
+              {/* Price — Mono Number */}
               <div className="mb-8">
-                <span className="text-mono-number text-5xl md:text-6xl text-terracotta">
+                <span className="mono-number text-5xl md:text-6xl text-amber">
                   {pkg.price}€
                 </span>
                 <span className="text-muted-foreground text-xs ml-2">
@@ -776,8 +779,8 @@ function PackagesSection() {
                 </span>
               </div>
 
-              {/* Divider */}
-              <div className="h-px w-full bg-terracotta/15 mb-8" />
+              {/* Divider — Amber gradient */}
+              <div className="h-px w-full bg-amber/15 mb-8" />
 
               {/* Features */}
               <ul className="space-y-3 mb-8 flex-1">
@@ -786,23 +789,23 @@ function PackagesSection() {
                     key={i}
                     className="flex items-start gap-3 text-sm text-muted-foreground"
                   >
-                    <Star className="w-3 h-3 text-terracotta mt-1 shrink-0 fill-terracotta" />
+                    <Star className="w-3 h-3 text-amber mt-1 shrink-0 fill-amber" />
                     <span className="text-xs">{feature}</span>
                   </li>
                 ))}
               </ul>
 
-              {/* CTA Button — Sharp Architectural */}
+              {/* CTA Button — Rounded Pill */}
               <Link href="/reservez-votre-sejour" className="block">
-                <Button
-                  className={`w-full rounded-none py-5 text-luxury-label tracking-[0.15em] transition-all duration-500 ${
-                    pkg.highlighted
-                      ? "bg-terracotta text-white hover:bg-terracotta-light hover:shadow-[0_0_30px_oklch(0.62_0.08_30/15%)]"
-                      : "bg-transparent border border-terracotta/30 text-terracotta hover:bg-terracotta/10 hover:border-terracotta"
-                  }`}
-                >
-                  {t("packages.book")}
-                </Button>
+                {pkg.highlighted ? (
+                  <span className="btn-primary block text-center cursor-pointer w-full py-4">
+                    {t("packages.book")}
+                  </span>
+                ) : (
+                  <span className="btn-outline block text-center cursor-pointer w-full py-4">
+                    {t("packages.book")}
+                  </span>
+                )}
               </Link>
             </motion.div>
           ))}
@@ -864,8 +867,9 @@ function TestimonialsSection() {
   }, []);
 
   useEffect(() => {
+    const count = testimonials.length || 3;
     const timer = setInterval(() => {
-      setActive((prev) => prev % (testimonials.length || 3) === (testimonials.length || 3) - 1 ? 0 : prev + 1);
+      setActive((prev) => (prev + 1) % count);
     }, 6000);
     return () => clearInterval(timer);
   }, [testimonials.length]);
@@ -876,16 +880,19 @@ function TestimonialsSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-28 md:py-40 px-6 md:px-10 overflow-hidden bg-obsidian-light/50 dark:bg-obsidian-light/30"
+      className="relative py-28 md:py-40 px-6 md:px-10 overflow-hidden"
     >
-      <div className="max-w-5xl mx-auto text-center">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 pattern-organic opacity-50" />
+
+      <div className="relative max-w-5xl mx-auto text-center">
         {/* Section Label */}
         <motion.span
           variants={revealUp}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           custom={0}
-          className="text-luxury-label text-terracotta block mb-8"
+          className="luxury-label text-amber block mb-8"
         >
           {t("testimonials.label")}
         </motion.span>
@@ -899,64 +906,63 @@ function TestimonialsSection() {
         >
           {t("testimonials.title1")}
           <br />
-          <span className="text-terracotta">{t("testimonials.title2")}</span>
+          <span className="text-amber">{t("testimonials.title2")}</span>
         </motion.h2>
 
-        {/* Testimonial Content */}
-        <div className="relative min-h-[320px]">
-          {displayTestimonials.map((testimonial, i) => (
-            <motion.div
-              key={testimonial.id}
-              initial={false}
-              animate={{
-                opacity: i === active ? 1 : 0,
-                y: i === active ? 0 : 30,
-                scale: i === active ? 1 : 0.97,
-              }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className={`absolute inset-0 flex flex-col items-center ${
-                i !== active ? "pointer-events-none" : ""
-              }`}
-            >
-              {/* Terracotta Quote Mark */}
-              <div className="text-terracotta/20 mb-8">
-                <Quote className="w-10 h-10" />
-              </div>
+        {/* Testimonial Content — Glass Card */}
+        <div className="relative min-h-[340px]">
+          <AnimatePresence mode="wait">
+            {displayTestimonials.map((testimonial, i) =>
+              i === active ? (
+                <motion.div
+                  key={testimonial.id}
+                  initial={{ opacity: 0, y: 30, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.97 }}
+                  transition={{ duration: 0.7, ease: smoothEase }}
+                  className="glass-card p-8 md:p-12 rounded-3xl"
+                >
+                  {/* Amber Quote Mark */}
+                  <div className="text-amber/20 mb-6 flex justify-center">
+                    <Quote className="w-10 h-10" />
+                  </div>
 
-              {/* Quote Text — Large Serif */}
-              <p className="font-serif text-xl md:text-2xl lg:text-[1.75rem] leading-relaxed text-balance mb-10 italic">
-                &ldquo;{testimonial.quote}&rdquo;
-              </p>
+                  {/* Quote Text — Large Serif */}
+                  <p className="heading-editorial text-xl md:text-2xl lg:text-[1.75rem] leading-relaxed text-balance mb-10 italic text-foreground">
+                    &ldquo;{testimonial.quote}&rdquo;
+                  </p>
 
-              {/* Rating Stars */}
-              <div className="flex gap-1 mb-5">
-                {Array.from({ length: testimonial.rating }).map((_, j) => (
-                  <Star
-                    key={j}
-                    className="w-3 h-3 fill-terracotta text-terracotta"
-                  />
-                ))}
-              </div>
+                  {/* Rating Stars — Amber */}
+                  <div className="flex justify-center gap-1.5 mb-5">
+                    {Array.from({ length: testimonial.rating }).map((_, j) => (
+                      <Star
+                        key={j}
+                        className="w-4 h-4 fill-amber text-amber"
+                      />
+                    ))}
+                  </div>
 
-              {/* Author */}
-              <p className="font-serif text-lg">{testimonial.author}</p>
-              <p className="text-luxury-label text-muted-foreground mt-1.5 text-[9px]">
-                {testimonial.location}
-              </p>
-            </motion.div>
-          ))}
+                  {/* Author */}
+                  <p className="heading-editorial text-lg text-foreground">{testimonial.author}</p>
+                  <p className="luxury-label text-muted-foreground mt-1.5 text-[9px]">
+                    {testimonial.location}
+                  </p>
+                </motion.div>
+              ) : null
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Navigation Dots — Terracotta */}
+        {/* Navigation Dots — Amber Pill Shapes */}
         <div className="flex justify-center gap-2 mt-10">
           {displayTestimonials.map((_, i) => (
             <button
               key={i}
               onClick={() => setActive(i)}
-              className={`h-px transition-all duration-700 ${
+              className={`h-2.5 rounded-full transition-all duration-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 ${
                 i === active
-                  ? "bg-terracotta w-12"
-                  : "bg-border w-6 hover:bg-muted-foreground"
+                  ? "bg-amber w-8"
+                  : "bg-amber/20 w-2.5 hover:bg-amber/40"
               }`}
               aria-label={`${t("testimonials.goTo")} ${i + 1}`}
             />
@@ -968,7 +974,7 @@ function TestimonialsSection() {
 }
 
 // ============================================
-// 7. CTA SECTION — Full-Bleed Cinematic
+// 7. CTA SECTION — Full-Bleed Cinematic + Grain
 // ============================================
 function CTASection() {
   const { t } = useLanguage();
@@ -980,19 +986,21 @@ function CTASection() {
       ref={sectionRef}
       className="relative py-32 md:py-48 px-6 md:px-10 overflow-hidden"
     >
-      {/* Background Image with Overlay */}
+      {/* Background Image with Warm Overlay */}
       <div className="absolute inset-0">
         <img
           src="/images/night.png"
           alt="Magical night at Agafay Desert"
           className="w-full h-full object-cover"
         />
+        {/* Warm Cinematic Gradient Overlays */}
         <div className="absolute inset-0 bg-background/70" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-background/20" />
+        <div className="absolute inset-0 gradient-amber" />
       </div>
 
-      {/* Geometric Pattern Overlay */}
-      <div className="absolute inset-0 pattern-dots opacity-30" />
+      {/* Grain Texture Overlay */}
+      <div className="absolute inset-0 grain-overlay" />
 
       <div className="relative z-10 max-w-4xl mx-auto">
         <motion.span
@@ -1000,7 +1008,7 @@ function CTASection() {
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           custom={0}
-          className="text-luxury-label text-terracotta block mb-6"
+          className="luxury-label text-amber block mb-6"
         >
           {t("cta.label")}
         </motion.span>
@@ -1014,15 +1022,16 @@ function CTASection() {
         >
           {t("cta.title1")}
           <br />
-          <span className="text-terracotta">{t("cta.title2")}</span>
+          <span className="text-amber">{t("cta.title2")}</span>
         </motion.h2>
 
+        {/* Amber Divider */}
         <motion.div
           variants={fadeIn}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           custom={0.4}
-          className="h-px w-24 bg-terracotta/50 mb-8"
+          className="divider-accent-wide w-24 mb-8"
         />
 
         <motion.p
@@ -1030,7 +1039,7 @@ function CTASection() {
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           custom={0.5}
-          className="text-editorial text-muted-foreground mb-12 max-w-lg"
+          className="body-editorial text-muted-foreground mb-12 max-w-lg"
         >
           {t("cta.description")}
         </motion.p>
@@ -1043,13 +1052,13 @@ function CTASection() {
           className="flex items-center gap-4"
         >
           <Link href="/reservez-votre-sejour">
-            <Button className="bg-terracotta text-white hover:bg-terracotta-light rounded-none px-12 py-7 text-luxury-label tracking-[0.2em] transition-all duration-500 hover:shadow-[0_0_40px_oklch(0.62_0.08_30/20%)]">
+            <span className="btn-primary inline-block cursor-pointer hover:no-underline">
               {t("cta.bookYourStay")}
-            </Button>
+            </span>
           </Link>
           <Link
             href="/contact"
-            className="text-luxury-label text-terracotta/60 hover:text-terracotta transition-colors duration-500"
+            className="luxury-label text-amber/60 hover:text-amber transition-colors duration-400 cursor-pointer"
           >
             {t("nav.contact")}
           </Link>

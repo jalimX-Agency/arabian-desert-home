@@ -2,43 +2,63 @@
 
 import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { MapPin, Phone, Mail, Send } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Send,
+  Instagram,
+  Facebook,
+  Clock,
+  Compass,
+} from "lucide-react";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/lib/i18n/context";
 
-const contactInfo = [
+const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
+
+const contactCards = [
   {
     icon: MapPin,
-    label: "Adresse",
-    value: "Douar Ait Said Lchou, Agafay, Marrakech",
+    labelKey: "contact.address",
+    valueKey: "contact.addressValue",
   },
   {
     icon: Phone,
-    label: "Téléphone",
-    value: "+212 667-370-206",
+    labelKey: "contact.phone",
+    valueKey: "contact.phoneValue",
   },
   {
     icon: Mail,
-    label: "Email",
-    value: "info@arabiandeserthome.com",
+    labelKey: "contact.email",
+    valueKey: "contact.emailValue",
   },
+];
+
+const socialLinks = [
+  { icon: Instagram, href: "https://instagram.com/arabiandeserthome", label: "Instagram" },
+  { icon: Facebook, href: "https://facebook.com/arabiandeserthome", label: "Facebook" },
+  { icon: Compass, href: "https://wa.me/212667370206", label: "WhatsApp" },
 ];
 
 export default function ContactPage() {
   const heroRef = useRef(null);
-  const formRef = useRef(null);
   const infoRef = useRef(null);
+  const formRef = useRef(null);
+  const mapRef = useRef(null);
 
   const heroInView = useInView(heroRef, { once: true });
-  const formInView = useInView(formRef, { once: true, margin: "-80px" });
   const infoInView = useInView(infoRef, { once: true, margin: "-80px" });
+  const formInView = useInView(formRef, { once: true, margin: "-80px" });
+  const mapInView = useInView(mapRef, { once: true, margin: "-80px" });
 
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -69,8 +89,8 @@ export default function ContactPage() {
 
       if (res.ok) {
         toast({
-          title: "Message envoyé",
-          description: "Nous vous répondrons dans les plus brefs délais.",
+          title: t("contact.toastSuccess"),
+          description: t("contact.toastSuccessDesc"),
         });
         setFormData({
           name: "",
@@ -81,15 +101,15 @@ export default function ContactPage() {
         });
       } else {
         toast({
-          title: "Erreur",
-          description: "Une erreur est survenue. Veuillez réessayer.",
+          title: t("contact.toastError"),
+          description: t("contact.toastErrorDesc"),
           variant: "destructive",
         });
       }
     } catch {
       toast({
-        title: "Erreur",
-        description: "Impossible d'envoyer le message. Veuillez réessayer.",
+        title: t("contact.toastError"),
+        description: t("contact.toastErrorDesc"),
         variant: "destructive",
       });
     } finally {
@@ -102,33 +122,56 @@ export default function ContactPage() {
       <Navigation />
 
       <main className="flex-1 pt-20">
-        {/* Hero Section */}
-        <section ref={heroRef} className="relative h-[50vh] min-h-[400px] w-full overflow-hidden bg-obsidian">
-          <div className="absolute inset-0 bg-obsidian" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+        {/* Hero Section — about.png with warm gradients */}
+        <section ref={heroRef} className="relative h-[50vh] min-h-[400px] w-full overflow-hidden">
+          <div className="absolute inset-0">
+            <img
+              src="/images/about.png"
+              alt="Contact Arabian Desert Home"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 gradient-warm" />
+            <div className="absolute inset-0 gradient-amber" />
+            <div className="absolute inset-0 bg-black/30" />
+          </div>
+
+          {/* Decorative blobs */}
+          <div className="absolute top-20 right-16 w-64 h-64 bg-amber/[0.04] blob-1" />
+          <div className="absolute bottom-10 left-10 w-48 h-48 bg-amber/[0.03] blob-3" />
+
+          {/* Grain overlay */}
+          <div className="absolute inset-0 grain-overlay" />
 
           <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta/80 mb-4"
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="luxury-label text-amber/80 mb-4"
             >
-              Nous Contacter
+              {t("contact.heroLabel")}
             </motion.span>
             <motion.h1
               initial={{ opacity: 0, y: 40 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1.2, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              transition={{ duration: 1.2, delay: 0.2, ease: smoothEase }}
               className="heading-display text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
             >
-              Contact
+              {t("contact.heroTitle")}
             </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="body-editorial text-white/60 mt-4 max-w-md"
+            >
+              {t("contact.heroSubtitle")}
+            </motion.p>
             <motion.div
               initial={{ scaleX: 0 }}
               animate={heroInView ? { scaleX: 1 } : {}}
               transition={{ duration: 1.5, delay: 0.6 }}
-              className="h-px w-16 bg-terracotta/30 mt-8 max-w-[120px] origin-center"
+              className="divider-accent mt-8 max-w-[120px] origin-center"
             />
           </div>
         </section>
@@ -136,160 +179,262 @@ export default function ContactPage() {
         {/* Contact Info Cards */}
         <section ref={infoRef} className="py-20 md:py-28 px-6 md:px-10">
           <div className="max-w-5xl mx-auto">
+            {/* Section header */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={infoInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="text-center mb-4"
+            >
+              <span className="mono-number text-amber/10 text-6xl md:text-7xl leading-none">
+                {t("contact.infoSectionNumber")}
+              </span>
+            </motion.div>
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={infoInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="luxury-label text-amber block text-center mb-4"
+            >
+              {t("contact.infoLabel")}
+            </motion.span>
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              animate={infoInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
+              className="heading-editorial text-3xl md:text-4xl text-center mb-16"
+            >
+              {t("contact.infoTitle1")}{" "}
+              <span className="italic text-amber">{t("contact.infoTitle2")}</span>
+            </motion.h2>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {contactInfo.map((info, index) => (
+              {contactCards.map((info, index) => (
                 <motion.div
-                  key={info.label}
+                  key={info.labelKey}
                   initial={{ opacity: 0, y: 30 }}
                   animate={infoInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.8, delay: 0.2 + index * 0.15 }}
-                  className="p-8 border border-border/50 hover:border-terracotta/30 transition-all duration-500 text-center"
+                  transition={{ duration: 0.8, delay: 0.2 + index * 0.15, ease: smoothEase }}
+                  className="glass-card card-warm p-8 text-center"
                 >
-                  <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center border border-terracotta/20">
-                    <info.icon className="w-5 h-5 text-terracotta" />
+                  <div className="w-14 h-14 mx-auto mb-5 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center">
+                    <info.icon className="w-6 h-6 text-amber" />
                   </div>
-                  <p className="text-luxury-label text-terracotta/60 mb-2">{info.label}</p>
-                  <p className="text-sm text-muted-foreground">{info.value}</p>
+                  <p className="luxury-label text-amber/60 mb-3">
+                    {t(info.labelKey)}
+                  </p>
+                  <p className="text-sm text-muted-foreground body-editorial">
+                    {t(info.valueKey)}
+                  </p>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Contact Form */}
-        <section ref={formRef} className="py-12 md:py-20 px-6 md:px-10 bg-muted/30">
-          <div className="max-w-2xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={formInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="mb-4 text-center"
-            >
-              <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none">01</span>
-            </motion.div>
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={formInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8 }}
-              className="text-luxury-label text-terracotta block text-center mb-4"
-            >
-              Écrivez-nous
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              animate={formInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.2 }}
-              className="heading-editorial text-3xl md:text-4xl text-center mb-12"
-            >
-              Envoyez votre <span className="italic">message</span>
-            </motion.h2>
+        {/* Divider */}
+        <div className="divider-accent max-w-xl mx-auto" />
 
-            <motion.form
-              initial={{ opacity: 0, y: 30 }}
-              animate={formInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              onSubmit={handleSubmit}
-              className="space-y-6"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-luxury-label text-xs">
-                    Nom complet
-                  </Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="bg-background border-border/50 focus:border-terracotta/50 rounded-none"
-                    placeholder="Votre nom"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-luxury-label text-xs">
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="bg-background border-border/50 focus:border-terracotta/50 rounded-none"
-                    placeholder="votre@email.com"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-luxury-label text-xs">
-                    Téléphone
-                  </Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="bg-background border-border/50 focus:border-terracotta/50 rounded-none"
-                    placeholder="+212 6XX-XXX-XXX"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="subject" className="text-luxury-label text-xs">
-                    Sujet
-                  </Label>
-                  <Input
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                    className="bg-background border-border/50 focus:border-terracotta/50 rounded-none"
-                    placeholder="Objet de votre message"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="message" className="text-luxury-label text-xs">
-                  Message
-                </Label>
-                <Textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  rows={6}
-                  className="bg-background border-border/50 focus:border-terracotta/50 rounded-none resize-none"
-                  placeholder="Décrivez votre demande..."
-                />
-              </div>
-
-              <div className="flex justify-center pt-4">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-terracotta text-obsidian hover:bg-terracotta-light rounded-none px-10 py-6 text-luxury-label tracking-[0.2em]"
+        {/* Contact Form + Map Side by Side */}
+        <section ref={formRef} className="py-20 md:py-28 px-6 md:px-10 pattern-organic opacity-100">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+              {/* Left: Form */}
+              <div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={formInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.8, ease: smoothEase }}
+                  className="mb-4"
                 >
-                  {isSubmitting ? (
-                    <span className="flex items-center gap-2">
-                      <span className="w-4 h-4 border-2 border-terracotta/30 border-t-terracotta rounded-full animate-spin" />
-                      Envoi en cours...
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      Envoyer
-                      <Send className="w-4 h-4" />
-                    </span>
-                  )}
-                </Button>
+                  <span className="mono-number text-amber/10 text-6xl md:text-7xl leading-none">
+                    {t("contact.formSectionNumber")}
+                  </span>
+                </motion.div>
+                <motion.span
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={formInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.8, ease: smoothEase }}
+                  className="luxury-label text-amber block mb-4"
+                >
+                  {t("contact.formLabel")}
+                </motion.span>
+                <motion.h2
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={formInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
+                  className="heading-editorial text-3xl md:text-4xl mb-12"
+                >
+                  {t("contact.formTitle1")}{" "}
+                  <span className="italic text-amber">{t("contact.formTitle2")}</span>
+                </motion.h2>
+
+                <motion.form
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={formInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.8, delay: 0.4, ease: smoothEase }}
+                  onSubmit={handleSubmit}
+                  className="space-y-5"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="luxury-label text-xs">
+                        {t("contact.nameLabel")} *
+                      </Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        className="rounded-2xl border-border/50 focus:border-amber/50 focus:ring-amber/20 bg-background/50 transition-all duration-300"
+                        placeholder={t("contact.namePlaceholder")}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="luxury-label text-xs">
+                        {t("contact.emailLabel")} *
+                      </Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        className="rounded-2xl border-border/50 focus:border-amber/50 focus:ring-amber/20 bg-background/50 transition-all duration-300"
+                        placeholder="your@email.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="luxury-label text-xs">
+                        {t("contact.phoneLabel")}
+                      </Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="rounded-2xl border-border/50 focus:border-amber/50 focus:ring-amber/20 bg-background/50 transition-all duration-300"
+                        placeholder="+212 6XX-XXX-XXX"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="subject" className="luxury-label text-xs">
+                        {t("contact.subjectLabel")} *
+                      </Label>
+                      <Input
+                        id="subject"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        required
+                        className="rounded-2xl border-border/50 focus:border-amber/50 focus:ring-amber/20 bg-background/50 transition-all duration-300"
+                        placeholder={t("contact.subjectPlaceholder")}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="message" className="luxury-label text-xs">
+                      {t("contact.messageLabel")} *
+                    </Label>
+                    <Textarea
+                      id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      required
+                      rows={6}
+                      className="rounded-2xl border-border/50 focus:border-amber/50 focus:ring-amber/20 bg-background/50 resize-none transition-all duration-300"
+                      placeholder={t("contact.messagePlaceholder")}
+                    />
+                  </div>
+
+                  <div className="flex justify-start pt-2">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center gap-2">
+                          <span className="w-4 h-4 border-2 border-amber/30 border-t-amber rounded-full animate-spin" />
+                          {t("contact.sending")}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <Send className="w-4 h-4" />
+                          {t("contact.sendButton")}
+                        </span>
+                      )}
+                    </button>
+                  </div>
+                </motion.form>
               </div>
-            </motion.form>
+
+              {/* Right: Map + Social */}
+              <div className="flex flex-col gap-8">
+                {/* Map placeholder */}
+                <motion.div
+                  ref={mapRef}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={mapInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.8, delay: 0.3, ease: smoothEase }}
+                  className="glass-card card-warm overflow-hidden flex-1 min-h-[300px] relative"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-warm-black/20 via-background to-amber/[0.04] flex flex-col items-center justify-center p-8 text-center">
+                    <div className="w-16 h-16 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center mb-4">
+                      <MapPin className="w-7 h-7 text-amber" />
+                    </div>
+                    <p className="heading-editorial text-lg mb-2">
+                      {t("contact.mapPlaceholder")}
+                    </p>
+                    <p className="text-sm text-muted-foreground body-editorial max-w-xs">
+                      {t("contact.addressValue")}
+                    </p>
+                    <div className="mt-4 px-5 py-2.5 rounded-full bg-amber/10 border border-amber/15">
+                      <p className="luxury-label text-amber text-[0.6rem]">
+                        <Clock className="w-3 h-3 inline mr-1.5" />
+                        30 min from Marrakech
+                      </p>
+                    </div>
+                  </div>
+                  {/* Decorative pattern */}
+                  <div className="absolute inset-0 pattern-organic opacity-50 pointer-events-none" />
+                </motion.div>
+
+                {/* Social Links */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={mapInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
+                  className="glass-card card-warm p-6"
+                >
+                  <p className="luxury-label text-amber/60 mb-4 text-center">
+                    {t("contact.socialLabel")}
+                  </p>
+                  <div className="flex items-center justify-center gap-4">
+                    {socialLinks.map((social) => (
+                      <a
+                        key={social.label}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-12 h-12 rounded-full border border-amber/15 bg-amber/[0.04] flex items-center justify-center text-muted-foreground hover:text-amber hover:border-amber/40 hover:bg-amber/[0.10] hover:shadow-lg hover:shadow-amber/10 transition-all duration-300 cursor-pointer"
+                        aria-label={social.label}
+                      >
+                        <social.icon className="w-5 h-5" />
+                      </a>
+                    ))}
+                  </div>
+                </motion.div>
+              </div>
+            </div>
           </div>
         </section>
       </main>

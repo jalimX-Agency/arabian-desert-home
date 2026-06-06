@@ -73,7 +73,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-terracotta/30 border-t-terracotta rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-amber/30 border-t-amber rounded-full animate-spin" />
       </div>
     );
   }
@@ -82,13 +82,13 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="heading-editorial text-3xl mb-4">{t("suiteDetail.suiteNotFound")}</h1>
-          <p className="text-muted-foreground mb-8">
+          <h1 className="heading-display text-3xl mb-4">{t("suiteDetail.suiteNotFound")}</h1>
+          <p className="body-editorial text-muted-foreground mb-8">
             {t("suiteDetail.suiteNotFoundDesc")}
           </p>
           <Link
             href="/les-tentes"
-            className="inline-flex items-center gap-2 text-terracotta hover:text-terracotta transition-colors"
+            className="inline-flex items-center gap-2 text-amber hover:text-amber-light transition-colors duration-300 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             {t("suiteDetail.backToTents")}
@@ -105,8 +105,8 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Hero Section — Cinematic */}
-      <section className="relative h-[70vh] md:h-[80vh] flex items-end overflow-hidden">
+      {/* ── Hero Section — Cinematic + Warm ── */}
+      <section className="relative h-[70vh] md:h-[85vh] flex items-end overflow-hidden">
         <motion.div
           key={activeImageIndex}
           initial={{ opacity: 0, scale: 1.05 }}
@@ -115,37 +115,45 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url('${galleryImages[activeImageIndex] || suite.image}')` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-background/20" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-transparent" />
+        {/* Warm Gradient Overlays */}
+        <div className="absolute inset-0 gradient-warm" />
+        <div className="absolute inset-0 gradient-diagonal-warm" />
+        <div className="absolute inset-0 gradient-amber" />
 
-        {/* Image Navigation */}
+        {/* Decorative Blob */}
+        <div className="absolute top-20 right-20 w-80 h-80 bg-amber/[0.04] blob-1 blur-3xl" />
+
+        {/* Grain Texture */}
+        <div className="absolute inset-0 grain-overlay pointer-events-none" />
+
+        {/* Image Navigation — Rounded Glass Circles */}
         {galleryImages.length > 1 && (
           <>
             <button
               onClick={prevImage}
-              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-background/30 backdrop-blur-sm text-foreground/80 hover:bg-background/50 hover:text-foreground transition-all duration-300"
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full flex items-center justify-center bg-background/20 backdrop-blur-xl border border-white/10 text-foreground/80 hover:bg-background/40 hover:border-amber/30 hover:text-amber transition-all duration-300 cursor-pointer"
               aria-label={t("suiteDetail.previousImage")}
             >
-              <ChevronLeft className="w-6 h-6" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={nextImage}
-              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-background/30 backdrop-blur-sm text-foreground/80 hover:bg-background/50 hover:text-foreground transition-all duration-300"
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full flex items-center justify-center bg-background/20 backdrop-blur-xl border border-white/10 text-foreground/80 hover:bg-background/40 hover:border-amber/30 hover:text-amber transition-all duration-300 cursor-pointer"
               aria-label={t("suiteDetail.nextImage")}
             >
-              <ChevronRight className="w-6 h-6" />
+              <ChevronRight className="w-5 h-5" />
             </button>
 
-            {/* Image Dots — h-px lines */}
+            {/* Image Dots — Rounded-full Amber Pills */}
             <div className="absolute bottom-32 md:bottom-36 left-1/2 -translate-x-1/2 z-20 flex gap-2">
               {galleryImages.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImageIndex(idx)}
-                  className={`h-px transition-all duration-500 ${
+                  className={`rounded-full transition-all duration-500 cursor-pointer ${
                     idx === activeImageIndex
-                      ? "bg-terracotta w-8"
-                      : "bg-foreground/30 w-4 hover:bg-foreground/50"
+                      ? "bg-amber w-8 h-2"
+                      : "bg-white/20 w-2 h-2 hover:bg-white/40"
                   }`}
                   aria-label={`${t("suiteDetail.image")} ${idx + 1}`}
                 />
@@ -160,11 +168,11 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+              transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               <Link
                 href="/les-tentes"
-                className="inline-flex items-center gap-2 text-foreground/40 hover:text-terracotta text-sm mb-6 transition-colors duration-500"
+                className="inline-flex items-center gap-2 text-foreground/40 hover:text-amber text-sm mb-6 transition-colors duration-300 cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 {t("suiteDetail.allTents")}
@@ -174,35 +182,35 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.4 }}
+              transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
-              <span className="text-luxury-label text-terracotta block mb-3">
+              <span className="luxury-label text-amber block mb-3">
                 {isChambre ? t("suiteDetail.room") : t("suiteDetail.suite")}
               </span>
               <h1 className="heading-display text-4xl md:text-5xl lg:text-7xl text-foreground mb-3">
                 {suite.name}
               </h1>
-              <p className="heading-editorial text-xl md:text-2xl text-terracotta/80 italic mb-4">
+              <p className="heading-editorial text-xl md:text-2xl text-amber/80 italic mb-4">
                 {suite.tagline}
               </p>
 
-              {/* Quick Stats */}
-              <div className="flex flex-wrap items-center gap-6 text-foreground/50 text-sm">
-                <span className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-terracotta/50" />
+              {/* Quick Stats — Rounded Pills */}
+              <div className="flex flex-wrap items-center gap-3 text-foreground/50 text-sm">
+                <span className="flex items-center gap-2 bg-white/[0.06] backdrop-blur-sm border border-white/10 rounded-full px-4 py-2">
+                  <Users className="w-4 h-4 text-amber/60" />
                   {suite.maxGuests} {t("suiteDetail.persons")}
                 </span>
-                <span className="flex items-center gap-2">
-                  <Maximize2 className="w-4 h-4 text-terracotta/50" />
+                <span className="flex items-center gap-2 bg-white/[0.06] backdrop-blur-sm border border-white/10 rounded-full px-4 py-2">
+                  <Maximize2 className="w-4 h-4 text-amber/60" />
                   {suite.size}
                 </span>
-                <span className="flex items-center gap-2">
-                  <BedDouble className="w-4 h-4 text-terracotta/50" />
+                <span className="flex items-center gap-2 bg-white/[0.06] backdrop-blur-sm border border-white/10 rounded-full px-4 py-2">
+                  <BedDouble className="w-4 h-4 text-amber/60" />
                   {suite.bedType}
                 </span>
                 {suite.hasAC && (
-                  <span className="flex items-center gap-2">
-                    <Wind className="w-4 h-4 text-terracotta/50" />
+                  <span className="flex items-center gap-2 bg-white/[0.06] backdrop-blur-sm border border-white/10 rounded-full px-4 py-2">
+                    <Wind className="w-4 h-4 text-amber/60" />
                     {t("suiteDetail.airConditioning")}
                   </span>
                 )}
@@ -212,9 +220,12 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
         </div>
       </section>
 
-      {/* Content Section */}
-      <section className="py-16 md:py-24 px-6 md:px-10">
-        <div className="max-w-7xl mx-auto">
+      {/* ── Content Section ── */}
+      <section className="py-16 md:py-24 px-6 md:px-10 relative">
+        {/* Pattern Background */}
+        <div className="absolute inset-0 pattern-dots pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
             {/* Main Content */}
             <div className="lg:col-span-2">
@@ -223,18 +234,20 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
                 className="mb-16"
               >
-                <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none block mb-4">01</span>
-                <span className="text-luxury-label text-terracotta block mb-4">
+                <span className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block mb-4">
+                  01
+                </span>
+                <span className="luxury-label text-amber block mb-4">
                   {t("suiteDetail.about")}
                 </span>
                 <h2 className="heading-display text-2xl md:text-4xl mb-6">
-                  {t("suiteDetail.aboutTitle1")} <span className="text-terracotta">{t("suiteDetail.aboutTitle2")}</span>
+                  {t("suiteDetail.aboutTitle1")} <span className="text-amber">{t("suiteDetail.aboutTitle2")}</span>
                 </h2>
-                <div className="h-px w-16 bg-terracotta/30 mb-8" />
-                <p className="text-editorial text-muted-foreground leading-relaxed text-lg">
+                <div className="divider-accent max-w-[120px] mb-8" />
+                <p className="body-editorial text-muted-foreground leading-relaxed text-lg">
                   {suite.longDescription}
                 </p>
               </motion.div>
@@ -244,31 +257,33 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
                 className="mb-16"
               >
-                <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none block mb-4">02</span>
-                <span className="text-luxury-label text-terracotta block mb-4">
+                <span className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block mb-4">
+                  02
+                </span>
+                <span className="luxury-label text-amber block mb-4">
                   {t("suiteDetail.features")}
                 </span>
                 <h2 className="heading-display text-2xl md:text-4xl mb-6">
-                  {t("suiteDetail.featuresTitle1")} <span className="text-terracotta">{t("suiteDetail.featuresTitle2")}</span>
+                  {t("suiteDetail.featuresTitle1")} <span className="text-amber">{t("suiteDetail.featuresTitle2")}</span>
                 </h2>
-                <div className="h-px w-16 bg-terracotta/30 mb-8" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-terracotta/10">
+                <div className="divider-accent max-w-[120px] mb-8" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {features.map((feature, idx) => (
                     <motion.div
                       key={feature}
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: idx * 0.1 }}
-                      className="flex items-center gap-3 py-4 px-5 bg-background"
+                      transition={{ duration: 0.5, delay: idx * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      className="glass-card card-warm flex items-center gap-3 py-4 px-5"
                     >
-                      <div className="w-7 h-7 border border-terracotta/20 flex items-center justify-center shrink-0">
-                        <Check className="w-3.5 h-3.5 text-terracotta" />
+                      <div className="w-7 h-7 rounded-full border border-amber/20 bg-amber/10 flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 text-amber" />
                       </div>
-                      <span className="text-editorial text-sm">{feature}</span>
+                      <span className="body-editorial text-sm">{feature}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -280,17 +295,19 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.8 }}
+                  transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
                   className="mb-16"
                 >
-                  <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none block mb-4">03</span>
-                  <span className="text-luxury-label text-terracotta block mb-4">
+                  <span className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block mb-4">
+                    03
+                  </span>
+                  <span className="luxury-label text-amber block mb-4">
                     {t("suiteDetail.gallery")}
                   </span>
                   <h2 className="heading-display text-2xl md:text-4xl mb-6">
-                    {t("suiteDetail.galleryTitle1")} <span className="text-terracotta">{t("suiteDetail.galleryTitle2")}</span>
+                    {t("suiteDetail.galleryTitle1")} <span className="text-amber">{t("suiteDetail.galleryTitle2")}</span>
                   </h2>
-                  <div className="h-px w-16 bg-terracotta/30 mb-8" />
+                  <div className="divider-accent max-w-[120px] mb-8" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {galleryImages.map((img, idx) => (
                       <motion.div
@@ -298,17 +315,20 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                         initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: idx * 0.1 }}
-                        className={`relative overflow-hidden group ${
+                        transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                        className={`relative overflow-hidden rounded-2xl group ${
                           idx === 0 ? "sm:col-span-2 aspect-[16/9]" : "aspect-[4/3]"
                         }`}
                       >
                         <img
                           src={img}
                           alt={`${suite.name} — ${t("suiteDetail.image")} ${idx + 1}`}
-                          className="w-full h-full object-cover transition-transform duration-[1.4s] cubic-bezier(0.16,1,0.3,1) group-hover:scale-110"
+                          className="w-full h-full object-cover transition-transform duration-[1.4s] cubic-bezier(0.25,0.46,0.45,0.94) group-hover:scale-105"
                         />
-                        <div className="absolute inset-3 border border-terracotta/0 group-hover:border-terracotta/30 transition-all duration-700" />
+                        {/* Hover Overlay — Amber Tint */}
+                        <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
+                        {/* Rounded Inner Frame Border on Hover */}
+                        <div className="absolute inset-3 rounded-xl border border-amber/0 group-hover:border-amber/20 transition-all duration-500" />
                       </motion.div>
                     ))}
                   </div>
@@ -322,67 +342,75 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
                 className="sticky top-28"
               >
-                {/* Price Card */}
-                <div className="border border-terracotta/15 p-8 mb-6">
+                {/* Price Card — Glass Card */}
+                <div className="glass-card card-warm p-8 mb-6">
                   <div className="mb-6">
-                    <span className="text-luxury-label text-terracotta block mb-2">
+                    <span className="luxury-label text-amber block mb-2">
                       {t("suiteDetail.rate")}
                     </span>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-mono-number text-4xl text-terracotta">
+                      <span className="mono-number text-4xl text-amber">
                         {priceLabel}
                       </span>
-                      <span className="text-muted-foreground text-sm">
+                      <span className="body-editorial text-muted-foreground text-sm">
                         {t("suiteDetail.perNight")}
                       </span>
                     </div>
                     {isChambre && (
-                      <p className="text-xs text-muted-foreground mt-2">
+                      <p className="text-xs text-muted-foreground mt-2 body-editorial">
                         {t("suiteDetail.fullBoard")}
                       </p>
                     )}
                   </div>
 
-                  <div className="h-px w-full bg-terracotta/15 mb-6" />
+                  <div className="divider-accent mb-6" />
 
                   {/* Quick Info */}
                   <div className="space-y-4 mb-8">
                     <div className="flex items-center gap-3">
-                      <Users className="w-4 h-4 text-terracotta/50" />
-                      <span className="text-sm">
+                      <div className="w-7 h-7 rounded-full border border-amber/15 bg-amber/10 flex items-center justify-center">
+                        <Users className="w-3.5 h-3.5 text-amber" />
+                      </div>
+                      <span className="body-editorial text-sm">
                         {suite.maxGuests} {suite.maxGuests > 1 ? t("suiteDetail.persons") : t("suiteDetail.person")} {t("suiteDetail.maxPersons")}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Maximize2 className="w-4 h-4 text-terracotta/50" />
-                      <span className="text-sm">{suite.size}</span>
+                      <div className="w-7 h-7 rounded-full border border-amber/15 bg-amber/10 flex items-center justify-center">
+                        <Maximize2 className="w-3.5 h-3.5 text-amber" />
+                      </div>
+                      <span className="body-editorial text-sm">{suite.size}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <BedDouble className="w-4 h-4 text-terracotta/50" />
-                      <span className="text-sm">{suite.bedType}</span>
+                      <div className="w-7 h-7 rounded-full border border-amber/15 bg-amber/10 flex items-center justify-center">
+                        <BedDouble className="w-3.5 h-3.5 text-amber" />
+                      </div>
+                      <span className="body-editorial text-sm">{suite.bedType}</span>
                     </div>
                     {suite.hasAC && (
                       <div className="flex items-center gap-3">
-                        <Wind className="w-4 h-4 text-terracotta/50" />
-                        <span className="text-sm">{t("suiteDetail.airConditioning")}</span>
+                        <div className="w-7 h-7 rounded-full border border-amber/15 bg-amber/10 flex items-center justify-center">
+                          <Wind className="w-3.5 h-3.5 text-amber" />
+                        </div>
+                        <span className="body-editorial text-sm">{t("suiteDetail.airConditioning")}</span>
                       </div>
                     )}
                   </div>
 
                   <Link
                     href="/reservez-votre-sejour"
-                    className="block w-full bg-terracotta text-white hover:bg-terracotta-light transition-all duration-500 py-4 text-center text-luxury-label tracking-[0.2em] hover:shadow-[0_0_30px_oklch(0.62_0.08_30/15%)]"
+                    className="btn-primary block w-full text-center cursor-pointer"
                   >
                     {t("suiteDetail.bookThisSuite")}
                   </Link>
                 </div>
 
-                {/* Amenities Card */}
-                <div className="border border-terracotta/15 p-8">
-                  <span className="text-luxury-label text-terracotta block mb-4">
+                {/* Amenities Card — Glass Card */}
+                <div className="glass-card card-warm p-8">
+                  <span className="luxury-label text-amber block mb-4">
                     {t("suiteDetail.amenities")}
                   </span>
                   <div className="space-y-3">
@@ -391,8 +419,8 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                         key={idx}
                         className="flex items-center gap-3"
                       >
-                        <Check className="w-4 h-4 text-terracotta shrink-0" />
-                        <span className="text-sm text-muted-foreground">
+                        <Check className="w-4 h-4 text-amber shrink-0" />
+                        <span className="body-editorial text-sm text-muted-foreground">
                           {amenity}
                         </span>
                       </div>
@@ -404,7 +432,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                 <div className="mt-6 text-center">
                   <Link
                     href="/les-tentes"
-                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-terracotta text-sm transition-colors duration-500"
+                    className="inline-flex items-center gap-2 text-muted-foreground hover:text-amber text-sm transition-colors duration-300 cursor-pointer"
                   >
                     <ArrowLeft className="w-4 h-4" />
                     {t("suiteDetail.seeAllTents")}
@@ -416,35 +444,48 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
         </div>
       </section>
 
-      {/* Bottom CTA — Obsidian Background */}
-      <section className="py-20 md:py-28 px-6 md:px-10 bg-obsidian text-center">
+      {/* ── Bottom CTA — Warm Black Background ── */}
+      <section className="relative py-20 md:py-28 px-6 md:px-10 bg-warm-black text-center overflow-hidden">
+        {/* Decorative Blobs */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber/[0.03] blob-1 blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-amber/[0.04] blob-3 blur-3xl" />
+
+        {/* Grain Texture */}
+        <div className="absolute inset-0 grain-overlay pointer-events-none" />
+
+        {/* Divider Top */}
+        <div className="absolute top-0 left-0 right-0 divider-accent-wide" />
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="max-w-3xl mx-auto"
+          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="relative z-10 max-w-3xl mx-auto"
         >
-          <span className="text-luxury-label text-terracotta block mb-4">
+          <span className="luxury-label text-amber block mb-4">
             {t("suiteDetail.book")}
           </span>
           <h2 className="heading-display text-3xl md:text-5xl text-foreground mb-4">
             {suite.name}
           </h2>
-          <p className="heading-editorial text-lg text-terracotta/60 italic mb-6">
+          <p className="heading-editorial text-lg text-amber/60 italic mb-6">
             {suite.tagline}
           </p>
-          <p className="text-editorial text-foreground/40 mb-10 max-w-xl mx-auto">
+          <p className="body-editorial text-foreground/40 mb-10 max-w-xl mx-auto">
             {t("suiteDetail.startingFrom")} {priceLabel} {t("suiteDetail.perNight2")}
           </p>
           <Link
             href="/reservez-votre-sejour"
-            className="inline-flex items-center gap-3 bg-terracotta text-white hover:bg-terracotta-light px-10 py-4 text-luxury-label tracking-[0.2em] transition-all duration-500 hover:shadow-[0_0_30px_oklch(0.62_0.08_30/15%)]"
+            className="btn-primary inline-flex items-center gap-3 cursor-pointer"
           >
             {t("suiteDetail.bookThisSuite")}
             <ArrowRight className="w-4 h-4" />
           </Link>
         </motion.div>
+
+        {/* Divider Bottom */}
+        <div className="absolute bottom-0 left-0 right-0 divider-accent-wide" />
       </section>
     </div>
   );

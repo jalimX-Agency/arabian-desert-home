@@ -23,8 +23,8 @@ export function Philosophy() {
           transition={{ duration: 0.8 }}
           className="mb-16 md:mb-24"
         >
-          <span className="text-mono-number text-terracotta/30 text-6xl md:text-7xl leading-none block mb-3">01</span>
-          <span className="text-luxury-label text-terracotta">{t("philosophy.label")}</span>
+          <span className="mono-number text-terracotta/30 text-6xl md:text-7xl leading-none block mb-3">01</span>
+          <span className="luxury-label text-terracotta">{t("philosophy.label")}</span>
         </motion.div>
 
         {/* Editorial Layout */}
@@ -60,7 +60,7 @@ export function Philosophy() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-editorial text-lg md:text-xl text-muted-foreground leading-relaxed"
+              className="body-editorial text-lg md:text-xl text-muted-foreground leading-relaxed"
             >
               {t("philosophy.paragraph1")}
             </motion.p>
@@ -69,7 +69,7 @@ export function Philosophy() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-editorial text-muted-foreground leading-relaxed"
+              className="body-editorial text-muted-foreground leading-relaxed"
             >
               {t("philosophy.paragraph2")}
             </motion.p>
@@ -102,10 +102,10 @@ export function Philosophy() {
                 { value: "5★", label: t("philosophy.stats.experience") },
               ].map((stat) => (
                 <div key={stat.label} className="text-center lg:text-left">
-                  <div className="text-mono-number text-3xl md:text-4xl text-terracotta">
+                  <div className="mono-number text-3xl md:text-4xl text-terracotta">
                     {stat.value}
                   </div>
-                  <div className="text-luxury-label text-muted-foreground mt-1">
+                  <div className="luxury-label text-muted-foreground mt-1">
                     {stat.label}
                   </div>
                 </div>

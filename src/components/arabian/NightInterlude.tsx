@@ -39,7 +39,7 @@ export function NightInterlude() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-luxury-label text-terracotta/80 block mb-6"
+          className="luxury-label text-terracotta/80 block mb-6"
         >
           {t("night.label")}
         </motion.span>
@@ -66,7 +66,7 @@ export function NightInterlude() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="text-editorial text-white/60 text-lg"
+          className="body-editorial text-white/60 text-lg"
         >
           {t("night.description")}
         </motion.p>
