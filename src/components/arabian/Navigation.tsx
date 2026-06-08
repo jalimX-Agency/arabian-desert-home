@@ -4,9 +4,15 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, Moon, Globe } from "lucide-react";
+import { Menu, X, Sun, Moon, Globe, ChevronDown, Check } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useLanguage } from "@/lib/i18n/context";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navLinkKeys = [
   { labelKey: "nav.home", href: "/" },
@@ -47,10 +53,6 @@ export function Navigation() {
   const toggleTheme = useCallback(() => {
     setTheme(theme === "dark" ? "light" : "dark");
   }, [theme, setTheme]);
-
-  const toggleLanguage = useCallback(() => {
-    setLanguage(language === "fr" ? "en" : "fr");
-  }, [language, setLanguage]);
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -122,29 +124,43 @@ export function Navigation() {
             })}
           </div>
 
-          {/* ── Right Controls: Theme · Language · Book · Mobile Toggle ── */}
+          {/* ── Right Controls: Language · Book · Mobile Toggle ── */}
           <div className="flex items-center gap-3">
-            {/* Theme Toggle — Rounded glass circle */}
-            <button
-              onClick={toggleTheme}
-              className="relative w-9 h-9 hidden md:flex items-center justify-center rounded-full border border-amber/15 bg-amber/[0.04] text-muted-foreground hover:text-amber hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
-              aria-label="Toggle theme"
-            >
-              <Sun className="w-4 h-4 rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute w-4 h-4 rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
-            </button>
-
-            {/* Language Toggle — Rounded Pill */}
-            <button
-              onClick={toggleLanguage}
-              className="hidden md:flex items-center gap-1 luxury-label px-3.5 h-9 rounded-full border border-amber/15 bg-amber/[0.04] text-muted-foreground hover:text-amber hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
-              aria-label="Toggle language"
-            >
-              <Globe className="w-3.5 h-3.5 mr-0.5" />
-              <span className={`transition-colors duration-200 ${language === "fr" ? "text-amber" : ""}`}>FR</span>
-              <span className="text-border/50 mx-0.5">·</span>
-              <span className={`transition-colors duration-200 ${language === "en" ? "text-amber" : ""}`}>EN</span>
-            </button>
+            {/* Language Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="hidden md:flex items-center gap-1.5 luxury-label px-3.5 h-9 rounded-full border border-amber/15 bg-amber/[0.04] text-muted-foreground hover:text-amber hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+                  aria-label="Select language"
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  <span className="text-amber">{language.toUpperCase()}</span>
+                  <ChevronDown className="w-3 h-3 opacity-50" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[140px]">
+                <DropdownMenuItem
+                  onClick={() => setLanguage("fr")}
+                  className="flex items-center justify-between cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-base">🇫🇷</span>
+                    Français
+                  </span>
+                  {language === "fr" && <Check className="w-4 h-4 text-amber" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setLanguage("en")}
+                  className="flex items-center justify-between cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-base">🇬🇧</span>
+                    English
+                  </span>
+                  {language === "en" && <Check className="w-4 h-4 text-amber" />}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Book Now — Amber Gradient Pill */}
             <Link href="/reservez-votre-sejour" className="hidden md:block">
@@ -264,39 +280,59 @@ export function Navigation() {
                   </span>
                 </Link>
 
-                {/* Language & Theme row */}
-                <div className="flex items-center justify-between">
-                  {/* Language Toggle — Pill */}
-                  <button
-                    onClick={toggleLanguage}
-                    className="flex items-center gap-1.5 luxury-label px-5 h-11 rounded-full border border-amber/15 bg-amber/[0.04] text-muted-foreground hover:text-amber hover:border-amber/30 transition-all duration-300 cursor-pointer"
-                    aria-label="Toggle language"
-                  >
-                    <Globe className="w-4 h-4" />
-                    <span className={language === "fr" ? "text-amber" : ""}>FR</span>
-                    <span className="text-border/50 mx-0.5">·</span>
-                    <span className={language === "en" ? "text-amber" : ""}>EN</span>
-                  </button>
-
-                  {/* Theme Toggle — Pill */}
-                  <button
-                    onClick={toggleTheme}
-                    className="relative flex items-center gap-2 luxury-label px-5 h-11 rounded-full border border-amber/15 bg-amber/[0.04] text-muted-foreground hover:text-amber hover:border-amber/30 transition-all duration-300 cursor-pointer"
-                    aria-label="Toggle theme"
-                  >
-                    <span className="relative w-4 h-4">
-                      <Sun className="absolute inset-0 w-4 h-4 rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0" />
-                      <Moon className="absolute inset-0 w-4 h-4 rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
-                    </span>
-                    <span className="dark:hidden">Dark</span>
-                    <span className="hidden dark:inline">Light</span>
-                  </button>
-                </div>
+                {/* Language Dropdown for Mobile */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="flex items-center gap-1.5 luxury-label px-5 h-11 rounded-full border border-amber/15 bg-amber/[0.04] text-muted-foreground hover:text-amber hover:border-amber/30 transition-all duration-300 cursor-pointer"
+                      aria-label="Select language"
+                    >
+                      <Globe className="w-4 h-4" />
+                      <span className="text-amber">{language.toUpperCase()}</span>
+                      <ChevronDown className="w-3.5 h-3.5 opacity-50" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="min-w-[160px]">
+                    <DropdownMenuItem
+                      onClick={() => setLanguage("fr")}
+                      className="flex items-center justify-between cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="text-base">🇫🇷</span>
+                        Français
+                      </span>
+                      {language === "fr" && <Check className="w-4 h-4 text-amber" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setLanguage("en")}
+                      className="flex items-center justify-between cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="text-base">🇬🇧</span>
+                        English
+                      </span>
+                      {language === "en" && <Check className="w-4 h-4 text-amber" />}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </motion.div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── Floating Theme Toggle — Bottom Left ── */}
+      <motion.button
+        onClick={toggleTheme}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1.2, duration: 0.5, ease: flowingEase }}
+        className="fixed bottom-6 left-6 z-50 w-12 h-12 flex items-center justify-center rounded-full border border-amber/20 bg-background/80 backdrop-blur-md text-muted-foreground hover:text-amber hover:border-amber/40 hover:bg-amber/[0.08] shadow-lg shadow-black/10 transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background group"
+        aria-label="Toggle theme"
+      >
+        <Sun className="w-5 h-5 rotate-0 scale-100 transition-all duration-500 dark:-rotate-90 dark:scale-0 group-hover:rotate-12" />
+        <Moon className="absolute w-5 h-5 rotate-90 scale-0 transition-all duration-500 dark:rotate-0 dark:scale-100 group-hover:-rotate-12" />
+      </motion.button>
     </>
   );
 }
