@@ -47,6 +47,8 @@ const cardVariants = {
   },
 };
 
+const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
+
 export default function LesTentesPage() {
   const { t } = useLanguage();
   const [suites, setSuites] = useState<Suite[]>([]);
@@ -69,67 +71,97 @@ export default function LesTentesPage() {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       <main className="flex-1 pt-20">
-        {/* ── Hero Section ── */}
-        <section className="relative h-[55vh] md:h-[65vh] flex items-center justify-center overflow-hidden">
-          {/* Background Image */}
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: "url('/images/about.png')" }}
-          />
-          {/* Warm Gradient Overlays */}
-          <div className="absolute inset-0 gradient-warm" />
-          <div className="absolute inset-0 gradient-amber" />
-          <div className="absolute inset-0 bg-black/40" />
+        {/* ── Hero Section — Split-Screen Cinematic ── */}
+        <section className="relative flex flex-col md:flex-row min-h-[55vh] md:min-h-[65vh] overflow-hidden">
+          {/* ── Mobile: Image Banner ── */}
+          <div className="relative w-full h-[30vh] md:hidden overflow-hidden">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: "url('/images/about.png')" }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-warm-black/90" />
+          </div>
 
-          {/* Decorative Blob */}
-          <div className="absolute top-20 right-10 w-80 h-80 bg-amber/[0.04] blob-1 blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-60 h-60 bg-amber/[0.03] blob-2 blur-3xl" />
+          {/* ── Left Side: Editorial Content (55%) ── */}
+          <div className="relative w-full md:w-[55%] bg-warm-black flex items-center px-6 md:px-12 lg:px-20 py-12 md:py-0">
+            {/* Grain Texture */}
+            <div className="absolute inset-0 grain-overlay pointer-events-none" />
 
-          {/* Grain Texture */}
-          <div className="absolute inset-0 grain-overlay pointer-events-none" />
+            {/* Decorative Blob */}
+            <div className="absolute top-10 right-10 w-64 h-64 bg-amber/[0.03] blob-1 blur-3xl" />
+            <div className="absolute bottom-10 left-10 w-48 h-48 bg-amber/[0.02] blob-2 blur-3xl" />
 
-          {/* Hero Content */}
-          <div className="relative z-10 text-center px-6">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="luxury-label text-amber block mb-4"
-            >
-              Arabian Desert Home
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="heading-display text-4xl md:text-5xl lg:text-7xl text-white mb-4"
-            >
-              Tentes de <span className="text-amber">Luxe</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="body-editorial text-white/60 text-lg md:text-xl max-w-xl mx-auto"
-            >
-              Une invitation à l&apos;évasion
-            </motion.p>
+            {/* Content — Vertically Centered */}
+            <div className="relative z-10 max-w-lg">
+              {/* Decorative Number */}
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: smoothEase }}
+                className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block mb-4"
+              >
+                01
+              </motion.span>
 
-            {/* Scroll Indicator */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 1 }}
-              className="mt-12 flex justify-center"
-            >
-              <div className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center pt-2">
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-1.5 h-1.5 rounded-full bg-amber"
-                />
-              </div>
-            </motion.div>
+              {/* Luxury Label */}
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1, ease: smoothEase }}
+                className="luxury-label text-amber block mb-5"
+              >
+                Arabian Desert Home
+              </motion.span>
+
+              {/* Main Heading */}
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
+                className="heading-display text-4xl md:text-5xl lg:text-7xl text-white mb-5"
+              >
+                Tentes de{" "}
+                <span className="italic text-amber">Luxe</span>
+              </motion.h1>
+
+              {/* Editorial Paragraph */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.35, ease: smoothEase }}
+                className="body-editorial text-white/50 text-base md:text-lg max-w-md mb-8"
+              >
+                Une invitation à l&apos;évasion, où le raffinement du désert
+                se révèle dans chaque détail de votre séjour.
+              </motion.p>
+
+              {/* Animated Decorative Line */}
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 1.2, delay: 0.6, ease: smoothEase }}
+                className="divider-accent max-w-[120px] origin-left"
+              />
+            </div>
+          </div>
+
+          {/* ── Right Side: Full-Bleed Image (45%) ── */}
+          <div className="hidden md:block relative w-[45%] overflow-hidden">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: "url('/images/about.png')" }}
+            />
+            {/* Very minimal warm tone overlay */}
+            <div className="absolute inset-0 gradient-amber opacity-30" />
+
+            {/* Diagonal Clip Edge — Left side of image */}
+            <div
+              className="absolute inset-y-0 left-0 w-16"
+              style={{
+                background:
+                  "linear-gradient(to right, var(--warm-black), transparent)",
+              }}
+            />
           </div>
         </section>
 

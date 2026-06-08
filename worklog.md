@@ -529,3 +529,28 @@ Stage Summary:
 - Dark/Light theme toggle works
 - All interactive elements functional
 - Zero lint errors, zero runtime errors
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Redesign all internal page heroes to be unique and luxury instead of repetitive
+
+Work Log:
+- Analyzed all 8 internal pages (les-tentes, restaurant, les-activites, spa, les-evenements, day-pass, apropos, contact)
+- Identified the repetitive pattern: big bg image + gradient overlays + centered text + scroll indicator
+- Designed 8 unique hero concepts for each page
+- Implemented all 8 redesigns in parallel using subagents
+- Ran lint check - passes clean
+- Verified all pages return HTTP 200
+
+Stage Summary:
+- Les Tentes: "Split-Screen Cinematic" - left text/right image split layout
+- Restaurant: "Asymmetric Glass Panel" - frosted glass panel at bottom-left over image
+- Les Activites: "Magazine Editorial Overlap" - overlapping glass card that climbs into image
+- Spa: "Zen Minimalist" - small circular image + clean typography, no full-bleed hero
+- Les Evenements: "Cinematic Seamless Transition" - bottom-aligned text with gradient fading to bg color
+- Day Pass: "Floating Card Preview" - no image hero, gradient bg with floating pricing preview cards
+- About: "Storytelling Split" - text left / image right with overlapping accent photo
+- Contact: "Refined Typographic Header" - no image, clean text + contact cards moved into hero
+- All scroll indicator dots removed from all pages
+- All pages lint clean and return 200

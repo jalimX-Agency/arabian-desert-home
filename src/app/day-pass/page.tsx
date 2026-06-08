@@ -99,33 +99,20 @@ export default function DayPassPage() {
       <Navigation />
 
       <main className="flex-1 pt-20">
-        {/* ── Hero Section ── */}
+        {/* ── Hero Section — Floating Card Preview ── */}
         <section
           ref={heroRef}
-          className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden"
+          className="relative py-16 md:py-24 flex items-center justify-center overflow-hidden bg-gradient-to-br from-warm-black via-background to-amber/[0.03]"
         >
-          {/* Background Image */}
-          <div className="absolute inset-0">
-            <img
-              src="/images/daypass-pool.png"
-              alt="Piscine avec vue sur le désert"
-              className="w-full h-full object-cover"
-            />
-            {/* Warm Gradient Overlays */}
-            <div className="absolute inset-0 gradient-warm" />
-            <div className="absolute inset-0 gradient-amber" />
-            <div className="absolute inset-0 bg-black/40" />
-          </div>
+          {/* Dot Pattern Overlay */}
+          <div className="absolute inset-0 pattern-dots pointer-events-none" />
 
           {/* Decorative Blobs */}
-          <div className="absolute top-20 right-10 w-80 h-80 bg-amber/[0.04] blob-1 blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-60 h-60 bg-amber/[0.03] blob-2 blur-3xl" />
+          <div className="absolute top-10 right-10 w-72 h-72 bg-amber/[0.04] blob-1 blur-3xl" />
+          <div className="absolute bottom-5 left-10 w-56 h-56 bg-amber/[0.03] blob-2 blur-3xl" />
 
-          {/* Grain Texture */}
-          <div className="absolute inset-0 grain-overlay pointer-events-none" />
-
-          {/* Hero Content */}
-          <div className="relative z-10 text-center px-6">
+          {/* Content */}
+          <div className="relative z-10 max-w-4xl mx-auto text-center px-6">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
@@ -138,34 +125,61 @@ export default function DayPassPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
-              className="heading-display text-4xl md:text-6xl lg:text-8xl text-white mb-6"
+              className="heading-display text-4xl md:text-6xl lg:text-8xl text-foreground mb-6"
             >
               {t("dayPass.heroTitle")}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
-              className="heading-editorial italic text-xl md:text-2xl text-white/70"
+              transition={{ duration: 0.8, delay: 0.4, ease: smoothEase }}
+              className="heading-editorial italic text-xl md:text-2xl text-muted-foreground mb-8"
             >
               {t("dayPass.heroSubtitle")}
             </motion.p>
 
-            {/* Scroll Indicator */}
+            {/* Thin Amber Divider */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 1 }}
-              className="mt-12 flex justify-center"
-            >
-              <div className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center pt-2">
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-1.5 h-1.5 rounded-full bg-amber"
-                />
+              initial={{ opacity: 0, scaleX: 0 }}
+              animate={heroInView ? { opacity: 1, scaleX: 1 } : {}}
+              transition={{ duration: 0.8, delay: 0.55, ease: smoothEase }}
+              className="divider-accent max-w-[120px] mx-auto mb-10"
+            />
+
+            {/* Floating Preview Cards */}
+            {!loading && passes.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {passes.map((pass, i) => {
+                  const Icon = passIcons[i] || Sun;
+                  return (
+                    <motion.div
+                      key={pass.id}
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                      transition={{
+                        duration: 0.7,
+                        delay: 0.7 + i * 0.12,
+                        ease: smoothEase,
+                      }}
+                      className="glass-card p-4 text-center group hover:bg-amber/[0.04] transition-colors duration-300"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center mx-auto mb-2">
+                        <Icon className="w-4 h-4 text-amber" />
+                      </div>
+                      <h3 className="heading-editorial text-lg mb-1">
+                        {pass.name}
+                      </h3>
+                      <span className="mono-number text-xl text-amber">
+                        {pass.price}
+                      </span>
+                      <span className="text-xs text-muted-foreground ml-1 body-editorial">
+                        {pass.currency}
+                      </span>
+                    </motion.div>
+                  );
+                })}
               </div>
-            </motion.div>
+            )}
           </div>
         </section>
 

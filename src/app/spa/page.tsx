@@ -111,73 +111,67 @@ export default function SpaPage() {
       <Navigation />
 
       <main className="flex-1 pt-20">
-        {/* ── Hero Section ── */}
+        {/* ── Hero Section — Zen Minimalist ── */}
         <section
           ref={heroRef}
-          className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden"
+          className="relative py-20 md:py-32 flex items-center justify-center overflow-hidden"
         >
-          {/* Background Image */}
-          <div className="absolute inset-0">
-            <img
-              src="/images/spa-treatment.png"
-              alt="Spa de luxe au désert d'Agafay"
-              className="w-full h-full object-cover"
-            />
-            {/* Warm Gradient Overlays */}
-            <div className="absolute inset-0 gradient-warm" />
-            <div className="absolute inset-0 gradient-amber" />
-            <div className="absolute inset-0 bg-black/40" />
-          </div>
+          {/* Subtle dot pattern background */}
+          <div className="absolute inset-0 pattern-dots pointer-events-none" />
 
-          {/* Decorative Blobs */}
-          <div className="absolute top-20 right-10 w-80 h-80 bg-amber/[0.04] blob-1 blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-60 h-60 bg-amber/[0.03] blob-2 blur-3xl" />
+          {/* Content */}
+          <div className="relative z-10 text-center px-6 flex flex-col items-center">
+            {/* Small circular image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={heroInView ? { opacity: 1, scale: 1 } : {}}
+              transition={{ duration: 0.9, ease: smoothEase }}
+              className="mb-8"
+            >
+              <img
+                src="/images/spa-treatment.png"
+                alt="Spa de luxe au désert d'Agafay"
+                className="w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-amber/20 object-cover"
+              />
+            </motion.div>
 
-          {/* Grain Texture */}
-          <div className="absolute inset-0 grain-overlay pointer-events-none" />
-
-          {/* Hero Content */}
-          <div className="relative z-10 text-center px-6">
+            {/* Label */}
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: smoothEase }}
+              transition={{ duration: 0.8, delay: 0.15, ease: smoothEase }}
               className="luxury-label text-amber block mb-4"
             >
               {t("spa.heroLabel")}
             </motion.span>
+
+            {/* Title */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
-              className="heading-display text-4xl md:text-6xl lg:text-8xl text-white mb-6"
+              transition={{ duration: 1, delay: 0.3, ease: smoothEase }}
+              className="heading-display text-4xl md:text-6xl lg:text-7xl mb-6"
             >
               {t("spa.heroTitle")}
             </motion.h1>
+
+            {/* Italic Subtitle */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
-              className="heading-editorial italic text-xl md:text-2xl text-white/70"
+              className="heading-editorial italic text-xl md:text-2xl text-muted-foreground mb-8"
             >
               {t("spa.heroSubtitle")}
             </motion.p>
 
-            {/* Scroll Indicator */}
+            {/* Thin amber divider */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 1 }}
-              className="mt-12 flex justify-center"
-            >
-              <div className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center pt-2">
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-1.5 h-1.5 rounded-full bg-amber"
-                />
-              </div>
-            </motion.div>
+              initial={{ opacity: 0, scaleX: 0 }}
+              animate={heroInView ? { opacity: 1, scaleX: 1 } : {}}
+              transition={{ duration: 0.8, delay: 0.7, ease: smoothEase }}
+              className="w-24 h-px bg-amber/40 origin-center"
+            />
           </div>
         </section>
 

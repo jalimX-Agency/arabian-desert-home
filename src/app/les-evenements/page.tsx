@@ -93,10 +93,10 @@ export default function EvenementsPage() {
       <Navigation />
 
       <main className="flex-1 pt-20">
-        {/* ── Hero Section ── */}
+        {/* ── Hero Section — Cinematic Seamless Transition ── */}
         <section
           ref={heroRef}
-          className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden"
+          className="relative h-[45vh] md:h-[55vh] flex items-end overflow-hidden"
         >
           {/* Background Image */}
           <div className="absolute inset-0">
@@ -105,66 +105,50 @@ export default function EvenementsPage() {
               alt="Événements de luxe au désert d'Agafay"
               className="w-full h-full object-cover"
             />
-            {/* Warm Gradient Overlays */}
-            <div className="absolute inset-0 gradient-warm" />
-            <div className="absolute inset-0 gradient-amber" />
-            <div className="absolute inset-0 bg-black/40" />
+            {/* Seamless Gradient — dark top fades to background color at bottom */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-background" />
           </div>
 
-          {/* Decorative Blobs */}
-          <div className="absolute top-20 right-10 w-80 h-80 bg-amber/[0.04] blob-1 blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-60 h-60 bg-amber/[0.03] blob-3 blur-3xl" />
-
-          {/* Grain Texture */}
-          <div className="absolute inset-0 grain-overlay pointer-events-none" />
-
-          {/* Hero Content */}
-          <div className="relative z-10 text-center px-6">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: smoothEase }}
-              className="luxury-label text-amber block mb-4"
-            >
-              {t("evenements.heroLabel")}
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
-              className="heading-display text-4xl md:text-6xl lg:text-8xl text-white mb-6"
-            >
-              {t("evenements.heroTitle")}
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
-              className="heading-editorial italic text-xl md:text-2xl text-white/70 max-w-3xl mx-auto"
-            >
-              {t("evenements.heroSubtitle")}
-            </motion.p>
-
-            {/* Scroll Indicator */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 1 }}
-              className="mt-12 flex justify-center"
-            >
-              <div className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center pt-2">
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-1.5 h-1.5 rounded-full bg-amber"
-                />
-              </div>
-            </motion.div>
+          {/* Hero Content — left-aligned at bottom */}
+          <div className="relative z-10 w-full px-6 md:px-10 pb-12 md:pb-16">
+            <div className="max-w-3xl">
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, ease: smoothEase }}
+                className="luxury-label text-amber block mb-4"
+              >
+                {t("evenements.heroLabel")}
+              </motion.span>
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
+                className="heading-display text-3xl md:text-5xl lg:text-7xl text-white mb-4"
+              >
+                {t("evenements.heroTitle")}
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
+                className="heading-editorial italic text-lg md:text-xl text-white/60 mb-6"
+              >
+                {t("evenements.heroSubtitle")}
+              </motion.p>
+              {/* Thin amber horizontal line */}
+              <motion.div
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={heroInView ? { opacity: 1, scaleX: 1 } : {}}
+                transition={{ duration: 0.8, delay: 0.7, ease: smoothEase }}
+                className="h-px w-24 md:w-32 bg-amber origin-left"
+              />
+            </div>
           </div>
         </section>
 
         {/* ── Intro Section ── */}
-        <section ref={introRef} className="py-20 md:py-28 px-6 md:px-10 relative">
+        <section ref={introRef} className="pt-8 md:pt-12 pb-20 md:pb-28 px-6 md:px-10 relative">
           <div className="absolute inset-0 pattern-dots pointer-events-none" />
 
           <div className="max-w-3xl mx-auto text-center relative z-10">

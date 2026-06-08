@@ -91,10 +91,10 @@ export default function RestaurantPage() {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       <main className="flex-1 pt-20">
-        {/* ── Hero Section ── */}
+        {/* ── Hero Section — Asymmetric Glass Panel ── */}
         <section
           ref={heroRef}
-          className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden"
+          className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-end overflow-hidden"
         >
           {/* Background Image */}
           <div className="absolute inset-0">
@@ -103,62 +103,57 @@ export default function RestaurantPage() {
               alt="Restaurant en plein air au désert d'Agafay"
               className="w-full h-full object-cover"
             />
-            {/* Warm Gradient Overlays */}
-            <div className="absolute inset-0 gradient-warm" />
-            <div className="absolute inset-0 gradient-amber" />
-            <div className="absolute inset-0 bg-black/40" />
+            {/* Left-side dark gradient — fades to transparent on the right */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+            {/* Bottom gradient for legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           </div>
-
-          {/* Decorative Blob */}
-          <div className="absolute top-20 right-10 w-80 h-80 bg-amber/[0.04] blob-1 blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-60 h-60 bg-amber/[0.03] blob-2 blur-3xl" />
 
           {/* Grain Texture */}
           <div className="absolute inset-0 grain-overlay pointer-events-none" />
 
-          {/* Hero Content */}
-          <div className="relative z-10 text-center px-6">
+          {/* Glass Panel — Bottom-Left on desktop, centered on mobile */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={heroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, ease: smoothEase }}
+            className="relative z-10 w-full max-w-lg backdrop-blur-xl bg-black/30 border border-white/10 rounded-2xl p-8 md:p-12 mx-6 md:mx-10 mb-8 md:mb-12 md:mr-auto md:ml-10"
+          >
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: smoothEase }}
+              transition={{ duration: 0.8, delay: 0.15, ease: smoothEase }}
               className="luxury-label text-amber block mb-4"
             >
               {t("restaurant.heroLabel")}
             </motion.span>
+
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
-              className="heading-display text-4xl md:text-6xl lg:text-8xl text-white mb-6"
+              transition={{ duration: 1, delay: 0.3, ease: smoothEase }}
+              className="heading-display text-3xl md:text-5xl lg:text-6xl text-white mb-4"
             >
               {t("restaurant.heroTitle")}
             </motion.h1>
+
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
-              className="heading-editorial italic text-xl md:text-2xl text-white/70"
+              className="heading-editorial italic text-lg md:text-xl text-white/70 mb-5"
             >
               {t("restaurant.heroSubtitle")}
             </motion.p>
 
-            {/* Scroll Indicator */}
+            {/* Thin amber divider */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 1 }}
-              className="mt-12 flex justify-center"
-            >
-              <div className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center pt-2">
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-1.5 h-1.5 rounded-full bg-amber"
-                />
-              </div>
-            </motion.div>
-          </div>
+              initial={{ scaleX: 0 }}
+              animate={heroInView ? { scaleX: 1 } : {}}
+              transition={{ duration: 0.8, delay: 0.7, ease: smoothEase }}
+              className="h-px w-16 bg-amber/60 origin-left"
+            />
+          </motion.div>
         </section>
 
         {/* ── Intro Section ── */}

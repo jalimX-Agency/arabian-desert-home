@@ -107,74 +107,55 @@ export default function LesActivitesPage() {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       <main className="flex-1 pt-20">
-        {/* ── Hero Section ── */}
-        <section
-          ref={heroRef}
-          className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden"
-        >
-          {/* Background Image */}
-          <div className="absolute inset-0">
+        {/* ── Hero Section — Magazine Editorial Overlap ── */}
+        <section ref={heroRef} className="relative">
+          {/* Wide Image — shorter than typical hero */}
+          <div className="relative h-[40vh] md:h-[50vh] w-full overflow-hidden">
             <img
               src="/images/exp-camel.png"
               alt="Activités au désert d'Agafay"
               className="w-full h-full object-cover"
             />
-            {/* Warm Gradient Overlays */}
-            <div className="absolute inset-0 gradient-warm" />
-            <div className="absolute inset-0 gradient-amber" />
-            <div className="absolute inset-0 bg-black/40" />
+            {/* Bottom gradient fading to background for seamless blending */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+            {/* Subtle warm overlay for tone */}
+            <div className="absolute inset-0 bg-amber/[0.06]" />
           </div>
 
-          {/* Decorative Blob */}
-          <div className="absolute top-20 left-10 w-80 h-80 bg-amber/[0.04] blob-1 blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-60 h-60 bg-amber/[0.03] blob-3 blur-3xl" />
-
-          {/* Grain Texture */}
-          <div className="absolute inset-0 grain-overlay pointer-events-none" />
-
-          {/* Hero Content */}
-          <div className="relative z-10 text-center px-6">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: smoothEase }}
-              className="luxury-label text-amber block mb-4"
-            >
-              {t("activities.heroLabel")}
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
-              className="heading-display text-4xl md:text-6xl lg:text-8xl text-white mb-6"
-            >
-              {t("activities.heroTitle")}
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
-              className="heading-editorial italic text-xl md:text-2xl text-white/70"
-            >
-              {t("activities.heroSubtitle")}
-            </motion.p>
-
-            {/* Scroll Indicator */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 1 }}
-              className="mt-12 flex justify-center"
-            >
-              <div className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center pt-2">
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-1.5 h-1.5 rounded-full bg-amber"
-                />
-              </div>
-            </motion.div>
-          </div>
+          {/* Glass Card — overlaps image bottom edge */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={heroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.9, ease: smoothEase }}
+            className="-mt-20 md:-mt-20 relative z-10 bg-background/90 backdrop-blur-xl border border-amber/10 rounded-t-3xl"
+          >
+            <div className="max-w-4xl mx-auto px-6 md:px-12 py-10 md:py-14">
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 0.15, ease: smoothEase }}
+                className="luxury-label text-amber block mb-4"
+              >
+                {t("activities.heroLabel")}
+              </motion.span>
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 1, delay: 0.3, ease: smoothEase }}
+                className="heading-display text-4xl md:text-6xl lg:text-7xl mb-5"
+              >
+                {t("activities.heroTitle")}
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
+                className="heading-editorial italic text-xl md:text-2xl text-muted-foreground"
+              >
+                {t("activities.heroSubtitle")}
+              </motion.p>
+            </div>
+          </motion.div>
         </section>
 
         {/* ── Individual Activities Section ── */}

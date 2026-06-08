@@ -48,12 +48,10 @@ const socialLinks = [
 
 export default function ContactPage() {
   const heroRef = useRef(null);
-  const infoRef = useRef(null);
   const formRef = useRef(null);
   const mapRef = useRef(null);
 
   const heroInView = useInView(heroRef, { once: true });
-  const infoInView = useInView(infoRef, { once: true, margin: "-80px" });
   const formInView = useInView(formRef, { once: true, margin: "-80px" });
   const mapInView = useInView(mapRef, { once: true, margin: "-80px" });
 
@@ -122,118 +120,71 @@ export default function ContactPage() {
       <Navigation />
 
       <main className="flex-1 pt-20">
-        {/* Hero Section — about.png with warm gradients */}
-        <section ref={heroRef} className="relative h-[50vh] min-h-[400px] w-full overflow-hidden">
-          <div className="absolute inset-0">
-            <img
-              src="/images/about.png"
-              alt="Contact Arabian Desert Home"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 gradient-warm" />
-            <div className="absolute inset-0 gradient-amber" />
-            <div className="absolute inset-0 bg-black/30" />
+        {/* Refined Typographic Hero with Contact Cards */}
+        <section ref={heroRef} className="bg-gradient-to-b from-amber/[0.03] to-background">
+          {/* Top part — Clean typographic header */}
+          <div className="py-16 md:py-24 px-6">
+            <div className="max-w-3xl mx-auto text-center">
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, ease: smoothEase }}
+                className="luxury-label text-amber/80 mb-4 block"
+              >
+                {t("contact.heroLabel")}
+              </motion.span>
+              <motion.h1
+                initial={{ opacity: 0, y: 40 }}
+                animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 1.2, delay: 0.2, ease: smoothEase }}
+                className="heading-display text-foreground text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
+              >
+                {t("contact.heroTitle")}
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="body-editorial text-muted-foreground mt-4 max-w-md mx-auto"
+              >
+                {t("contact.heroSubtitle")}
+              </motion.p>
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={heroInView ? { scaleX: 1 } : {}}
+                transition={{ duration: 1.5, delay: 0.6 }}
+                className="divider-accent mt-8 max-w-[120px] origin-center mx-auto"
+              />
+            </div>
           </div>
 
-          {/* Decorative blobs */}
-          <div className="absolute top-20 right-16 w-64 h-64 bg-amber/[0.04] blob-1" />
-          <div className="absolute bottom-10 left-10 w-48 h-48 bg-amber/[0.03] blob-3" />
-
-          {/* Grain overlay */}
-          <div className="absolute inset-0 grain-overlay" />
-
-          <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: smoothEase }}
-              className="luxury-label text-amber/80 mb-4"
-            >
-              {t("contact.heroLabel")}
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, y: 40 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1.2, delay: 0.2, ease: smoothEase }}
-              className="heading-display text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
-            >
-              {t("contact.heroTitle")}
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="body-editorial text-white/60 mt-4 max-w-md"
-            >
-              {t("contact.heroSubtitle")}
-            </motion.p>
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={heroInView ? { scaleX: 1 } : {}}
-              transition={{ duration: 1.5, delay: 0.6 }}
-              className="divider-accent mt-8 max-w-[120px] origin-center"
-            />
-          </div>
-        </section>
-
-        {/* Contact Info Cards */}
-        <section ref={infoRef} className="py-20 md:py-28 px-6 md:px-10">
-          <div className="max-w-5xl mx-auto">
-            {/* Section header */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={infoInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: smoothEase }}
-              className="text-center mb-4"
-            >
-              <span className="mono-number text-amber/10 text-6xl md:text-7xl leading-none">
-                {t("contact.infoSectionNumber")}
-              </span>
-            </motion.div>
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={infoInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: smoothEase }}
-              className="luxury-label text-amber block text-center mb-4"
-            >
-              {t("contact.infoLabel")}
-            </motion.span>
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              animate={infoInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
-              className="heading-editorial text-3xl md:text-4xl text-center mb-16"
-            >
-              {t("contact.infoTitle1")}{" "}
-              <span className="italic text-amber">{t("contact.infoTitle2")}</span>
-            </motion.h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {contactCards.map((info, index) => (
-                <motion.div
-                  key={info.labelKey}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={infoInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.8, delay: 0.2 + index * 0.15, ease: smoothEase }}
-                  className="glass-card card-warm p-8 text-center"
-                >
-                  <div className="w-14 h-14 mx-auto mb-5 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center">
-                    <info.icon className="w-6 h-6 text-amber" />
-                  </div>
-                  <p className="luxury-label text-amber/60 mb-3">
-                    {t(info.labelKey)}
-                  </p>
-                  <p className="text-sm text-muted-foreground body-editorial">
-                    {t(info.valueKey)}
-                  </p>
-                </motion.div>
-              ))}
+          {/* Bottom part — Contact info cards row */}
+          <div className="px-6 pb-16 md:pb-24">
+            <div className="max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {contactCards.map((info, index) => (
+                  <motion.div
+                    key={info.labelKey}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={heroInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ duration: 0.8, delay: 0.8 + index * 0.15, ease: smoothEase }}
+                    className="glass-card card-warm p-8 text-center"
+                  >
+                    <div className="w-14 h-14 mx-auto mb-5 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center">
+                      <info.icon className="w-6 h-6 text-amber" />
+                    </div>
+                    <p className="luxury-label text-amber/60 mb-3">
+                      {t(info.labelKey)}
+                    </p>
+                    <p className="text-sm text-muted-foreground body-editorial">
+                      {t(info.valueKey)}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
-
-        {/* Divider */}
-        <div className="divider-accent max-w-xl mx-auto" />
 
         {/* Contact Form + Map Side by Side */}
         <section ref={formRef} className="py-20 md:py-28 px-6 md:px-10 pattern-organic opacity-100">

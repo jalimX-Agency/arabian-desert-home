@@ -79,32 +79,15 @@ export default function ApropoPage() {
       <Navigation />
 
       <main className="flex-1 pt-20">
-        {/* Hero Section — about.png with warm gradients */}
-        <section ref={heroRef} className="relative h-[70vh] min-h-[500px] w-full overflow-hidden">
-          <div className="absolute inset-0">
-            <img
-              src="/images/about.png"
-              alt="Arabian Desert Home — Our Story"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 gradient-warm" />
-            <div className="absolute inset-0 gradient-amber" />
-            <div className="absolute inset-0 bg-black/30" />
-          </div>
-
-          {/* Decorative blobs */}
-          <div className="absolute top-16 right-16 w-72 h-72 bg-amber/[0.04] blob-1" />
-          <div className="absolute bottom-10 left-10 w-56 h-56 bg-amber/[0.03] blob-2" />
-
-          {/* Grain overlay */}
-          <div className="absolute inset-0 grain-overlay" />
-
-          <div className="relative z-10 h-full flex flex-col justify-end pb-16 md:pb-24 px-6 md:px-10 max-w-7xl mx-auto">
+        {/* Hero Section — Storytelling Split */}
+        <section ref={heroRef} className="relative w-full min-h-[50vh] md:min-h-[70vh] flex flex-col md:flex-row overflow-hidden">
+          {/* LEFT SIDE — Dark background with text */}
+          <div className="order-2 md:order-1 w-full md:w-1/2 bg-warm-black flex flex-col justify-end p-10 md:p-16">
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, ease: smoothEase }}
-              className="luxury-label text-amber/80 mb-4"
+              className="luxury-label text-amber mb-4"
             >
               {t("about.heroLabel")}
             </motion.span>
@@ -112,7 +95,7 @@ export default function ApropoPage() {
               initial={{ opacity: 0, y: 40 }}
               animate={heroInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 1.2, delay: 0.2, ease: smoothEase }}
-              className="heading-display text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
+              className="heading-display text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
             >
               {t("about.heroTitle1")}
             </motion.h1>
@@ -124,21 +107,32 @@ export default function ApropoPage() {
             />
           </div>
 
-          {/* Scroll indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          >
-            <div className="w-6 h-10 rounded-full border border-amber/30 flex items-start justify-center pt-2">
-              <motion.div
-                animate={{ y: [0, 12, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="w-1.5 h-1.5 rounded-full bg-amber"
+          {/* RIGHT SIDE — Image composition */}
+          <div className="order-1 md:order-2 w-full md:w-1/2 relative min-h-[35vh] md:min-h-0">
+            {/* Main image fills the entire right side */}
+            <img
+              src="/images/about.png"
+              alt="Arabian Desert Home — Our Story"
+              className="w-full h-full object-cover"
+            />
+
+            {/* Minimal overlay — no heavy gradients */}
+            <div className="absolute inset-0 bg-black/10" />
+
+            {/* Smaller overlapping image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={heroInView ? { opacity: 1, scale: 1, y: 0 } : {}}
+              transition={{ duration: 1, delay: 0.8, ease: smoothEase }}
+              className="absolute bottom-6 -left-12 md:-left-20"
+            >
+              <img
+                src="/images/night.png"
+                alt="Desert Night — Our Story"
+                className="w-40 h-40 md:w-56 md:h-56 rounded-2xl border-2 border-amber/20 shadow-2xl object-cover"
               />
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </section>
 
         {/* Story Section */}
