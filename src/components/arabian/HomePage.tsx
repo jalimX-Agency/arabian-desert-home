@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/context";
+import { CTASection } from "@/components/arabian/CTASection";
 
 // ============================================
 // Types
@@ -100,8 +101,8 @@ function HeroSection() {
       {/* Background Image with Parallax */}
       <motion.div className="absolute inset-0" style={{ y: imgY }}>
         <img
-          src="/images/hero.png"
-          alt="Arabian Desert Home — Luxury retreat at golden hour in the Agafay Desert"
+          src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png"
+          alt="Arabian Desert Home — Bivouac de luxe au désert d'Agafay, Marrakech"
           className="w-full h-full object-cover scale-110"
         />
         {/* Warm Cinematic Gradients — NOT cold/dark blue */}
@@ -343,7 +344,7 @@ function SuitesSection() {
       currency: "EUR",
       features: t("suiteData.chorfa.features"),
       amenities: "",
-      image: "/images/suite-royal.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-royal.png",
       images: "",
       maxGuests: 2,
       bedType: "1 très grand lit double",
@@ -364,7 +365,7 @@ function SuitesSection() {
       currency: "EUR",
       features: t("suiteData.junior.features"),
       amenities: "",
-      image: "/images/suite-sultan.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-sultan.png",
       images: "",
       maxGuests: 2,
       bedType: "1 très grand lit double",
@@ -385,7 +386,7 @@ function SuitesSection() {
       currency: "EUR",
       features: t("suiteData.familiale.features"),
       amenities: "",
-      image: "/images/suite-oasis.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-oasis.png",
       images: "",
       maxGuests: 4,
       bedType: "1 très grand lit double + 1 lit simple",
@@ -576,23 +577,23 @@ function GallerySection() {
 
   const galleryImages = [
     {
-      src: "/images/about.png",
-      alt: "Aerial view of Arabian Desert Home camp in Agafay Desert",
+      src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.png",
+      alt: "Vue aérienne du bivouac Arabian Desert Home dans le désert d'Agafay",
       span: "md:col-span-2 md:row-span-2",
     },
     {
-      src: "/images/dining.png",
-      alt: "Fine dining under the stars in Agafay desert",
+      src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/restaurant-interior.png",
+      alt: "Restaurant gastronomique Dar Agafay — cuisine marocaine raffinée",
       span: "",
     },
     {
-      src: "/images/night.png",
-      alt: "Magical night ambiance at the luxury camp",
+      src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/night.png",
+      alt: "Soirée magique sous les étoiles au désert d'Agafay",
       span: "",
     },
     {
-      src: "/images/exp-camel.png",
-      alt: "Camel ride at sunset",
+      src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-camel.png",
+      alt: "Promenade en dromadaire au coucher du soleil dans le désert",
       span: "md:col-span-2",
     },
   ];
@@ -974,113 +975,32 @@ function TestimonialsSection() {
 }
 
 // ============================================
-// 7. CTA SECTION — Full-Bleed Cinematic + Grain
-// ============================================
-function CTASection() {
-  const { t } = useLanguage();
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
-
-  return (
-    <section
-      ref={sectionRef}
-      className="relative py-32 md:py-48 px-6 md:px-10 overflow-hidden"
-    >
-      {/* Background Image with Warm Overlay */}
-      <div className="absolute inset-0">
-        <img
-          src="/images/night.png"
-          alt="Magical night at Agafay Desert"
-          className="w-full h-full object-cover"
-        />
-        {/* Warm Cinematic Gradient Overlays */}
-        <div className="absolute inset-0 bg-background/70" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-background/20" />
-        <div className="absolute inset-0 gradient-amber" />
-      </div>
-
-      {/* Grain Texture Overlay */}
-      <div className="absolute inset-0 grain-overlay" />
-
-      <div className="relative z-10 max-w-4xl mx-auto">
-        <motion.span
-          variants={revealUp}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          custom={0}
-          className="luxury-label text-amber block mb-6"
-        >
-          {t("cta.label")}
-        </motion.span>
-
-        <motion.h2
-          variants={revealUp}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          custom={0.2}
-          className="heading-display text-4xl md:text-6xl lg:text-7xl text-foreground mb-8"
-        >
-          {t("cta.title1")}
-          <br />
-          <span className="text-amber">{t("cta.title2")}</span>
-        </motion.h2>
-
-        {/* Amber Divider */}
-        <motion.div
-          variants={fadeIn}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          custom={0.4}
-          className="divider-accent-wide w-24 mb-8"
-        />
-
-        <motion.p
-          variants={revealUp}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          custom={0.5}
-          className="body-editorial text-muted-foreground mb-12 max-w-lg"
-        >
-          {t("cta.description")}
-        </motion.p>
-
-        <motion.div
-          variants={revealUp}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          custom={0.7}
-          className="flex items-center gap-4"
-        >
-          <Link href="/reservez-votre-sejour">
-            <span className="btn-primary inline-block cursor-pointer hover:no-underline">
-              {t("cta.bookYourStay")}
-            </span>
-          </Link>
-          <Link
-            href="/contact"
-            className="luxury-label text-amber/60 hover:text-amber transition-colors duration-400 cursor-pointer"
-          >
-            {t("nav.contact")}
-          </Link>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-// ============================================
 // HOME PAGE — Main Export
 // ============================================
 export function HomePage() {
+  const { t } = useLanguage();
   return (
     <>
       <HeroSection />
       <FeaturesSection />
       <SuitesSection />
       <GallerySection />
-      <PackagesSection />
       <TestimonialsSection />
-      <CTASection />
+      <CTASection
+        label={t("cta.label")}
+        title={
+          <>
+            {t("cta.title1")}
+            <br />
+            <span className="text-amber">{t("cta.title2")}</span>
+          </>
+        }
+        description={t("cta.description")}
+        buttonText={t("cta.bookYourStay")}
+        buttonHref="/reservez-votre-sejour"
+        secondaryButton={{ text: t("nav.contact"), href: "/contact" }}
+        alignment="left"
+      />
     </>
   );
 }

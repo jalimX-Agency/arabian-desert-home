@@ -155,19 +155,19 @@ export const en: Record<string, unknown> = {
     title2: "guests say",
     goTo: "Go to testimonial",
     testimonial1: {
-      quote: "An incredible experience in the heart of the Agafay Desert. The warm welcome and the beauty of the place transported us. An unforgettable stay that we recommend to everyone.",
-      author: "Marie & Pierre D.",
-      location: "Lyon, France",
+      quote: "We had an incredible stay in this magical place. The desert landscapes are breathtaking and the staff were wonderfully attentive. An unforgettable experience we highly recommend!",
+      author: "ZeKo",
+      location: "Morocco",
     },
     testimonial2: {
-      quote: "The tents are magnificent and the comfort is there. The dinner under the stars with live music was a magical moment. Thank you for this timeless pause.",
-      author: "Sophie L.",
-      location: "Brussels, Belgium",
+      quote: "A true haven of peace! The atmosphere is incredibly calm and warm. The very attentive welcome and the magnificent landscapes make it a unique place to recharge.",
+      author: "Ouiame",
+      location: "Morocco",
     },
     testimonial3: {
-      quote: "The staff is incredibly attentive, the pool with desert views is a dream come true. We'll be back for the hammam and horseback riding!",
-      author: "Ahmed B.",
-      location: "Casablanca, Morocco",
+      quote: "The local hospitality is warm and authentic. The camel rides are unforgettable moments. This stay allowed us to reconnect with nature in an exceptional setting.",
+      author: "Basma",
+      location: "Morocco",
     },
   },
 
@@ -593,5 +593,37 @@ export const en: Record<string, unknown> = {
       description: "Family suite with double bed and single bed, ideal for families",
       features: "Double Bed + Single Bed,Mountain View,Private Bathroom,Breakfast Included",
     },
+  },
+
+  // Activity Detail Page
+  activityDetail: {
+    back: "Activities",
+    perPerson: "/ person",
+    duration: "Duration",
+    schedule: "Schedule",
+    transportIncluded: "Transport included",
+    includes: "What's included",
+    bookButton: "Book this activity",
+    contactButton: "Contact us",
+    ctaTitle: "Live the experience",
+    ctaSubtitle: "Book now and enjoy the best moments in the heart of the Agafay desert.",
+    ctaBook: "Book now",
+    ctaBack: "See all activities",
+  },
+
+  // Day Pass Detail Page
+  dayPassDetail: {
+    back: "Day Pass",
+    perPerson: "/ person",
+    badge: "Day Pass",
+    label: "A day in the desert",
+    rateLabel: "Rate per person",
+    includes: "What's included",
+    bookButton: "Book this day pass",
+    infoButton: "Request more info",
+    ctaTitle: "An unforgettable day",
+    ctaSubtitle: "Discover all our day passes and choose the experience that suits you.",
+    ctaBook: "Book now",
+    ctaBack: "See all day passes",
   },
 };

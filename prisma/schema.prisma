@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -23,10 +23,16 @@ model Suite {
   maxGuests       Int      @default(2)
   bedType         String
   size            String
-  hasAC           Boolean  @default(false)
-  order           Int      @default(0)
-  featured        Boolean  @default(false)
-  type            String   @default("suite")
+  hasAC             Boolean  @default(false)
+  order             Int      @default(0)
+  featured          Boolean  @default(false)
+  type              String   @default("suite")
+  nameEn            String   @default("")
+  taglineEn         String   @default("")
+  descriptionEn     String   @default("")
+  longDescriptionEn String   @default("")
+  featuresEn        String   @default("")
+  amenitiesEn       String   @default("")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   bookings        Booking[]
@@ -45,11 +51,16 @@ model Activity {
   category        String
   includes        String
   schedule        String
-  transportIncluded Boolean @default(false)
-  order           Int      @default(0)
-  featured        Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  transportIncluded Boolean  @default(false)
+  order             Int      @default(0)
+  featured          Boolean  @default(false)
+  nameEn            String   @default("")
+  descriptionEn     String   @default("")
+  longDescriptionEn String   @default("")
+  includesEn        String   @default("")
+  images            String   @default("")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model DayPass {
@@ -59,10 +70,14 @@ model DayPass {
   description String
   price       Int
   currency    String   @default("MAD")
-  includes    String
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  includes      String
+  image         String   @default("")
+  order         Int      @default(0)
+  nameEn        String   @default("")
+  descriptionEn String   @default("")
+  includesEn    String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model DiningVenue {
@@ -131,4 +146,14 @@ model Testimonial {
   source    String   @default("general")
   order     Int      @default(0)
   createdAt DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

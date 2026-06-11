@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
@@ -41,7 +41,7 @@ export function Suites() {
             longDescription: "Step into a realm of understated opulence. The Royal Tent redefines desert living with its expansive interior, hand-carved cedar furnishings, and a private terrace that stretches toward the horizon.",
             price: 1200,
             features: "King Bed,Private Terrace,Berber Textiles,Butler Service,Mini Bar,AC & Heating",
-            image: "/images/suite-royal.png",
+            image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-royal.png",
             maxGuests: 2,
             size: "65m²",
             featured: true,
@@ -54,7 +54,7 @@ export function Suites() {
             longDescription: "The Sultan Suite is our most opulent offering—a private kingdom within the desert. Featuring a private plunge pool, hand-hammered copper bath, and an entrance hall adorned with zellige tilework.",
             price: 2200,
             features: "King Bed,Private Plunge Pool,Copper Bath,Zellige Entrance,Separate Living,Butler Service",
-            image: "/images/suite-sultan.png",
+            image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-sultan.png",
             maxGuests: 3,
             size: "95m²",
             featured: true,
@@ -67,7 +67,7 @@ export function Suites() {
             longDescription: "An architectural poem of light and space. The Oasis Pavilion features retractable walls that dissolve the boundary between interior and landscape. By day, the desert is your living room; by night, the cosmos your ceiling.",
             price: 1800,
             features: "King Bed,Retractable Walls,Outdoor Tub,Daybed,Panoramic View,Star Ceiling",
-            image: "/images/suite-oasis.png",
+            image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-oasis.png",
             maxGuests: 2,
             size: "80m²",
             featured: true,

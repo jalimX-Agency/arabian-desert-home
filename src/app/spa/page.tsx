@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
@@ -6,6 +6,7 @@ import { Clock, ArrowRight, Star } from "lucide-react";
 import Link from "next/link";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
+import { CTASection } from "@/components/arabian/CTASection";
 import { useLanguage } from "@/lib/i18n/context";
 
 // ============================================
@@ -83,9 +84,6 @@ export default function SpaPage() {
   const testimonialsRef = useRef(null);
   const testimonialsInView = useInView(testimonialsRef, { once: true, margin: "-80px" });
 
-  const ctaRef = useRef(null);
-  const ctaInView = useInView(ctaRef, { once: true, margin: "-80px" });
-
   useEffect(() => {
     async function fetchData() {
       try {
@@ -129,7 +127,7 @@ export default function SpaPage() {
               className="mb-8"
             >
               <img
-                src="/images/spa-treatment.png"
+                src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/spa/spa-treatment.png"
                 alt="Spa de luxe au désert d'Agafay"
                 className="w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-amber/20 object-cover"
               />
@@ -395,63 +393,12 @@ export default function SpaPage() {
         )}
 
         {/* ── CTA Section ── */}
-        <section
-          ref={ctaRef}
-          className="relative py-20 md:py-28 px-6 md:px-10 bg-warm-black text-center overflow-hidden"
-        >
-          {/* Decorative Blobs */}
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber/[0.03] blob-1 blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-amber/[0.04] blob-3 blur-3xl" />
-
-          {/* Grain Texture */}
-          <div className="absolute inset-0 grain-overlay pointer-events-none" />
-
-          {/* Divider Top */}
-          <div className="absolute top-0 left-0 right-0 divider-accent-wide" />
-
-          <motion.span
-            variants={revealUp}
-            initial="hidden"
-            animate={ctaInView ? "visible" : "hidden"}
-            custom={0}
-            className="luxury-label text-amber block mb-4"
-          >
-            {t("spa.ctaLabel")}
-          </motion.span>
-          <motion.h2
-            variants={revealUp}
-            initial="hidden"
-            animate={ctaInView ? "visible" : "hidden"}
-            custom={0.2}
-            className="heading-display text-3xl md:text-5xl text-foreground mb-6"
-          >
-            {t("spa.ctaTitle")}
-          </motion.h2>
-          <motion.div
-            variants={fadeIn}
-            initial="hidden"
-            animate={ctaInView ? "visible" : "hidden"}
-            custom={0.4}
-            className="divider-accent-wide max-w-[120px] mx-auto mb-8"
-          />
-          <motion.div
-            variants={revealUp}
-            initial="hidden"
-            animate={ctaInView ? "visible" : "hidden"}
-            custom={0.5}
-          >
-            <Link
-              href="/contact"
-              className="btn-primary inline-flex items-center gap-3 cursor-pointer"
-            >
-              {t("spa.ctaButton")}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </motion.div>
-
-          {/* Divider Bottom */}
-          <div className="absolute bottom-0 left-0 right-0 divider-accent-wide" />
-        </section>
+        <CTASection
+          label={t("spa.ctaLabel")}
+          title={t("spa.ctaTitle")}
+          buttonText={t("spa.ctaButton")}
+          buttonHref="/contact"
+        />
       </main>
 
       <Footer />

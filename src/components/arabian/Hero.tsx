@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
@@ -12,7 +12,7 @@ export function Hero() {
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
-          src="/images/hero.png"
+          src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png"
           alt="Arabian Desert Home — Luxury retreat at golden hour in the Agafay Desert"
           className="w-full h-full object-cover"
         />

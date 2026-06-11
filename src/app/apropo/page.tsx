@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
@@ -6,6 +6,7 @@ import { ArrowRight, Sparkles, Heart, Shield, Wind } from "lucide-react";
 import Link from "next/link";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
+import { CTASection } from "@/components/arabian/CTASection";
 import { useLanguage } from "@/lib/i18n/context";
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
@@ -36,22 +37,22 @@ const stats = [
 
 const galleryImages = [
   {
-    src: "/images/night.png",
+    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/night.png",
     altKey: "about.galleryImage1Alt",
     captionKey: "about.galleryImage1Caption",
   },
   {
-    src: "/images/dining.png",
+    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/restaurant-interior.png",
     altKey: "about.galleryImage2Alt",
     captionKey: "about.galleryImage2Caption",
   },
   {
-    src: "/images/exp-camel.png",
+    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-camel.png",
     altKey: "about.galleryImage3Alt",
     captionKey: "about.galleryImage3Caption",
   },
   {
-    src: "/images/hero.png",
+    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.png",
     altKey: "about.galleryImage4Alt",
     captionKey: "about.galleryImage4Caption",
   },
@@ -63,14 +64,12 @@ export default function ApropoPage() {
   const statsRef = useRef(null);
   const galleryRef = useRef(null);
   const valuesRef = useRef(null);
-  const ctaRef = useRef(null);
 
   const heroInView = useInView(heroRef, { once: true });
   const storyInView = useInView(storyRef, { once: true, margin: "-80px" });
   const statsInView = useInView(statsRef, { once: true, margin: "-80px" });
   const galleryInView = useInView(galleryRef, { once: true, margin: "-80px" });
   const valuesInView = useInView(valuesRef, { once: true, margin: "-80px" });
-  const ctaInView = useInView(ctaRef, { once: true, margin: "-80px" });
 
   const { t } = useLanguage();
 
@@ -111,8 +110,8 @@ export default function ApropoPage() {
           <div className="order-1 md:order-2 w-full md:w-1/2 relative min-h-[35vh] md:min-h-0">
             {/* Main image fills the entire right side */}
             <img
-              src="/images/about.png"
-              alt="Arabian Desert Home — Our Story"
+              src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-interior.png"
+              alt="Arabian Desert Home — Tentes de luxe Agafay"
               className="w-full h-full object-cover"
             />
 
@@ -127,8 +126,8 @@ export default function ApropoPage() {
               className="absolute bottom-6 -left-12 md:-left-20"
             >
               <img
-                src="/images/night.png"
-                alt="Desert Night — Our Story"
+                src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.png"
+                alt="Vue aérienne Arabian Desert Home — Désert Agafay"
                 className="w-40 h-40 md:w-56 md:h-56 rounded-2xl border-2 border-amber/20 shadow-2xl object-cover"
               />
             </motion.div>
@@ -415,53 +414,18 @@ export default function ApropoPage() {
         </section>
 
         {/* CTA Section */}
-        <section ref={ctaRef} className="relative py-20 md:py-28 px-6 md:px-10 bg-warm-black overflow-hidden">
-          {/* Decorative blobs */}
-          <div className="absolute top-10 left-10 w-72 h-72 bg-amber/[0.04] blob-1" />
-          <div className="absolute bottom-10 right-10 w-56 h-56 bg-amber/[0.03] blob-3" />
-
-          {/* Grain overlay */}
-          <div className="absolute inset-0 grain-overlay" />
-
-          {/* Top accent */}
-          <div className="absolute top-0 left-0 right-0 divider-accent-wide" />
-
-          <div className="relative z-10 max-w-3xl mx-auto text-center">
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, ease: smoothEase }}
-              className="luxury-label text-amber/60 block mb-4"
-            >
-              {t("about.ctaLabel")}
-            </motion.span>
-            <motion.h3
-              initial={{ opacity: 0, y: 20 }}
-              animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.2, ease: smoothEase }}
-              className="heading-display text-3xl md:text-4xl text-foreground mb-8"
-            >
+        <CTASection
+          label={t("about.ctaLabel")}
+          title={
+            <>
               {t("about.ctaTitle1")}{" "}
               <span className="italic text-amber">{t("about.ctaTitle2")}</span>
-            </motion.h3>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 0.4, ease: smoothEase }}
-            >
-              <Link href="/les-tentes">
-                <span className="btn-primary inline-flex items-center gap-2 cursor-pointer hover:no-underline">
-                  <Sparkles className="w-4 h-4" />
-                  {t("about.ctaButton")}
-                  <ArrowRight className="w-4 h-4" />
-                </span>
-              </Link>
-            </motion.div>
-          </div>
-
-          {/* Bottom accent */}
-          <div className="absolute bottom-0 left-0 right-0 divider-accent-wide" />
-        </section>
+            </>
+          }
+          buttonText={t("about.ctaButton")}
+          buttonHref="/les-tentes"
+          buttonIcon={<Sparkles className="w-4 h-4" />}
+        />
       </main>
 
       <Footer />

@@ -1,6 +1,22 @@
-import { db } from "@/lib/db";
+﻿import { db } from "@/lib/db";
+import bcrypt from "bcryptjs";
 
 async function seed() {
+  // ==========================================
+  // ADMIN USER
+  // ==========================================
+  const hashedPassword = await bcrypt.hash("123456", 12);
+  await db.user.upsert({
+    where: { email: "arabiandesertadh@gmail.com" },
+    update: {},
+    create: {
+      email: "arabiandesertadh@gmail.com",
+      password: hashedPassword,
+      name: "Admin",
+      role: "admin",
+    },
+  });
+
   // ==========================================
   // SUITES
   // ==========================================
@@ -15,8 +31,8 @@ async function seed() {
       currency: "EUR",
       features: "Lit King Size,Vue Montagne,Salle de Bain Privative,Petit Déjeuner Inclus",
       amenities: "Climatisation,Conciergerie 24h,Espace Lodge,Piscine,Restaurant,Douche Chaude",
-      image: "/images/suite-royal.png",
-      images: "/images/suite-royal.png,/images/suite-sultan.png,/images/about.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-royal.png",
+      images: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-royal.png,/images/suite-interior.png,/images/suite-detail1.png",
       maxGuests: 2,
       bedType: "1 très grand lit double",
       size: "45m²",
@@ -35,8 +51,8 @@ async function seed() {
       currency: "EUR",
       features: "Lit Double,Salle de Bain Privative,Terrasse Privée,Petit Déjeuner Inclus",
       amenities: "Climatisation,Conciergerie 24h,Espace Lodge,Piscine,Restaurant,Douche Chaude",
-      image: "/images/suite-sultan.png",
-      images: "/images/suite-sultan.png,/images/suite-royal.png,/images/about.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-sultan.png",
+      images: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-sultan.png,/images/suite-interior.png,/images/suite-detail2.png",
       maxGuests: 2,
       bedType: "1 très grand lit double",
       size: "40m²",
@@ -55,8 +71,8 @@ async function seed() {
       currency: "EUR",
       features: "Lit Double + Lit Simple,Vue Montagne,Salle de Bain Privative,Petit Déjeuner Inclus",
       amenities: "Climatisation,Conciergerie 24h,Espace Lodge,Piscine,Restaurant,Douche Chaude",
-      image: "/images/suite-oasis.png",
-      images: "/images/suite-oasis.png,/images/suite-royal.png,/images/about.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-oasis.png",
+      images: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-oasis.png,/images/suite-detail1.png,/images/suite-detail2.png",
       maxGuests: 4,
       bedType: "1 très grand lit double + 1 lit simple",
       size: "55m²",
@@ -75,8 +91,8 @@ async function seed() {
       currency: "MAD",
       features: "Lit Double,Vue Montagne,Salle de Bain Privative,Petit Déjeuner Inclus",
       amenities: "Douche Chaude,Restaurant,Piscine,Parking",
-      image: "/images/suite-royal.png",
-      images: "/images/suite-royal.png,/images/about.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-royal.png",
+      images: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-royal.png,/images/about.png",
       maxGuests: 2,
       bedType: "1 très grand lit double",
       size: "30m²",
@@ -95,8 +111,8 @@ async function seed() {
       currency: "MAD",
       features: "3 Lits,Vue Montagne,Salle de Bain Privative,Petit Déjeuner Inclus",
       amenities: "Douche Chaude,Restaurant,Piscine,Parking",
-      image: "/images/suite-sultan.png",
-      images: "/images/suite-sultan.png,/images/about.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-sultan.png",
+      images: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-sultan.png,/images/about.png",
       maxGuests: 3,
       bedType: "3 lits",
       size: "35m²",
@@ -115,8 +131,8 @@ async function seed() {
       currency: "MAD",
       features: "4 Lits,Vue Montagne,Salle de Bain Privative,Petit Déjeuner Inclus",
       amenities: "Douche Chaude,Restaurant,Piscine,Parking",
-      image: "/images/suite-oasis.png",
-      images: "/images/suite-oasis.png,/images/about.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-oasis.png",
+      images: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-oasis.png,/images/about.png",
       maxGuests: 4,
       bedType: "4 lits",
       size: "45m²",
@@ -143,7 +159,7 @@ async function seed() {
       duration: "6 heures",
       price: 700,
       currency: "MAD",
-      image: "/images/exp-camel.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-camel.png",
       category: "Expérience",
       includes: "Balade cheval/dromadaire 20min,Dîner 3 plats,Feu de camp & musique live,Transport A/R Marrakech",
       schedule: "Départ 17h00 de Marrakech, Retour ~23h00",
@@ -159,7 +175,7 @@ async function seed() {
       duration: "6 heures",
       price: 550,
       currency: "MAD",
-      image: "/images/activity-cooking.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-cooking.png",
       category: "Expérience",
       includes: "Cours de cuisine marocaine,Déjeuner inclus,Accès piscine,Thé & détente,Transport A/R Marrakech",
       schedule: "Départ 10h00, Retour 16h00",
@@ -175,7 +191,7 @@ async function seed() {
       duration: "7 heures",
       price: 850,
       currency: "MAD",
-      image: "/images/activity-quad.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-quad.png",
       category: "Aventure",
       includes: "1h de quad,Balade cheval/dromadaire 30min,Déjeuner traditionnel,Accès piscine,Transport A/R Marrakech",
       schedule: "Départ 09h30, Retour ~16h30",
@@ -191,7 +207,7 @@ async function seed() {
       duration: "45 min",
       price: 200,
       currency: "MAD",
-      image: "/images/activity-horse.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-horse.png",
       category: "Activité",
       includes: "Encadrement professionnel,Équipement fourni",
       schedule: "Sur réservation",
@@ -207,7 +223,7 @@ async function seed() {
       duration: "1 heure",
       price: 400,
       currency: "MAD",
-      image: "/images/activity-quad.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-quad.png",
       category: "Activité",
       includes: "Quad et équipement,Guide professionnel,Initiation conduite",
       schedule: "Sur réservation",
@@ -223,7 +239,7 @@ async function seed() {
       duration: "30 min",
       price: 150,
       currency: "MAD",
-      image: "/images/exp-camel.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-camel.png",
       category: "Activité",
       includes: "Guide,Équipement",
       schedule: "Sur réservation",
@@ -283,7 +299,7 @@ async function seed() {
       slug: "le-dar-agafay",
       description: "Restaurant principal du camp — cuisine raffinée et produits frais locaux",
       longDescription: "Le Dar Agafay est le cœur gastronomique du camp. Avec 80 couverts en intérieur et deux pergolas extérieures pour dîner sous les étoiles, le chef propose une cuisine raffinée élaborée à partir de produits frais et locaux. Le soir, des spectacles de danse orientale et des jeux de lumières projetés sur les dunes transforment chaque dîner en expérience inoubliable. Tarif adulte : 200-250 DH selon le menu.",
-      image: "/images/restaurant-interior.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/restaurant-interior.png",
       capacity: "80 couverts + 2 pergolas",
       order: 1,
     },
@@ -292,7 +308,7 @@ async function seed() {
       slug: "le-desert-rose-bar",
       description: "Bar lounge avec vue panoramique sur le désert — cocktails et ambiance cosy",
       longDescription: "Le Desert Rose Bar est l'endroit idéal pour siroter un cocktail tout en admirant le coucher du soleil sur le désert. L'ambiance cosy et raffinée, entre tradition marocaine et design contemporain, en fait le lieu de rendez-vous des convives en fin de journée. La carte propose une sélection de cocktails signature, de vins marocains et de boissons rafraîchissantes.",
-      image: "/images/bar-desert-rose.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/bar-desert-rose.png",
       capacity: "30 places",
       order: 2,
     },
@@ -301,7 +317,7 @@ async function seed() {
       slug: "el-kheyma",
       description: "Tente traditionnelle pour des repas authentiques au cœur du désert",
       longDescription: "El Kheyma offre une expérience culinaire authentique dans une tente traditionnelle berbère. Assis sur des coussins au sol, autour de plateaux en laiton, vous dégusterez des tagines, méchouis, couscous et grillades préparés selon la tradition. Pour les journées d'activités, des savoureux déjeuners à la tradition de la région sont proposés dans un cadre intimiste et dépaysant.",
-      image: "/images/el-kheyma.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/el-kheyma.png",
       capacity: "20 couverts",
       order: 3,
     },
@@ -322,7 +338,7 @@ async function seed() {
       duration: "45 min",
       price: 400,
       currency: "MAD",
-      image: "/images/spa-treatment.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/spa/spa-treatment.png",
       order: 1,
     },
     {
@@ -332,7 +348,7 @@ async function seed() {
       duration: "60 min",
       price: 500,
       currency: "MAD",
-      image: "/images/spa-treatment.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/spa/spa-treatment.png",
       order: 2,
     },
     {
@@ -342,7 +358,7 @@ async function seed() {
       duration: "30 min",
       price: 300,
       currency: "MAD",
-      image: "/images/spa-treatment.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/spa/spa-treatment.png",
       order: 3,
     },
     {
@@ -352,7 +368,7 @@ async function seed() {
       duration: "2h",
       price: 900,
       currency: "MAD",
-      image: "/images/exp-spa.png",
+      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/spa/exp-spa.png",
       order: 4,
     },
   ];
@@ -366,25 +382,25 @@ async function seed() {
   // ==========================================
   const testimonials = [
     {
-      quote: "Une expérience incroyable au cœur du désert d'Agafay. L'accueil chaleureux et la beauté des lieux nous ont transportés. Un séjour inoubliable que nous recommandons à tous.",
-      author: "Marie & Pierre D.",
-      location: "Lyon, France",
+      quote: "Nous avons passé un séjour incroyable dans ce lieu magique. Les paysages du désert sont époustouflants et le personnel était aux petits soins. Une expérience inoubliable que nous recommandons vivement !",
+      author: "ZeKo",
+      location: "Maroc",
       rating: 5,
       source: "general",
       order: 1,
     },
     {
-      quote: "Les tentes sont magnifiques et le confort est au rendez-vous. Le dîner sous les étoiles avec la musique live était un moment magique. Merci pour cette pause hors du temps.",
-      author: "Sophie L.",
-      location: "Bruxelles, Belgique",
+      quote: "Un véritable havre de paix ! L'atmosphère est incroyablement calme et chaleureuse. L'accueil très attentionné et les paysages magnifiques en font un endroit unique pour se ressourcer.",
+      author: "Ouiame",
+      location: "Maroc",
       rating: 5,
       source: "general",
       order: 2,
     },
     {
-      quote: "Le personnel est aux petits soins, la piscine avec vue sur le désert est un rêve éveillé. On reviendra pour le hammam et les balades à cheval !",
-      author: "Ahmed B.",
-      location: "Casablanca, Maroc",
+      quote: "L'hospitalité locale est chaleureuse et authentique. Les excursions à dos de dromadaire sont des moments inoubliables. Ce séjour nous a permis de nous reconnecter avec la nature dans un cadre exceptionnel.",
+      author: "Basma",
+      location: "Maroc",
       rating: 5,
       source: "general",
       order: 3,
@@ -411,7 +427,7 @@ async function seed() {
     await db.testimonial.create({ data: t });
   }
 
-  console.log("✅ Seed complete: 6 suites + 6 activities + 3 day passes + 3 dining venues + 4 spa treatments + 5 testimonials");
+  console.log("✅ Seed complete: admin user + 6 suites + 6 activities + 3 day passes + 3 dining venues + 4 spa treatments + 5 testimonials");
 }
 
 seed()

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
@@ -23,7 +23,7 @@ export function NightInterlude() {
       {/* Background */}
       <motion.div style={{ y }} className="absolute inset-0">
         <img
-          src="/images/night.png"
+          src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/night.png"
           alt="Milky Way over Arabian Desert Home at night"
           className="w-full h-full object-cover"
         />

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
@@ -121,7 +121,7 @@ export function Dining() {
             >
               <div className="aspect-[4/3] overflow-hidden">
                 <img
-                  src="/images/dining.png"
+                  src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/dining.png"
                   alt="Luxury Moroccan fine dining under the stars at Arabian Desert Home"
                   className="w-full h-full object-cover img-luxury"
                 />

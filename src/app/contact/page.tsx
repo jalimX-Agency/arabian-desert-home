@@ -41,8 +41,8 @@ const contactCards = [
 ];
 
 const socialLinks = [
-  { icon: Instagram, href: "https://instagram.com/arabiandeserthome", label: "Instagram" },
-  { icon: Facebook, href: "https://facebook.com/arabiandeserthome", label: "Facebook" },
+  { icon: Instagram, href: "https://instagram.com/arabian_desert_home", label: "Instagram" },
+  { icon: Facebook, href: "https://facebook.com/arabian_desert_home", label: "Facebook" },
   { icon: Compass, href: "https://wa.me/212667370206", label: "WhatsApp" },
 ];
 
@@ -338,25 +338,37 @@ export default function ContactPage() {
                   transition={{ duration: 0.8, delay: 0.3, ease: smoothEase }}
                   className="glass-card card-warm overflow-hidden flex-1 min-h-[300px] relative"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-warm-black/20 via-background to-amber/[0.04] flex flex-col items-center justify-center p-8 text-center">
-                    <div className="w-16 h-16 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center mb-4">
-                      <MapPin className="w-7 h-7 text-amber" />
-                    </div>
-                    <p className="heading-editorial text-lg mb-2">
-                      {t("contact.mapPlaceholder")}
-                    </p>
-                    <p className="text-sm text-muted-foreground body-editorial max-w-xs">
-                      {t("contact.addressValue")}
-                    </p>
-                    <div className="mt-4 px-5 py-2.5 rounded-full bg-amber/10 border border-amber/15">
-                      <p className="luxury-label text-amber text-[0.6rem]">
-                        <Clock className="w-3 h-3 inline mr-1.5" />
-                        30 min from Marrakech
-                      </p>
-                    </div>
-                  </div>
-                  {/* Decorative pattern */}
-                  <div className="absolute inset-0 pattern-organic opacity-50 pointer-events-none" />
+                  {process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL ? (
+                    <iframe
+                      src={process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL}
+                      title="Arabian Desert Home — Agafay, Marrakech"
+                      className="absolute inset-0 w-full h-full border-0"
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-br from-warm-black/20 via-background to-amber/[0.04] flex flex-col items-center justify-center p-8 text-center">
+                        <div className="w-16 h-16 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center mb-4">
+                          <MapPin className="w-7 h-7 text-amber" />
+                        </div>
+                        <p className="heading-editorial text-lg mb-2">
+                          {t("contact.mapPlaceholder")}
+                        </p>
+                        <p className="text-sm text-muted-foreground body-editorial max-w-xs">
+                          {t("contact.addressValue")}
+                        </p>
+                        <div className="mt-4 px-5 py-2.5 rounded-full bg-amber/10 border border-amber/15">
+                          <p className="luxury-label text-amber text-[0.6rem]">
+                            <Clock className="w-3 h-3 inline mr-1.5" />
+                            30 min from Marrakech
+                          </p>
+                        </div>
+                      </div>
+                      <div className="absolute inset-0 pattern-organic opacity-50 pointer-events-none" />
+                    </>
+                  )}
                 </motion.div>
 
                 {/* Social Links */}

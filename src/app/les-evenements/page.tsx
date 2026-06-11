@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
@@ -6,6 +6,7 @@ import { Heart, Sparkles, Gem, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
+import { CTASection } from "@/components/arabian/CTASection";
 import { useLanguage } from "@/lib/i18n/context";
 
 // ============================================
@@ -60,9 +61,6 @@ export default function EvenementsPage() {
   const galleryRef = useRef(null);
   const galleryInView = useInView(galleryRef, { once: true, margin: "-80px" });
 
-  const ctaRef = useRef(null);
-  const ctaInView = useInView(ctaRef, { once: true, margin: "-80px" });
-
   const eventTypes = [
     {
       icon: Heart,
@@ -82,10 +80,10 @@ export default function EvenementsPage() {
   ];
 
   const galleryImages = [
-    { src: "/images/events-gala.png", alt: "Gala evening under the stars" },
-    { src: "/images/events.png", alt: "Desert wedding ceremony" },
-    { src: "/images/dining.png", alt: "Elegant outdoor dining" },
-    { src: "/images/exp-camel.png", alt: "Sunset camel procession" },
+    { src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/events/events-gala.png", alt: "Soirée de gala sous les étoiles du désert" },
+    { src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/events/events.png", alt: "Cérémonie de mariage au désert d'Agafay" },
+    { src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/night.png", alt: "Ambiance nocturne féerique au camp" },
+    { src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-camel.png", alt: "Procession de dromadaires au coucher du soleil" },
   ];
 
   return (
@@ -101,8 +99,8 @@ export default function EvenementsPage() {
           {/* Background Image */}
           <div className="absolute inset-0">
             <img
-              src="/images/events.png"
-              alt="Événements de luxe au désert d'Agafay"
+              src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/events/events-gala.png"
+              alt="Événements de luxe au désert d'Agafay — Mariages & Galas"
               className="w-full h-full object-cover"
             />
             {/* Seamless Gradient — dark top fades to background color at bottom */}
@@ -389,63 +387,12 @@ export default function EvenementsPage() {
         </section>
 
         {/* ── CTA Section ── */}
-        <section
-          ref={ctaRef}
-          className="relative py-20 md:py-28 px-6 md:px-10 bg-warm-black text-center overflow-hidden"
-        >
-          {/* Decorative Blobs */}
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber/[0.03] blob-2 blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-amber/[0.04] blob-1 blur-3xl" />
-
-          {/* Grain Texture */}
-          <div className="absolute inset-0 grain-overlay pointer-events-none" />
-
-          {/* Divider Top */}
-          <div className="absolute top-0 left-0 right-0 divider-accent-wide" />
-
-          <motion.span
-            variants={revealUp}
-            initial="hidden"
-            animate={ctaInView ? "visible" : "hidden"}
-            custom={0}
-            className="luxury-label text-amber block mb-4"
-          >
-            {t("evenements.ctaLabel")}
-          </motion.span>
-          <motion.h2
-            variants={revealUp}
-            initial="hidden"
-            animate={ctaInView ? "visible" : "hidden"}
-            custom={0.2}
-            className="heading-display text-3xl md:text-5xl text-foreground mb-6"
-          >
-            {t("evenements.ctaTitle")}
-          </motion.h2>
-          <motion.div
-            variants={fadeIn}
-            initial="hidden"
-            animate={ctaInView ? "visible" : "hidden"}
-            custom={0.4}
-            className="divider-accent-wide max-w-[120px] mx-auto mb-8"
-          />
-          <motion.div
-            variants={revealUp}
-            initial="hidden"
-            animate={ctaInView ? "visible" : "hidden"}
-            custom={0.5}
-          >
-            <Link
-              href="/contact"
-              className="btn-primary inline-flex items-center gap-3 cursor-pointer"
-            >
-              {t("evenements.ctaButton")}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </motion.div>
-
-          {/* Divider Bottom */}
-          <div className="absolute bottom-0 left-0 right-0 divider-accent-wide" />
-        </section>
+        <CTASection
+          label={t("evenements.ctaLabel")}
+          title={t("evenements.ctaTitle")}
+          buttonText={t("evenements.ctaButton")}
+          buttonHref="/contact"
+        />
       </main>
 
       <Footer />

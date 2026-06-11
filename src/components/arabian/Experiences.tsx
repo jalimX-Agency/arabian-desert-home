@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
@@ -39,7 +39,7 @@ export function Experiences() {
             longDescription: t("experiences.camelTrek.longDescription"),
             duration: t("experiences.camelTrek.duration"),
             price: 250,
-            image: "/images/exp-camel.png",
+            image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-camel.png",
             category: t("experiences.camelTrek.category"),
             featured: true,
           },
@@ -51,7 +51,7 @@ export function Experiences() {
             longDescription: t("experiences.hammam.longDescription"),
             duration: t("experiences.hammam.duration"),
             price: 350,
-            image: "/images/exp-spa.png",
+            image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/spa/exp-spa.png",
             category: t("experiences.hammam.category"),
             featured: true,
           },
@@ -63,7 +63,7 @@ export function Experiences() {
             longDescription: t("experiences.balloon.longDescription"),
             duration: t("experiences.balloon.duration"),
             price: 550,
-            image: "/images/exp-balloon.png",
+            image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/exp-balloon.png",
             category: t("experiences.balloon.category"),
             featured: true,
           },

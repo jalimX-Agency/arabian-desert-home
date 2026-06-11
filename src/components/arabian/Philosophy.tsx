@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
@@ -82,7 +82,7 @@ export function Philosophy() {
               className="relative aspect-[16/9] overflow-hidden mt-4"
             >
               <img
-                src="/images/about.png"
+                src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.png"
                 alt="Aerial view of Arabian Desert Home retreat in Agafay"
                 className="w-full h-full object-cover img-luxury"
               />

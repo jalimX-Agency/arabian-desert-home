@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
@@ -184,7 +184,7 @@ export default function ReservezPage() {
         <section ref={heroRef} className="relative h-[60vh] min-h-[450px] w-full overflow-hidden">
           <div className="absolute inset-0">
             <img
-              src="/images/night.png"
+              src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/night.png"
               alt="Book your stay at Arabian Desert Home"
               className="w-full h-full object-cover"
             />

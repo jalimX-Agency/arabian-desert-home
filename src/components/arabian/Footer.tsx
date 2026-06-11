@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Instagram, Mail, MapPin, Phone, Facebook, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/context";
@@ -12,13 +13,12 @@ const footerNavLinks = [
   { labelKey: "footer.navActivities", href: "/les-activites" },
   { labelKey: "footer.navDayPass", href: "/day-pass" },
   { labelKey: "footer.navEvents", href: "/les-evenements" },
-  { labelKey: "footer.navSpa", href: "/spa" },
   { labelKey: "footer.navAbout", href: "/apropo" },
 ];
 
 const socialLinks = [
-  { icon: Facebook, label: "Facebook", href: "#" },
-  { icon: Instagram, label: "Instagram", href: "#" },
+  { icon: Facebook, label: "Facebook", href: "https://facebook.com/arabian_desert_home" },
+  { icon: Instagram, label: "Instagram", href: "https://instagram.com/arabian_desert_home" },
 ];
 
 // Smooth Desert Aurora easing
@@ -29,54 +29,7 @@ export function Footer() {
 
   return (
     <footer className="relative bg-background text-foreground/60 overflow-hidden">
-      {/* ═══════════════════════════════════════════
-          PRE-FOOTER CTA — Warm Gradient + Grain
-          ═══════════════════════════════════════════ */}
-      <div className="relative overflow-hidden">
-        {/* Warm gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-warm-black via-background to-amber/[0.06]" />
-        <div className="absolute inset-0 pattern-organic" />
-        <div className="absolute inset-0 grain-overlay" />
 
-        {/* Amber divider at top */}
-        <div className="divider-accent-wide" />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-20 md:py-28 flex flex-col md:flex-row items-center justify-between gap-10">
-          {/* CTA Text */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7, ease: smoothEase }}
-            className="text-center md:text-left"
-          >
-            <p className="luxury-label text-amber/60 mb-4">
-              {t("footer.bookYourStay")}
-            </p>
-            <h3 className="heading-display text-3xl md:text-5xl text-foreground leading-tight">
-              {t("footer.desertAwaits")}
-            </h3>
-          </motion.div>
-
-          {/* CTA Button — Rounded Amber Pill */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7, delay: 0.12, ease: smoothEase }}
-          >
-            <Link href="/reservez-votre-sejour" className="cursor-pointer">
-              <span className="btn-primary inline-flex items-center gap-2.5">
-                {t("footer.bookNow")}
-                <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
-              </span>
-            </Link>
-          </motion.div>
-        </div>
-
-        {/* Amber divider at bottom */}
-        <div className="divider-accent" />
-      </div>
 
       {/* ═══════════════════════════════════════════
           MAIN FOOTER — 4-Column Grid
@@ -95,26 +48,15 @@ export function Footer() {
               transition={{ duration: 0.6, ease: smoothEase }}
               className="sm:col-span-2 lg:col-span-4"
             >
-              {/* Logo: Same organic circular mark as Navigation */}
-              <Link href="/" className="flex items-center gap-3.5 group cursor-pointer mb-8">
-                {/* Organic circular mark — warm amber glow */}
-                <div className="relative w-10 h-10 flex-shrink-0">
-                  {/* Outer ring */}
-                  <div className="absolute inset-0 rounded-full border border-amber/40 group-hover:border-amber/70 transition-all duration-400" />
-                  {/* Inner fill — warm gradient */}
-                  <div className="absolute inset-1.5 rounded-full bg-gradient-to-br from-amber/25 to-amber-dark/20 group-hover:from-amber/40 group-hover:to-amber-dark/30 transition-all duration-400" />
-                  {/* Center dot — glow */}
-                  <div className="absolute inset-[11px] rounded-full bg-amber/60 group-hover:bg-amber/80 transition-all duration-400 group-hover:shadow-[0_0_12px_rgba(202,138,4,0.4)]" />
-                </div>
-                {/* Logo type: Cinzel + Josefin */}
-                <div className="flex flex-col">
-                  <span className="font-serif text-xl tracking-wider leading-tight text-foreground group-hover:text-amber transition-colors duration-300">
-                    Arabian
-                  </span>
-                  <span className="text-[9px] tracking-[0.35em] uppercase text-muted-foreground leading-tight font-sans font-light group-hover:text-amber/70 transition-colors duration-300">
-                    Desert Home
-                  </span>
-                </div>
+              {/* Logo */}
+              <Link href="/" className="inline-flex items-center group cursor-pointer mb-8">
+                <Image
+                  src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/logo/logoWithNoBg.png"
+                  alt="Arabian Desert Home — Agafay, Marrakech"
+                  width={240}
+                  height={96}
+                  className="h-50 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
+                />
               </Link>
 
               {/* Brand description */}

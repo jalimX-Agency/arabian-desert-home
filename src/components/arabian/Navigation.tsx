@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,7 +22,6 @@ const navLinkKeys = [
   { labelKey: "nav.activities", href: "/les-activites" },
   { labelKey: "nav.dayPass", href: "/day-pass" },
   { labelKey: "nav.events", href: "/les-evenements" },
-  { labelKey: "nav.spa", href: "/spa" },
   { labelKey: "nav.contact", href: "/contact" },
 ];
 
@@ -69,33 +69,22 @@ export function Navigation() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.9, ease: flowingEase }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? "glass-premium shadow-lg shadow-amber/[0.03]"
-            : "bg-transparent"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
+          ? "glass-premium shadow-lg shadow-amber/[0.03]"
+          : "bg-transparent"
+          }`}
       >
-        <nav className="max-w-7xl mx-auto px-5 sm:px-8 md:px-10 h-20 flex items-center justify-between">
-          {/* ── Logo: Warm Circular Mark + Typography ── */}
-          <Link href="/" className="flex items-center gap-3.5 group cursor-pointer">
-            {/* Organic circular mark — warm amber glow */}
-            <div className="relative w-10 h-10 flex-shrink-0">
-              {/* Outer ring — amber with glow */}
-              <div className="absolute inset-0 rounded-full border border-amber/40 group-hover:border-amber/70 transition-all duration-400" />
-              {/* Inner fill — warm amber pulse */}
-              <div className="absolute inset-1.5 rounded-full bg-gradient-to-br from-amber/25 to-amber-dark/20 group-hover:from-amber/40 group-hover:to-amber-dark/30 transition-all duration-400" />
-              {/* Center dot — warm glow */}
-              <div className="absolute inset-[11px] rounded-full bg-amber/60 group-hover:bg-amber/80 transition-all duration-400 group-hover:shadow-[0_0_12px_rgba(202,138,4,0.4)]" />
-            </div>
-            {/* Logo type */}
-            <div className="flex flex-col">
-              <span className="font-serif text-xl tracking-wider leading-tight text-foreground group-hover:text-amber transition-colors duration-300">
-                Arabian
-              </span>
-              <span className="text-[9px] tracking-[0.35em] uppercase text-muted-foreground leading-tight font-sans font-light group-hover:text-amber/70 transition-colors duration-300">
-                Desert Home
-              </span>
-            </div>
+        <nav className="max-w-7xl mx-auto px-5 sm:px-8 md:px-10 h-24 flex items-center justify-between">
+          {/* ── Logo ── */}
+          <Link href="/" className="flex items-center group cursor-pointer">
+            <Image
+              src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/logo/logoWithNoBg.png"
+              alt="Arabian Desert Home — Agafay, Marrakech"
+              width={500}
+              height={200}
+              priority
+              className="h-50 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
+            />
           </Link>
 
           {/* ── Desktop Nav Links — Smooth Underline ── */}
@@ -106,18 +95,16 @@ export function Navigation() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`luxury-label relative group cursor-pointer transition-colors duration-300 ${
-                    isActive
-                      ? "text-amber"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`luxury-label relative group cursor-pointer transition-colors duration-300 ${isActive
+                    ? "text-amber"
+                    : "text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   {t(link.labelKey)}
                   {/* Underline indicator — smooth amber slide */}
                   <span
-                    className={`absolute -bottom-1.5 left-0 h-[1.5px] rounded-full bg-gradient-to-r from-amber to-amber-light transition-all duration-300 ease-out ${
-                      isActive ? "w-full" : "w-0 group-hover:w-full"
-                    }`}
+                    className={`absolute -bottom-1.5 left-0 h-[1.5px] rounded-full bg-gradient-to-r from-amber to-amber-light transition-all duration-300 ease-out ${isActive ? "w-full" : "w-0 group-hover:w-full"
+                      }`}
                   />
                 </Link>
               );
@@ -204,9 +191,8 @@ export function Navigation() {
 
         {/* Bottom amber line when scrolled — subtle divider */}
         <div
-          className={`h-px transition-opacity duration-500 ${
-            scrolled ? "opacity-100" : "opacity-0"
-          }`}
+          className={`h-px transition-opacity duration-500 ${scrolled ? "opacity-100" : "opacity-0"
+            }`}
           style={{
             background: "linear-gradient(90deg, transparent, var(--amber), transparent)",
           }}
@@ -242,19 +228,17 @@ export function Navigation() {
                       <Link
                         href={link.href}
                         onClick={closeMobile}
-                        className={`font-serif text-4xl sm:text-5xl py-3 flex items-center gap-4 group cursor-pointer transition-colors duration-300 ${
-                          isActive
-                            ? "text-amber"
-                            : "text-foreground/80 hover:text-amber"
-                        }`}
+                        className={`font-serif text-4xl sm:text-5xl py-3 flex items-center gap-4 group cursor-pointer transition-colors duration-300 ${isActive
+                          ? "text-amber"
+                          : "text-foreground/80 hover:text-amber"
+                          }`}
                       >
                         {/* Active indicator dot */}
                         <span
-                          className={`w-2 h-2 rounded-full bg-amber transition-all duration-300 ${
-                            isActive
-                              ? "opacity-100 scale-100"
-                              : "opacity-0 scale-0 group-hover:opacity-60 group-hover:scale-100"
-                          }`}
+                          className={`w-2 h-2 rounded-full bg-amber transition-all duration-300 ${isActive
+                            ? "opacity-100 scale-100"
+                            : "opacity-0 scale-0 group-hover:opacity-60 group-hover:scale-100"
+                            }`}
                         />
                         {t(link.labelKey)}
                       </Link>
