@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, Users, Maximize2, Phone } from "lucide-react";
+import { ArrowRight, Star, Users, Maximize2 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/context";
 
 interface Suite {
@@ -129,7 +129,7 @@ const FALLBACK_SUITES: Suite[] = [
 ];
 
 function SuiteCard({ suite }: { suite: Suite }) {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const isEn = language === "en";
   const name = (isEn && suite.nameEn) ? suite.nameEn : suite.name;
   const tagline = (isEn && suite.taglineEn) ? suite.taglineEn : suite.tagline;
@@ -209,7 +209,7 @@ function SuiteCard({ suite }: { suite: Suite }) {
           href={`/les-tentes/${suite.slug}`}
           className="btn-outline w-full flex items-center justify-center gap-2 text-sm"
         >
-          {t("tents.viewDetails")}
+          Voir les détails
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -218,9 +218,7 @@ function SuiteCard({ suite }: { suite: Suite }) {
 }
 
 export function LesTentesContent({ suites }: { suites: Suite[] }) {
-  const { t } = useLanguage();
   const data = suites.length > 0 ? suites : FALLBACK_SUITES;
-  const minPrice = data.reduce((min, s) => s.price < min ? s.price : min, data[0]?.price ?? 170);
 
   return (
     <>
@@ -255,7 +253,7 @@ export function LesTentesContent({ suites }: { suites: Suite[] }) {
               transition={{ duration: 0.8, delay: 0.1, ease: smoothEase }}
               className="luxury-label text-amber block mb-5"
             >
-              {t("tents.heroLabel")}
+              Arabian Desert Home
             </motion.span>
 
             <motion.h1
@@ -264,8 +262,8 @@ export function LesTentesContent({ suites }: { suites: Suite[] }) {
               transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
               className="heading-display text-4xl md:text-5xl lg:text-7xl text-white mb-5"
             >
-              {t("tents.heroTitle1")}{" "}
-              <span className="italic text-amber">{t("tents.heroTitle2")}</span>
+              Tentes de{" "}
+              <span className="italic text-amber">Luxe</span>
             </motion.h1>
 
             <motion.p
@@ -274,7 +272,8 @@ export function LesTentesContent({ suites }: { suites: Suite[] }) {
               transition={{ duration: 0.8, delay: 0.35, ease: smoothEase }}
               className="body-editorial text-white/50 text-base md:text-lg max-w-md mb-8"
             >
-              {t("tents.heroSubtitle")}
+              Une invitation à l&apos;évasion, où le raffinement du désert
+              se révèle dans chaque détail de votre séjour.
             </motion.p>
 
             <motion.div
@@ -316,13 +315,14 @@ export function LesTentesContent({ suites }: { suites: Suite[] }) {
             <span className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block mb-3">
               02
             </span>
-            <span className="luxury-label text-amber block mb-3">{t("tents.sectionLabel")}</span>
+            <span className="luxury-label text-amber block mb-3">Nos Hébergements</span>
             <h2 className="heading-display text-3xl md:text-4xl lg:text-5xl mb-4">
-              {t("tents.sectionTitle1")} <span className="italic text-amber">{t("tents.sectionTitle2")}</span>
+              Tentes &amp; Suites <span className="italic text-amber">de Luxe</span>
             </h2>
             <div className="divider-accent max-w-xs" />
             <p className="body-editorial text-muted-foreground mt-6 max-w-2xl">
-              {t("tents.sectionDesc")}
+              Des espaces d&apos;exception où le luxe du désert se révèle dans chaque
+              détail. Petit-déjeuner inclus. Tarifs par nuit.
             </p>
           </motion.div>
 
@@ -341,90 +341,35 @@ export function LesTentesContent({ suites }: { suites: Suite[] }) {
       </section>
 
       {/* ── CTA Section ── */}
-      <section className="relative overflow-hidden">
-        {/* Background image */}
-        <div className="absolute inset-0">
-          <div
-            className="absolute inset-0 bg-cover bg-center scale-105"
-            style={{ backgroundImage: "url('https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.webp')" }}
-          />
-          <div className="absolute inset-0 bg-warm-black/80" />
-          <div className="absolute inset-0 bg-gradient-to-r from-warm-black via-warm-black/60 to-transparent" />
-        </div>
+      <section className="relative py-20 md:py-28 px-6 md:px-10 bg-warm-black text-center overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber/[0.03] blob-1 blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-amber/[0.04] blob-3 blur-3xl" />
         <div className="absolute inset-0 grain-overlay pointer-events-none" />
+        <div className="absolute top-0 left-0 right-0 divider-accent-wide" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-24 md:py-32">
-          <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-
-            {/* Left — Editorial content */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.9, ease: smoothEase }}
-            >
-              <span className="luxury-label text-amber block mb-5">{t("tents.ctaLabel")}</span>
-              <h2 className="heading-display text-4xl md:text-5xl lg:text-6xl text-white mb-6 leading-tight">
-                {t("tents.ctaTitle1")}{" "}
-                <span className="italic text-amber">{t("tents.ctaTitle2")}</span>
-              </h2>
-              <div className="divider-accent max-w-[80px] mb-6" />
-              <p className="body-editorial text-white/50 text-lg max-w-md mb-10">
-                {t("tents.ctaDesc")}
-              </p>
-
-              {/* CTA buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  href="/reservez-votre-sejour"
-                  className="btn-primary inline-flex items-center justify-center gap-3 cursor-pointer"
-                >
-                  {t("tents.ctaButton")}
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <a
-                  href="tel:+212667370206"
-                  className="btn-outline inline-flex items-center justify-center gap-3 cursor-pointer"
-                >
-                  <Phone className="w-4 h-4" />
-                  {t("tents.ctaContact")}
-                </a>
-              </div>
-            </motion.div>
-
-            {/* Right — Stats */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.9, delay: 0.15, ease: smoothEase }}
-              className="hidden md:flex flex-col gap-6"
-            >
-              {/* Price card */}
-              <div className="glass-card card-warm p-8 border border-amber/15">
-                <p className="luxury-label text-amber/60 mb-2">{t("tents.ctaFrom")}</p>
-                <p className="heading-display text-5xl text-white">
-                  {minPrice} <span className="text-amber text-2xl">€</span>
-                </p>
-                <p className="text-white/40 text-sm mt-1">{t("tents.ctaPerNight")}</p>
-              </div>
-
-              {/* Stats row */}
-              <div className="grid grid-cols-3 gap-4">
-                {[
-                  { value: data.length.toString(), label: t("tents.ctaStat1") },
-                  { value: "30 min", label: t("tents.ctaStat2") },
-                  { value: "6 ha", label: t("tents.ctaStat3") },
-                ].map((stat) => (
-                  <div key={stat.label} className="glass-card card-warm p-4 text-center border border-amber/10">
-                    <p className="mono-number text-2xl text-amber mb-1">{stat.value}</p>
-                    <p className="text-xs text-white/40 body-editorial">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: smoothEase }}
+          className="relative z-10 max-w-3xl mx-auto"
+        >
+          <span className="luxury-label text-amber block mb-4">Votre Séjour</span>
+          <h2 className="heading-display text-3xl md:text-5xl text-foreground mb-6">
+            Le désert vous <span className="italic text-amber">appelle</span>
+          </h2>
+          <p className="body-editorial text-foreground/40 mb-10 max-w-xl mx-auto">
+            Réservez votre tente de luxe et laissez-vous porter par la magie
+            du désert d&apos;Agafay.
+          </p>
+          <Link
+            href="/reservez-votre-sejour"
+            className="btn-primary inline-flex items-center gap-3 cursor-pointer"
+          >
+            Réserver Maintenant
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </motion.div>
       </section>
     </>
   );

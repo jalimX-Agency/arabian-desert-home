@@ -114,9 +114,9 @@ function HeroSection() {
             type="video/webm"
           />
         </video>
-        {/* Warm Cinematic Gradients — NOT cold/dark blue */}
+        {/* Warm Cinematic Gradients — always dark regardless of theme */}
         <div className="absolute inset-0 gradient-warm" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/25 to-transparent" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, oklch(0.08 0.008 55 / 80%) 0%, oklch(0.08 0.008 55 / 25%) 45%, transparent 100%)" }} />
         <div className="absolute inset-0 gradient-amber" />
       </motion.div>
 
@@ -161,7 +161,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.7, ease: smoothEase }}
-          className="heading-display text-foreground text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8.5rem] max-w-5xl text-balance"
+          className="heading-display text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8.5rem] max-w-5xl text-balance"
         >
           {t("hero.heading1")}
           <br />
