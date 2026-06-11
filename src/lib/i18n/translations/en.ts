@@ -595,6 +595,30 @@ export const en: Record<string, unknown> = {
     },
   },
 
+  // Tents List Page
+  tents: {
+    heroLabel: "Arabian Desert Home",
+    heroTitle1: "Luxury",
+    heroTitle2: "Tents",
+    heroSubtitle: "An invitation to escape, where desert refinement reveals itself in every detail of your stay.",
+    sectionLabel: "Our Accommodations",
+    sectionTitle1: "Tents & Suites",
+    sectionTitle2: "of Luxury",
+    sectionDesc: "Exceptional spaces where desert luxury reveals itself in every detail. Breakfast included. Rates per night.",
+    viewDetails: "View Details",
+    ctaLabel: "Your Stay",
+    ctaTitle1: "The desert",
+    ctaTitle2: "calls you",
+    ctaDesc: "Book your luxury tent and let yourself be carried away by the magic of the Agafay desert.",
+    ctaButton: "Book Now",
+    ctaContact: "Contact Us",
+    ctaFrom: "Starting from",
+    ctaPerNight: "/ night",
+    ctaStat1: "Luxury tents",
+    ctaStat2: "From Marrakech",
+    ctaStat3: "Hectares",
+  },
+
   // Activity Detail Page
   activityDetail: {
     back: "Activities",

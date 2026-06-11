@@ -597,6 +597,30 @@ export const fr: Record<string, unknown> = {
     },
   },
 
+  // Tents List Page
+  tents: {
+    heroLabel: "Arabian Desert Home",
+    heroTitle1: "Tentes de",
+    heroTitle2: "Luxe",
+    heroSubtitle: "Une invitation à l'évasion, où le raffinement du désert se révèle dans chaque détail de votre séjour.",
+    sectionLabel: "Nos Hébergements",
+    sectionTitle1: "Tentes & Suites",
+    sectionTitle2: "de Luxe",
+    sectionDesc: "Des espaces d'exception où le luxe du désert se révèle dans chaque détail. Petit-déjeuner inclus. Tarifs par nuit.",
+    viewDetails: "Voir les détails",
+    ctaLabel: "Votre Séjour",
+    ctaTitle1: "Le désert vous",
+    ctaTitle2: "appelle",
+    ctaDesc: "Réservez votre tente de luxe et laissez-vous porter par la magie du désert d'Agafay.",
+    ctaButton: "Réserver Maintenant",
+    ctaContact: "Nous Contacter",
+    ctaFrom: "À partir de",
+    ctaPerNight: "/ nuit",
+    ctaStat1: "Tentes de luxe",
+    ctaStat2: "De Marrakech",
+    ctaStat3: "Hectares",
+  },
+
   // Activity Detail Page
   activityDetail: {
     back: "Les Activités",
