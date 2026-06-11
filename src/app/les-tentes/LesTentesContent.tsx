@@ -227,7 +227,7 @@ export function LesTentesContent({ suites }: { suites: Suite[] }) {
         <div className="relative w-full h-[30vh] md:hidden overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: "url('https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.png')" }}
+            style={{ backgroundImage: "url('https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.webp')" }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-warm-black/90" />
         </div>

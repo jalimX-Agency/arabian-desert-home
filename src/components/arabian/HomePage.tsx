@@ -98,13 +98,22 @@ function HeroSection() {
 
   return (
     <section ref={sectionRef} className="relative h-screen w-full overflow-hidden">
-      {/* Background Image with Parallax */}
+      {/* Background Video with Parallax — falls back to poster image while buffering */}
       <motion.div className="absolute inset-0" style={{ y: imgY }}>
-        <img
-          src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png"
-          alt="Arabian Desert Home — Bivouac de luxe au désert d'Agafay, Marrakech"
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png"
           className="w-full h-full object-cover scale-110"
-        />
+        >
+          <source
+            src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero-video.webm"
+            type="video/webm"
+          />
+        </video>
         {/* Warm Cinematic Gradients — NOT cold/dark blue */}
         <div className="absolute inset-0 gradient-warm" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/25 to-transparent" />
@@ -508,11 +517,10 @@ function SuitesSection() {
 
                       {/* Hover Content — Expand Up */}
                       <div
-                        className={`transition-all duration-500 ease-out overflow-hidden ${
-                          isHovered
-                            ? "max-h-56 opacity-100 mt-4"
-                            : "max-h-0 opacity-0 mt-0"
-                        }`}
+                        className={`transition-all duration-500 ease-out overflow-hidden ${isHovered
+                          ? "max-h-56 opacity-100 mt-4"
+                          : "max-h-0 opacity-0 mt-0"
+                          }`}
                       >
                         <p className="text-xs text-muted-foreground/70 mb-4 line-clamp-2">
                           {suite.description}
@@ -745,11 +753,10 @@ function PackagesSection() {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
               custom={0.3 + index * 0.12}
-              className={`group relative flex flex-col p-8 md:p-10 rounded-2xl transition-all duration-400 ${
-                pkg.highlighted
-                  ? "border-2 border-amber bg-amber/[0.04] shadow-lg shadow-amber/[0.05]"
-                  : "glass-card card-warm"
-              }`}
+              className={`group relative flex flex-col p-8 md:p-10 rounded-2xl transition-all duration-400 ${pkg.highlighted
+                ? "border-2 border-amber bg-amber/[0.04] shadow-lg shadow-amber/[0.05]"
+                : "glass-card card-warm"
+                }`}
             >
               {/* Popular Badge — Rounded Pill */}
               {pkg.highlighted && (
@@ -960,11 +967,10 @@ function TestimonialsSection() {
             <button
               key={i}
               onClick={() => setActive(i)}
-              className={`h-2.5 rounded-full transition-all duration-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 ${
-                i === active
-                  ? "bg-amber w-8"
-                  : "bg-amber/20 w-2.5 hover:bg-amber/40"
-              }`}
+              className={`h-2.5 rounded-full transition-all duration-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 ${i === active
+                ? "bg-amber w-8"
+                : "bg-amber/20 w-2.5 hover:bg-amber/40"
+                }`}
               aria-label={`${t("testimonials.goTo")} ${i + 1}`}
             />
           ))}
