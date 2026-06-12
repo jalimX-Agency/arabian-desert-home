@@ -16,8 +16,7 @@ export default function BlogPage() {
       ]}
       fields={[
         { key: "title", label: "Titre", required: true },
-        { key: "slug", label: "Slug", required: true },
-        { key: "category", label: "Catégorie" },
+        { key: "category", label: "Catégorie", type: "select", options: ["Désert & Nature", "Expériences", "Gastronomie", "Activités", "Bien-être", "Conseils voyage", "Événements"] },
         { key: "author", label: "Auteur" },
         { key: "order", label: "Ordre", type: "number" },
         { key: "featured", label: "À la une", type: "checkbox" },
@@ -29,7 +28,7 @@ export default function BlogPage() {
         { key: "image", label: "Image principale", type: "image", folder: "blog" },
       ]}
       tabs={[
-        { label: "Général", fieldKeys: ["title", "slug", "category", "author", "order", "featured"] },
+        { label: "Général", fieldKeys: ["title", "category", "author", "order", "featured"] },
         { label: "Contenu FR", fieldKeys: ["excerpt", "content"] },
         { label: "Contenu EN", fieldKeys: ["titleEn", "excerptEn", "contentEn"] },
         { label: "Médias", fieldKeys: ["image"] },
