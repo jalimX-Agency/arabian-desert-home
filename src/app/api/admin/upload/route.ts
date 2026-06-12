@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
   }
 
   const folderParam = formData.get("folder") as string | null;
-  const VALID_FOLDERS = ["suites", "activities", "dining", "events", "spa", "gallery", "logo"];
+  const VALID_FOLDERS = ["suites", "activities", "dining", "events", "spa", "gallery", "logo", "blog"];
   const folder = VALID_FOLDERS.includes(folderParam ?? "") ? folderParam : "gallery";
 
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
