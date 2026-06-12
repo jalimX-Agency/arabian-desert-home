@@ -50,83 +50,6 @@ const cardVariants = {
   },
 };
 
-const FALLBACK_SUITES: Suite[] = [
-  {
-    id: "tente-junior",
-    name: "Tente Junior",
-    nameEn: "",
-    slug: "tente-junior",
-    tagline: "Confort et intimité dans le désert",
-    taglineEn: "",
-    description: "Une tente élégante pour un séjour intime au cœur du désert d'Agafay, avec tout le confort nécessaire.",
-    descriptionEn: "",
-    longDescription: "La Tente Junior offre un espace chaleureux avec une décoration marocaine authentique, une literie premium et une vue imprenable sur les paysages désertiques.",
-    price: 170,
-    currency: "EUR",
-    features: "Lit double, Salle de bain privée, Vue désert",
-    amenities: "Climatisation, Petit-déjeuner inclus, WiFi",
-    amenitiesEn: "",
-    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-oasis.png",
-    images: "",
-    maxGuests: 2,
-    bedType: "Double",
-    size: "25m²",
-    hasAC: true,
-    order: 1,
-    featured: false,
-    type: "chambre",
-  },
-  {
-    id: "tente-familiale",
-    name: "Tente Familiale",
-    nameEn: "",
-    slug: "tente-familiale",
-    tagline: "L'aventure en famille dans le désert",
-    taglineEn: "",
-    description: "Idéale pour les familles, cette tente spacieuse accueille jusqu'à 4 personnes avec tout le confort souhaité.",
-    descriptionEn: "",
-    longDescription: "La Tente Familiale dispose de deux espaces de couchage séparés, parfaite pour partager l'expérience désert en famille tout en bénéficiant d'un espace privatif.",
-    price: 220,
-    currency: "EUR",
-    features: "2 chambres, Salle de bain privée, Terrasse",
-    amenities: "Climatisation, Petit-déjeuner inclus, WiFi",
-    amenitiesEn: "",
-    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-royal.png",
-    images: "",
-    maxGuests: 4,
-    bedType: "Double + Lits simples",
-    size: "40m²",
-    hasAC: true,
-    order: 2,
-    featured: false,
-    type: "chambre",
-  },
-  {
-    id: "suite-chorfa",
-    name: "Suite Chorfa",
-    nameEn: "",
-    slug: "suite-chorfa",
-    tagline: "L'excellence absolue du désert",
-    taglineEn: "",
-    description: "Notre suite premium, une expérience unique alliant luxe berbère et confort contemporain au cœur du désert d'Agafay.",
-    descriptionEn: "",
-    longDescription: "La Suite Chorfa représente le summum de l'hospitalité désertique. Un espace palatial orné de zellige, de boiseries sculptées et d'une piscine privée face à l'horizon désertique.",
-    price: 300,
-    currency: "EUR",
-    features: "Suite premium, Piscine privée, Salon séparé",
-    amenities: "Climatisation, Petit-déjeuner inclus, WiFi, Service en chambre",
-    amenitiesEn: "",
-    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-sultan.png",
-    images: "",
-    maxGuests: 2,
-    bedType: "King Size",
-    size: "60m²",
-    hasAC: true,
-    order: 3,
-    featured: true,
-    type: "suite",
-  },
-];
 
 function SuiteCard({ suite }: { suite: Suite }) {
   const { language } = useLanguage();
@@ -218,7 +141,7 @@ function SuiteCard({ suite }: { suite: Suite }) {
 }
 
 export function LesTentesContent({ suites }: { suites: Suite[] }) {
-  const data = suites.length > 0 ? suites : FALLBACK_SUITES;
+  const data = suites;
 
   return (
     <>

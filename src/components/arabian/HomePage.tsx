@@ -335,93 +335,12 @@ function FeaturesSection() {
 // ============================================
 // 3. SUITES SECTION — Horizontal Scroll Carousel
 // ============================================
-function SuitesSection() {
+function SuitesSection({ suites }: { suites: Suite[] }) {
   const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
-  const [suites, setSuites] = useState<Suite[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const fallbackSuites: Suite[] = [
-    {
-      id: "1",
-      name: t("suiteData.chorfa.name"),
-      slug: "suite-chorfa",
-      tagline: t("suiteData.chorfa.tagline"),
-      description: t("suiteData.chorfa.description"),
-      longDescription: "",
-      price: 300,
-      currency: "EUR",
-      features: t("suiteData.chorfa.features"),
-      amenities: "",
-      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-royal.png",
-      images: "",
-      maxGuests: 2,
-      bedType: "1 très grand lit double",
-      size: "45m²",
-      hasAC: true,
-      order: 1,
-      featured: true,
-      type: "suite",
-    },
-    {
-      id: "2",
-      name: t("suiteData.junior.name"),
-      slug: "suite-junior",
-      tagline: t("suiteData.junior.tagline"),
-      description: t("suiteData.junior.description"),
-      longDescription: "",
-      price: 300,
-      currency: "EUR",
-      features: t("suiteData.junior.features"),
-      amenities: "",
-      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-sultan.png",
-      images: "",
-      maxGuests: 2,
-      bedType: "1 très grand lit double",
-      size: "40m²",
-      hasAC: true,
-      order: 2,
-      featured: true,
-      type: "suite",
-    },
-    {
-      id: "3",
-      name: t("suiteData.familiale.name"),
-      slug: "suite-familiale",
-      tagline: t("suiteData.familiale.tagline"),
-      description: t("suiteData.familiale.description"),
-      longDescription: "",
-      price: 300,
-      currency: "EUR",
-      features: t("suiteData.familiale.features"),
-      amenities: "",
-      image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-oasis.png",
-      images: "",
-      maxGuests: 4,
-      bedType: "1 très grand lit double + 1 lit simple",
-      size: "55m²",
-      hasAC: true,
-      order: 3,
-      featured: true,
-      type: "suite",
-    },
-  ];
-
-  useEffect(() => {
-    fetch("/api/suites?featured=true")
-      .then((res) => res.json())
-      .then((data) => {
-        const featured = data.filter((s: Suite) => s.featured);
-        setSuites(featured.length > 0 ? featured : fallbackSuites);
-      })
-      .catch(() => {
-        setSuites(fallbackSuites);
-      });
-  }, []);
-
-  const displaySuites = suites.length > 0 ? suites : fallbackSuites;
 
   return (
     <section
@@ -468,7 +387,7 @@ function SuitesSection() {
           className="flex gap-5 md:gap-6 overflow-x-auto pb-6 -mx-6 px-6 md:-mx-10 md:px-10 snap-x snap-mandatory scrollbar-hide"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {displaySuites.slice(0, 3).map((suite, index) => {
+          {suites.slice(0, 3).map((suite, index) => {
             const isHovered = hoveredIndex === index;
             const features = suite.features ? suite.features.split(",") : [];
 
@@ -580,32 +499,6 @@ function SuitesSection() {
 // ============================================
 // 4. GALLERY SECTION — Masonry/Bento + Rounded Corners
 // ============================================
-const FALLBACK_GALLERY = [
-  {
-    url: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.png",
-    alt: "Vue aérienne du bivouac Arabian Desert Home dans le désert d'Agafay",
-    altEn: "Aerial view of Arabian Desert Home camp in the Agafay desert",
-    span: "md:col-span-2 md:row-span-2",
-  },
-  {
-    url: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/restaurant-interior.png",
-    alt: "Restaurant gastronomique Dar Agafay — cuisine marocaine raffinée",
-    altEn: "Dar Agafay gourmet restaurant — refined Moroccan cuisine",
-    span: "",
-  },
-  {
-    url: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/night.png",
-    alt: "Soirée magique sous les étoiles au désert d'Agafay",
-    altEn: "Magical evening under the stars in the Agafay desert",
-    span: "",
-  },
-  {
-    url: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-camel.png",
-    alt: "Promenade en dromadaire au coucher du soleil dans le désert",
-    altEn: "Camel ride at sunset in the desert",
-    span: "md:col-span-2",
-  },
-];
 
 const BENTO_SPANS = [
   "md:col-span-2 md:row-span-2",
@@ -614,31 +507,18 @@ const BENTO_SPANS = [
   "md:col-span-2",
 ];
 
-function GallerySection() {
+function GallerySection({ galleryImages: rawGallery }: { galleryImages: { url: string; alt: string; altEn: string }[] }) {
   const { t, language } = useLanguage();
   const isEn = language === "en";
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
 
-  const [galleryImages, setGalleryImages] = useState(FALLBACK_GALLERY);
-
-  useEffect(() => {
-    fetch("/api/gallery")
-      .then((r) => r.json())
-      .then((data: { url: string; alt: string; altEn: string }[]) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setGalleryImages(
-            data.map((img, i) => ({
-              url: img.url,
-              alt: img.alt || img.altEn || "",
-              altEn: img.altEn || img.alt || "",
-              span: BENTO_SPANS[i % BENTO_SPANS.length],
-            }))
-          );
-        }
-      })
-      .catch(() => {});
-  }, []);
+  const galleryImages = rawGallery.map((img, i) => ({
+    url: img.url,
+    alt: img.alt || img.altEn || "",
+    altEn: img.altEn || img.alt || "",
+    span: BENTO_SPANS[i % BENTO_SPANS.length],
+  }));
 
   return (
     <section
@@ -915,64 +795,19 @@ function ReviewSourceBadge({ source }: { source: string }) {
   );
 }
 
-function TestimonialsSection() {
+function TestimonialsSection({ testimonials }: { testimonials: Testimonial[] }) {
   const { t } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [active, setActive] = useState(0);
 
-  const fallbackTestimonials: Testimonial[] = [
-    {
-      id: "1",
-      quote: t("testimonials.testimonial1.quote"),
-      author: t("testimonials.testimonial1.author"),
-      location: t("testimonials.testimonial1.location"),
-      rating: 5,
-      source: "general",
-      order: 1,
-    },
-    {
-      id: "2",
-      quote: t("testimonials.testimonial2.quote"),
-      author: t("testimonials.testimonial2.author"),
-      location: t("testimonials.testimonial2.location"),
-      rating: 5,
-      source: "general",
-      order: 2,
-    },
-    {
-      id: "3",
-      quote: t("testimonials.testimonial3.quote"),
-      author: t("testimonials.testimonial3.author"),
-      location: t("testimonials.testimonial3.location"),
-      rating: 5,
-      source: "general",
-      order: 3,
-    },
-  ];
-
   useEffect(() => {
-    fetch("/api/testimonials")
-      .then((res) => res.json())
-      .then((data) => {
-        setTestimonials(data.length > 0 ? data : fallbackTestimonials);
-      })
-      .catch(() => {
-        setTestimonials(fallbackTestimonials);
-      });
-  }, []);
-
-  useEffect(() => {
-    const count = testimonials.length || 3;
+    if (testimonials.length === 0) return;
     const timer = setInterval(() => {
-      setActive((prev) => (prev + 1) % count);
+      setActive((prev) => (prev + 1) % testimonials.length);
     }, 6000);
     return () => clearInterval(timer);
   }, [testimonials.length]);
-
-  const displayTestimonials =
-    testimonials.length > 0 ? testimonials : fallbackTestimonials;
 
   return (
     <section
@@ -1009,7 +844,7 @@ function TestimonialsSection() {
         {/* Testimonial Content — Glass Card */}
         <div className="relative min-h-[340px]">
           <AnimatePresence mode="wait">
-            {displayTestimonials.map((testimonial, i) =>
+            {testimonials.map((testimonial, i) =>
               i === active ? (
                 <motion.div
                   key={testimonial.id}
@@ -1056,7 +891,7 @@ function TestimonialsSection() {
 
         {/* Navigation Dots — Amber Pill Shapes */}
         <div className="flex justify-center gap-2 mt-10">
-          {displayTestimonials.map((_, i) => (
+          {testimonials.map((_, i) => (
             <button
               key={i}
               onClick={() => setActive(i)}
@@ -1076,15 +911,21 @@ function TestimonialsSection() {
 // ============================================
 // HOME PAGE — Main Export
 // ============================================
-export function HomePage() {
+interface HomePageProps {
+  suites: Suite[];
+  galleryImages: { url: string; alt: string; altEn: string }[];
+  testimonials: Testimonial[];
+}
+
+export function HomePage({ suites, galleryImages, testimonials }: HomePageProps) {
   const { t } = useLanguage();
   return (
     <>
       <HeroSection />
       <FeaturesSection />
-      <SuitesSection />
-      <GallerySection />
-      <TestimonialsSection />
+      <SuitesSection suites={suites} />
+      <GallerySection galleryImages={galleryImages} />
+      <TestimonialsSection testimonials={testimonials} />
       <CTASection
         label={t("cta.label")}
         title={

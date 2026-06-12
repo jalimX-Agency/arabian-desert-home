@@ -25,65 +25,6 @@ interface DayPass {
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
-const FALLBACK_PASSES: DayPass[] = [
-  {
-    id: "daypass-piscine-dejeuner",
-    name: "Day Pass Piscine & Déjeuner",
-    nameEn: "Pool & Lunch Day Pass",
-    slug: "daypass-piscine-dejeuner",
-    description:
-      "Profitez d'une journée ensoleillée au bord de la piscine avec un déjeuner gastronomique marocain inclus.",
-    descriptionEn:
-      "Enjoy a sun-soaked day by the pool with a gourmet Moroccan lunch included.",
-    price: 350,
-    currency: "MAD",
-    includes:
-      "Accès piscine toute la journée, Serviettes de piscine, Déjeuner gastronomique, Thé à la menthe d'accueil",
-    includesEn:
-      "Full-day pool access, Pool towels, Gourmet lunch, Welcome mint tea",
-    order: 1,
-    image:
-      "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-oasis.png",
-  },
-  {
-    id: "daypass-diner-animation",
-    name: "Piscine & Dîner avec Animation",
-    nameEn: "Pool & Dinner with Entertainment",
-    slug: "daypass-diner-animation",
-    description:
-      "Une soirée inoubliable avec accès piscine, dîner sous les étoiles et animation musicale gnawa.",
-    descriptionEn:
-      "An unforgettable evening with pool access, dinner under the stars and live gnawa music.",
-    price: 500,
-    currency: "MAD",
-    includes:
-      "Accès piscine, Dîner sous les étoiles, Animation musicale gnawa, Feu de camp, Thé à la menthe",
-    includesEn:
-      "Pool access, Dinner under the stars, Live gnawa music, Campfire, Mint tea",
-    order: 2,
-    image:
-      "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-royal.png",
-  },
-  {
-    id: "daypass-journee-complete",
-    name: "Pass Journée Complète",
-    nameEn: "Full Day Experience",
-    slug: "daypass-journee-complete",
-    description:
-      "L'expérience day pass ultime : piscine, déjeuner, activité au choix et dîner avec animation.",
-    descriptionEn:
-      "The ultimate day pass: pool, lunch, activity of your choice, and dinner with entertainment.",
-    price: 750,
-    currency: "MAD",
-    includes:
-      "Accès piscine, Déjeuner gastronomique, 1 activité au choix, Dîner sous les étoiles, Animation musicale",
-    includesEn:
-      "Pool access, Gourmet lunch, 1 activity of your choice, Dinner under the stars, Live music",
-    order: 3,
-    image:
-      "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-sultan.png",
-  },
-];
 
 function PassRow({
   pass,
@@ -238,7 +179,7 @@ export function DayPassContent({ passes }: { passes: DayPass[] }) {
   const { t, language } = useLanguage();
   const isEn = language === "en";
   const loc = (fr: string, en: string) => (isEn && en) ? en : fr;
-  const data = passes.length > 0 ? passes : FALLBACK_PASSES;
+  const data = passes;
 
   const heroRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true });

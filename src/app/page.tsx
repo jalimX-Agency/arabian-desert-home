@@ -1,18 +1,21 @@
-"use client";
-
+import { db } from "@/lib/db";
 import { Navigation } from "@/components/arabian/Navigation";
 import { HomePage } from "@/components/arabian/HomePage";
 import { Footer } from "@/components/arabian/Footer";
 
-export default function Home() {
+export default async function Home() {
+  const [suites, galleryImages, testimonials] = await Promise.all([
+    db.suite.findMany({ where: { featured: true }, orderBy: { order: "asc" } }),
+    db.galleryImage.findMany({ orderBy: { order: "asc" } }),
+    db.testimonial.findMany({ orderBy: { order: "asc" } }),
+  ]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      
       <main className="flex-1">
-        <HomePage />
+        <HomePage suites={suites} galleryImages={galleryImages} testimonials={testimonials} />
       </main>
-      
       <Footer />
     </div>
   );

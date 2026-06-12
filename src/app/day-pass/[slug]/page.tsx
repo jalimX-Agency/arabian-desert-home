@@ -21,11 +21,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: `${pass.name} | Arabian Desert Home — Day Pass Désert d'Agafay`,
       description: pass.description,
-      url: `https://arabiandeserthome.com/day-pass/${slug}`,
+      url: `https://www.arabiandeserthome.ma/day-pass/${slug}`,
       images: [{ url: image, width: 1200, height: 800, alt: pass.name }],
     },
     twitter: { card: "summary_large_image" as const, title: pass.name, description: pass.description, images: [image] },
-    alternates: { canonical: `https://arabiandeserthome.com/day-pass/${slug}` },
+    alternates: { canonical: `https://www.arabiandeserthome.ma/day-pass/${slug}` },
   };
 }
 
@@ -44,7 +44,7 @@ export default async function DayPassDetailPage({ params }: { params: Promise<{ 
     brand: { "@type": "Brand", name: "Arabian Desert Home" },
     offers: {
       "@type": "Offer",
-      url: `https://arabiandeserthome.com/day-pass/${slug}`,
+      url: `https://www.arabiandeserthome.ma/day-pass/${slug}`,
       priceCurrency: "MAD",
       price: pass.price,
       availability: "https://schema.org/InStock",
@@ -56,9 +56,9 @@ export default async function DayPassDetailPage({ params }: { params: Promise<{ 
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://arabiandeserthome.com" },
-      { "@type": "ListItem", position: 2, name: "Day Pass", item: "https://arabiandeserthome.com/day-pass" },
-      { "@type": "ListItem", position: 3, name: pass.name, item: `https://arabiandeserthome.com/day-pass/${slug}` },
+      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://www.arabiandeserthome.ma" },
+      { "@type": "ListItem", position: 2, name: "Day Pass", item: "https://www.arabiandeserthome.ma/day-pass" },
+      { "@type": "ListItem", position: 3, name: pass.name, item: `https://www.arabiandeserthome.ma/day-pass/${slug}` },
     ],
   };
 

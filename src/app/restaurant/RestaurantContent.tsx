@@ -45,38 +45,6 @@ const fadeIn = {
   }),
 };
 
-const FALLBACK_VENUES: DiningVenue[] = [
-  {
-    id: "dar-agafay",
-    name: "Dar Agafay",
-    slug: "dar-agafay",
-    description: "Notre restaurant principal, un écrin de lumières et de saveurs au cœur du désert.",
-    longDescription: "Dar Agafay offre une expérience culinaire incomparable sous un ciel étoilé. Tables dressées avec soin, bougies et lanternes créent une atmosphère intimiste et magique.",
-    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/dar-agafay.png",
-    capacity: "80 couverts",
-    order: 1,
-  },
-  {
-    id: "restaurant-interieur",
-    name: "Salle Intérieure",
-    slug: "salle-interieure",
-    description: "Un espace élégant aux murs en pisé et aux voûtes berbères, pour les soirées fraîches.",
-    longDescription: "La salle intérieure vous accueille dans un décor authentique mêlant zellige, boiseries sculptées et textiles berbères traditionnels.",
-    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/restaurant-interior.png",
-    capacity: "40 couverts",
-    order: 2,
-  },
-  {
-    id: "terrasse-desert",
-    name: "Terrasse Désert",
-    slug: "terrasse-desert",
-    description: "Dîner à ciel ouvert avec vue panoramique sur les dunes et l'Atlas enneigé.",
-    longDescription: "La terrasse extérieure offre une vue imprenable sur les paysages désertiques. L'endroit idéal pour un dîner romantique sous les étoiles.",
-    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/restaurant-outdoor.png",
-    capacity: "60 couverts",
-    order: 3,
-  },
-];
 
 const MENUS = [
   {
@@ -103,7 +71,7 @@ const MENUS = [
 
 export function RestaurantContent({ venues }: { venues: DiningVenue[] }) {
   const { t } = useLanguage();
-  const data = venues.length > 0 ? venues : FALLBACK_VENUES;
+  const data = venues;
 
   const heroRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true });

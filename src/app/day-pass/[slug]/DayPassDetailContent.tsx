@@ -22,8 +22,6 @@ interface DayPass {
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
-const FALLBACK_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/daypass-pool.png";
-
 export function DayPassDetailContent({ pass }: { pass: DayPass }) {
   const { language, t } = useLanguage();
   const isEn = language === "en";
@@ -38,7 +36,7 @@ export function DayPassDetailContent({ pass }: { pass: DayPass }) {
     <>
       {/* ── Hero ── */}
       <section className="relative h-[60vh] md:h-[70vh] overflow-hidden">
-        <img src={pass.image || FALLBACK_IMAGE} alt={name} className="w-full h-full object-cover" />
+        {pass.image && <img src={pass.image} alt={name} className="w-full h-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-warm-black via-warm-black/30 to-transparent" />
 
         <motion.div
