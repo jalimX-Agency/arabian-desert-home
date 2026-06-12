@@ -16,7 +16,7 @@ export const metadata = {
   openGraph: {
     title: "Day Pass Piscine & Déjeuner au Désert d'Agafay | Arabian Desert Home",
     description: "Piscine, déjeuner marocain et activités à partir de 350 MAD/pers. À 30 km de Marrakech, réservation conseillée 24 h à l'avance.",
-    url: "https://arabiandeserthome.com/day-pass",
+    url: "https://arabiandeserthome.ma/day-pass",
     images: [{ url: OG_IMAGE, width: 1344, height: 768, alt: "Day Pass Désert Agafay — Arabian Desert Home" }],
   },
   twitter: {
@@ -25,7 +25,7 @@ export const metadata = {
     description: "Piscine, déjeuner marocain et activités à partir de 350 MAD. À 30 km de Marrakech.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://arabiandeserthome.com/day-pass" },
+  alternates: { canonical: "https://arabiandeserthome.ma/day-pass" },
 };
 
 export default async function DayPassPage() {

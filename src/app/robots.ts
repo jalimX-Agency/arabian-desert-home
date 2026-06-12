@@ -13,6 +13,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "Bingbot", allow: "/" },
       { userAgent: "msnbot", allow: "/" },
     ],
-    sitemap: "https://arabiandeserthome.com/sitemap.xml",
+    sitemap: "https://arabiandeserthome.ma/sitemap.xml",
   };
 }

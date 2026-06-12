@@ -21,7 +21,7 @@ const josefin = Josefin_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://arabiandeserthome.com"),
+  metadataBase: new URL("https://arabiandeserthome.ma"),
   title: "Arabian Desert Home | Bivouac de Luxe à Agafay, Marrakech",
   description:
     "Arabian Desert Home — bivouac de luxe dans le désert d'Agafay à 30 minutes de Marrakech. Suites-tentes exclusives, restaurant gastronomique, piscine, activités désert (dromadaire, équitation) et événements sous les étoiles.",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: "Arabian Desert Home | Bivouac de Luxe — Désert d'Agafay, Marrakech",
     description:
       "Une invitation à l'évasion au cœur du désert d'Agafay. Bivouac de luxe sur 6 hectares, à seulement 30 minutes de Marrakech.",
-    url: "https://arabiandeserthome.com",
+    url: "https://arabiandeserthome.ma",
     siteName: "Arabian Desert Home",
     type: "website",
     locale: "fr_FR",
@@ -80,10 +80,10 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://arabiandeserthome.com",
+    canonical: "https://arabiandeserthome.ma",
     languages: {
-      fr: "https://arabiandeserthome.com",
-      en: "https://arabiandeserthome.com",
+      fr: "https://arabiandeserthome.ma",
+      en: "https://arabiandeserthome.ma",
     },
   },
 };
@@ -157,7 +157,7 @@ export default function RootLayout({
                   name: "Comment réserver à Arabian Desert Home ?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "La réservation se fait directement via le formulaire en ligne sur arabiandeserthome.com, ou par téléphone au +212 667-370-206. Une confirmation est envoyée par email sous 24 heures.",
+                    text: "La réservation se fait directement via le formulaire en ligne sur arabiandeserthome.ma, ou par téléphone au +212 667-370-206. Une confirmation est envoyée par email sous 24 heures.",
                   },
                 },
               ],
@@ -174,10 +174,10 @@ export default function RootLayout({
               name: "Arabian Desert Home",
               description:
                 "Bivouac de luxe dans le désert d'Agafay à 30 minutes de Marrakech. Six hectares de pur désert, suites-tentes exclusives, restaurant gastronomique et activités sur mesure.",
-              url: "https://arabiandeserthome.com",
-              image: "https://arabiandeserthome.com/images/hero.png",
+              url: "https://arabiandeserthome.ma",
+              image: "https://arabiandeserthome.ma/images/hero.png",
               telephone: "+212667370206",
-              email: "info@arabiandeserthome.com",
+              email: "info@arabiandeserthome.ma",
               address: {
                 "@type": "PostalAddress",
                 streetAddress: "Douar Ait Said Lchou",

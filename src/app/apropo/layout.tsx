@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "À Propos | Arabian Desert Home — Bivouac de Luxe Agafay",
     description: "Découvrez l'histoire et les valeurs d'Arabian Desert Home, bivouac de luxe dans le désert d'Agafay.",
-    url: "https://arabiandeserthome.com/apropo",
+    url: "https://arabiandeserthome.ma/apropo",
     images: [{ url: OG_IMAGE, width: 1344, height: 768, alt: "À propos Arabian Desert Home" }],
   },
   twitter: {
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     description: "L'histoire d'Arabian Desert Home, bivouac de luxe dans le désert d'Agafay.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://arabiandeserthome.com/apropo" },
+  alternates: { canonical: "https://arabiandeserthome.ma/apropo" },
 };
 
 export default function ApropoLayout({ children }: { children: React.ReactNode }) {
