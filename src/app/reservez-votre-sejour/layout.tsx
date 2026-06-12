@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     title: "Réserver au Arabian Desert Home | Bivouac de Luxe Agafay",
     description:
       "Réservez votre nuit dans le désert d'Agafay. Tentes à partir de 170 EUR/nuit, petit-déjeuner inclus. À 30 km de Marrakech.",
-    url: "https://arabiandeserthome.com/reservez-votre-sejour",
+    url: "https://www.arabiandeserthome.ma/reservez-votre-sejour",
     images: [{ url: OG_IMAGE, width: 1344, height: 768, alt: "Réservation Arabian Desert Home — Désert d'Agafay" }],
   },
   twitter: {
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     description: "Réservez votre nuit dans le désert d'Agafay. À partir de 170 EUR/nuit.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://arabiandeserthome.com/reservez-votre-sejour" },
+  alternates: { canonical: "https://www.arabiandeserthome.ma/reservez-votre-sejour" },
 };
 
 export default function ReservezLayout({ children }: { children: React.ReactNode }) {

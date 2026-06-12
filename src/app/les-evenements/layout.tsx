@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "Événements & Séminaires au Désert d'Agafay | Arabian Desert Home",
     description:
       "Mariage, séminaire ou team building sur 6 hectares de désert à 30 km de Marrakech. Cadre unique, service sur mesure.",
-    url: "https://arabiandeserthome.com/les-evenements",
+    url: "https://www.arabiandeserthome.ma/les-evenements",
     images: [{ url: OG_IMAGE, width: 1344, height: 768, alt: "Événements désert Agafay — Arabian Desert Home" }],
   },
   twitter: {
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     description: "Mariage, séminaire ou team building sur 6 hectares de désert à 30 km de Marrakech.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://arabiandeserthome.com/les-evenements" },
+  alternates: { canonical: "https://www.arabiandeserthome.ma/les-evenements" },
 };
 
 export default function LesEvenementsLayout({ children }: { children: React.ReactNode }) {

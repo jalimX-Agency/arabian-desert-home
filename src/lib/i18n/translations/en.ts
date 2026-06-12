@@ -475,7 +475,7 @@ export const en: Record<string, unknown> = {
     phone: "Phone",
     phoneValue: "+212 667-370-206",
     email: "Email",
-    emailValue: "info@arabiandeserthome.com",
+    emailValue: "info@arabiandeserthome.ma",
     formSectionNumber: "02",
     formLabel: "Write to Us",
     formTitle1: "Send your",
