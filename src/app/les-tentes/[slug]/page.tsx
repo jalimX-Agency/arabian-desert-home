@@ -21,11 +21,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: `${suite.name} | Arabian Desert Home — Désert d'Agafay`,
       description: suite.description,
-      url: `https://www.arabiandeserthome.ma/les-tentes/${slug}`,
+      url: `https://arabiandeserthome.com/les-tentes/${slug}`,
       images: [{ url: image, width: 1200, height: 800, alt: suite.name }],
     },
     twitter: { card: "summary_large_image" as const, title: suite.name, description: suite.description, images: [image] },
-    alternates: { canonical: `https://www.arabiandeserthome.ma/les-tentes/${slug}` },
+    alternates: { canonical: `https://arabiandeserthome.com/les-tentes/${slug}` },
   };
 }
 
@@ -44,7 +44,7 @@ export default async function TenteDetailPage({ params }: { params: Promise<{ sl
     brand: { "@type": "Brand", name: "Arabian Desert Home" },
     offers: {
       "@type": "Offer",
-      url: `https://www.arabiandeserthome.ma/les-tentes/${slug}`,
+      url: `https://arabiandeserthome.com/les-tentes/${slug}`,
       priceCurrency: "EUR",
       price: suite.price,
       availability: "https://schema.org/InStock",
@@ -56,9 +56,9 @@ export default async function TenteDetailPage({ params }: { params: Promise<{ sl
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://www.arabiandeserthome.ma" },
-      { "@type": "ListItem", position: 2, name: "Hébergements", item: "https://www.arabiandeserthome.ma/les-tentes" },
-      { "@type": "ListItem", position: 3, name: suite.name, item: `https://www.arabiandeserthome.ma/les-tentes/${slug}` },
+      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://arabiandeserthome.com" },
+      { "@type": "ListItem", position: 2, name: "Hébergements", item: "https://arabiandeserthome.com/les-tentes" },
+      { "@type": "ListItem", position: 3, name: suite.name, item: `https://arabiandeserthome.com/les-tentes/${slug}` },
     ],
   };
 

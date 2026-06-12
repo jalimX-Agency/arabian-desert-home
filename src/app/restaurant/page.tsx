@@ -16,7 +16,7 @@ export const metadata = {
   openGraph: {
     title: "Restaurant Gastronomique au Désert d'Agafay | Arabian Desert Home",
     description: "Cuisine marocaine et méditerranéenne préparée avec des produits locaux, dans un cadre désertique unique avec vue sur l'Atlas. Menus à partir de 200 DH.",
-    url: "https://www.arabiandeserthome.ma/restaurant",
+    url: "https://arabiandeserthome.com/restaurant",
     images: [{ url: OG_IMAGE, width: 1344, height: 768, alt: "Restaurant désert Agafay — Arabian Desert Home" }],
   },
   twitter: {
@@ -25,7 +25,7 @@ export const metadata = {
     description: "Gastronomie marocaine sous les étoiles. Menus à partir de 200 DH à 30 km de Marrakech.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://www.arabiandeserthome.ma/restaurant" },
+  alternates: { canonical: "https://arabiandeserthome.com/restaurant" },
 };
 
 export default async function RestaurantPage() {

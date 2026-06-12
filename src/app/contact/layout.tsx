@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Contact Arabian Desert Home | Bivouac de Luxe Agafay",
     description: "Contactez-nous pour réserver votre séjour dans le désert d'Agafay. Réponse garantie sous 24 heures.",
-    url: "https://www.arabiandeserthome.ma/contact",
+    url: "https://arabiandeserthome.com/contact",
     images: [{ url: OG_IMAGE, width: 1344, height: 768, alt: "Contact Arabian Desert Home" }],
   },
   twitter: {
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     description: "Contactez-nous pour réserver votre séjour dans le désert d'Agafay.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://www.arabiandeserthome.ma/contact" },
+  alternates: { canonical: "https://arabiandeserthome.com/contact" },
 };
 
 export default function ContactLayout({ children }: { children: React.ReactNode }) {

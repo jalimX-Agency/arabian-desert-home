@@ -16,7 +16,7 @@ export const metadata = {
   openGraph: {
     title: "Tentes & Suites de Luxe dans le Désert d'Agafay | Arabian Desert Home",
     description: "Dormez sous les étoiles dans nos suites-tentes exclusives à 30 km de Marrakech. À partir de 170 €/nuit, petit-déjeuner inclus.",
-    url: "https://www.arabiandeserthome.ma/les-tentes",
+    url: "https://arabiandeserthome.com/les-tentes",
     images: [{ url: OG_IMAGE, width: 1344, height: 768, alt: "Tentes de luxe Arabian Desert Home — Agafay" }],
   },
   twitter: {
@@ -25,7 +25,7 @@ export const metadata = {
     description: "Dormez sous les étoiles dans nos suites-tentes exclusives à 30 km de Marrakech. À partir de 170 €/nuit.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://www.arabiandeserthome.ma/les-tentes" },
+  alternates: { canonical: "https://arabiandeserthome.com/les-tentes" },
 };
 
 export default async function LesTentesPage() {

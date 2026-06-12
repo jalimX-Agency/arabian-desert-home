@@ -175,7 +175,7 @@ export default function RootLayout({
               description:
                 "Bivouac de luxe dans le désert d'Agafay à 30 minutes de Marrakech. Six hectares de pur désert, suites-tentes exclusives, restaurant gastronomique et activités sur mesure.",
               url: "https://www.arabiandeserthome.ma",
-              image: "https://www.arabiandeserthome.ma/images/hero.png",
+              image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png",
               telephone: "+212667370206",
               email: "info@arabiandeserthome.ma",
               address: {
@@ -224,6 +224,3 @@ export default function RootLayout({
           </ThemeProvider>
         </AdminSessionProvider>
       </body>
-    </html>
-  );
-}
