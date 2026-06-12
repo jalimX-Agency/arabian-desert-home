@@ -87,19 +87,19 @@ export function ImageUpload({ value, onChange, folder = "gallery" }: ImageUpload
           className={`w-full h-36 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${
             dragging
               ? "border-amber-500 bg-amber-500/5"
-              : "border-white/10 hover:border-white/25 bg-white/[0.02] hover:bg-white/[0.04]"
+              : "border-gray-300 dark:border-white/10 hover:border-amber-400 dark:hover:border-white/25 bg-gray-50 dark:bg-white/[0.02] hover:bg-gray-100 dark:hover:bg-white/[0.04]"
           }`}
         >
           {uploading ? (
             <div className="flex flex-col items-center gap-2">
               <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-              <span className="text-xs text-white/40">Upload en cours…</span>
+              <span className="text-xs text-gray-400 dark:text-white/40">Upload en cours…</span>
             </div>
           ) : (
             <>
-              <ImageIcon className="w-7 h-7 text-white/20" />
-              <span className="text-xs text-white/40">Glissez une image ou cliquez pour choisir</span>
-              <span className="text-[10px] text-white/20">JPG, PNG, WebP — max 10MB</span>
+              <ImageIcon className="w-7 h-7 text-gray-300 dark:text-white/20" />
+              <span className="text-xs text-gray-400 dark:text-white/40">Glissez une image ou cliquez pour choisir</span>
+              <span className="text-[10px] text-gray-300 dark:text-white/20">JPG, PNG, WebP — max 2MB</span>
             </>
           )}
         </div>

@@ -62,7 +62,7 @@ export function MultiImageUpload({ value, onChange, folder = "gallery" }: MultiI
       {urls.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {urls.map((url, i) => (
-            <div key={i} className="relative group rounded-lg overflow-hidden border border-white/10 aspect-square">
+            <div key={i} className="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-white/10 aspect-square">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={url} alt={`image ${i + 1}`} className="w-full h-full object-cover" />
               <button
@@ -85,21 +85,21 @@ export function MultiImageUpload({ value, onChange, folder = "gallery" }: MultiI
         className={`w-full h-24 flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${
           dragging
             ? "border-amber-500 bg-amber-500/5"
-            : "border-white/10 hover:border-white/25 bg-white/[0.02] hover:bg-white/[0.04]"
+            : "border-gray-300 dark:border-white/10 hover:border-amber-400 dark:hover:border-white/25 bg-gray-50 dark:bg-white/[0.02] hover:bg-gray-100 dark:hover:bg-white/[0.04]"
         }`}
       >
         {uploading ? (
           <div className="flex flex-col items-center gap-1.5">
             <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs text-white/40">Upload en cours…</span>
+            <span className="text-xs text-gray-400 dark:text-white/40">Upload en cours…</span>
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-1.5 text-white/30">
+            <div className="flex items-center gap-1.5 text-gray-300 dark:text-white/30">
               <Plus className="w-4 h-4" />
               <ImageIcon className="w-4 h-4" />
             </div>
-            <span className="text-xs text-white/40">Ajouter des images</span>
+            <span className="text-xs text-gray-400 dark:text-white/40">Ajouter des images</span>
           </>
         )}
       </div>
