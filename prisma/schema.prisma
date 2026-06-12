@@ -179,6 +179,24 @@ model GalleryImage {
   updatedAt DateTime @updatedAt
 }
 
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  excerpt   String   @default("")
+  content   String   @default("")
+  image     String   @default("")
+  category  String   @default("")
+  author    String   @default("")
+  featured  Boolean  @default(false)
+  order     Int      @default(0)
+  titleEn   String   @default("")
+  excerptEn String   @default("")
+  contentEn String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique

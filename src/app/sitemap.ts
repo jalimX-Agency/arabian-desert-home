@@ -4,10 +4,11 @@ import { MetadataRoute } from "next";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = "https://www.arabiandeserthome.ma";
 
-  const [suites, activities, dayPasses] = await Promise.all([
+  const [suites, activities, dayPasses, blogPosts] = await Promise.all([
     db.suite.findMany({ select: { slug: true, updatedAt: true } }),
     db.activity.findMany({ select: { slug: true, updatedAt: true } }),
     db.dayPass.findMany({ select: { slug: true, updatedAt: true } }),
+    db.blogPost.findMany({ select: { slug: true, updatedAt: true } }),
   ]);
 
   const staticRoutes = [
@@ -18,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/day-pass", priority: 0.8 },
     { path: "/les-evenements", priority: 0.7 },
     { path: "/restaurant", priority: 0.7 },
+    { path: "/blog", priority: 0.8 },
     { path: "/apropo", priority: 0.6 },
     { path: "/contact", priority: 0.6 },
   ].map(({ path, priority }) => ({
@@ -46,6 +48,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: d.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.7,
+    })),
+    ...blogPosts.map((p) => ({
+      url: `${base}/blog/${p.slug}`,
+      lastModified: p.updatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.75,
     })),
   ];
 }

@@ -13,6 +13,7 @@ const footerNavLinks = [
   { labelKey: "footer.navActivities", href: "/les-activites" },
   { labelKey: "footer.navDayPass", href: "/day-pass" },
   { labelKey: "footer.navEvents", href: "/les-evenements" },
+  { labelKey: "footer.navBlog", href: "/blog" },
   { labelKey: "footer.navAbout", href: "/apropo" },
 ];
 
