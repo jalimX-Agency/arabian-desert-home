@@ -77,8 +77,8 @@ export async function POST(request: NextRequest) {
   if (!allowedTypes.includes(file.type)) {
     return NextResponse.json({ error: "Type de fichier non supporté" }, { status: 400 });
   }
-  if (file.size > 10 * 1024 * 1024) {
-    return NextResponse.json({ error: "Fichier trop grand (max 10MB)" }, { status: 400 });
+  if (file.size > 2 * 1024 * 1024) {
+    return NextResponse.json({ error: "Fichier trop grand (max 2MB)" }, { status: 400 });
   }
 
   const folderParam = formData.get("folder") as string | null;
