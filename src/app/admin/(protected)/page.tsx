@@ -125,7 +125,7 @@ export default function AdminDashboardPage() {
                 <div key={b.id} className="px-5 py-3.5 flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <p className="text-sm text-gray-900 dark:text-white truncate">{b.firstName} {b.lastName}</p>
-                    <p className="text-xs text-gray-400 truncate">{b.suite.name} · {format(new Date(b.checkIn), "d MMM yyyy", { locale: fr })}</p>
+                    <p className="text-xs text-gray-400 truncate">{b.suite?.name ?? "—"} · {format(new Date(b.checkIn), "d MMM yyyy", { locale: fr })}</p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     <span className="text-sm text-amber-600 dark:text-amber-400">{b.totalAmount} MAD</span>
