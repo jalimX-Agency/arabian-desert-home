@@ -8,6 +8,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (deny) return deny;
   const { id } = await params;
   const data = await req.json();
+  const existing = await db.blogPost.findUnique({ where: { id }, select: { image: true } });
+  if (existing?.image && data.image !== undefined && data.image !== existing.image) {
+    await deleteR2Urls(existing.image).catch(() => {});
+  }
   const post = await db.blogPost.update({ where: { id }, data });
   return NextResponse.json(post);
 }
