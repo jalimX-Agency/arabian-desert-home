@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = "https://arabiandeserthome.ma";
+  const base = "https://www.arabiandeserthome.ma";
 
   const [suites, activities, dayPasses] = await Promise.all([
     db.suite.findMany({ select: { slug: true, updatedAt: true } }),

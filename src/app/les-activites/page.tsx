@@ -16,7 +16,7 @@ export const metadata = {
   openGraph: {
     title: "Activités & Expériences Désert d'Agafay | Arabian Desert Home",
     description: "Balades à dromadaire, quad, équitation et couchers de soleil sur 6 hectares de désert à 30 km de Marrakech.",
-    url: "https://arabiandeserthome.ma/les-activites",
+    url: "https://www.arabiandeserthome.ma/les-activites",
     images: [{ url: OG_IMAGE, width: 1344, height: 768, alt: "Activités désert Agafay — Arabian Desert Home" }],
   },
   twitter: {
@@ -25,7 +25,7 @@ export const metadata = {
     description: "Balades à dromadaire, quad, équitation et couchers de soleil sur 6 hectares à 30 km de Marrakech.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://arabiandeserthome.ma/les-activites" },
+  alternates: { canonical: "https://www.arabiandeserthome.ma/les-activites" },
 };
 
 export default async function LesActivitesPage() {

@@ -199,12 +199,12 @@ export function Footer() {
                   </span>
                 </a>
                 {/* Email */}
-                <a href="mailto:info@arabiandeserthome.ma" className="flex items-center gap-3 group cursor-pointer">
+                <a href="mailto:info@arabiandeserthome.com" className="flex items-center gap-3 group cursor-pointer">
                   <div className="w-7 h-7 rounded-full border border-amber/15 flex items-center justify-center flex-shrink-0 group-hover:border-amber/35 transition-colors duration-300">
                     <Mail className="w-3 h-3 text-amber/50 group-hover:text-amber/80 transition-colors duration-300" />
                   </div>
                   <span className="text-sm text-muted-foreground group-hover:text-amber transition-colors duration-300">
-                    info@arabiandeserthome.ma
+                    info@arabiandeserthome.com
                   </span>
                 </a>
               </div>

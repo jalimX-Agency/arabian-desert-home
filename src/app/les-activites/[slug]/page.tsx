@@ -21,11 +21,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     openGraph: {
       title: `${activity.name} | Arabian Desert Home — Désert d'Agafay`,
       description: activity.description,
-      url: `https://arabiandeserthome.ma/les-activites/${slug}`,
+      url: `https://www.arabiandeserthome.ma/les-activites/${slug}`,
       images: [{ url: image, width: 1200, height: 800, alt: activity.name }],
     },
     twitter: { card: "summary_large_image" as const, title: activity.name, description: activity.description, images: [image] },
-    alternates: { canonical: `https://arabiandeserthome.ma/les-activites/${slug}` },
+    alternates: { canonical: `https://www.arabiandeserthome.ma/les-activites/${slug}` },
   };
 }
 
@@ -44,7 +44,7 @@ export default async function ActiviteDetailPage({ params }: { params: Promise<{
     brand: { "@type": "Brand", name: "Arabian Desert Home" },
     offers: {
       "@type": "Offer",
-      url: `https://arabiandeserthome.ma/les-activites/${slug}`,
+      url: `https://www.arabiandeserthome.ma/les-activites/${slug}`,
       priceCurrency: "MAD",
       price: activity.price,
       availability: "https://schema.org/InStock",
@@ -56,9 +56,9 @@ export default async function ActiviteDetailPage({ params }: { params: Promise<{
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://arabiandeserthome.ma" },
-      { "@type": "ListItem", position: 2, name: "Activités", item: "https://arabiandeserthome.ma/les-activites" },
-      { "@type": "ListItem", position: 3, name: activity.name, item: `https://arabiandeserthome.ma/les-activites/${slug}` },
+      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://www.arabiandeserthome.ma" },
+      { "@type": "ListItem", position: 2, name: "Activités", item: "https://www.arabiandeserthome.ma/les-activites" },
+      { "@type": "ListItem", position: 3, name: activity.name, item: `https://www.arabiandeserthome.ma/les-activites/${slug}` },
     ],
   };
 
