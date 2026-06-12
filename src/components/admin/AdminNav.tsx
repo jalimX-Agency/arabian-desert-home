@@ -11,6 +11,7 @@ import {
 
 const links = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
+  { href: "/admin/reservations", label: "Réservations", icon: CalendarCheck },
   { href: "/admin/hebergements", label: "Hébergements", icon: BedDouble },
   { href: "/admin/activites", label: "Activités", icon: Zap },
   { href: "/admin/day-pass", label: "Day Pass", icon: Sun },
@@ -18,7 +19,6 @@ const links = [
   { href: "/admin/galerie", label: "Galerie", icon: Images },
   { href: "/admin/temoignages", label: "Témoignages", icon: MessageSquareQuote },
   { href: "/admin/blog", label: "Blog", icon: BookOpen },
-  { href: "/admin/reservations", label: "Réservations", icon: CalendarCheck },
   { href: "/admin/messages", label: "Messages", icon: Mail },
   { href: "/admin/parametres", label: "Paramètres", icon: Settings },
 ];
