@@ -33,7 +33,7 @@ function FieldInput({ field, value, onChange }: {
   value: unknown;
   onChange: (val: unknown) => void;
 }) {
-  const base = "w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/50";
+  const base = "w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/70 focus:ring-1 focus:ring-amber-500/30";
 
   if (field.type === "image") {
     return <ImageUpload value={String(value ?? "")} onChange={onChange} folder={field.folder} />;
@@ -59,10 +59,10 @@ function FieldInput({ field, value, onChange }: {
       <button
         type="button"
         onClick={() => onChange(!value)}
-        className={`flex items-center gap-2 text-sm ${value ? "text-amber-400" : "text-white/40"}`}
+        className={`flex items-center gap-2 text-sm ${value ? "text-amber-600" : "text-gray-400"}`}
       >
-        <div className={`w-5 h-5 rounded border flex items-center justify-center ${value ? "bg-amber-500 border-amber-500" : "border-white/20"}`}>
-          {value && <Check className="w-3 h-3 text-black" />}
+        <div className={`w-5 h-5 rounded border flex items-center justify-center ${value ? "bg-amber-500 border-amber-500" : "border-gray-300 bg-white"}`}>
+          {value && <Check className="w-3 h-3 text-white" />}
         </div>
         {value ? "Oui" : "Non"}
       </button>
@@ -163,48 +163,61 @@ export function ResourceManager({ title, apiPath, fields, columns, tabs }: Resou
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-semibold text-white">{title}</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{title}</h1>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-black text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           Ajouter
         </button>
       </div>
 
-      {loading ? (
-        <div className="text-white/30 text-sm">Chargement…</div>
-      ) : (
-        <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/10">
-                {columns.map((col) => (
-                  <th key={col.key} className="text-left px-5 py-3.5 text-white/40 font-medium text-xs uppercase tracking-widest">
-                    {col.label}
-                  </th>
-                ))}
-                <th className="px-5 py-3.5 text-right text-white/40 font-medium text-xs uppercase tracking-widest">Actions</th>
-              </tr>
-            </thead>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+              {columns.map((col) => (
+                <th key={col.key} className="text-left px-5 py-3.5 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase tracking-widest">
+                  {col.label}
+                </th>
+              ))}
+              <th className="px-5 py-3.5 text-right text-gray-400 dark:text-gray-500 font-medium text-xs uppercase tracking-widest">Actions</th>
+            </tr>
+          </thead>
+          {loading ? (
+            <tbody>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-b border-gray-100 dark:border-gray-800">
+                  {columns.map((col) => (
+                    <td key={col.key} className="px-5 py-4">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4" />
+                    </td>
+                  ))}
+                  <td className="px-5 py-4 text-right">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16 ml-auto" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          ) : (
             <tbody>
               {items.length === 0 && (
-                <tr><td colSpan={columns.length + 1} className="px-5 py-8 text-center text-white/30">Aucun élément</td></tr>
+                <tr><td colSpan={columns.length + 1} className="px-5 py-8 text-center text-gray-400">Aucun élément</td></tr>
               )}
               {items.map((item) => (
-                <tr key={String(item.id)} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                <tr key={String(item.id)} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                   {columns.map((col) => (
-                    <td key={col.key} className="px-5 py-4 text-white/70">
+                    <td key={col.key} className="px-5 py-4 text-gray-600 dark:text-gray-400">
                       {col.render ? col.render(item[col.key], item) : String(item[col.key] ?? "—")}
                     </td>
                   ))}
                   <td className="px-5 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => openEdit(item)} className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors">
+                      <button onClick={() => openEdit(item)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => handleDelete(String(item.id))} className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/40 hover:text-red-400 transition-colors">
+                      <button onClick={() => handleDelete(String(item.id))} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -212,32 +225,32 @@ export function ResourceManager({ title, apiPath, fields, columns, tabs }: Resou
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      )}
+          )}
+        </table>
+      </div>
 
       {modal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-[#161616] border border-white/10 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-xl">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 shrink-0">
-              <h2 className="font-semibold text-white">{modal === "create" ? "Ajouter" : "Modifier"}</h2>
-              <button onClick={() => setModal(null)} className="text-white/40 hover:text-white transition-colors">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200 dark:border-gray-800 shrink-0">
+              <h2 className="font-semibold text-gray-900 dark:text-gray-100">{modal === "create" ? "Ajouter" : "Modifier"}</h2>
+              <button onClick={() => setModal(null)} className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Tabs */}
             {tabs && (
-              <div className="flex border-b border-white/10 shrink-0 px-2">
+              <div className="flex border-b border-gray-200 dark:border-gray-800 shrink-0 px-2">
                 {tabs.map((tab, i) => (
                   <button
                     key={tab.label}
                     onClick={() => setActiveTab(i)}
                     className={`px-4 py-3 text-xs font-medium uppercase tracking-widest transition-colors relative ${
                       activeTab === i
-                        ? "text-amber-400"
-                        : "text-white/30 hover:text-white/60"
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                     }`}
                   >
                     {tab.label}
@@ -253,7 +266,7 @@ export function ResourceManager({ title, apiPath, fields, columns, tabs }: Resou
             <div className="px-6 py-5 space-y-4 overflow-y-auto flex-1">
               {activeFields.map((field) => (
                 <div key={field.key}>
-                  <label className="block text-xs text-white/50 uppercase tracking-widest mb-1.5">
+                  <label className="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">
                     {field.label}{field.required && " *"}
                   </label>
                   <FieldInput
@@ -263,29 +276,29 @@ export function ResourceManager({ title, apiPath, fields, columns, tabs }: Resou
                   />
                 </div>
               ))}
-              {error && <p className="text-red-400 text-sm">{error}</p>}
+              {error && <p className="text-red-500 text-sm">{error}</p>}
             </div>
 
             {/* Footer */}
-            <div className="flex gap-3 px-6 py-5 border-t border-white/10 shrink-0">
+            <div className="flex gap-3 px-6 py-5 border-t border-gray-200 dark:border-gray-800 shrink-0">
               {tabs && (
                 <div className="flex gap-1 mr-auto">
                   {tabs.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveTab(i)}
-                      className={`w-1.5 h-1.5 rounded-full transition-colors ${i === activeTab ? "bg-amber-500" : "bg-white/20"}`}
+                      className={`w-1.5 h-1.5 rounded-full transition-colors ${i === activeTab ? "bg-amber-500" : "bg-gray-300"}`}
                     />
                   ))}
                 </div>
               )}
-              <button onClick={() => setModal(null)} className="px-4 py-2.5 rounded-lg border border-white/10 text-sm text-white/60 hover:text-white transition-colors">
+              <button onClick={() => setModal(null)} className="px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors">
                 Annuler
               </button>
               {tabs && activeTab < tabs.length - 1 && (
                 <button
                   onClick={() => setActiveTab((t) => t + 1)}
-                  className="px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-sm font-medium transition-colors"
+                  className="px-4 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors"
                 >
                   Suivant →
                 </button>
@@ -293,7 +306,7 @@ export function ResourceManager({ title, apiPath, fields, columns, tabs }: Resou
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-6 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm transition-colors disabled:opacity-50"
+                className="px-6 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-white font-semibold text-sm transition-colors disabled:opacity-50"
               >
                 {saving ? "Sauvegarde…" : "Sauvegarder"}
               </button>

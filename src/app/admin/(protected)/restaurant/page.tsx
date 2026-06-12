@@ -8,6 +8,7 @@ export default function RestaurantAdminPage() {
       title="Restaurant & Lieux"
       apiPath="/api/admin/dining"
       columns={[
+        { key: "image", label: "Photo", render: (v) => v ? <img src={v as string} className="w-14 h-10 object-cover rounded-lg" alt="" /> : "—" },
         { key: "name", label: "Nom" },
         { key: "capacity", label: "Capacité" },
         { key: "order", label: "Ordre" },

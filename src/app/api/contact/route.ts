@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { sendContactConfirmation, sendContactNotification } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -15,6 +16,11 @@ export async function POST(request: Request) {
     await db.contactMessage.create({
       data: { name, email, subject, message },
     });
+
+    Promise.allSettled([
+      sendContactConfirmation(email, name, subject),
+      sendContactNotification(name, email, subject, message),
+    ]);
 
     return Response.json({ success: true }, { status: 201 });
   } catch {

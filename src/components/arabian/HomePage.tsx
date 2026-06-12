@@ -97,7 +97,7 @@ function HeroSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
 
   return (
-    <section ref={sectionRef} className="relative h-screen w-full overflow-hidden">
+    <section ref={sectionRef} className="relative h-screen min-h-[600px] w-full overflow-hidden">
       {/* Background Video with Parallax — falls back to poster image while buffering */}
       <motion.div className="absolute inset-0" style={{ y: imgY }}>
         <video
@@ -107,7 +107,7 @@ function HeroSection() {
           playsInline
           preload="metadata"
           poster="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png"
-          className="w-full h-full object-cover scale-110"
+          className="w-full h-full object-cover scale-[1.18]"
         >
           <source
             src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero-video.webm"
@@ -118,6 +118,8 @@ function HeroSection() {
         <div className="absolute inset-0 gradient-warm" />
         <div className="absolute inset-0" style={{ background: "linear-gradient(to right, oklch(0.08 0.008 55 / 80%) 0%, oklch(0.08 0.008 55 / 25%) 45%, transparent 100%)" }} />
         <div className="absolute inset-0 gradient-amber" />
+        {/* Watermark cover — bottom-right corner dark radial */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 35% 25% at 100% 100%, oklch(0.08 0.008 55 / 95%) 0%, transparent 100%)" }} />
       </motion.div>
 
       {/* Organic Decorative Blob */}
@@ -141,7 +143,7 @@ function HeroSection() {
       {/* Content — Left Aligned */}
       <motion.div
         style={{ y: textY, opacity }}
-        className="relative z-10 h-full flex flex-col justify-end pb-24 md:pb-32 px-6 md:px-10 max-w-7xl mx-auto"
+        className="relative z-10 h-full flex flex-col justify-end pb-20 md:pb-24 lg:pb-20 xl:pb-32 px-6 md:px-10 max-w-7xl mx-auto"
       >
         {/* Location Tag */}
         <motion.div
@@ -161,7 +163,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.7, ease: smoothEase }}
-          className="heading-display text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[8.5rem] max-w-5xl text-balance"
+          className="heading-display text-white text-5xl sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[8.5rem] max-w-5xl text-balance"
         >
           {t("hero.heading1")}
           <br />
@@ -578,33 +580,65 @@ function SuitesSection() {
 // ============================================
 // 4. GALLERY SECTION — Masonry/Bento + Rounded Corners
 // ============================================
+const FALLBACK_GALLERY = [
+  {
+    url: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.png",
+    alt: "Vue aérienne du bivouac Arabian Desert Home dans le désert d'Agafay",
+    altEn: "Aerial view of Arabian Desert Home camp in the Agafay desert",
+    span: "md:col-span-2 md:row-span-2",
+  },
+  {
+    url: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/restaurant-interior.png",
+    alt: "Restaurant gastronomique Dar Agafay — cuisine marocaine raffinée",
+    altEn: "Dar Agafay gourmet restaurant — refined Moroccan cuisine",
+    span: "",
+  },
+  {
+    url: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/night.png",
+    alt: "Soirée magique sous les étoiles au désert d'Agafay",
+    altEn: "Magical evening under the stars in the Agafay desert",
+    span: "",
+  },
+  {
+    url: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-camel.png",
+    alt: "Promenade en dromadaire au coucher du soleil dans le désert",
+    altEn: "Camel ride at sunset in the desert",
+    span: "md:col-span-2",
+  },
+];
+
+const BENTO_SPANS = [
+  "md:col-span-2 md:row-span-2",
+  "",
+  "",
+  "md:col-span-2",
+];
+
 function GallerySection() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEn = language === "en";
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
 
-  const galleryImages = [
-    {
-      src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.png",
-      alt: "Vue aérienne du bivouac Arabian Desert Home dans le désert d'Agafay",
-      span: "md:col-span-2 md:row-span-2",
-    },
-    {
-      src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/restaurant-interior.png",
-      alt: "Restaurant gastronomique Dar Agafay — cuisine marocaine raffinée",
-      span: "",
-    },
-    {
-      src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/night.png",
-      alt: "Soirée magique sous les étoiles au désert d'Agafay",
-      span: "",
-    },
-    {
-      src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-camel.png",
-      alt: "Promenade en dromadaire au coucher du soleil dans le désert",
-      span: "md:col-span-2",
-    },
-  ];
+  const [galleryImages, setGalleryImages] = useState(FALLBACK_GALLERY);
+
+  useEffect(() => {
+    fetch("/api/gallery")
+      .then((r) => r.json())
+      .then((data: { url: string; alt: string; altEn: string }[]) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setGalleryImages(
+            data.map((img, i) => ({
+              url: img.url,
+              alt: img.alt || img.altEn || "",
+              altEn: img.altEn || img.alt || "",
+              span: BENTO_SPANS[i % BENTO_SPANS.length],
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <section
@@ -653,7 +687,7 @@ function GallerySection() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[200px] md:auto-rows-[240px]">
           {galleryImages.map((image, index) => (
             <motion.div
-              key={image.src}
+              key={image.url}
               variants={revealScale}
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
@@ -661,8 +695,8 @@ function GallerySection() {
               className={`group relative overflow-hidden cursor-pointer rounded-2xl ${image.span}`}
             >
               <img
-                src={image.src}
-                alt={image.alt}
+                src={image.url}
+                alt={isEn ? image.altEn : image.alt}
                 className="img-luxury w-full h-full object-cover group-hover:scale-110"
               />
               {/* Amber Overlay on Hover */}
@@ -826,6 +860,61 @@ function PackagesSection() {
 // ============================================
 // 6. TESTIMONIALS SECTION — Full-Width Quote Slider
 // ============================================
+
+function ReviewSourceBadge({ source }: { source: string }) {
+  if (source === "google") {
+    return (
+      <span className="inline-flex items-center gap-1.5 border border-border/50 rounded-full px-3 py-1 text-xs text-muted-foreground">
+        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" aria-hidden="true">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Google
+      </span>
+    );
+  }
+  if (source === "tripadvisor") {
+    return (
+      <span className="inline-flex items-center gap-1.5 border border-border/50 rounded-full px-3 py-1 text-xs text-muted-foreground">
+        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="#34E0A1" aria-hidden="true">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4.5 9.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-2.5 0-4.71-1.28-6-3.22.78.47 1.71.72 2.71.72 1.24 0 2.37-.45 3.26-1.18A4.254 4.254 0 0 0 15.29 16.5c1 0 1.93-.25 2.71-.72C16.71 17.72 14.5 19 12 19z"/>
+        </svg>
+        TripAdvisor
+      </span>
+    );
+  }
+  if (source === "booking") {
+    return (
+      <span className="inline-flex items-center gap-1.5 border border-border/50 rounded-full px-3 py-1 text-xs text-muted-foreground">
+        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" aria-hidden="true">
+          <rect width="24" height="24" rx="4" fill="#003580"/>
+          <text x="4" y="18" fontFamily="Arial" fontWeight="bold" fontSize="14" fill="#fff">B.</text>
+        </svg>
+        Booking.com
+      </span>
+    );
+  }
+  if (source === "airbnb") {
+    return (
+      <span className="inline-flex items-center gap-1.5 border border-border/50 rounded-full px-3 py-1 text-xs text-muted-foreground">
+        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="#FF5A5F" aria-hidden="true">
+          <path d="M12 2.163c-5.48 0-9.837 4.358-9.837 9.837 0 5.48 4.358 9.837 9.837 9.837 5.48 0 9.837-4.358 9.837-9.837 0-5.48-4.358-9.837-9.837-9.837zm0 17.674c-4.325 0-7.837-3.512-7.837-7.837 0-4.325 3.512-7.837 7.837-7.837 4.325 0 7.837 3.512 7.837 7.837 0 4.325-3.512 7.837-7.837 7.837zm0-13.5c-1.006 0-1.946.332-2.7.89L12 10.5l2.7-3.273A4.49 4.49 0 0 0 12 6.337zm0 9c-2.485 0-4.5-2.015-4.5-4.5 0-.74.18-1.438.497-2.053L12 13.5l4.003-4.716A4.478 4.478 0 0 1 16.5 10.837c0 2.485-2.015 4.5-4.5 4.5z"/>
+        </svg>
+        Airbnb
+      </span>
+    );
+  }
+  // general / default
+  return (
+    <span className="inline-flex items-center gap-1.5 border border-amber/20 rounded-full px-3 py-1 text-xs text-amber/60">
+      <Star className="w-3 h-3 fill-amber text-amber" />
+      Séjour vérifié
+    </span>
+  );
+}
+
 function TestimonialsSection() {
   const { t } = useLanguage();
   const sectionRef = useRef(null);
@@ -955,6 +1044,10 @@ function TestimonialsSection() {
                   <p className="luxury-label text-muted-foreground mt-1.5 text-[9px]">
                     {testimonial.location}
                   </p>
+                  {/* Source badge */}
+                  <div className="flex items-center justify-center gap-2 mt-4">
+                    <ReviewSourceBadge source={testimonial.source} />
+                  </div>
                 </motion.div>
               ) : null
             )}

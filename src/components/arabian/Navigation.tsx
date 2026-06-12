@@ -156,6 +156,15 @@ export function Navigation() {
               </span>
             </Link>
 
+            {/* Mobile language toggle — always visible on mobile, one tap FR↔EN */}
+            <button
+              onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
+              className="flex md:hidden items-center luxury-label px-2.5 h-8 rounded-full border border-amber/15 bg-amber/[0.04] text-amber text-xs cursor-pointer hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300"
+              aria-label="Toggle language"
+            >
+              {language.toUpperCase()}
+            </button>
+
             {/* Mobile Hamburger — Rounded */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -209,7 +218,7 @@ export function Navigation() {
             transition={{ duration: 0.4, ease: smoothEase }}
             className="fixed inset-0 z-40 glass-premium grain-overlay overflow-hidden"
           >
-            <div className="h-full flex flex-col pt-28 pb-10 px-8">
+            <div className="h-full flex flex-col pt-24 pb-8 px-8">
               {/* Nav Links — Large serif, staggered entrance */}
               <div className="flex-1 flex flex-col justify-center gap-1">
                 {navLinkKeys.map((link, i) => {
@@ -228,7 +237,7 @@ export function Navigation() {
                       <Link
                         href={link.href}
                         onClick={closeMobile}
-                        className={`font-serif text-4xl sm:text-5xl py-3 flex items-center gap-4 group cursor-pointer transition-colors duration-300 ${isActive
+                        className={`font-serif text-3xl sm:text-4xl py-2 flex items-center gap-4 group cursor-pointer transition-colors duration-300 ${isActive
                           ? "text-amber"
                           : "text-foreground/80 hover:text-amber"
                           }`}

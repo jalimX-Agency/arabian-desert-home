@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { Heart, Sparkles, Gem, ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -79,12 +79,18 @@ export default function EvenementsPage() {
     },
   ];
 
-  const galleryImages = [
-    { src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/events/events-gala.png", alt: "Soirée de gala sous les étoiles du désert" },
-    { src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/events/events.png", alt: "Cérémonie de mariage au désert d'Agafay" },
-    { src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/night.png", alt: "Ambiance nocturne féerique au camp" },
-    { src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-camel.png", alt: "Procession de dromadaires au coucher du soleil" },
-  ];
+  const [galleryImages, setGalleryImages] = useState<{ src: string; alt: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/gallery?category=evenements")
+      .then((r) => r.json())
+      .then((data: { url: string; alt: string }[]) => {
+        if (Array.isArray(data)) {
+          setGalleryImages(data.map((img) => ({ src: img.url, alt: img.alt || "" })));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -277,114 +283,40 @@ export default function EvenementsPage() {
         </section>
 
         {/* ── Image Gallery ── */}
-        <section
-          ref={galleryRef}
-          className="py-16 md:py-24 px-6 md:px-10 relative"
-        >
-          <div className="max-w-7xl mx-auto relative z-10">
-            <motion.div
-              variants={fadeIn}
-              initial="hidden"
-              animate={galleryInView ? "visible" : "hidden"}
-              custom={0}
-              className="mb-4"
-            >
-              <span className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block">
+        {galleryImages.length > 0 && (
+          <section className="py-16 md:py-24 px-6 md:px-10 relative">
+            <div className="max-w-7xl mx-auto relative z-10">
+              <span className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block mb-4">
                 {t("evenements.gallerySectionNumber")}
               </span>
-            </motion.div>
-            <motion.span
-              variants={revealUp}
-              initial="hidden"
-              animate={galleryInView ? "visible" : "hidden"}
-              custom={0.1}
-              className="luxury-label text-amber block mb-4"
-            >
-              {t("evenements.galleryLabel")}
-            </motion.span>
-            <motion.h2
-              variants={revealUp}
-              initial="hidden"
-              animate={galleryInView ? "visible" : "hidden"}
-              custom={0.2}
-              className="heading-display text-3xl md:text-5xl mb-16"
-            >
-              {t("evenements.galleryTitle1")}
-              <br />
-              <span className="italic text-amber">{t("evenements.galleryTitle2")}</span>
-            </motion.h2>
+              <span className="luxury-label text-amber block mb-4">
+                {t("evenements.galleryLabel")}
+              </span>
+              <h2 className="heading-display text-3xl md:text-5xl mb-16">
+                {t("evenements.galleryTitle1")}
+                <br />
+                <span className="italic text-amber">{t("evenements.galleryTitle2")}</span>
+              </h2>
 
-            {/* Gallery Grid — Bento/Masonry layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              {/* Large image — spans 2 cols on first row */}
-              <motion.div
-                variants={revealScale}
-                initial="hidden"
-                animate={galleryInView ? "visible" : "hidden"}
-                custom={0.3}
-                className="md:col-span-1 aspect-[4/3] overflow-hidden rounded-2xl relative group cursor-pointer"
-              >
-                <img
-                  src={galleryImages[0].src}
-                  alt={galleryImages[0].alt}
-                  className="w-full h-full object-cover img-luxury"
-                />
-                {/* Amber hover overlay */}
-                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
-                {/* Inner frame border on hover */}
-                <div className="absolute inset-3 rounded-xl border border-amber/0 group-hover:border-amber/20 transition-all duration-500" />
-              </motion.div>
-
-              <motion.div
-                variants={revealScale}
-                initial="hidden"
-                animate={galleryInView ? "visible" : "hidden"}
-                custom={0.4}
-                className="aspect-[4/3] overflow-hidden rounded-2xl relative group cursor-pointer"
-              >
-                <img
-                  src={galleryImages[1].src}
-                  alt={galleryImages[1].alt}
-                  className="w-full h-full object-cover img-luxury"
-                />
-                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
-                <div className="absolute inset-3 rounded-xl border border-amber/0 group-hover:border-amber/20 transition-all duration-500" />
-              </motion.div>
-
-              <motion.div
-                variants={revealScale}
-                initial="hidden"
-                animate={galleryInView ? "visible" : "hidden"}
-                custom={0.5}
-                className="aspect-[4/3] overflow-hidden rounded-2xl relative group cursor-pointer"
-              >
-                <img
-                  src={galleryImages[2].src}
-                  alt={galleryImages[2].alt}
-                  className="w-full h-full object-cover img-luxury"
-                />
-                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
-                <div className="absolute inset-3 rounded-xl border border-amber/0 group-hover:border-amber/20 transition-all duration-500" />
-              </motion.div>
-
-              <motion.div
-                variants={revealScale}
-                initial="hidden"
-                animate={galleryInView ? "visible" : "hidden"}
-                custom={0.6}
-                className="aspect-[4/3] overflow-hidden rounded-2xl relative group cursor-pointer"
-              >
-                <img
-                  src={galleryImages[3].src}
-                  alt={galleryImages[3].alt}
-                  className="w-full h-full object-cover img-luxury"
-                />
-                <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
-                <div className="absolute inset-3 rounded-xl border border-amber/0 group-hover:border-amber/20 transition-all duration-500" />
-              </motion.div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                {galleryImages.map((img) => (
+                  <div
+                    key={img.src}
+                    className="aspect-[4/3] overflow-hidden rounded-2xl relative group cursor-pointer"
+                  >
+                    <img
+                      src={img.src}
+                      alt={img.alt}
+                      className="w-full h-full object-cover img-luxury"
+                    />
+                    <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
+                    <div className="absolute inset-3 rounded-xl border border-amber/0 group-hover:border-amber/20 transition-all duration-500" />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* ── CTA Section ── */}
         <CTASection

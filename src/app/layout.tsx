@@ -81,6 +81,10 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://arabiandeserthome.com",
+    languages: {
+      fr: "https://arabiandeserthome.com",
+      en: "https://arabiandeserthome.com",
+    },
   },
 };
 
@@ -92,6 +96,74 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
+        <script
+          id="faq-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "Où se trouve Arabian Desert Home ?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Arabian Desert Home se situe dans le désert d'Agafay, à 30 km de Marrakech (environ 45 minutes de route), dans la région Marrakech-Safi au Maroc.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Quel est le prix d'une nuit dans une tente de luxe ?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Les tentes commencent à partir de 170 EUR par nuit pour la tente entière, quel que soit le nombre de personnes (dans la limite de la capacité). Le petit-déjeuner est inclus.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Qu'est-ce qu'un Day Pass au désert d'Agafay ?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Le Day Pass donne accès à la piscine, au déjeuner traditionnel marocain et aux activités du camp. Les tarifs démarrent à 350 MAD par personne. Il est recommandé de réserver 24 h à l'avance.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Quelles activités sont disponibles dans le désert d'Agafay ?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Arabian Desert Home propose des balades à dromadaire, des tours en quad, de l'équitation, des randonnées dans le désert et des couchers de soleil panoramiques sur les 6 hectares du domaine.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Y a-t-il un restaurant sur place ?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Oui, le restaurant propose une cuisine marocaine et méditerranéenne préparée avec des produits locaux, dans un cadre désertique unique avec vue sur les montagnes de l'Atlas.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Quelle est la meilleure saison pour visiter le désert d'Agafay ?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Le désert d'Agafay est accessible toute l'année. Le printemps (mars–mai) et l'automne (septembre–novembre) offrent des températures idéales (20–28 °C). En été les nuits restent fraîches grâce à l'altitude.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Comment réserver à Arabian Desert Home ?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "La réservation se fait directement via le formulaire en ligne sur arabiandeserthome.com, ou par téléphone au +212 667-370-206. Une confirmation est envoyée par email sous 24 heures.",
+                  },
+                },
+              ],
+            }),
+          }}
+        ></script>
         <script
           id="structured-data"
           type="application/ld+json"
@@ -144,12 +216,7 @@ export default function RootLayout({
         className={`${cinzel.variable} ${josefin.variable} antialiased bg-background text-foreground`}
       >
         <AdminSessionProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem={false}
-            disableTransitionOnChange
-          >
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
             <LanguageProvider>
               {children}
               <Toaster />

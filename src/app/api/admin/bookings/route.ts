@@ -7,7 +7,11 @@ export async function GET() {
   if (deny) return deny;
   const bookings = await db.booking.findMany({
     orderBy: { createdAt: "desc" },
-    include: { suite: { select: { name: true } } },
+    include: {
+      suite: { select: { name: true } },
+      activity: { select: { name: true } },
+      dayPass: { select: { name: true } },
+    },
   });
   return NextResponse.json(bookings);
 }

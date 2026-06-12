@@ -571,6 +571,7 @@ export const en: Record<string, unknown> = {
     ctaLabel: "Book Your Day",
     ctaTitle: "Escape to the desert",
     ctaButton: "Contact Us",
+    contactButton: "Contact Us",
   },
 
   // Suite data (fallback)

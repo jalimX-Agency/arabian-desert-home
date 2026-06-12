@@ -17,6 +17,7 @@ interface Activity {
   longDescription: string;
   duration: string;
   price: number;
+  originalPrice?: number | null;
   currency: string;
   image: string;
   category: string;
@@ -283,8 +284,21 @@ export function LesActivitesContent({ activities }: { activities: Activity[] }) 
                   <img src={activity.image} alt={activity.name} className="w-full h-full object-cover img-luxury" />
                   <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
                   <div className="absolute top-0 right-0 w-24 h-24 bg-amber/[0.08] rounded-bl-3xl" />
-                  <div className="absolute top-4 right-4 bg-warm-black/40 backdrop-blur-md px-4 py-2 rounded-full">
-                    <span className="text-amber mono-number text-lg">{activity.price} {activity.currency}</span>
+                  <div className="absolute top-4 right-4 bg-warm-black/60 backdrop-blur-md px-3 py-2 rounded-2xl text-right">
+                    {activity.originalPrice && (
+                      <span className="block text-white/40 line-through text-xs mono-number leading-none mb-0.5">
+                        {activity.originalPrice} {activity.currency}
+                      </span>
+                    )}
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-amber mono-number text-lg leading-none">{activity.price}</span>
+                      <span className="text-amber/60 text-[10px]">{activity.currency}/pers.</span>
+                    </div>
+                    {activity.originalPrice && (
+                      <span className="block text-red-400 text-[10px] font-medium mt-0.5">
+                        -{Math.round((1 - activity.price / activity.originalPrice) * 100)}%
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -415,11 +429,23 @@ export function LesActivitesContent({ activities }: { activities: Activity[] }) 
 
                     <div className="mt-auto pt-4 border-t border-amber/10">
                       <div className="flex items-center justify-between gap-4 flex-wrap">
-                        <div className="flex items-baseline gap-2">
-                          <span className="mono-number text-3xl text-amber">{activity.price}</span>
-                          <span className="text-sm text-muted-foreground body-editorial">
-                            {activity.currency} {t("activities.perPerson")}
-                          </span>
+                        <div>
+                          {activity.originalPrice && (
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-sm text-muted-foreground line-through mono-number">
+                                {activity.originalPrice} {activity.currency}
+                              </span>
+                              <span className="bg-red-500/10 text-red-500 text-xs px-2 py-0.5 rounded-full font-medium">
+                                -{Math.round((1 - activity.price / activity.originalPrice) * 100)}%
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="mono-number text-3xl text-amber">{activity.price}</span>
+                            <span className="text-sm text-muted-foreground body-editorial">
+                              {activity.currency} {t("activities.perPerson")}
+                            </span>
+                          </div>
                         </div>
                         <Link
                           href={`/les-activites/${activity.slug}`}

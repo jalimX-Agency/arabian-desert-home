@@ -161,14 +161,14 @@ export default function ContactPage() {
           {/* Bottom part — Contact info cards row */}
           <div className="px-6 pb-16 md:pb-24">
             <div className="max-w-5xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-2 md:pb-0 md:overflow-visible">
                 {contactCards.map((info, index) => (
                   <motion.div
                     key={info.labelKey}
                     initial={{ opacity: 0, y: 30 }}
                     animate={heroInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ duration: 0.8, delay: 0.8 + index * 0.15, ease: smoothEase }}
-                    className="glass-card card-warm p-8 text-center"
+                    className="glass-card card-warm p-8 text-center snap-start shrink-0 w-[80vw] md:w-auto"
                   >
                     <div className="w-14 h-14 mx-auto mb-5 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center">
                       <info.icon className="w-6 h-6 text-amber" />
@@ -190,8 +190,8 @@ export default function ContactPage() {
         <section ref={formRef} className="py-20 md:py-28 px-6 md:px-10 pattern-organic opacity-100">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-              {/* Left: Form */}
-              <div>
+              {/* Left: Form (order-2 on mobile so map shows first) */}
+              <div className="order-2 lg:order-1">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={formInView ? { opacity: 1, y: 0 } : {}}
@@ -328,47 +328,24 @@ export default function ContactPage() {
                 </motion.form>
               </div>
 
-              {/* Right: Map + Social */}
-              <div className="flex flex-col gap-8">
+              {/* Right: Map + Social (order-1 on mobile so map shows first) */}
+              <div className="flex flex-col gap-8 order-1 lg:order-2">
                 {/* Map placeholder */}
                 <motion.div
                   ref={mapRef}
                   initial={{ opacity: 0, y: 30 }}
                   animate={mapInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.8, delay: 0.3, ease: smoothEase }}
-                  className="glass-card card-warm overflow-hidden flex-1 min-h-[300px] relative"
+                  className="glass-card card-warm overflow-hidden flex-1 min-h-[220px] md:min-h-[300px] relative"
                 >
-                  {process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL ? (
-                    <iframe
-                      src={process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL}
-                      title="Arabian Desert Home — Agafay, Marrakech"
-                      className="absolute inset-0 w-full h-full border-0"
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                    />
-                  ) : (
-                    <>
-                      <div className="absolute inset-0 bg-gradient-to-br from-warm-black/20 via-background to-amber/[0.04] flex flex-col items-center justify-center p-8 text-center">
-                        <div className="w-16 h-16 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center mb-4">
-                          <MapPin className="w-7 h-7 text-amber" />
-                        </div>
-                        <p className="heading-editorial text-lg mb-2">
-                          {t("contact.mapPlaceholder")}
-                        </p>
-                        <p className="text-sm text-muted-foreground body-editorial max-w-xs">
-                          {t("contact.addressValue")}
-                        </p>
-                        <div className="mt-4 px-5 py-2.5 rounded-full bg-amber/10 border border-amber/15">
-                          <p className="luxury-label text-amber text-[0.6rem]">
-                            <Clock className="w-3 h-3 inline mr-1.5" />
-                            30 min from Marrakech
-                          </p>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 pattern-organic opacity-50 pointer-events-none" />
-                    </>
-                  )}
+                  <iframe
+                    src="https://maps.google.com/maps?q=Arabian+Desert+Home+Agafay+Marrakech&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                    title="Arabian Desert Home — Agafay, Marrakech"
+                    className="absolute inset-0 w-full h-full border-0"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
                 </motion.div>
 
                 {/* Social Links */}

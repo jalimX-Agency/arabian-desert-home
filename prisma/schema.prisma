@@ -8,89 +8,98 @@ datasource db {
 }
 
 model Suite {
-  id              String   @id @default(cuid())
-  name            String
-  slug            String   @unique
-  tagline         String
-  description     String
-  longDescription String
-  price           Int
-  currency        String   @default("MAD")
-  features        String
-  amenities       String
-  image           String
-  images          String
-  maxGuests       Int      @default(2)
-  bedType         String
-  size            String
-  hasAC             Boolean  @default(false)
-  order             Int      @default(0)
-  featured          Boolean  @default(false)
-  type              String   @default("suite")
-  nameEn            String   @default("")
-  taglineEn         String   @default("")
-  descriptionEn     String   @default("")
-  longDescriptionEn String   @default("")
-  featuresEn        String   @default("")
-  amenitiesEn       String   @default("")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  bookings        Booking[]
+  id                String    @id @default(cuid())
+  name              String
+  slug              String    @unique
+  tagline           String
+  description       String
+  longDescription   String
+  price             Int
+  originalPrice     Int?
+  childPricePercent Int       @default(50)
+  currency          String    @default("MAD")
+  features          String
+  amenities         String
+  image             String
+  images            String
+  maxGuests         Int       @default(2)
+  maxChildren       Int       @default(2)
+  bedType           String
+  size              String
+  hasAC             Boolean   @default(false)
+  order             Int       @default(0)
+  featured          Boolean   @default(false)
+  type              String    @default("suite")
+  nameEn            String    @default("")
+  taglineEn         String    @default("")
+  descriptionEn     String    @default("")
+  longDescriptionEn String    @default("")
+  featuresEn        String    @default("")
+  amenitiesEn       String    @default("")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  bookings          Booking[]
 }
 
 model Activity {
+  id                String    @id @default(cuid())
+  name              String
+  slug              String    @unique
+  description       String
+  longDescription   String
+  duration          String
+  price             Int
+  originalPrice     Int?
+  childPricePercent Int       @default(50)
+  currency          String    @default("MAD")
+  image             String
+  category          String
+  includes          String
+  schedule          String
+  transportIncluded Boolean   @default(false)
+  order             Int       @default(0)
+  featured          Boolean   @default(false)
+  nameEn            String    @default("")
+  descriptionEn     String    @default("")
+  longDescriptionEn String    @default("")
+  includesEn        String    @default("")
+  images            String    @default("")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  bookings          Booking[]
+}
+
+model DayPass {
+  id                String    @id @default(cuid())
+  name              String
+  slug              String    @unique
+  description       String
+  price             Int
+  originalPrice     Int?
+  childPricePercent Int       @default(50)
+  currency          String    @default("MAD")
+  includes          String
+  image             String    @default("")
+  order             Int       @default(0)
+  nameEn            String    @default("")
+  descriptionEn     String    @default("")
+  includesEn        String    @default("")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  bookings          Booking[]
+}
+
+model DiningVenue {
   id              String   @id @default(cuid())
   name            String
   slug            String   @unique
   description     String
   longDescription String
-  duration        String
-  price           Int
-  currency        String   @default("MAD")
   image           String
-  category        String
-  includes        String
-  schedule        String
-  transportIncluded Boolean  @default(false)
-  order             Int      @default(0)
-  featured          Boolean  @default(false)
-  nameEn            String   @default("")
-  descriptionEn     String   @default("")
-  longDescriptionEn String   @default("")
-  includesEn        String   @default("")
-  images            String   @default("")
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-}
-
-model DayPass {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String
-  price       Int
-  currency    String   @default("MAD")
-  includes      String
-  image         String   @default("")
-  order         Int      @default(0)
-  nameEn        String   @default("")
-  descriptionEn String   @default("")
-  includesEn    String   @default("")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model DiningVenue {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String
-  longDescription String
-  image       String
-  capacity    String?
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  capacity        String?
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model SpaTreatment {
@@ -108,22 +117,30 @@ model SpaTreatment {
 }
 
 model Booking {
-  id            String   @id @default(cuid())
-  firstName     String
-  lastName      String
-  email         String
-  phone         String?
-  suiteId       String
-  suite         Suite    @relation(fields: [suiteId], references: [id])
-  checkIn       DateTime
-  checkOut      DateTime
-  guests        Int      @default(2)
-  experiences   String?
-  specialReqs   String?
-  status        String   @default("pending")
-  totalAmount   Int
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String    @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String
+  phone       String?
+  serviceType String    @default("suite")
+  suiteId     String?
+  suite       Suite?    @relation(fields: [suiteId], references: [id])
+  activityId  String?
+  activity    Activity? @relation(fields: [activityId], references: [id])
+  dayPassId   String?
+  dayPass     DayPass?  @relation(fields: [dayPassId], references: [id])
+  checkIn     DateTime?
+  checkOut    DateTime?
+  date        DateTime?
+  guests      Int       @default(2)
+  children    Int       @default(0)
+  experiences String?
+  specialReqs String?
+  status      String    @default("pending")
+  totalAmount Int
+  currency    String    @default("MAD")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model ContactMessage {
@@ -146,6 +163,20 @@ model Testimonial {
   source    String   @default("general")
   order     Int      @default(0)
   createdAt DateTime @default(now())
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String   @default("")
+  altEn     String   @default("")
+  caption   String   @default("")
+  captionEn String   @default("")
+  category  String   @default("general")
+  order     Int      @default(0)
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model User {

@@ -8,6 +8,7 @@ export default function ActivitesPage() {
       title="Activités"
       apiPath="/api/admin/activities"
       columns={[
+        { key: "image", label: "Photo", render: (v) => v ? <img src={v as string} className="w-14 h-10 object-cover rounded-lg" alt="" /> : "—" },
         { key: "name", label: "Nom" },
         { key: "category", label: "Catégorie" },
         { key: "price", label: "Prix", render: (v, row) => `${v} ${row.currency}` },
@@ -32,7 +33,9 @@ export default function ActivitesPage() {
         { key: "longDescriptionEn", label: "Description longue (EN)", type: "textarea" },
         { key: "includesEn", label: "Includes (EN)", type: "tags" },
         // Tarifs
-        { key: "price", label: "Prix", type: "number", required: true },
+        { key: "price", label: "Prix (actuel)", type: "number", required: true },
+        { key: "originalPrice", label: "Prix original (avant remise)", type: "number" },
+        { key: "childPricePercent", label: "Prix enfant (%)", type: "number" },
         { key: "currency", label: "Devise", type: "select", options: ["MAD", "EUR"] },
         { key: "duration", label: "Durée (ex: 45 min)" },
         { key: "transportIncluded", label: "Transport inclus", type: "checkbox" },
@@ -44,7 +47,7 @@ export default function ActivitesPage() {
         { label: "Général", fieldKeys: ["name", "slug", "category", "order", "featured"] },
         { label: "Contenu FR", fieldKeys: ["description", "longDescription", "includes", "schedule"] },
         { label: "Contenu EN", fieldKeys: ["nameEn", "descriptionEn", "longDescriptionEn", "includesEn"] },
-        { label: "Tarifs", fieldKeys: ["price", "currency", "duration", "transportIncluded"] },
+        { label: "Tarifs", fieldKeys: ["price", "originalPrice", "childPricePercent", "currency", "duration", "transportIncluded"] },
         { label: "Médias", fieldKeys: ["image", "images"] },
       ]}
     />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
 export type Language = "fr" | "en";
 
@@ -28,15 +28,16 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   }, obj);
 }
 
-function getInitialLanguage(): Language {
-  if (typeof window === "undefined") return "fr";
-  const saved = localStorage.getItem("adh-language") as Language | null;
-  if (saved && (saved === "fr" || saved === "en")) return saved;
-  return "fr";
-}
-
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
+  // Always start with "fr" to match SSR, then hydrate from localStorage in useEffect
+  const [language, setLanguageState] = useState<Language>("fr");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("adh-language") as Language | null;
+    if (saved === "fr" || saved === "en") {
+      setLanguageState(saved);
+    }
+  }, []);
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);

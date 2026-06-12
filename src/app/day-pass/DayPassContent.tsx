@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useRef } from "react";
 import Link from "next/link";
 import { motion, useInView } from "framer-motion";
 import { CTASection } from "@/components/arabian/CTASection";
 import { useLanguage } from "@/lib/i18n/context";
-import { Check, Clock, Baby, AlertCircle, Sun, Utensils, Music, ArrowRight } from "lucide-react";
+import { Check, Clock, Baby, AlertCircle, ArrowRight, Phone } from "lucide-react";
 
 interface DayPass {
   id: string;
@@ -15,6 +15,7 @@ interface DayPass {
   description: string;
   descriptionEn: string;
   price: number;
+  originalPrice?: number | null;
   currency: string;
   includes: string;
   includesEn: string;
@@ -24,78 +25,214 @@ interface DayPass {
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
-const revealUp = {
-  hidden: { opacity: 0, y: 50 },
-  visible: (delay: number = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.9, delay, ease: smoothEase },
-  }),
-};
-
-const revealScale = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: (delay: number = 0) => ({
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.9, delay, ease: smoothEase },
-  }),
-};
-
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: (delay: number = 0) => ({
-    opacity: 1,
-    transition: { duration: 0.8, delay },
-  }),
-};
-
 const FALLBACK_PASSES: DayPass[] = [
   {
     id: "daypass-piscine-dejeuner",
     name: "Day Pass Piscine & Déjeuner",
-    nameEn: "",
+    nameEn: "Pool & Lunch Day Pass",
     slug: "daypass-piscine-dejeuner",
-    description: "Profitez d'une journée ensoleillée au bord de la piscine avec un déjeuner gastronomique marocain inclus.",
-    descriptionEn: "",
+    description:
+      "Profitez d'une journée ensoleillée au bord de la piscine avec un déjeuner gastronomique marocain inclus.",
+    descriptionEn:
+      "Enjoy a sun-soaked day by the pool with a gourmet Moroccan lunch included.",
     price: 350,
     currency: "MAD",
-    includes: "Accès piscine toute la journée, Serviettes de piscine, Déjeuner gastronomique, Thé à la menthe d'accueil",
-    includesEn: "",
+    includes:
+      "Accès piscine toute la journée, Serviettes de piscine, Déjeuner gastronomique, Thé à la menthe d'accueil",
+    includesEn:
+      "Full-day pool access, Pool towels, Gourmet lunch, Welcome mint tea",
     order: 1,
-    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/daypass-pool.png",
+    image:
+      "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-oasis.png",
   },
   {
     id: "daypass-diner-animation",
     name: "Piscine & Dîner avec Animation",
-    nameEn: "",
+    nameEn: "Pool & Dinner with Entertainment",
     slug: "daypass-diner-animation",
-    description: "Une soirée inoubliable avec accès piscine, dîner sous les étoiles et animation musicale gnawa.",
-    descriptionEn: "",
+    description:
+      "Une soirée inoubliable avec accès piscine, dîner sous les étoiles et animation musicale gnawa.",
+    descriptionEn:
+      "An unforgettable evening with pool access, dinner under the stars and live gnawa music.",
     price: 500,
     currency: "MAD",
-    includes: "Accès piscine, Dîner sous les étoiles, Animation musicale gnawa, Feu de camp, Thé à la menthe",
-    includesEn: "",
+    includes:
+      "Accès piscine, Dîner sous les étoiles, Animation musicale gnawa, Feu de camp, Thé à la menthe",
+    includesEn:
+      "Pool access, Dinner under the stars, Live gnawa music, Campfire, Mint tea",
     order: 2,
-    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/daypass-pool.png",
+    image:
+      "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-royal.png",
   },
   {
     id: "daypass-journee-complete",
     name: "Pass Journée Complète",
-    nameEn: "",
+    nameEn: "Full Day Experience",
     slug: "daypass-journee-complete",
-    description: "L'expérience day pass ultime : piscine, déjeuner, activité au choix et dîner avec animation.",
-    descriptionEn: "",
+    description:
+      "L'expérience day pass ultime : piscine, déjeuner, activité au choix et dîner avec animation.",
+    descriptionEn:
+      "The ultimate day pass: pool, lunch, activity of your choice, and dinner with entertainment.",
     price: 750,
     currency: "MAD",
-    includes: "Accès piscine, Déjeuner gastronomique, 1 activité au choix, Dîner sous les étoiles, Animation musicale",
-    includesEn: "",
+    includes:
+      "Accès piscine, Déjeuner gastronomique, 1 activité au choix, Dîner sous les étoiles, Animation musicale",
+    includesEn:
+      "Pool access, Gourmet lunch, 1 activity of your choice, Dinner under the stars, Live music",
     order: 3,
-    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/daypass-pool.png",
+    image:
+      "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-sultan.png",
   },
 ];
 
-const passIcons = [Sun, Utensils, Music];
+function PassRow({
+  pass,
+  index,
+  isEn,
+  t,
+}: {
+  pass: DayPass;
+  index: number;
+  isEn: boolean;
+  t: (key: string) => string;
+}) {
+  const isReversed = index % 2 === 1;
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const loc = (fr: string, en: string) => (isEn && en) ? en : fr;
+  const includeItems = loc(pass.includes, pass.includesEn)
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  return (
+    <div
+      ref={ref}
+      className={`flex flex-col ${isReversed ? "md:flex-row-reverse" : "md:flex-row"} min-h-[520px]`}
+    >
+      {/* Image side */}
+      <div className="relative w-full md:w-1/2 aspect-[4/3] md:aspect-auto overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={inView ? { opacity: 1, scale: 1 } : {}}
+          transition={{ duration: 1.2, ease: smoothEase }}
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url('${pass.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.webp"}')`,
+          }}
+        />
+        <div
+          className={`absolute inset-y-0 ${isReversed ? "right-0 w-24" : "left-0 w-24"} md:block hidden`}
+          style={{
+            background: `linear-gradient(to ${isReversed ? "left" : "right"}, var(--background), transparent)`,
+          }}
+        />
+        <div className="absolute top-6 left-6 bg-warm-black/70 backdrop-blur-md border border-amber/20 px-4 py-2 rounded-2xl">
+          {pass.originalPrice && (
+            <span className="block text-white/40 line-through text-xs mono-number leading-none mb-0.5">
+              {pass.originalPrice} {pass.currency}
+            </span>
+          )}
+          <div className="flex items-baseline gap-1">
+            <span className="mono-number text-amber text-xl">{pass.price}</span>
+            <span className="text-amber/60 text-xs">{pass.currency}/pers.</span>
+          </div>
+          {pass.originalPrice && (
+            <span className="block text-red-400 text-[10px] font-medium mt-0.5">
+              -{Math.round((1 - pass.price / pass.originalPrice) * 100)}% remise
+            </span>
+          )}
+        </div>
+        <div
+          className={`absolute bottom-6 ${isReversed ? "left-6" : "right-6"} mono-number text-white/10 text-8xl leading-none select-none`}
+        >
+          0{index + 2}
+        </div>
+      </div>
+
+      {/* Content side */}
+      <div className="relative w-full md:w-1/2 bg-background flex items-center px-6 md:px-12 lg:px-16 py-12 md:py-16">
+        <div className="absolute inset-0 pattern-dots opacity-30 pointer-events-none" />
+        <div className="relative z-10 max-w-md w-full">
+          <motion.span
+            initial={{ opacity: 0, y: 16 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, ease: smoothEase }}
+            className="luxury-label text-amber block mb-3"
+          >
+            Day Pass
+          </motion.span>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.9, delay: 0.1, ease: smoothEase }}
+            className="heading-display text-3xl md:text-4xl lg:text-5xl mb-4"
+          >
+            {loc(pass.name, pass.nameEn)}
+          </motion.h2>
+
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={inView ? { scaleX: 1 } : {}}
+            transition={{ duration: 1, delay: 0.25, ease: smoothEase }}
+            className="divider-accent max-w-[80px] origin-left mb-5"
+          />
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.3, ease: smoothEase }}
+            className="body-editorial text-muted-foreground mb-8"
+          >
+            {loc(pass.description, pass.descriptionEn)}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.4, ease: smoothEase }}
+            className="space-y-2.5 mb-8"
+          >
+            <span className="luxury-label text-amber/70 block mb-3">
+              {t("dayPass.includes")}
+            </span>
+            {includeItems.map((item, j) => (
+              <div key={j} className="flex items-center gap-3 text-sm">
+                <div className="w-5 h-5 rounded-full bg-amber/10 border border-amber/20 flex items-center justify-center shrink-0">
+                  <Check className="w-3 h-3 text-amber" />
+                </div>
+                <span className="body-editorial text-muted-foreground">{item}</span>
+              </div>
+            ))}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.5, ease: smoothEase }}
+            className="flex flex-col sm:flex-row gap-3"
+          >
+            <Link
+              href={`/day-pass/${pass.slug}`}
+              className="btn-primary inline-flex items-center justify-center gap-2"
+            >
+              {t("dayPass.ctaButton")}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/contact"
+              className="btn-outline inline-flex items-center justify-center gap-2"
+            >
+              <Phone className="w-4 h-4" />
+              {t("dayPass.contactButton") || "Nous Contacter"}
+            </Link>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function DayPassContent({ passes }: { passes: DayPass[] }) {
   const { t, language } = useLanguage();
@@ -105,185 +242,172 @@ export function DayPassContent({ passes }: { passes: DayPass[] }) {
 
   const heroRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true });
-  const passesRef = useRef(null);
-  const passesInView = useInView(passesRef, { once: true, margin: "-80px" });
   const infoRef = useRef(null);
   const infoInView = useInView(infoRef, { once: true, margin: "-80px" });
 
   return (
     <>
-      {/* ── Hero ── */}
+      {/* ── Hero — Split layout ── */}
       <section
         ref={heroRef}
-        className="relative py-16 md:py-24 flex items-center justify-center overflow-hidden bg-gradient-to-br from-warm-black via-background to-amber/[0.03]"
+        className="relative flex flex-col md:flex-row min-h-[55vh] md:min-h-[60vh] overflow-hidden"
       >
-        <div className="absolute inset-0 pattern-dots pointer-events-none" />
-        <div className="absolute top-10 right-10 w-72 h-72 bg-amber/[0.04] blob-1 blur-3xl" />
-        <div className="absolute bottom-5 left-10 w-56 h-56 bg-amber/[0.03] blob-2 blur-3xl" />
-
-        <div className="relative z-10 max-w-4xl mx-auto text-center px-6">
-          <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, ease: smoothEase }}
-            className="luxury-label text-amber block mb-4"
-          >
-            {t("dayPass.heroLabel")}
-          </motion.span>
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
-            className="heading-display text-4xl md:text-6xl lg:text-8xl text-foreground mb-6"
-          >
-            {t("dayPass.heroTitle")}
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={heroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.4, ease: smoothEase }}
-            className="heading-editorial italic text-xl md:text-2xl text-muted-foreground mb-8"
-          >
-            {t("dayPass.heroSubtitle")}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={heroInView ? { opacity: 1, scaleX: 1 } : {}}
-            transition={{ duration: 0.8, delay: 0.55, ease: smoothEase }}
-            className="divider-accent max-w-[120px] mx-auto mb-10"
+        {/* Mobile image strip */}
+        <div className="relative w-full h-[28vh] md:hidden overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url('${data[0]?.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.webp"}')`,
+            }}
           />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-warm-black/90" />
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {data.map((pass, i) => {
-              const Icon = passIcons[i] || Sun;
-              return (
-                <motion.div
+        {/* Left: text */}
+        <div className="relative w-full md:w-[55%] bg-warm-black flex items-center px-6 md:px-12 lg:px-20 py-12 md:py-0">
+          <div className="absolute inset-0 grain-overlay pointer-events-none" />
+          <div className="absolute top-10 right-10 w-64 h-64 bg-amber/[0.03] blob-1 blur-3xl" />
+
+          <div className="relative z-10 max-w-lg">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, ease: smoothEase }}
+              className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block mb-4"
+            >
+              01
+            </motion.span>
+
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.1, ease: smoothEase }}
+              className="luxury-label text-amber block mb-5"
+            >
+              {t("dayPass.heroLabel")}
+            </motion.span>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 1, delay: 0.2, ease: smoothEase }}
+              className="heading-display text-4xl md:text-5xl lg:text-7xl text-white mb-5"
+            >
+              {t("dayPass.heroTitle")}{" "}
+              <span className="italic text-amber">{t("dayPass.heroSubtitle")}</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.35, ease: smoothEase }}
+              className="body-editorial text-white/50 text-base md:text-lg max-w-md mb-8"
+            >
+              {t("dayPass.introText")}
+            </motion.p>
+
+            {/* Price range pills */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={heroInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, delay: 0.5, ease: smoothEase }}
+              className="flex items-center gap-3 flex-wrap"
+            >
+              {data.map((pass) => (
+                <span
                   key={pass.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={heroInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.7, delay: 0.7 + i * 0.12, ease: smoothEase }}
-                  className="glass-card p-4 text-center group hover:bg-amber/[0.04] transition-colors duration-300"
+                  className="px-3 py-1.5 rounded-full border border-amber/20 bg-amber/[0.06] text-amber mono-number text-sm flex items-baseline gap-1"
                 >
-                  <div className="w-8 h-8 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center mx-auto mb-2">
-                    <Icon className="w-4 h-4 text-amber" />
-                  </div>
-                  <h3 className="heading-editorial text-lg mb-1">{loc(pass.name, pass.nameEn)}</h3>
-                  <span className="mono-number text-xl text-amber">{pass.price}</span>
-                  <span className="text-xs text-muted-foreground ml-1 body-editorial">{pass.currency}</span>
-                </motion.div>
-              );
-            })}
+                  {pass.originalPrice && (
+                    <span className="text-white/30 line-through text-xs">{pass.originalPrice}</span>
+                  )}
+                  {pass.price} <span className="text-amber/60 text-xs">{pass.currency}/pers.</span>
+                  {pass.originalPrice && (
+                    <span className="text-red-400 text-[10px] ml-1">
+                      -{Math.round((1 - pass.price / pass.originalPrice) * 100)}%
+                    </span>
+                  )}
+                </span>
+              ))}
+            </motion.div>
+
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={heroInView ? { scaleX: 1 } : {}}
+              transition={{ duration: 1.2, delay: 0.6, ease: smoothEase }}
+              className="divider-accent max-w-[120px] origin-left mt-8"
+            />
           </div>
+        </div>
+
+        {/* Right: image */}
+        <div className="hidden md:block relative w-[45%] overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url('${data[0]?.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.webp"}')`,
+            }}
+          />
+          <div className="absolute inset-0 gradient-amber opacity-30" />
+          <div
+            className="absolute inset-y-0 left-0 w-16"
+            style={{
+              background: "linear-gradient(to right, var(--warm-black), transparent)",
+            }}
+          />
         </div>
       </section>
 
-      {/* ── Passes Cards ── */}
-      <section ref={passesRef} className="py-20 md:py-28 px-6 md:px-10 relative">
-        <div className="absolute inset-0 pattern-dots pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <motion.div variants={fadeIn} initial="hidden" animate={passesInView ? "visible" : "hidden"} custom={0} className="divider-accent max-w-[120px] mx-auto mb-10" />
-            <motion.h2 variants={revealUp} initial="hidden" animate={passesInView ? "visible" : "hidden"} custom={0.2} className="heading-display text-3xl md:text-5xl mb-4">
-              {t("dayPass.introTitle1")}
-              <br />
-              <span className="italic text-amber">{t("dayPass.introTitle2")}</span>
-            </motion.h2>
-            <motion.p variants={revealUp} initial="hidden" animate={passesInView ? "visible" : "hidden"} custom={0.3} className="body-editorial text-muted-foreground max-w-2xl mx-auto">
-              {t("dayPass.introText")}
-            </motion.p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {data.map((pass, i) => {
-              const Icon = passIcons[i] || Sun;
-              return (
-                <motion.div
-                  key={pass.id}
-                  variants={revealScale}
-                  initial="hidden"
-                  animate={passesInView ? "visible" : "hidden"}
-                  custom={0.5 + i * 0.15}
-                  className="group glass-card card-warm overflow-hidden flex flex-col"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <img src={pass.image} alt={pass.name} className="w-full h-full object-cover img-luxury" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber/[0.08] rounded-bl-3xl" />
-                    <div className="absolute bottom-4 left-6 right-6">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-6 h-6 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center">
-                          <Icon className="w-3.5 h-3.5 text-amber" />
-                        </div>
-                        <span className="luxury-label text-white/80">Day Pass</span>
-                      </div>
-                      <h3 className="heading-editorial text-2xl text-white group-hover:text-amber transition-colors duration-400">
-                        {loc(pass.name, pass.nameEn)}
-                      </h3>
-                    </div>
-                  </div>
-
-                  <div className="p-6 flex-1 flex flex-col">
-                    <p className="text-sm text-muted-foreground mb-6 body-editorial">{loc(pass.description, pass.descriptionEn)}</p>
-
-                    <div className="mb-6 flex-1">
-                      <span className="luxury-label text-amber block mb-3">{t("dayPass.includes")}</span>
-                      <div className="space-y-2.5">
-                        {loc(pass.includes, pass.includesEn).split(",").map((item, j) => (
-                          <div key={j} className="flex items-center gap-2.5 text-sm text-muted-foreground/70">
-                            <div className="w-5 h-5 rounded-full bg-amber/10 flex items-center justify-center shrink-0">
-                              <Check className="w-3 h-3 text-amber" />
-                            </div>
-                            <span className="body-editorial">{item.trim()}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="pt-4 border-t border-amber/10 space-y-3">
-                      <div className="flex items-baseline gap-2">
-                        <span className="mono-number text-4xl text-amber">{pass.price}</span>
-                        <span className="text-sm text-muted-foreground body-editorial">
-                          {pass.currency} {t("dayPass.perPerson")}
-                        </span>
-                      </div>
-                      <Link
-                        href={`/day-pass/${pass.slug}`}
-                        className="btn-outline w-full flex items-center justify-center gap-2 text-sm"
-                      >
-                        Voir les détails
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
+      {/* ── Passes — Alternating editorial rows ── */}
+      <section className="relative">
+        {data.map((pass, i) => (
+          <PassRow key={pass.id} pass={pass} index={i} isEn={isEn} t={t} />
+        ))}
       </section>
 
       {/* ── Practical Info ── */}
-      <section ref={infoRef} className="py-20 md:py-28 px-6 md:px-10 relative">
-        <div className="absolute inset-0 pattern-organic opacity-50 pointer-events-none" />
+      <section ref={infoRef} className="py-20 md:py-28 px-6 md:px-10 relative bg-warm-black">
+        <div className="absolute inset-0 grain-overlay pointer-events-none" />
+        <div className="absolute top-0 left-0 right-0 divider-accent-wide" />
+        <div className="absolute top-10 right-10 w-72 h-72 bg-amber/[0.03] blob-2 blur-3xl" />
 
-        <div className="max-w-4xl mx-auto relative z-10">
-          <motion.div variants={fadeIn} initial="hidden" animate={infoInView ? "visible" : "hidden"} custom={0} className="mb-4">
+        <div className="max-w-5xl mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={infoInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, ease: smoothEase }}
+            className="mb-4"
+          >
             <span className="mono-number text-amber/10 text-6xl md:text-8xl leading-none block">
               {t("dayPass.infoSectionNumber")}
             </span>
           </motion.div>
-          <motion.span variants={revealUp} initial="hidden" animate={infoInView ? "visible" : "hidden"} custom={0.1} className="luxury-label text-amber block mb-4">
+
+          <motion.span
+            initial={{ opacity: 0, y: 16 }}
+            animate={infoInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.1, ease: smoothEase }}
+            className="luxury-label text-amber block mb-4"
+          >
             {t("dayPass.infoLabel")}
           </motion.span>
-          <motion.h2 variants={revealUp} initial="hidden" animate={infoInView ? "visible" : "hidden"} custom={0.2} className="heading-display text-3xl md:text-5xl mb-4">
-            {t("dayPass.infoTitle1")}
-            <br />
+
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            animate={infoInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.9, delay: 0.2, ease: smoothEase }}
+            className="heading-display text-3xl md:text-5xl text-white mb-4"
+          >
+            {t("dayPass.infoTitle1")}{" "}
             <span className="italic text-amber">{t("dayPass.infoTitle2")}</span>
           </motion.h2>
-          <motion.div variants={fadeIn} initial="hidden" animate={infoInView ? "visible" : "hidden"} custom={0.3} className="divider-accent max-w-xs mb-12" />
+
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={infoInView ? { scaleX: 1 } : {}}
+            transition={{ duration: 1, delay: 0.3, ease: smoothEase }}
+            className="divider-accent max-w-xs origin-left mb-12"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
@@ -293,17 +417,16 @@ export function DayPassContent({ passes }: { passes: DayPass[] }) {
             ].map(({ icon: Icon, title, text, delay }) => (
               <motion.div
                 key={title}
-                variants={revealScale}
-                initial="hidden"
-                animate={infoInView ? "visible" : "hidden"}
-                custom={delay}
-                className="glass-card card-warm p-6"
+                initial={{ opacity: 0, y: 24 }}
+                animate={infoInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay, ease: smoothEase }}
+                className="border border-amber/10 bg-amber/[0.03] rounded-2xl p-6 hover:border-amber/25 transition-colors duration-300"
               >
                 <div className="w-10 h-10 rounded-xl bg-amber/10 border border-amber/15 flex items-center justify-center mb-4">
                   <Icon className="w-5 h-5 text-amber" />
                 </div>
-                <h3 className="heading-editorial text-lg mb-2">{title}</h3>
-                <p className="text-sm text-muted-foreground body-editorial">{text}</p>
+                <h3 className="heading-editorial text-lg text-white mb-2">{title}</h3>
+                <p className="text-sm text-white/50 body-editorial">{text}</p>
               </motion.div>
             ))}
           </div>

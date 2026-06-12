@@ -340,37 +340,6 @@ export function LesTentesContent({ suites }: { suites: Suite[] }) {
         </div>
       </section>
 
-      {/* ── CTA Section ── */}
-      <section className="relative py-20 md:py-28 px-6 md:px-10 bg-warm-black text-center overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber/[0.03] blob-1 blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-amber/[0.04] blob-3 blur-3xl" />
-        <div className="absolute inset-0 grain-overlay pointer-events-none" />
-        <div className="absolute top-0 left-0 right-0 divider-accent-wide" />
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: smoothEase }}
-          className="relative z-10 max-w-3xl mx-auto"
-        >
-          <span className="luxury-label text-amber block mb-4">Votre Séjour</span>
-          <h2 className="heading-display text-3xl md:text-5xl text-foreground mb-6">
-            Le désert vous <span className="italic text-amber">appelle</span>
-          </h2>
-          <p className="body-editorial text-foreground/40 mb-10 max-w-xl mx-auto">
-            Réservez votre tente de luxe et laissez-vous porter par la magie
-            du désert d&apos;Agafay.
-          </p>
-          <Link
-            href="/reservez-votre-sejour"
-            className="btn-primary inline-flex items-center gap-3 cursor-pointer"
-          >
-            Réserver Maintenant
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </motion.div>
-      </section>
     </>
   );
 }
