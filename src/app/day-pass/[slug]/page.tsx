@@ -11,9 +11,9 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const pass = await db.dayPass.findUnique({ where: { slug }, select: { name: true, description: true, images: true, price: true } });
+  const pass = await db.dayPass.findUnique({ where: { slug }, select: { name: true, description: true, image: true, price: true } });
   if (!pass) return {};
-  const image = pass.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
+  const image = pass.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
     title: `${pass.name} — Day Pass Désert Agafay | Arabian Desert Home`,
     description: pass.description,
@@ -34,7 +34,7 @@ export default async function DayPassDetailPage({ params }: { params: Promise<{ 
   const pass = await db.dayPass.findUnique({ where: { slug } });
   if (!pass) notFound();
 
-  const image = pass.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
+  const image = pass.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
