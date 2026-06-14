@@ -43,7 +43,8 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Arabian Desert Home" }],
   icons: {
-    icon: "/logo.svg",
+    icon: "/icon.png",
+    apple: "/icon.png",
   },
   openGraph: {
     title: "Arabian Desert Home | Bivouac de Luxe — Désert d'Agafay, Marrakech",
