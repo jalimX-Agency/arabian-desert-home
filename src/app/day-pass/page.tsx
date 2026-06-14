@@ -22,7 +22,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image" as const,
     title: "Day Pass Désert Agafay | Arabian Desert Home",
-    description: "Piscine, déjeuner marocain et activités à partir de 350 MAD. À 30 km de Marrakech.",
+    description: "Piscine, déjeuner marocain et activités à partir de 35 EUR/pers. À 30 km de Marrakech.",
     images: [OG_IMAGE],
   },
   alternates: { canonical: "https://www.arabiandeserthome.ma/day-pass" },

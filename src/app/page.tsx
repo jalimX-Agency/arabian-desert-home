@@ -7,7 +7,7 @@ export default async function Home() {
   const [suites, galleryImages, testimonials] = await Promise.all([
     db.suite.findMany({ where: { featured: true }, orderBy: { order: "asc" } }),
     db.galleryImage.findMany({ orderBy: { order: "asc" } }),
-    db.testimonial.findMany({ orderBy: { order: "asc" } }),
+    db.testimonial.findMany({ where: { published: true }, orderBy: { order: "asc" } }),
   ]);
 
   return (

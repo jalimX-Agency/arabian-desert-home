@@ -161,6 +161,7 @@ model Testimonial {
   location  String
   rating    Int      @default(5)
   source    String   @default("general")
+  published Boolean  @default(true)
   order     Int      @default(0)
   createdAt DateTime @default(now())
 }
