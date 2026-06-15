@@ -1,4 +1,6 @@
 import { db } from "@/lib/db";
+
+export const revalidate = 300;
 import { Navigation } from "@/components/arabian/Navigation";
 import { HomePage } from "@/components/arabian/HomePage";
 import { Footer } from "@/components/arabian/Footer";

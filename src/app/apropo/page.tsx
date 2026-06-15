@@ -37,22 +37,22 @@ const stats = [
 
 const galleryImages = [
   {
-    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/night.png",
+    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/1781221046155-224xz6q78g2.webp",
     altKey: "about.galleryImage1Alt",
     captionKey: "about.galleryImage1Caption",
   },
   {
-    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/restaurant-interior.png",
+    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/1781221055275-i4u2kxhorth.webp",
     altKey: "about.galleryImage2Alt",
     captionKey: "about.galleryImage2Caption",
   },
   {
-    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/activities/activity-camel.png",
+    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/1781221037505-4f2p7nqju31.webp",
     altKey: "about.galleryImage3Alt",
     captionKey: "about.galleryImage3Caption",
   },
   {
-    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.png",
+    src: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/1781200907578-eqj4rm32aai.webp",
     altKey: "about.galleryImage4Alt",
     captionKey: "about.galleryImage4Caption",
   },
@@ -110,7 +110,7 @@ export default function ApropoPage() {
           <div className="order-1 md:order-2 w-full md:w-1/2 relative min-h-[35vh] md:min-h-0">
             {/* Main image fills the entire right side */}
             <img
-              src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/suite-interior.png"
+              src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/1781200882874-jrl20iist7.webp"
               alt="Arabian Desert Home — Tentes de luxe Agafay"
               className="w-full h-full object-cover"
             />
@@ -126,7 +126,7 @@ export default function ApropoPage() {
               className="absolute bottom-6 -left-12 md:-left-20"
             >
               <img
-                src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/about.png"
+                src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/1781272815539-j9ai7jss03b.webp"
                 alt="Vue aérienne Arabian Desert Home — Désert Agafay"
                 className="w-40 h-40 md:w-56 md:h-56 rounded-2xl border-2 border-amber/20 shadow-2xl object-cover"
               />

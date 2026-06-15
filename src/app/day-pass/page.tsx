@@ -1,4 +1,6 @@
 import { db } from "@/lib/db";
+
+export const revalidate = 3600;
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { DayPassContent } from "./DayPassContent";

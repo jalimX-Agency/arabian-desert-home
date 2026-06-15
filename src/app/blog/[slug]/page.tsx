@@ -4,6 +4,8 @@ import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { BlogDetailContent } from "./BlogDetailContent";
 
+export const revalidate = 60;
+
 export async function generateStaticParams() {
   const posts = await db.blogPost.findMany({ select: { slug: true } });
   return posts.map((p) => ({ slug: p.slug }));
@@ -13,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = await db.blogPost.findUnique({ where: { slug }, select: { title: true, excerpt: true, image: true } });
   if (!post) return {};
-  const image = post.image || "https://pub-1d9eafere01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
+  const image = post.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
     title: `${post.title} | Arabian Desert Home Blog`,
     description: post.excerpt || post.title,
