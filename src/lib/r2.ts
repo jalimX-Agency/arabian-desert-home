@@ -22,6 +22,47 @@ function getSigningKey(secret: string, date: string, region: string, service: st
   return hmacSha256(kService, "aws4_request");
 }
 
+export async function uploadToR2(key: string, body: Buffer, contentType: string): Promise<string> {
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[:\-]|\.\d{3}/g, "").slice(0, 15) + "Z";
+  const dateStamp = amzDate.slice(0, 8);
+  const region = "auto";
+  const service = "s3";
+
+  const host = `${ACCOUNT_ID}.r2.cloudflarestorage.com`;
+  const url = `${ENDPOINT}/${BUCKET}/${key}`;
+  const payloadHash = sha256hex(body);
+
+  const canonicalHeaders = `content-type:${contentType}\nhost:${host}\nx-amz-content-sha256:${payloadHash}\nx-amz-date:${amzDate}\n`;
+  const signedHeaders = "content-type;host;x-amz-content-sha256;x-amz-date";
+  const canonicalRequest = `PUT\n/${BUCKET}/${key}\n\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}`;
+
+  const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
+  const stringToSign = `AWS4-HMAC-SHA256\n${amzDate}\n${credentialScope}\n${sha256hex(canonicalRequest)}`;
+
+  const signingKey = getSigningKey(SECRET_KEY, dateStamp, region, service);
+  const signature = hmacSha256(signingKey, stringToSign).toString("hex");
+  const authorization = `AWS4-HMAC-SHA256 Credential=${ACCESS_KEY}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
+
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": contentType,
+      "x-amz-content-sha256": payloadHash,
+      "x-amz-date": amzDate,
+      Authorization: authorization,
+    },
+    body,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`R2 upload failed ${res.status}: ${text}`);
+  }
+
+  return `${PUBLIC_URL}/${key}`;
+}
+
 export async function deleteFromR2(key: string): Promise<void> {
   const now = new Date();
   const amzDate = now.toISOString().replace(/[:\-]|\.\d{3}/g, "").slice(0, 15) + "Z";
