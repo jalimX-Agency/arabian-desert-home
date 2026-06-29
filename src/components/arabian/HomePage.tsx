@@ -165,9 +165,12 @@ function HeroSection() {
           transition={{ duration: 1.2, delay: 0.7, ease: smoothEase }}
           className="heading-display text-white text-5xl sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[8.5rem] max-w-5xl text-balance"
         >
-          {t("hero.heading1")}
-          <br />
-          <span className="text-amber">{t("hero.heading2")}</span>
+          <span className="sr-only">Bivouac de Luxe dans le Désert d&apos;Agafay — 30 min de Marrakech</span>
+          <span aria-hidden="true">
+            {t("hero.heading1")}
+            <br />
+            <span className="text-amber">{t("hero.heading2")}</span>
+          </span>
         </motion.h1>
 
         {/* Subtitle */}

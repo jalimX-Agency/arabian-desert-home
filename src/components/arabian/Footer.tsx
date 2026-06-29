@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Instagram, Mail, MapPin, Phone, Facebook, ArrowRight } from "lucide-react";
+import { Instagram, Mail, MapPin, Phone, Facebook, ArrowRight, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/context";
 
@@ -208,6 +208,35 @@ export function Footer() {
                     info@arabiandeserthome.ma
                   </span>
                 </a>
+                {/* Trust links */}
+                <div className="pt-2 flex flex-col gap-2">
+                  <a
+                    href="https://maps.google.com/?q=Arabian+Desert+Home+Agafay+Marrakech"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 group cursor-pointer"
+                  >
+                    <div className="w-7 h-7 rounded-full border border-amber/15 flex items-center justify-center flex-shrink-0 group-hover:border-amber/35 transition-colors duration-300">
+                      <MapPin className="w-3 h-3 text-amber/50 group-hover:text-amber/80 transition-colors duration-300" />
+                    </div>
+                    <span className="text-xs text-muted-foreground/70 group-hover:text-amber transition-colors duration-300">
+                      Google Maps
+                    </span>
+                  </a>
+                  <a
+                    href="https://www.tripadvisor.com/Search?q=Arabian+Desert+Home+Agafay"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 group cursor-pointer"
+                  >
+                    <div className="w-7 h-7 rounded-full border border-amber/15 flex items-center justify-center flex-shrink-0 group-hover:border-amber/35 transition-colors duration-300">
+                      <Star className="w-3 h-3 text-amber/50 group-hover:text-amber/80 transition-colors duration-300" />
+                    </div>
+                    <span className="text-xs text-muted-foreground/70 group-hover:text-amber transition-colors duration-300">
+                      TripAdvisor
+                    </span>
+                  </a>
+                </div>
               </div>
             </motion.div>
 

@@ -19,7 +19,7 @@ export const fr: Record<string, unknown> = {
     location: "Désert d'Agafay · Marrakech",
     heading1: "Là où le silence",
     heading2: "Parle",
-    subtitle: "Une invitation à l'évasion — une promesse d'instants suspendus dans l'immensité d'Agafay, à 30 minutes de Marrakech.",
+    subtitle: "Arabian Desert Home est un bivouac de luxe dans le désert d'Agafay, à 30 minutes de Marrakech. Tentes-suites exclusives, restaurant gastronomique, piscine, spa et activités désert — une évasion complète à deux pas de la ville.",
     discover: "Défiler pour découvrir",
     reserve: "Réserver",
     established: "Établi 2024",

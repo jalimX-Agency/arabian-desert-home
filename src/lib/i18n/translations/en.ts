@@ -19,7 +19,7 @@ export const en: Record<string, unknown> = {
     location: "Agafay Desert · Marrakech",
     heading1: "Where Silence",
     heading2: "Speaks",
-    subtitle: "An ultra-premium desert retreat where time dissolves into golden light and the horizon stretches beyond imagination.",
+    subtitle: "Arabian Desert Home is a luxury glamping bivouac in the Agafay desert, 30 minutes from Marrakech. Exclusive tent suites, gourmet restaurant, pool, spa and desert activities — a complete escape just outside the city.",
     discover: "Scroll to Discover",
     reserve: "Book",
     established: "Est. 2024",

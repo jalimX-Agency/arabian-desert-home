@@ -32,8 +32,21 @@ export const revalidate = 60;
 export default async function BlogPage() {
   const posts = await db.blogPost.findMany({ orderBy: { createdAt: "desc" } });
 
+  const itemListSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Blog Arabian Desert Home — Désert Agafay",
+    itemListElement: posts.map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `https://www.arabiandeserthome.ma/blog/${p.slug}`,
+      name: p.title,
+    })),
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: itemListSchema }} />
       <Navigation />
       <main className="flex-1 pt-20">
         <BlogContent posts={posts} />

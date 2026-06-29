@@ -137,8 +137,26 @@ export function BlogDetailContent({ post }: { post: BlogPost }) {
             />
           )}
 
+          {/* Author bio */}
+          <div className="mt-12 p-6 border border-amber/10 rounded-2xl bg-amber/[0.02]">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-amber/10 flex items-center justify-center">
+                <User className="w-4 h-4 text-amber/70" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">{post.author || "Arabian Desert Home"}</p>
+                <p className="text-xs text-muted-foreground luxury-label">{isEn ? "Agafay Desert Experts" : "Experts du Désert d'Agafay"}</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {isEn
+                ? "Our team of Agafay desert enthusiasts shares tips, inspiration and stories for your next desert escape from Marrakech."
+                : "Notre équipe de passionnés du désert d'Agafay partage conseils, inspirations et récits pour votre prochaine escapade depuis Marrakech."}
+            </p>
+          </div>
+
           {/* Back link */}
-          <div className="mt-16 pt-8 border-t border-border">
+          <div className="mt-10 pt-8 border-t border-border">
             <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-amber transition-colors luxury-label">
               <ArrowLeft className="w-4 h-4" />
               {isEn ? "All articles" : "Tous les articles"}
