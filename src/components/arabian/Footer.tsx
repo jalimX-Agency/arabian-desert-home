@@ -8,6 +8,7 @@ import { useLanguage } from "@/lib/i18n/context";
 
 const footerNavLinks = [
   { labelKey: "footer.navHome", href: "/" },
+  { labelKey: "footer.navAgafayGuide", href: "/desert-agafay" },
   { labelKey: "footer.navTents", href: "/les-tentes" },
   { labelKey: "footer.navRestaurant", href: "/restaurant" },
   { labelKey: "footer.navActivities", href: "/les-activites" },

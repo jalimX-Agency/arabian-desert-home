@@ -13,6 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticRoutes = [
     { path: "/", priority: 1.0 },
+    { path: "/desert-agafay", priority: 0.95 },
     { path: "/les-tentes", priority: 0.9 },
     { path: "/reservez-votre-sejour", priority: 0.9 },
     { path: "/les-activites", priority: 0.8 },

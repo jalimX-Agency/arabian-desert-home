@@ -8,6 +8,7 @@ export const en: Record<string, unknown> = {
     dayPass: "Day Pass",
     events: "Events",
     spa: "Spa",
+    agafayGuide: "Agafay",
     blog: "Blog",
     contact: "Contact",
     bookNow: "Book Now",
@@ -23,6 +24,13 @@ export const en: Record<string, unknown> = {
     discover: "Scroll to Discover",
     reserve: "Book",
     established: "Est. 2024",
+  },
+
+  // Blog Section (homepage)
+  blogSection: {
+    label: "The Journal",
+    title: "Desert Inspirations",
+    viewAll: "View all articles",
   },
 
   // Features Section
@@ -346,6 +354,7 @@ export const en: Record<string, unknown> = {
     bookNow: "Book Now",
     explore: "Explore",
     navHome: "The ADH",
+    navAgafayGuide: "Agafay Guide",
     navTents: "Our Tents",
     navRestaurant: "Restaurant",
     navActivities: "Activities",

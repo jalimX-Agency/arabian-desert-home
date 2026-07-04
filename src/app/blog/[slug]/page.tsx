@@ -35,6 +35,24 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   const post = await db.blogPost.findUnique({ where: { slug } });
   if (!post) notFound();
 
+  // Related articles: same category first, then most recent others
+  const relatedSelect = { id: true, title: true, titleEn: true, slug: true, image: true, category: true } as const;
+  const sameCategory = await db.blogPost.findMany({
+    where: { category: post.category, id: { not: post.id } },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+    select: relatedSelect,
+  });
+  const fill = sameCategory.length < 3
+    ? await db.blogPost.findMany({
+        where: { id: { notIn: [post.id, ...sameCategory.map((p) => p.id)] } },
+        orderBy: { createdAt: "desc" },
+        take: 3 - sameCategory.length,
+        select: relatedSelect,
+      })
+    : [];
+  const relatedPosts = [...sameCategory, ...fill];
+
   const articleSchema = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Article",
@@ -64,7 +82,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbSchema }} />
       <Navigation />
       <main className="flex-1 pt-20">
-        <BlogDetailContent post={post} />
+        <BlogDetailContent post={post} relatedPosts={relatedPosts} />
       </main>
       <Footer />
     </div>

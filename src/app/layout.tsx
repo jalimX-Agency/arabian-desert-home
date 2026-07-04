@@ -22,11 +22,13 @@ const josefin = Josefin_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.arabiandeserthome.ma"),
-  title: "Arabian Desert Home | Bivouac de Luxe à Agafay, Marrakech",
+  title: "Arabian Desert Home | Bivouac & Hôtel de Luxe à Agafay, Marrakech",
   description:
     "Arabian Desert Home — bivouac de luxe dans le désert d'Agafay à 30 minutes de Marrakech. Suites-tentes exclusives, restaurant gastronomique, piscine, activités désert (dromadaire, équitation) et événements sous les étoiles.",
   keywords: [
     "bivouac luxe Agafay",
+    "hôtel Agafay",
+    "hôtel désert Agafay Marrakech",
     "désert Agafay Marrakech",
     "camp luxe Marrakech",
     "glamping Maroc",
@@ -84,7 +86,7 @@ export const metadata: Metadata = {
     canonical: "https://www.arabiandeserthome.ma",
     languages: {
       fr: "https://www.arabiandeserthome.ma",
-      en: "https://www.arabiandeserthome.ma",
+      "x-default": "https://www.arabiandeserthome.ma",
     },
   },
 };

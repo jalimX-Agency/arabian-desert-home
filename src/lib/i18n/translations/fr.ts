@@ -8,6 +8,7 @@ export const fr: Record<string, unknown> = {
     dayPass: "Day Pass",
     events: "Événement",
     spa: "Spa",
+    agafayGuide: "Agafay",
     blog: "Blog",
     contact: "Contact",
     bookNow: "Réserver",
@@ -23,6 +24,13 @@ export const fr: Record<string, unknown> = {
     discover: "Défiler pour découvrir",
     reserve: "Réserver",
     established: "Établi 2024",
+  },
+
+  // Blog Section (homepage)
+  blogSection: {
+    label: "Le Journal",
+    title: "Inspirations du Désert",
+    viewAll: "Voir tous les articles",
   },
 
   // Features Section
@@ -346,6 +354,7 @@ export const fr: Record<string, unknown> = {
     bookNow: "Réserver Maintenant",
     explore: "Explorer",
     navHome: "L'ADH",
+    navAgafayGuide: "Guide Agafay",
     navTents: "Nos Tentes",
     navRestaurant: "Restaurant",
     navActivities: "Activités",

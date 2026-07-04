@@ -8,12 +8,12 @@ import { LesTentesContent } from "./LesTentesContent";
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
 export const metadata = {
-  title: "Hébergements — Tentes & Suites de Luxe | Arabian Desert Home",
-  description: "Découvrez nos tentes et suites de luxe au cœur du désert d'Agafay. Tente Junior à partir de 170 €, Tente Familiale 220 €, Suite 300 €. Petit-déjeuner inclus.",
+  title: "Hôtel & Tentes de Luxe au Désert d'Agafay | Arabian Desert Home",
+  description: "Hôtel de charme sous tentes dans le désert d'Agafay : Tente Junior à partir de 170 €, Tente Familiale 220 €, Suite 300 €. Petit-déjeuner inclus, à 30 km de Marrakech.",
   keywords: [
-    "bivouac luxe agafay", "glamping tente marrakech", "tente luxe désert agafay",
-    "bivouac luxe agafay avec piscine", "luxury desert camp agafay marrakech",
-    "glamping agafay morocco", "suite tente désert maroc",
+    "hôtel agafay", "hôtel désert agafay", "bivouac luxe agafay", "glamping tente marrakech",
+    "tente luxe désert agafay", "bivouac luxe agafay avec piscine",
+    "luxury desert camp agafay marrakech", "glamping agafay morocco", "suite tente désert maroc",
   ],
   openGraph: {
     title: "Tentes & Suites de Luxe dans le Désert d'Agafay | Arabian Desert Home",

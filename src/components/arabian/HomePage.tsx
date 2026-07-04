@@ -912,15 +912,120 @@ function TestimonialsSection({ testimonials }: { testimonials: Testimonial[] }) 
 }
 
 // ============================================
+// BLOG SECTION — Latest articles
+// ============================================
+interface BlogPostCard {
+  id: string;
+  title: string;
+  titleEn: string;
+  slug: string;
+  excerpt: string;
+  excerptEn: string;
+  image: string;
+  category: string;
+}
+
+function BlogSection({ posts }: { posts: BlogPostCard[] }) {
+  const { t, language } = useLanguage();
+  const isEn = language === "en";
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
+
+  if (!posts.length) return null;
+
+  return (
+    <section ref={ref} className="py-20 md:py-32 px-6 md:px-10 bg-background">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-14 md:mb-20">
+          <motion.p
+            variants={fadeIn}
+            initial="hidden"
+            animate={isInView ? "visible" : "hidden"}
+            custom={0}
+            className="luxury-label text-amber/60 mb-4"
+          >
+            {t("blogSection.label")}
+          </motion.p>
+          <motion.h2
+            variants={revealUp}
+            initial="hidden"
+            animate={isInView ? "visible" : "hidden"}
+            custom={0.2}
+            className="heading-display text-4xl md:text-6xl"
+          >
+            {t("blogSection.title")}
+          </motion.h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {posts.map((post, i) => (
+            <motion.div
+              key={post.id}
+              variants={revealUp}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
+              custom={0.15 + i * 0.1}
+            >
+              <Link href={`/blog/${post.slug}`} className="group block cursor-pointer">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-5">
+                  {post.image ? (
+                    <img
+                      src={post.image.split(",")[0]}
+                      alt={isEn && post.titleEn ? post.titleEn : post.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-warm-black" />
+                  )}
+                  {post.category && (
+                    <span className="absolute top-4 left-4 bg-amber/90 text-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full luxury-label">
+                      {post.category}
+                    </span>
+                  )}
+                </div>
+                <h3 className="heading-editorial text-xl md:text-2xl text-foreground group-hover:text-amber transition-colors duration-300 mb-3 line-clamp-2">
+                  {isEn && post.titleEn ? post.titleEn : post.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                  {isEn && post.excerptEn ? post.excerptEn : post.excerpt}
+                </p>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          variants={fadeIn}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          custom={0.5}
+          className="mt-12 text-center"
+        >
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-3 text-sm luxury-label text-amber hover:text-amber-dark transition-colors duration-300 cursor-pointer"
+          >
+            {t("blogSection.viewAll")}
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ============================================
 // HOME PAGE — Main Export
 // ============================================
 interface HomePageProps {
   suites: Suite[];
   galleryImages: { url: string; alt: string; altEn: string }[];
   testimonials: Testimonial[];
+  blogPosts?: BlogPostCard[];
 }
 
-export function HomePage({ suites, galleryImages, testimonials }: HomePageProps) {
+export function HomePage({ suites, galleryImages, testimonials, blogPosts = [] }: HomePageProps) {
   const { t } = useLanguage();
   return (
     <>
@@ -929,6 +1034,7 @@ export function HomePage({ suites, galleryImages, testimonials }: HomePageProps)
       <SuitesSection suites={suites} />
       <GallerySection galleryImages={galleryImages} />
       <TestimonialsSection testimonials={testimonials} />
+      <BlogSection posts={blogPosts} />
       <CTASection
         label={t("cta.label")}
         title={

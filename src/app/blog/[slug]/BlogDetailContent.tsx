@@ -23,9 +23,18 @@ interface BlogPost {
   contentEn: string;
 }
 
+interface RelatedPost {
+  id: string;
+  title: string;
+  titleEn: string;
+  slug: string;
+  image: string;
+  category: string;
+}
+
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
-export function BlogDetailContent({ post }: { post: BlogPost }) {
+export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost; relatedPosts?: RelatedPost[] }) {
   const { language, t } = useLanguage();
   const isEn = language === "en";
 
@@ -148,11 +157,22 @@ export function BlogDetailContent({ post }: { post: BlogPost }) {
                 <p className="text-xs text-muted-foreground luxury-label">{isEn ? "Agafay Desert Experts" : "Experts du Désert d'Agafay"}</p>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
               {isEn
                 ? "Our team of Agafay desert enthusiasts shares tips, inspiration and stories for your next desert escape from Marrakech."
                 : "Notre équipe de passionnés du désert d'Agafay partage conseils, inspirations et récits pour votre prochaine escapade depuis Marrakech."}
             </p>
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+              <Link href="/desert-agafay" className="text-amber hover:underline cursor-pointer">
+                {isEn ? "Agafay Desert Guide" : "Guide du Désert d'Agafay"}
+              </Link>
+              <Link href="/les-tentes" className="text-amber hover:underline cursor-pointer">
+                {isEn ? "Our Luxury Tents" : "Nos Tentes de Luxe"}
+              </Link>
+              <Link href="/day-pass" className="text-amber hover:underline cursor-pointer">
+                Day Pass
+              </Link>
+            </div>
           </div>
 
           {/* Back link */}
@@ -164,6 +184,41 @@ export function BlogDetailContent({ post }: { post: BlogPost }) {
           </div>
         </div>
       </section>
+
+      {/* Related articles */}
+      {relatedPosts.length > 0 && (
+        <section className="bg-background pb-16 md:pb-24 px-6 md:px-12 lg:px-20">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="heading-editorial text-2xl md:text-3xl text-foreground mb-8">
+              {isEn ? "Related Articles" : "Articles similaires"}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {relatedPosts.map((rp) => (
+                <Link key={rp.id} href={`/blog/${rp.slug}`} className="group block cursor-pointer">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl mb-4">
+                    {rp.image ? (
+                      <img
+                        src={rp.image.split(",")[0]}
+                        alt={isEn && rp.titleEn ? rp.titleEn : rp.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-warm-black" />
+                    )}
+                  </div>
+                  {rp.category && (
+                    <p className="text-[10px] uppercase tracking-widest text-amber/70 luxury-label mb-2">{rp.category}</p>
+                  )}
+                  <h3 className="text-base text-foreground group-hover:text-amber transition-colors duration-300 leading-snug">
+                    {isEn && rp.titleEn ? rp.titleEn : rp.title}
+                  </h3>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <CTASection
         label={isEn ? "Arabian Desert Home" : "Arabian Desert Home"}

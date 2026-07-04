@@ -22,6 +22,7 @@ const navLinkKeys = [
   { labelKey: "nav.activities", href: "/les-activites" },
   { labelKey: "nav.dayPass", href: "/day-pass" },
   { labelKey: "nav.events", href: "/les-evenements" },
+  { labelKey: "nav.agafayGuide", href: "/desert-agafay" },
   { labelKey: "nav.blog", href: "/blog" },
   { labelKey: "nav.contact", href: "/contact" },
 ];

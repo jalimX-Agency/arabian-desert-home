@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
 export const metadata: Metadata = {
-  title: "Événements & Séminaires au Désert | Arabian Desert Home — Agafay",
+  title: "Mariage & Événements au Désert d'Agafay | Arabian Desert Home",
   description:
     "Organisez votre événement, séminaire, mariage ou team building dans le désert d'Agafay. 6 hectares de cadre unique à 30 km de Marrakech. Devis personnalisé sous 24 h.",
   keywords: [
