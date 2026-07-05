@@ -5,6 +5,7 @@ const db = new PrismaClient();
 const articles = [
   {
     slug: "agafay-ou-merzouga-quel-desert-choisir-depuis-marrakech",
+    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png",
     title: "Agafay ou Merzouga : quel désert choisir depuis Marrakech ?",
     titleEn: "Agafay or Merzouga: Which Desert Should You Choose from Marrakech?",
     category: "Conseils voyage",
@@ -53,6 +54,7 @@ const articles = [
   },
   {
     slug: "prix-sejour-desert-agafay-guide-complet-budgets",
+    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/1781197366154-xko034wpnr9.webp",
     title: "Prix d'un séjour au désert d'Agafay : le guide complet des budgets",
     titleEn: "Agafay Desert Trip Prices: The Complete Budget Guide",
     category: "Conseils voyage",
@@ -101,6 +103,7 @@ const articles = [
   },
   {
     slug: "meilleure-saison-pour-visiter-desert-agafay",
+    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/1781221055275-i4u2kxhorth.webp",
     title: "Quelle est la meilleure saison pour visiter le désert d'Agafay ?",
     titleEn: "What Is the Best Season to Visit the Agafay Desert?",
     category: "Désert & Nature",
@@ -147,6 +150,7 @@ const articles = [
   },
   {
     slug: "desert-agafay-vaut-il-le-detour-avis-honnete",
+    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/1781221046155-224xz6q78g2.webp",
     title: "Le désert d'Agafay vaut-il le détour ? Avis honnête",
     titleEn: "Is the Agafay Desert Worth It? An Honest Review",
     category: "Expériences",
@@ -189,6 +193,7 @@ const articles = [
   },
   {
     slug: "comment-aller-desert-agafay-depuis-marrakech",
+    image: "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/1781221037505-4f2p7nqju31.webp",
     title: "Comment aller au désert d'Agafay depuis Marrakech : transferts et itinéraire",
     titleEn: "How to Get to the Agafay Desert from Marrakech: Transfers & Route",
     category: "Conseils voyage",
