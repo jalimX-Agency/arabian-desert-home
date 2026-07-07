@@ -45,7 +45,7 @@ export function DayPassDetailContent({ pass }: { pass: DayPass }) {
           transition={{ duration: 0.6, ease: smoothEase }}
           className="absolute top-8 left-6 md:left-12"
         >
-          <Link href="/day-pass" className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
+          <Link href={isEn ? "/en/day-pass" : "/day-pass"} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
             <ArrowLeft className="w-4 h-4" />
             {t("dayPassDetail.back")}
           </Link>
@@ -180,7 +180,7 @@ export function DayPassDetailContent({ pass }: { pass: DayPass }) {
               {t("dayPassDetail.ctaBook")}
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href="/day-pass" className="btn-outline flex items-center justify-center gap-2">
+            <Link href={isEn ? "/en/day-pass" : "/day-pass"} className="btn-outline flex items-center justify-center gap-2">
               <ArrowLeft className="w-4 h-4" />
               {t("dayPassDetail.ctaBack")}
             </Link>

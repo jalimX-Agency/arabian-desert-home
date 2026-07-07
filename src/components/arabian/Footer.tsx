@@ -7,15 +7,15 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/context";
 
 const footerNavLinks = [
-  { labelKey: "footer.navHome", href: "/" },
-  { labelKey: "footer.navAgafayGuide", href: "/desert-agafay" },
-  { labelKey: "footer.navTents", href: "/les-tentes" },
-  { labelKey: "footer.navRestaurant", href: "/restaurant" },
-  { labelKey: "footer.navActivities", href: "/les-activites" },
-  { labelKey: "footer.navDayPass", href: "/day-pass" },
-  { labelKey: "footer.navEvents", href: "/les-evenements" },
-  { labelKey: "footer.navBlog", href: "/blog" },
-  { labelKey: "footer.navAbout", href: "/apropo" },
+  { labelKey: "footer.navHome", href: "/", enHref: "/en" },
+  { labelKey: "footer.navAgafayGuide", href: "/desert-agafay", enHref: "/en/desert-agafay" },
+  { labelKey: "footer.navTents", href: "/les-tentes", enHref: "/en/les-tentes" },
+  { labelKey: "footer.navRestaurant", href: "/restaurant", enHref: "/restaurant" },
+  { labelKey: "footer.navActivities", href: "/les-activites", enHref: "/en/les-activites" },
+  { labelKey: "footer.navDayPass", href: "/day-pass", enHref: "/en/day-pass" },
+  { labelKey: "footer.navEvents", href: "/les-evenements", enHref: "/les-evenements" },
+  { labelKey: "footer.navBlog", href: "/blog", enHref: "/en/blog" },
+  { labelKey: "footer.navAbout", href: "/apropo", enHref: "/apropo" },
 ];
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -36,7 +36,8 @@ const socialLinks = [
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
 export function Footer() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEn = language === "en";
 
   return (
     <footer className="relative bg-background text-foreground/60 overflow-hidden">
@@ -111,7 +112,7 @@ export function Footer() {
               className="sm:col-span-2 lg:col-span-4"
             >
               {/* Logo */}
-              <Link href="/" className="inline-flex items-center group cursor-pointer mb-8">
+              <Link href={isEn ? "/en" : "/"} className="inline-flex items-center group cursor-pointer mb-8">
                 <Image
                   src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/logo/logoWithNoBg.png"
                   alt="Arabian Desert Home — Agafay, Marrakech"
@@ -146,7 +147,7 @@ export function Footer() {
                   {footerNavLinks.map((link) => (
                     <li key={link.href}>
                       <Link
-                        href={link.href}
+                        href={isEn ? link.enHref : link.href}
                         className="group inline-flex items-center gap-2.5 text-sm text-muted-foreground hover:text-amber transition-colors duration-300 cursor-pointer"
                       >
                         {/* Small dot indicator — appears on hover */}

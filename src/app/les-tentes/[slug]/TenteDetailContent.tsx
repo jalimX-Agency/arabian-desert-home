@@ -63,7 +63,7 @@ export function TenteDetailContent({ suite }: { suite: Suite }) {
           transition={{ duration: 0.6, ease: smoothEase }}
           className="absolute top-8 left-6 md:left-12"
         >
-          <Link href="/les-tentes" className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
+          <Link href={isEn ? "/en/les-tentes" : "/les-tentes"} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
             <ArrowLeft className="w-4 h-4" />
             {t("suiteDetail.backToTents")}
           </Link>
@@ -265,7 +265,7 @@ export function TenteDetailContent({ suite }: { suite: Suite }) {
               {t("nav.bookNow")}
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href="/les-tentes" className="btn-outline flex items-center justify-center gap-2">
+            <Link href={isEn ? "/en/les-tentes" : "/les-tentes"} className="btn-outline flex items-center justify-center gap-2">
               <ArrowLeft className="w-4 h-4" />
               {t("suiteDetail.seeAllTents")}
             </Link>

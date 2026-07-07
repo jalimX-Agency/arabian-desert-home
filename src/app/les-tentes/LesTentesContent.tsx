@@ -129,7 +129,7 @@ function SuiteCard({ suite }: { suite: Suite }) {
         </div>
 
         <Link
-          href={`/les-tentes/${suite.slug}`}
+          href={isEn ? `/en/les-tentes/${suite.slug}` : `/les-tentes/${suite.slug}`}
           className="btn-outline w-full flex items-center justify-center gap-2 text-sm"
         >
           Voir les détails

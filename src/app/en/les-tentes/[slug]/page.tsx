@@ -2,8 +2,8 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { TenteDetailContent } from "./TenteDetailContent";
-import { frAlternates } from "@/lib/seo/hreflang";
+import { TenteDetailContent } from "@/app/les-tentes/[slug]/TenteDetailContent";
+import { enAlternates } from "@/lib/seo/hreflang";
 
 export async function generateStaticParams() {
   const suites = await db.suite.findMany({ select: { slug: true } });
@@ -12,40 +12,47 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const suite = await db.suite.findUnique({ where: { slug }, select: { name: true, description: true, images: true, price: true } });
+  const suite = await db.suite.findUnique({
+    where: { slug },
+    select: { name: true, nameEn: true, description: true, descriptionEn: true, images: true, price: true },
+  });
   if (!suite) return {};
+  const name = suite.nameEn || suite.name;
+  const description = suite.descriptionEn || suite.description;
   const image = suite.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
-    title: `${suite.name} — Tente de Luxe Agafay | Arabian Desert Home`,
-    description: suite.description,
-    keywords: [suite.name, "bivouac luxe agafay", "tente luxe désert marrakech", "glamping agafay morocco"],
+    title: `${name} — Luxury Tent Agafay | Arabian Desert Home`,
+    description,
+    keywords: [name, "luxury bivouac agafay", "luxury tent desert marrakech", "glamping agafay morocco"],
     openGraph: {
-      title: `${suite.name} | Arabian Desert Home — Désert d'Agafay`,
-      description: suite.description,
-      url: `https://www.arabiandeserthome.ma/les-tentes/${slug}`,
-      images: [{ url: image, width: 1200, height: 800, alt: suite.name }],
+      title: `${name} | Arabian Desert Home — Agafay Desert`,
+      description,
+      url: `https://www.arabiandeserthome.ma/en/les-tentes/${slug}`,
+      images: [{ url: image, width: 1200, height: 800, alt: name }],
     },
-    twitter: { card: "summary_large_image" as const, title: suite.name, description: suite.description, images: [image] },
-    alternates: frAlternates(`/les-tentes/${slug}`),
+    twitter: { card: "summary_large_image" as const, title: name, description, images: [image] },
+    alternates: enAlternates(`/les-tentes/${slug}`),
   };
 }
 
-export default async function TenteDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function EnglishTenteDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const suite = await db.suite.findUnique({ where: { slug } });
   if (!suite) notFound();
 
+  const name = suite.nameEn || suite.name;
+  const description = suite.descriptionEn || suite.description;
   const image = suite.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: suite.name,
-    description: suite.description,
+    name,
+    description,
     image,
     brand: { "@type": "Brand", name: "Arabian Desert Home" },
     offers: {
       "@type": "Offer",
-      url: `https://www.arabiandeserthome.ma/les-tentes/${slug}`,
+      url: `https://www.arabiandeserthome.ma/en/les-tentes/${slug}`,
       priceCurrency: "EUR",
       price: suite.price,
       availability: "https://schema.org/InStock",
@@ -57,9 +64,9 @@ export default async function TenteDetailPage({ params }: { params: Promise<{ sl
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://www.arabiandeserthome.ma" },
-      { "@type": "ListItem", position: 2, name: "Hébergements", item: "https://www.arabiandeserthome.ma/les-tentes" },
-      { "@type": "ListItem", position: 3, name: suite.name, item: `https://www.arabiandeserthome.ma/les-tentes/${slug}` },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.arabiandeserthome.ma/en" },
+      { "@type": "ListItem", position: 2, name: "Accommodation", item: "https://www.arabiandeserthome.ma/en/les-tentes" },
+      { "@type": "ListItem", position: 3, name, item: `https://www.arabiandeserthome.ma/en/les-tentes/${slug}` },
     ],
   };
 

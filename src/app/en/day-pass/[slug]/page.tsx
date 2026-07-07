@@ -2,8 +2,8 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { DayPassDetailContent } from "./DayPassDetailContent";
-import { frAlternates } from "@/lib/seo/hreflang";
+import { DayPassDetailContent } from "@/app/day-pass/[slug]/DayPassDetailContent";
+import { enAlternates } from "@/lib/seo/hreflang";
 
 export async function generateStaticParams() {
   const passes = await db.dayPass.findMany({ select: { slug: true } });
@@ -12,40 +12,47 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const pass = await db.dayPass.findUnique({ where: { slug }, select: { name: true, description: true, image: true, price: true } });
+  const pass = await db.dayPass.findUnique({
+    where: { slug },
+    select: { name: true, nameEn: true, description: true, descriptionEn: true, image: true, price: true },
+  });
   if (!pass) return {};
+  const name = pass.nameEn || pass.name;
+  const description = pass.descriptionEn || pass.description;
   const image = pass.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
-    title: `${pass.name} — Day Pass Désert Agafay | Arabian Desert Home`,
-    description: pass.description,
-    keywords: [pass.name, "day pass agafay", "day pass désert marrakech", "agafay day pass desert pool"],
+    title: `${name} — Agafay Desert Day Pass | Arabian Desert Home`,
+    description,
+    keywords: [name, "agafay day pass", "desert day pass marrakech", "agafay day pass desert pool"],
     openGraph: {
-      title: `${pass.name} | Arabian Desert Home — Day Pass Désert d'Agafay`,
-      description: pass.description,
-      url: `https://www.arabiandeserthome.ma/day-pass/${slug}`,
-      images: [{ url: image, width: 1200, height: 800, alt: pass.name }],
+      title: `${name} | Arabian Desert Home — Agafay Desert Day Pass`,
+      description,
+      url: `https://www.arabiandeserthome.ma/en/day-pass/${slug}`,
+      images: [{ url: image, width: 1200, height: 800, alt: name }],
     },
-    twitter: { card: "summary_large_image" as const, title: pass.name, description: pass.description, images: [image] },
-    alternates: frAlternates(`/day-pass/${slug}`),
+    twitter: { card: "summary_large_image" as const, title: name, description, images: [image] },
+    alternates: enAlternates(`/day-pass/${slug}`),
   };
 }
 
-export default async function DayPassDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function EnglishDayPassDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const pass = await db.dayPass.findUnique({ where: { slug } });
   if (!pass) notFound();
 
+  const name = pass.nameEn || pass.name;
+  const description = pass.descriptionEn || pass.description;
   const image = pass.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: pass.name,
-    description: pass.description,
+    name,
+    description,
     image,
     brand: { "@type": "Brand", name: "Arabian Desert Home" },
     offers: {
       "@type": "Offer",
-      url: `https://www.arabiandeserthome.ma/day-pass/${slug}`,
+      url: `https://www.arabiandeserthome.ma/en/day-pass/${slug}`,
       priceCurrency: "MAD",
       price: pass.price,
       availability: "https://schema.org/InStock",
@@ -57,9 +64,9 @@ export default async function DayPassDetailPage({ params }: { params: Promise<{ 
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://www.arabiandeserthome.ma" },
-      { "@type": "ListItem", position: 2, name: "Day Pass", item: "https://www.arabiandeserthome.ma/day-pass" },
-      { "@type": "ListItem", position: 3, name: pass.name, item: `https://www.arabiandeserthome.ma/day-pass/${slug}` },
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.arabiandeserthome.ma/en" },
+      { "@type": "ListItem", position: 2, name: "Day Pass", item: "https://www.arabiandeserthome.ma/en/day-pass" },
+      { "@type": "ListItem", position: 3, name, item: `https://www.arabiandeserthome.ma/en/day-pass/${slug}` },
     ],
   };
 

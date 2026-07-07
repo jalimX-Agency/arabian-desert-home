@@ -4,6 +4,7 @@ export const revalidate = 3600;
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { LesTentesContent } from "./LesTentesContent";
+import { frAlternates } from "@/lib/seo/hreflang";
 
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
@@ -27,7 +28,7 @@ export const metadata = {
     description: "Dormez sous les étoiles dans nos suites-tentes exclusives à 30 km de Marrakech. À partir de 170 €/nuit.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://www.arabiandeserthome.ma/les-tentes" },
+  alternates: frAlternates("/les-tentes"),
 };
 
 export default async function LesTentesPage() {

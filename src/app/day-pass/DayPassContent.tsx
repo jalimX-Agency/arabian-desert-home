@@ -155,7 +155,7 @@ function PassRow({
             className="flex flex-col sm:flex-row gap-3"
           >
             <Link
-              href={`/day-pass/${pass.slug}`}
+              href={isEn ? `/en/day-pass/${pass.slug}` : `/day-pass/${pass.slug}`}
               className="btn-primary inline-flex items-center justify-center gap-2"
             >
               {t("dayPass.ctaButton")}

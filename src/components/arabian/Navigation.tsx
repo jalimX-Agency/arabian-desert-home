@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sun, Moon, Globe, ChevronDown, Check } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, type Language } from "@/lib/i18n/context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,24 +15,61 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+// Route prefixes that currently have a real, server-rendered /en equivalent.
+// Extend this list as more /en/* routes ship.
+const EN_READY_PREFIXES = ["/les-tentes", "/les-activites", "/day-pass", "/blog", "/desert-agafay"];
+
+function hasEnglishVersion(pathname: string): boolean {
+  if (pathname === "/") return true;
+  return EN_READY_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+/** Maps a pathname to its opposite-locale equivalent, only when one actually exists. */
+function toLocalePath(pathname: string, target: Language): string {
+  const isCurrentlyEn = pathname === "/en" || pathname.startsWith("/en/");
+  if (target === "en") {
+    if (isCurrentlyEn) return pathname;
+    if (!hasEnglishVersion(pathname)) return pathname; // no /en sibling yet — stay put
+    return pathname === "/" ? "/en" : `/en${pathname}`;
+  }
+  // target === "fr"
+  if (!isCurrentlyEn) return pathname;
+  const stripped = pathname.slice(3); // remove leading "/en"
+  return stripped === "" ? "/" : stripped;
+}
+
 const navLinkKeys = [
-  { labelKey: "nav.home", href: "/" },
-  { labelKey: "nav.tents", href: "/les-tentes" },
-  { labelKey: "nav.restaurant", href: "/restaurant" },
-  { labelKey: "nav.activities", href: "/les-activites" },
-  { labelKey: "nav.dayPass", href: "/day-pass" },
-  { labelKey: "nav.events", href: "/les-evenements" },
-  { labelKey: "nav.agafayGuide", href: "/desert-agafay" },
-  { labelKey: "nav.blog", href: "/blog" },
-  { labelKey: "nav.contact", href: "/contact" },
+  { labelKey: "nav.home", href: "/", enHref: "/en" },
+  { labelKey: "nav.tents", href: "/les-tentes", enHref: "/en/les-tentes" },
+  { labelKey: "nav.restaurant", href: "/restaurant", enHref: "/restaurant" },
+  { labelKey: "nav.activities", href: "/les-activites", enHref: "/en/les-activites" },
+  { labelKey: "nav.dayPass", href: "/day-pass", enHref: "/en/day-pass" },
+  { labelKey: "nav.events", href: "/les-evenements", enHref: "/les-evenements" },
+  { labelKey: "nav.agafayGuide", href: "/desert-agafay", enHref: "/en/desert-agafay" },
+  { labelKey: "nav.blog", href: "/blog", enHref: "/en/blog" },
+  { labelKey: "nav.contact", href: "/contact", enHref: "/contact" },
 ];
 
 export function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+  const isEn = language === "en";
+
+  const switchLanguage = useCallback(
+    (target: Language) => {
+      const targetPath = toLocalePath(pathname, target);
+      if (targetPath !== pathname) {
+        router.push(targetPath);
+      } else {
+        setLanguage(target);
+      }
+    },
+    [pathname, router, setLanguage]
+  );
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -78,7 +115,7 @@ export function Navigation() {
       >
         <nav className="max-w-7xl mx-auto px-5 sm:px-8 md:px-10 h-24 flex items-center justify-between">
           {/* ── Logo ── */}
-          <Link href="/" className="flex items-center group cursor-pointer">
+          <Link href={isEn ? "/en" : "/"} className="flex items-center group cursor-pointer">
             <Image
               src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/logo/logoWithNoBg.png"
               alt="Arabian Desert Home — Agafay, Marrakech"
@@ -92,11 +129,12 @@ export function Navigation() {
           {/* ── Desktop Nav Links — Smooth Underline ── */}
           <div className="hidden lg:flex items-center gap-7">
             {navLinkKeys.map((link) => {
-              const isActive = pathname === link.href;
+              const href = isEn ? link.enHref : link.href;
+              const isActive = pathname === href;
               return (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={href}
                   className={`luxury-label relative group cursor-pointer transition-colors duration-300 ${isActive
                     ? "text-amber"
                     : "text-muted-foreground hover:text-foreground"
@@ -129,7 +167,7 @@ export function Navigation() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-[140px]">
                 <DropdownMenuItem
-                  onClick={() => setLanguage("fr")}
+                  onClick={() => switchLanguage("fr")}
                   className="flex items-center justify-between cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
@@ -139,7 +177,7 @@ export function Navigation() {
                   {language === "fr" && <Check className="w-4 h-4 text-amber" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => setLanguage("en")}
+                  onClick={() => switchLanguage("en")}
                   className="flex items-center justify-between cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
@@ -160,7 +198,7 @@ export function Navigation() {
 
             {/* Mobile language toggle — always visible on mobile, one tap FR↔EN */}
             <button
-              onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
+              onClick={() => switchLanguage(language === "fr" ? "en" : "fr")}
               className="flex md:hidden items-center luxury-label px-2.5 h-8 rounded-full border border-amber/15 bg-amber/[0.04] text-amber text-xs cursor-pointer hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300"
               aria-label="Toggle language"
             >
@@ -224,7 +262,8 @@ export function Navigation() {
               {/* Nav Links — Large serif, staggered entrance */}
               <div className="flex-1 flex flex-col justify-center gap-1">
                 {navLinkKeys.map((link, i) => {
-                  const isActive = pathname === link.href;
+                  const href = isEn ? link.enHref : link.href;
+                  const isActive = pathname === href;
                   return (
                     <motion.div
                       key={link.href}
@@ -237,7 +276,7 @@ export function Navigation() {
                       }}
                     >
                       <Link
-                        href={link.href}
+                        href={href}
                         onClick={closeMobile}
                         className={`font-serif text-3xl sm:text-4xl py-2 flex items-center gap-4 group cursor-pointer transition-colors duration-300 ${isActive
                           ? "text-amber"
@@ -289,7 +328,7 @@ export function Navigation() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="min-w-[160px]">
                     <DropdownMenuItem
-                      onClick={() => setLanguage("fr")}
+                      onClick={() => switchLanguage("fr")}
                       className="flex items-center justify-between cursor-pointer"
                     >
                       <span className="flex items-center gap-2">
@@ -299,7 +338,7 @@ export function Navigation() {
                       {language === "fr" && <Check className="w-4 h-4 text-amber" />}
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => setLanguage("en")}
+                      onClick={() => switchLanguage("en")}
                       className="flex items-center justify-between cursor-pointer"
                     >
                       <span className="flex items-center gap-2">

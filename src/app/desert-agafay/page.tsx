@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { ArrowRight } from "lucide-react";
+import { frAlternates } from "@/lib/seo/hreflang";
 
 export const revalidate = 86400;
 
@@ -30,7 +31,7 @@ export const metadata = {
     description: "Tout savoir sur le désert d'Agafay, à 30 minutes de Marrakech : activités, prix, météo, hébergements.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: `${BASE}/desert-agafay` },
+  alternates: frAlternates("/desert-agafay"),
 };
 
 const faqItems = [

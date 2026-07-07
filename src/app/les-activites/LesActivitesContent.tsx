@@ -200,7 +200,7 @@ export function LesActivitesContent({ activities }: { activities: Activity[] }) 
                     ))}
                   </div>
                   <Link
-                    href={`/les-activites/${activity.slug}`}
+                    href={isEn ? `/en/les-activites/${activity.slug}` : `/les-activites/${activity.slug}`}
                     className="btn-outline w-full flex items-center justify-center gap-2 text-sm"
                   >
                     Voir les détails
@@ -326,7 +326,7 @@ export function LesActivitesContent({ activities }: { activities: Activity[] }) 
                           </div>
                         </div>
                         <Link
-                          href={`/les-activites/${activity.slug}`}
+                          href={isEn ? `/en/les-activites/${activity.slug}` : `/les-activites/${activity.slug}`}
                           className="btn-outline flex items-center gap-2 text-sm shrink-0"
                         >
                           Voir les détails

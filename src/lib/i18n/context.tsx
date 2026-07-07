@@ -28,16 +28,26 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   }, obj);
 }
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  // Always start with "fr" to match SSR, then hydrate from localStorage in useEffect
-  const [language, setLanguageState] = useState<Language>("fr");
+export function LanguageProvider({
+  children,
+  initialLanguage,
+  locked = false,
+}: {
+  children: React.ReactNode;
+  /** Language to render on the server (e.g. "en" under /en/*). Defaults to "fr" for existing routes. */
+  initialLanguage?: Language;
+  /** When true, skip the localStorage auto-hydration — the URL dictates the language. */
+  locked?: boolean;
+}) {
+  const [language, setLanguageState] = useState<Language>(initialLanguage ?? "fr");
 
   useEffect(() => {
+    if (locked) return;
     const saved = localStorage.getItem("adh-language") as Language | null;
     if (saved === "fr" || saved === "en") {
       setLanguageState(saved);
     }
-  }, []);
+  }, [locked]);
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);

@@ -1,9 +1,14 @@
 import { db } from "@/lib/db";
-
-export const revalidate = 300;
 import { Navigation } from "@/components/arabian/Navigation";
 import { HomePage } from "@/components/arabian/HomePage";
 import { Footer } from "@/components/arabian/Footer";
+import { frAlternates } from "@/lib/seo/hreflang";
+
+export const revalidate = 300;
+
+export const metadata = {
+  alternates: frAlternates("/"),
+};
 
 export default async function Home() {
   const [suites, galleryImages, testimonials, blogPosts] = await Promise.all([

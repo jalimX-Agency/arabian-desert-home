@@ -84,7 +84,7 @@ function PostCard({ post, index, isEn }: { post: BlogPost; index: number; isEn: 
         </div>
 
         <Link
-          href={`/blog/${post.slug}`}
+          href={isEn ? `/en/blog/${post.slug}` : `/blog/${post.slug}`}
           className="btn-outline inline-flex items-center justify-center gap-2 text-sm mt-auto"
         >
           {isEn ? "Read article" : "Lire l'article"}

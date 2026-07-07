@@ -86,7 +86,8 @@ const fadeIn = {
 // 1. HERO SECTION — Full Viewport + Parallax + Warm Aurora
 // ============================================
 function HeroSection() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEn = language === "en";
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -196,7 +197,7 @@ function HeroSection() {
             </span>
           </Link>
           <Link
-            href="/les-tentes"
+            href={isEn ? "/en/les-tentes" : "/les-tentes"}
             className="hidden md:flex items-center gap-3 luxury-label text-amber/60 hover:text-amber transition-colors duration-400 group cursor-pointer"
           >
             {t("suites.title")}
@@ -339,7 +340,8 @@ function FeaturesSection() {
 // 3. SUITES SECTION — Horizontal Scroll Carousel
 // ============================================
 function SuitesSection({ suites }: { suites: Suite[] }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEn = language === "en";
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -405,7 +407,7 @@ function SuitesSection({ suites }: { suites: Suite[] }) {
                 onMouseLeave={() => setHoveredIndex(null)}
                 className="group relative cursor-pointer snap-start shrink-0 w-[85vw] md:w-[400px] lg:w-[440px]"
               >
-                <Link href={`/les-tentes/${suite.slug}`}>
+                <Link href={isEn ? `/en/les-tentes/${suite.slug}` : `/les-tentes/${suite.slug}`}>
                   {/* Image Container — Tall with rounded-2xl corners */}
                   <div className="relative overflow-hidden rounded-2xl aspect-[3/4]">
                     <img
@@ -966,7 +968,7 @@ function BlogSection({ posts }: { posts: BlogPostCard[] }) {
               animate={isInView ? "visible" : "hidden"}
               custom={0.15 + i * 0.1}
             >
-              <Link href={`/blog/${post.slug}`} className="group block cursor-pointer">
+              <Link href={isEn ? `/en/blog/${post.slug}` : `/blog/${post.slug}`} className="group block cursor-pointer">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-5">
                   {post.image ? (
                     <img
@@ -1003,7 +1005,7 @@ function BlogSection({ posts }: { posts: BlogPostCard[] }) {
           className="mt-12 text-center"
         >
           <Link
-            href="/blog"
+            href={isEn ? "/en/blog" : "/blog"}
             className="inline-flex items-center gap-3 text-sm luxury-label text-amber hover:text-amber-dark transition-colors duration-300 cursor-pointer"
           >
             {t("blogSection.viewAll")}

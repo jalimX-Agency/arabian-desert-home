@@ -60,7 +60,7 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
           transition={{ duration: 0.6, ease: smoothEase }}
           className="absolute top-8 left-6 md:left-12"
         >
-          <Link href="/blog" className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
+          <Link href={isEn ? "/en/blog" : "/blog"} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
             <ArrowLeft className="w-4 h-4" />
             {isEn ? "Back to Blog" : "Retour au Blog"}
           </Link>
@@ -163,13 +163,13 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
                 : "Notre équipe de passionnés du désert d'Agafay partage conseils, inspirations et récits pour votre prochaine escapade depuis Marrakech."}
             </p>
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-              <Link href="/desert-agafay" className="text-amber hover:underline cursor-pointer">
+              <Link href={isEn ? "/en/desert-agafay" : "/desert-agafay"} className="text-amber hover:underline cursor-pointer">
                 {isEn ? "Agafay Desert Guide" : "Guide du Désert d'Agafay"}
               </Link>
-              <Link href="/les-tentes" className="text-amber hover:underline cursor-pointer">
+              <Link href={isEn ? "/en/les-tentes" : "/les-tentes"} className="text-amber hover:underline cursor-pointer">
                 {isEn ? "Our Luxury Tents" : "Nos Tentes de Luxe"}
               </Link>
-              <Link href="/day-pass" className="text-amber hover:underline cursor-pointer">
+              <Link href={isEn ? "/en/day-pass" : "/day-pass"} className="text-amber hover:underline cursor-pointer">
                 Day Pass
               </Link>
             </div>
@@ -177,7 +177,7 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
 
           {/* Back link */}
           <div className="mt-10 pt-8 border-t border-border">
-            <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-amber transition-colors luxury-label">
+            <Link href={isEn ? "/en/blog" : "/blog"} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-amber transition-colors luxury-label">
               <ArrowLeft className="w-4 h-4" />
               {isEn ? "All articles" : "Tous les articles"}
             </Link>
@@ -194,7 +194,7 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {relatedPosts.map((rp) => (
-                <Link key={rp.id} href={`/blog/${rp.slug}`} className="group block cursor-pointer">
+                <Link key={rp.id} href={isEn ? `/en/blog/${rp.slug}` : `/blog/${rp.slug}`} className="group block cursor-pointer">
                   <div className="relative aspect-[4/3] overflow-hidden rounded-xl mb-4">
                     {rp.image ? (
                       <img

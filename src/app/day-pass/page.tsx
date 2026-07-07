@@ -4,6 +4,7 @@ export const revalidate = 3600;
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { DayPassContent } from "./DayPassContent";
+import { frAlternates } from "@/lib/seo/hreflang";
 
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
@@ -27,7 +28,7 @@ export const metadata = {
     description: "Piscine, déjeuner marocain et activités à partir de 35 EUR/pers. À 30 km de Marrakech.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://www.arabiandeserthome.ma/day-pass" },
+  alternates: frAlternates("/day-pass"),
 };
 
 export default async function DayPassPage() {
