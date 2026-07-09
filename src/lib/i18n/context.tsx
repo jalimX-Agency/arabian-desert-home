@@ -52,6 +52,13 @@ export function LanguageProvider({
     }
   }, [locked]);
 
+  // Keep <html lang> in sync client-side. The root <html> tag is always
+  // rendered "fr" server-side (Next.js only allows one root layout), so
+  // non-French routes correct it here immediately after mount.
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem("adh-language", lang);

@@ -1,14 +1,10 @@
 ﻿import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Cinzel, Josefin_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AdminSessionProvider } from "@/components/admin/SessionProvider";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { frAlternates } from "@/lib/seo/hreflang";
-import {
-  faqSchemaFr, faqSchemaEn, faqSchemaEs, faqSchemaIt,
-  lodgingSchemaFr, lodgingSchemaEn, lodgingSchemaEs, lodgingSchemaIt,
-} from "@/lib/seo/schema";
+import { faqSchemaFr, lodgingSchemaFr } from "@/lib/seo/schema";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -91,30 +87,28 @@ export const metadata: Metadata = {
   alternates: frAlternates("/"),
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = (await headers()).get("x-pathname") ?? "";
-  const lang = pathname.startsWith("/en") ? "en"
-    : pathname.startsWith("/es") ? "es"
-    : pathname.startsWith("/it") ? "it"
-    : "fr";
-
-  const faqSchemas = { fr: faqSchemaFr, en: faqSchemaEn, es: faqSchemaEs, it: faqSchemaIt };
-  const lodgingSchemas = { fr: lodgingSchemaFr, en: lodgingSchemaEn, es: lodgingSchemaEs, it: lodgingSchemaIt };
-  const faqSchema = JSON.stringify(faqSchemas[lang]);
-  const lodgingSchema = JSON.stringify(lodgingSchemas[lang]);
+  // NOTE: locale is NOT detected here via headers()/pathname. That approach is
+  // unreliable for statically-generated/ISR pages, whose initial HTML is built
+  // without a live request context, silently defaulting everything to French.
+  // Non-French locales get their own nested layout (src/app/en/layout.tsx,
+  // es/layout.tsx, it/layout.tsx) that sets the language deterministically
+  // based on the route's location in the file tree instead.
+  const faqSchema = JSON.stringify(faqSchemaFr);
+  const lodgingSchema = JSON.stringify(lodgingSchemaFr);
 
   return (
-    <html lang={lang} suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning>
       <body className={`${cinzel.variable} ${josefin.variable} antialiased bg-background text-foreground`}>
         <script id="faq-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqSchema }} />
         <script id="structured-data" type="application/ld+json" dangerouslySetInnerHTML={{ __html: lodgingSchema }} />
         <AdminSessionProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
-            <LanguageProvider initialLanguage={lang === "fr" ? undefined : lang} locked={lang !== "fr"}>
+            <LanguageProvider>
               {children}
               <Toaster />
             </LanguageProvider>
