@@ -12,7 +12,7 @@ import {
   Flame,
   ShieldCheck,
 } from "lucide-react";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, withLocale, pickLocalized } from "@/lib/i18n/context";
 import { CTASection } from "@/components/arabian/CTASection";
 
 // ============================================
@@ -87,7 +87,6 @@ const fadeIn = {
 // ============================================
 function HeroSection() {
   const { t, language } = useLanguage();
-  const isEn = language === "en";
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -197,7 +196,7 @@ function HeroSection() {
             </span>
           </Link>
           <Link
-            href={isEn ? "/en/les-tentes" : "/les-tentes"}
+            href={withLocale(language, "/les-tentes")}
             className="hidden md:flex items-center gap-3 luxury-label text-amber/60 hover:text-amber transition-colors duration-400 group cursor-pointer"
           >
             {t("suites.title")}
@@ -341,7 +340,6 @@ function FeaturesSection() {
 // ============================================
 function SuitesSection({ suites }: { suites: Suite[] }) {
   const { t, language } = useLanguage();
-  const isEn = language === "en";
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -407,7 +405,7 @@ function SuitesSection({ suites }: { suites: Suite[] }) {
                 onMouseLeave={() => setHoveredIndex(null)}
                 className="group relative cursor-pointer snap-start shrink-0 w-[85vw] md:w-[400px] lg:w-[440px]"
               >
-                <Link href={isEn ? `/en/les-tentes/${suite.slug}` : `/les-tentes/${suite.slug}`}>
+                <Link href={withLocale(language, `/les-tentes/${suite.slug}`)}>
                   {/* Image Container — Tall with rounded-2xl corners */}
                   <div className="relative overflow-hidden rounded-2xl aspect-[3/4]">
                     <img
@@ -512,9 +510,8 @@ const BENTO_SPANS = [
   "md:col-span-2",
 ];
 
-function GallerySection({ galleryImages: rawGallery }: { galleryImages: { url: string; alt: string; altEn: string }[] }) {
+function GallerySection({ galleryImages: rawGallery }: { galleryImages: { url: string; alt: string; altEn: string; altEs?: string; altIt?: string }[] }) {
   const { t, language } = useLanguage();
-  const isEn = language === "en";
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
 
@@ -522,6 +519,8 @@ function GallerySection({ galleryImages: rawGallery }: { galleryImages: { url: s
     url: img.url,
     alt: img.alt || img.altEn || "",
     altEn: img.altEn || img.alt || "",
+    altEs: img.altEs || img.alt || "",
+    altIt: img.altIt || img.alt || "",
     span: BENTO_SPANS[i % BENTO_SPANS.length],
   }));
 
@@ -581,7 +580,7 @@ function GallerySection({ galleryImages: rawGallery }: { galleryImages: { url: s
             >
               <img
                 src={image.url}
-                alt={isEn ? image.altEn : image.alt}
+                alt={pickLocalized(language, image.alt, image.altEn, image.altEs, image.altIt)}
                 className="img-luxury w-full h-full object-cover group-hover:scale-110"
               />
               {/* Amber Overlay on Hover */}
@@ -920,16 +919,19 @@ interface BlogPostCard {
   id: string;
   title: string;
   titleEn: string;
+  titleEs?: string;
+  titleIt?: string;
   slug: string;
   excerpt: string;
   excerptEn: string;
+  excerptEs?: string;
+  excerptIt?: string;
   image: string;
   category: string;
 }
 
 function BlogSection({ posts }: { posts: BlogPostCard[] }) {
   const { t, language } = useLanguage();
-  const isEn = language === "en";
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
 
@@ -968,12 +970,12 @@ function BlogSection({ posts }: { posts: BlogPostCard[] }) {
               animate={isInView ? "visible" : "hidden"}
               custom={0.15 + i * 0.1}
             >
-              <Link href={isEn ? `/en/blog/${post.slug}` : `/blog/${post.slug}`} className="group block cursor-pointer">
+              <Link href={withLocale(language, `/blog/${post.slug}`)} className="group block cursor-pointer">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-5">
                   {post.image ? (
                     <img
                       src={post.image.split(",")[0]}
-                      alt={isEn && post.titleEn ? post.titleEn : post.title}
+                      alt={pickLocalized(language, post.title, post.titleEn, post.titleEs, post.titleIt)}
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
@@ -987,10 +989,10 @@ function BlogSection({ posts }: { posts: BlogPostCard[] }) {
                   )}
                 </div>
                 <h3 className="heading-editorial text-xl md:text-2xl text-foreground group-hover:text-amber transition-colors duration-300 mb-3 line-clamp-2">
-                  {isEn && post.titleEn ? post.titleEn : post.title}
+                  {pickLocalized(language, post.title, post.titleEn, post.titleEs, post.titleIt)}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
-                  {isEn && post.excerptEn ? post.excerptEn : post.excerpt}
+                  {pickLocalized(language, post.excerpt, post.excerptEn, post.excerptEs, post.excerptIt)}
                 </p>
               </Link>
             </motion.div>
@@ -1005,7 +1007,7 @@ function BlogSection({ posts }: { posts: BlogPostCard[] }) {
           className="mt-12 text-center"
         >
           <Link
-            href={isEn ? "/en/blog" : "/blog"}
+            href={withLocale(language, "/blog")}
             className="inline-flex items-center gap-3 text-sm luxury-label text-amber hover:text-amber-dark transition-colors duration-300 cursor-pointer"
           >
             {t("blogSection.viewAll")}

@@ -30,6 +30,14 @@ export default function DayPassAdminPage() {
         { key: "nameEn", label: "Name (EN)" },
         { key: "descriptionEn", label: "Description (EN)", type: "textarea" },
         { key: "includesEn", label: "Includes (EN)", type: "tags" },
+        // Contenu ES
+        { key: "nameEs", label: "Nombre (ES)" },
+        { key: "descriptionEs", label: "Descripción (ES)", type: "textarea" },
+        { key: "includesEs", label: "Incluye (ES)", type: "tags" },
+        // Contenu IT
+        { key: "nameIt", label: "Nome (IT)" },
+        { key: "descriptionIt", label: "Descrizione (IT)", type: "textarea" },
+        { key: "includesIt", label: "Incluso (IT)", type: "tags" },
         // Médias
         { key: "image", label: "Image principale", type: "image", folder: "gallery" },
       ]}
@@ -38,6 +46,8 @@ export default function DayPassAdminPage() {
         { label: "Tarifs", fieldKeys: ["price", "originalPrice", "childPricePercent", "currency"] },
         { label: "Contenu FR", fieldKeys: ["description", "includes"] },
         { label: "Contenu EN", fieldKeys: ["nameEn", "descriptionEn", "includesEn"] },
+        { label: "Contenu ES", fieldKeys: ["nameEs", "descriptionEs", "includesEs"] },
+        { label: "Contenu IT", fieldKeys: ["nameIt", "descriptionIt", "includesIt"] },
         { label: "Médias", fieldKeys: ["image"] },
       ]}
     />

@@ -30,66 +30,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority,
   }));
 
-  // Static /en routes that currently exist — extend as more phases ship.
-  const enStaticPaths = ["/", "/desert-agafay", "/les-tentes", "/les-activites", "/day-pass", "/blog"];
-  const enStaticRoutes = staticRoutes
-    .filter((r) => enStaticPaths.includes(r.url.replace(base, "") || "/"))
-    .map((r) => ({
-      ...r,
-      url: r.url === base ? `${base}/en` : r.url.replace(base, `${base}/en`),
-      priority: r.priority * 0.9,
-    }));
+  // Static routes that currently exist in each non-French locale — extend as more phases ship.
+  const LOCALE_READY_PATHS = ["/", "/desert-agafay", "/les-tentes", "/les-activites", "/day-pass", "/blog"];
+  const NON_FR_LOCALES = ["en", "es", "it"];
 
-  return [
-    ...staticRoutes,
-    ...enStaticRoutes,
-    ...suites.map((s) => ({
-      url: `${base}/les-tentes/${s.slug}`,
-      lastModified: s.updatedAt,
-      changeFrequency: "monthly" as const,
-      priority: 0.85,
+  const localeStaticRoutes = NON_FR_LOCALES.flatMap((locale) =>
+    staticRoutes
+      .filter((r) => LOCALE_READY_PATHS.includes(r.url.replace(base, "") || "/"))
+      .map((r) => ({
+        ...r,
+        url: r.url === `${base}/` ? `${base}/${locale}` : r.url.replace(base, `${base}/${locale}`),
+        priority: r.priority * 0.9,
+      }))
+  );
+
+  const dynamicEntries = [
+    { items: suites, path: "les-tentes", priority: 0.85, localePriority: 0.75, freq: "monthly" as const },
+    { items: activities, path: "les-activites", priority: 0.7, localePriority: 0.6, freq: "monthly" as const },
+    { items: dayPasses, path: "day-pass", priority: 0.7, localePriority: 0.6, freq: "monthly" as const },
+    { items: blogPosts, path: "blog", priority: 0.75, localePriority: 0.65, freq: "weekly" as const },
+  ].flatMap(({ items, path, priority, localePriority, freq }) => [
+    ...items.map((item) => ({
+      url: `${base}/${path}/${item.slug}`,
+      lastModified: item.updatedAt,
+      changeFrequency: freq,
+      priority,
     })),
-    ...suites.map((s) => ({
-      url: `${base}/en/les-tentes/${s.slug}`,
-      lastModified: s.updatedAt,
-      changeFrequency: "monthly" as const,
-      priority: 0.75,
-    })),
-    ...activities.map((a) => ({
-      url: `${base}/les-activites/${a.slug}`,
-      lastModified: a.updatedAt,
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    })),
-    ...activities.map((a) => ({
-      url: `${base}/en/les-activites/${a.slug}`,
-      lastModified: a.updatedAt,
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    })),
-    ...dayPasses.map((d) => ({
-      url: `${base}/day-pass/${d.slug}`,
-      lastModified: d.updatedAt,
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    })),
-    ...dayPasses.map((d) => ({
-      url: `${base}/en/day-pass/${d.slug}`,
-      lastModified: d.updatedAt,
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    })),
-    ...blogPosts.map((p) => ({
-      url: `${base}/blog/${p.slug}`,
-      lastModified: p.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.75,
-    })),
-    ...blogPosts.map((p) => ({
-      url: `${base}/en/blog/${p.slug}`,
-      lastModified: p.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.65,
-    })),
-  ];
+    ...NON_FR_LOCALES.flatMap((locale) =>
+      items.map((item) => ({
+        url: `${base}/${locale}/${path}/${item.slug}`,
+        lastModified: item.updatedAt,
+        changeFrequency: freq,
+        priority: localePriority,
+      }))
+    ),
+  ]);
+
+  return [...staticRoutes, ...localeStaticRoutes, ...dynamicEntries];
 }

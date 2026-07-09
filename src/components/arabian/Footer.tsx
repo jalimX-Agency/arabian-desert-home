@@ -4,19 +4,24 @@ import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Mail, MapPin, Phone, Facebook, ArrowRight, Star } from "lucide-react";
 import { motion } from "framer-motion";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, type Language } from "@/lib/i18n/context";
 
 const footerNavLinks = [
-  { labelKey: "footer.navHome", href: "/", enHref: "/en" },
-  { labelKey: "footer.navAgafayGuide", href: "/desert-agafay", enHref: "/en/desert-agafay" },
-  { labelKey: "footer.navTents", href: "/les-tentes", enHref: "/en/les-tentes" },
-  { labelKey: "footer.navRestaurant", href: "/restaurant", enHref: "/restaurant" },
-  { labelKey: "footer.navActivities", href: "/les-activites", enHref: "/en/les-activites" },
-  { labelKey: "footer.navDayPass", href: "/day-pass", enHref: "/en/day-pass" },
-  { labelKey: "footer.navEvents", href: "/les-evenements", enHref: "/les-evenements" },
-  { labelKey: "footer.navBlog", href: "/blog", enHref: "/en/blog" },
-  { labelKey: "footer.navAbout", href: "/apropo", enHref: "/apropo" },
+  { labelKey: "footer.navHome", href: "/", localized: true },
+  { labelKey: "footer.navAgafayGuide", href: "/desert-agafay", localized: true },
+  { labelKey: "footer.navTents", href: "/les-tentes", localized: true },
+  { labelKey: "footer.navRestaurant", href: "/restaurant", localized: false },
+  { labelKey: "footer.navActivities", href: "/les-activites", localized: true },
+  { labelKey: "footer.navDayPass", href: "/day-pass", localized: true },
+  { labelKey: "footer.navEvents", href: "/les-evenements", localized: false },
+  { labelKey: "footer.navBlog", href: "/blog", localized: true },
+  { labelKey: "footer.navAbout", href: "/apropo", localized: false },
 ];
+
+function localizedHref(link: { href: string; localized: boolean }, language: Language): string {
+  if (language === "fr" || !link.localized) return link.href;
+  return link.href === "/" ? `/${language}` : `/${language}${link.href}`;
+}
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -37,7 +42,6 @@ const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
 export function Footer() {
   const { t, language } = useLanguage();
-  const isEn = language === "en";
 
   return (
     <footer className="relative bg-background text-foreground/60 overflow-hidden">
@@ -112,7 +116,7 @@ export function Footer() {
               className="sm:col-span-2 lg:col-span-4"
             >
               {/* Logo */}
-              <Link href={isEn ? "/en" : "/"} className="inline-flex items-center group cursor-pointer mb-8">
+              <Link href={language === "fr" ? "/" : `/${language}`} className="inline-flex items-center group cursor-pointer mb-8">
                 <Image
                   src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/logo/logoWithNoBg.png"
                   alt="Arabian Desert Home — Agafay, Marrakech"
@@ -147,7 +151,7 @@ export function Footer() {
                   {footerNavLinks.map((link) => (
                     <li key={link.href}>
                       <Link
-                        href={isEn ? link.enHref : link.href}
+                        href={localizedHref(link, language)}
                         className="group inline-flex items-center gap-2.5 text-sm text-muted-foreground hover:text-amber transition-colors duration-300 cursor-pointer"
                       >
                         {/* Small dot indicator — appears on hover */}

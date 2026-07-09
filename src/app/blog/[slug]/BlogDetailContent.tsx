@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Calendar, User } from "lucide-react";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, withLocale, pickLocalized, type Language } from "@/lib/i18n/context";
 import { CTASection } from "@/components/arabian/CTASection";
 import { format } from "date-fns";
 import { fr as frLocale } from "date-fns/locale";
@@ -21,12 +21,20 @@ interface BlogPost {
   titleEn: string;
   excerptEn: string;
   contentEn: string;
+  titleEs?: string;
+  excerptEs?: string;
+  contentEs?: string;
+  titleIt?: string;
+  excerptIt?: string;
+  contentIt?: string;
 }
 
 interface RelatedPost {
   id: string;
   title: string;
   titleEn: string;
+  titleEs?: string;
+  titleIt?: string;
   slug: string;
   image: string;
   category: string;
@@ -34,13 +42,48 @@ interface RelatedPost {
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
+const COPY: Record<Language, {
+  backToBlog: string; agafayDeserExperts: string; authorBio: string;
+  agafayDesertGuide: string; ourLuxuryTents: string; allArticles: string;
+  relatedArticles: string; experienceDesert: string; bookYourStay: string;
+}> = {
+  fr: {
+    backToBlog: "Retour au Blog", agafayDeserExperts: "Experts du Désert d'Agafay",
+    authorBio: "Notre équipe de passionnés du désert d'Agafay partage conseils, inspirations et récits pour votre prochaine escapade depuis Marrakech.",
+    agafayDesertGuide: "Guide du Désert d'Agafay", ourLuxuryTents: "Nos Tentes de Luxe",
+    allArticles: "Tous les articles", relatedArticles: "Articles similaires",
+    experienceDesert: "Vivez le Désert", bookYourStay: "Réserver",
+  },
+  en: {
+    backToBlog: "Back to Blog", agafayDeserExperts: "Agafay Desert Experts",
+    authorBio: "Our team of Agafay desert enthusiasts shares tips, inspiration and stories for your next desert escape from Marrakech.",
+    agafayDesertGuide: "Agafay Desert Guide", ourLuxuryTents: "Our Luxury Tents",
+    allArticles: "All articles", relatedArticles: "Related Articles",
+    experienceDesert: "Experience the Desert", bookYourStay: "Book Your Stay",
+  },
+  es: {
+    backToBlog: "Volver al Blog", agafayDeserExperts: "Expertos del Desierto de Agafay",
+    authorBio: "Nuestro equipo de apasionados del desierto de Agafay comparte consejos, inspiraciones y relatos para tu próxima escapada al desierto desde Marrakech.",
+    agafayDesertGuide: "Guía del Desierto de Agafay", ourLuxuryTents: "Nuestras Tiendas de Lujo",
+    allArticles: "Todos los artículos", relatedArticles: "Artículos relacionados",
+    experienceDesert: "Vive el Desierto", bookYourStay: "Reserva tu Estancia",
+  },
+  it: {
+    backToBlog: "Torna al Blog", agafayDeserExperts: "Esperti del Deserto di Agafay",
+    authorBio: "Il nostro team di appassionati del deserto di Agafay condivide consigli, ispirazioni e racconti per la tua prossima fuga nel deserto da Marrakech.",
+    agafayDesertGuide: "Guida del Deserto di Agafay", ourLuxuryTents: "Le Nostre Tende di Lusso",
+    allArticles: "Tutti gli articoli", relatedArticles: "Articoli correlati",
+    experienceDesert: "Vivi il Deserto", bookYourStay: "Prenota il Tuo Soggiorno",
+  },
+};
+
 export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost; relatedPosts?: RelatedPost[] }) {
   const { language, t } = useLanguage();
-  const isEn = language === "en";
+  const c = COPY[language];
 
-  const title = isEn && post.titleEn ? post.titleEn : post.title;
-  const excerpt = isEn && post.excerptEn ? post.excerptEn : post.excerpt;
-  const content = isEn && post.contentEn ? post.contentEn : post.content;
+  const title = pickLocalized(language, post.title, post.titleEn, post.titleEs, post.titleIt);
+  const excerpt = pickLocalized(language, post.excerpt, post.excerptEn, post.excerptEs, post.excerptIt);
+  const content = pickLocalized(language, post.content, post.contentEn, post.contentEs, post.contentIt);
 
   return (
     <>
@@ -60,9 +103,9 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
           transition={{ duration: 0.6, ease: smoothEase }}
           className="absolute top-8 left-6 md:left-12"
         >
-          <Link href={isEn ? "/en/blog" : "/blog"} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
+          <Link href={withLocale(language, "/blog")} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
             <ArrowLeft className="w-4 h-4" />
-            {isEn ? "Back to Blog" : "Retour au Blog"}
+            {c.backToBlog}
           </Link>
         </motion.div>
 
@@ -112,7 +155,7 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
             )}
             <span className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-amber/60" />
-              {format(new Date(post.createdAt), "d MMMM yyyy", { locale: isEn ? undefined : frLocale })}
+              {format(new Date(post.createdAt), "d MMMM yyyy", { locale: language === "fr" ? frLocale : undefined })}
             </span>
           </motion.div>
 
@@ -154,22 +197,20 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
               </div>
               <div>
                 <p className="text-sm font-medium text-foreground">{post.author || "Arabian Desert Home"}</p>
-                <p className="text-xs text-muted-foreground luxury-label">{isEn ? "Agafay Desert Experts" : "Experts du Désert d'Agafay"}</p>
+                <p className="text-xs text-muted-foreground luxury-label">{c.agafayDeserExperts}</p>
               </div>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              {isEn
-                ? "Our team of Agafay desert enthusiasts shares tips, inspiration and stories for your next desert escape from Marrakech."
-                : "Notre équipe de passionnés du désert d'Agafay partage conseils, inspirations et récits pour votre prochaine escapade depuis Marrakech."}
+              {c.authorBio}
             </p>
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-              <Link href={isEn ? "/en/desert-agafay" : "/desert-agafay"} className="text-amber hover:underline cursor-pointer">
-                {isEn ? "Agafay Desert Guide" : "Guide du Désert d'Agafay"}
+              <Link href={withLocale(language, "/desert-agafay")} className="text-amber hover:underline cursor-pointer">
+                {c.agafayDesertGuide}
               </Link>
-              <Link href={isEn ? "/en/les-tentes" : "/les-tentes"} className="text-amber hover:underline cursor-pointer">
-                {isEn ? "Our Luxury Tents" : "Nos Tentes de Luxe"}
+              <Link href={withLocale(language, "/les-tentes")} className="text-amber hover:underline cursor-pointer">
+                {c.ourLuxuryTents}
               </Link>
-              <Link href={isEn ? "/en/day-pass" : "/day-pass"} className="text-amber hover:underline cursor-pointer">
+              <Link href={withLocale(language, "/day-pass")} className="text-amber hover:underline cursor-pointer">
                 Day Pass
               </Link>
             </div>
@@ -177,9 +218,9 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
 
           {/* Back link */}
           <div className="mt-10 pt-8 border-t border-border">
-            <Link href={isEn ? "/en/blog" : "/blog"} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-amber transition-colors luxury-label">
+            <Link href={withLocale(language, "/blog")} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-amber transition-colors luxury-label">
               <ArrowLeft className="w-4 h-4" />
-              {isEn ? "All articles" : "Tous les articles"}
+              {c.allArticles}
             </Link>
           </div>
         </div>
@@ -190,16 +231,16 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
         <section className="bg-background pb-16 md:pb-24 px-6 md:px-12 lg:px-20">
           <div className="max-w-5xl mx-auto">
             <h2 className="heading-editorial text-2xl md:text-3xl text-foreground mb-8">
-              {isEn ? "Related Articles" : "Articles similaires"}
+              {c.relatedArticles}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {relatedPosts.map((rp) => (
-                <Link key={rp.id} href={isEn ? `/en/blog/${rp.slug}` : `/blog/${rp.slug}`} className="group block cursor-pointer">
+                <Link key={rp.id} href={withLocale(language, `/blog/${rp.slug}`)} className="group block cursor-pointer">
                   <div className="relative aspect-[4/3] overflow-hidden rounded-xl mb-4">
                     {rp.image ? (
                       <img
                         src={rp.image.split(",")[0]}
-                        alt={isEn && rp.titleEn ? rp.titleEn : rp.title}
+                        alt={pickLocalized(language, rp.title, rp.titleEn, rp.titleEs, rp.titleIt)}
                         loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
@@ -211,7 +252,7 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
                     <p className="text-[10px] uppercase tracking-widest text-amber/70 luxury-label mb-2">{rp.category}</p>
                   )}
                   <h3 className="text-base text-foreground group-hover:text-amber transition-colors duration-300 leading-snug">
-                    {isEn && rp.titleEn ? rp.titleEn : rp.title}
+                    {pickLocalized(language, rp.title, rp.titleEn, rp.titleEs, rp.titleIt)}
                   </h3>
                 </Link>
               ))}
@@ -221,9 +262,9 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
       )}
 
       <CTASection
-        label={isEn ? "Arabian Desert Home" : "Arabian Desert Home"}
-        title={isEn ? "Experience the Desert" : "Vivez le Désert"}
-        buttonText={isEn ? "Book Your Stay" : "Réserver"}
+        label="Arabian Desert Home"
+        title={c.experienceDesert}
+        buttonText={c.bookYourStay}
         buttonHref="/reservez-votre-sejour"
       />
     </>

@@ -5,7 +5,10 @@ import { ThemeProvider } from "next-themes";
 import { AdminSessionProvider } from "@/components/admin/SessionProvider";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { frAlternates } from "@/lib/seo/hreflang";
-import { faqSchemaFr, faqSchemaEn, lodgingSchemaFr, lodgingSchemaEn } from "@/lib/seo/schema";
+import {
+  faqSchemaFr, faqSchemaEn, faqSchemaEs, faqSchemaIt,
+  lodgingSchemaFr, lodgingSchemaEn, lodgingSchemaEs, lodgingSchemaIt,
+} from "@/lib/seo/schema";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -94,10 +97,15 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = (await headers()).get("x-pathname") ?? "";
-  const lang = pathname.startsWith("/en") ? "en" : "fr";
+  const lang = pathname.startsWith("/en") ? "en"
+    : pathname.startsWith("/es") ? "es"
+    : pathname.startsWith("/it") ? "it"
+    : "fr";
 
-  const faqSchema = JSON.stringify(lang === "en" ? faqSchemaEn : faqSchemaFr);
-  const lodgingSchema = JSON.stringify(lang === "en" ? lodgingSchemaEn : lodgingSchemaFr);
+  const faqSchemas = { fr: faqSchemaFr, en: faqSchemaEn, es: faqSchemaEs, it: faqSchemaIt };
+  const lodgingSchemas = { fr: lodgingSchemaFr, en: lodgingSchemaEn, es: lodgingSchemaEs, it: lodgingSchemaIt };
+  const faqSchema = JSON.stringify(faqSchemas[lang]);
+  const lodgingSchema = JSON.stringify(lodgingSchemas[lang]);
 
   return (
     <html lang={lang} suppressHydrationWarning>
@@ -106,7 +114,7 @@ export default async function RootLayout({
         <script id="structured-data" type="application/ld+json" dangerouslySetInnerHTML={{ __html: lodgingSchema }} />
         <AdminSessionProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
-            <LanguageProvider initialLanguage={lang === "en" ? "en" : undefined} locked={lang === "en"}>
+            <LanguageProvider initialLanguage={lang === "fr" ? undefined : lang} locked={lang !== "fr"}>
               {children}
               <Toaster />
             </LanguageProvider>

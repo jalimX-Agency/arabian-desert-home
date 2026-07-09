@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Clock, Check, Bus, Calendar } from "lucide-react";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, withLocale, pickLocalized } from "@/lib/i18n/context";
 
 interface Activity {
   id: string;
@@ -25,18 +25,25 @@ interface Activity {
   descriptionEn: string;
   longDescriptionEn: string;
   includesEn: string;
+  nameEs?: string;
+  descriptionEs?: string;
+  longDescriptionEs?: string;
+  includesEs?: string;
+  nameIt?: string;
+  descriptionIt?: string;
+  longDescriptionIt?: string;
+  includesIt?: string;
 }
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
 export function ActiviteDetailContent({ activity }: { activity: Activity }) {
   const { language, t } = useLanguage();
-  const isEn = language === "en";
 
-  const name        = (isEn && activity.nameEn)            ? activity.nameEn            : activity.name;
-  const description = (isEn && activity.descriptionEn)     ? activity.descriptionEn     : activity.description;
-  const longDesc    = (isEn && activity.longDescriptionEn) ? activity.longDescriptionEn : activity.longDescription;
-  const inclSrc     = (isEn && activity.includesEn)        ? activity.includesEn        : activity.includes;
+  const name        = pickLocalized(language, activity.name, activity.nameEn, activity.nameEs, activity.nameIt);
+  const description = pickLocalized(language, activity.description, activity.descriptionEn, activity.descriptionEs, activity.descriptionIt);
+  const longDesc    = pickLocalized(language, activity.longDescription, activity.longDescriptionEn, activity.longDescriptionEs, activity.longDescriptionIt);
+  const inclSrc     = pickLocalized(language, activity.includes, activity.includesEn, activity.includesEs, activity.includesIt);
 
   const includesList = inclSrc ? inclSrc.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
@@ -53,7 +60,7 @@ export function ActiviteDetailContent({ activity }: { activity: Activity }) {
           transition={{ duration: 0.6, ease: smoothEase }}
           className="absolute top-8 left-6 md:left-12"
         >
-          <Link href={isEn ? "/en/les-activites" : "/les-activites"} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
+          <Link href={withLocale(language, "/les-activites")} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
             <ArrowLeft className="w-4 h-4" />
             {t("activityDetail.back")}
           </Link>
@@ -226,7 +233,7 @@ export function ActiviteDetailContent({ activity }: { activity: Activity }) {
               {t("activityDetail.ctaBook")}
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href={isEn ? "/en/les-activites" : "/les-activites"} className="btn-outline flex items-center justify-center gap-2">
+            <Link href={withLocale(language, "/les-activites")} className="btn-outline flex items-center justify-center gap-2">
               <ArrowLeft className="w-4 h-4" />
               {t("activityDetail.ctaBack")}
             </Link>

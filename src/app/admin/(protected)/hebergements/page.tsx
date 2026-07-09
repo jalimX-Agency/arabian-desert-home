@@ -35,6 +35,20 @@ export default function HebergementsPage() {
         { key: "longDescriptionEn", label: "Description longue (EN)", type: "textarea" },
         { key: "featuresEn", label: "Features (EN)", type: "tags" },
         { key: "amenitiesEn", label: "Amenities (EN)", type: "tags" },
+        // Espagnol
+        { key: "nameEs", label: "Nombre (ES)" },
+        { key: "taglineEs", label: "Eslogan (ES)" },
+        { key: "descriptionEs", label: "Descripción corta (ES)", type: "textarea" },
+        { key: "longDescriptionEs", label: "Descripción larga (ES)", type: "textarea" },
+        { key: "featuresEs", label: "Características (ES)", type: "tags" },
+        { key: "amenitiesEs", label: "Comodidades (ES)", type: "tags" },
+        // Italien
+        { key: "nameIt", label: "Nome (IT)" },
+        { key: "taglineIt", label: "Slogan (IT)" },
+        { key: "descriptionIt", label: "Descrizione breve (IT)", type: "textarea" },
+        { key: "longDescriptionIt", label: "Descrizione lunga (IT)", type: "textarea" },
+        { key: "featuresIt", label: "Caratteristiche (IT)", type: "tags" },
+        { key: "amenitiesIt", label: "Comfort (IT)", type: "tags" },
         // Tarifs & Infos
         { key: "price", label: "Prix (actuel)", type: "number", required: true },
         { key: "originalPrice", label: "Prix original (avant remise)", type: "number" },

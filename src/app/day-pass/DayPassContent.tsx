@@ -4,21 +4,27 @@ import { useRef } from "react";
 import Link from "next/link";
 import { motion, useInView } from "framer-motion";
 import { CTASection } from "@/components/arabian/CTASection";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, withLocale, pickLocalized, type Language } from "@/lib/i18n/context";
 import { Check, Clock, Baby, AlertCircle, ArrowRight, Phone } from "lucide-react";
 
 interface DayPass {
   id: string;
   name: string;
   nameEn: string;
+  nameEs?: string;
+  nameIt?: string;
   slug: string;
   description: string;
   descriptionEn: string;
+  descriptionEs?: string;
+  descriptionIt?: string;
   price: number;
   originalPrice?: number | null;
   currency: string;
   includes: string;
   includesEn: string;
+  includesEs?: string;
+  includesIt?: string;
   order: number;
   image: string;
 }
@@ -29,19 +35,18 @@ const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 function PassRow({
   pass,
   index,
-  isEn,
+  language,
   t,
 }: {
   pass: DayPass;
   index: number;
-  isEn: boolean;
+  language: Language;
   t: (key: string) => string;
 }) {
   const isReversed = index % 2 === 1;
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
-  const loc = (fr: string, en: string) => (isEn && en) ? en : fr;
-  const includeItems = loc(pass.includes, pass.includesEn)
+  const includeItems = pickLocalized(language, pass.includes, pass.includesEn, pass.includesEs, pass.includesIt)
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
@@ -110,7 +115,7 @@ function PassRow({
             transition={{ duration: 0.9, delay: 0.1, ease: smoothEase }}
             className="heading-display text-3xl md:text-4xl lg:text-5xl mb-4"
           >
-            {loc(pass.name, pass.nameEn)}
+            {pickLocalized(language, pass.name, pass.nameEn, pass.nameEs, pass.nameIt)}
           </motion.h2>
 
           <motion.div
@@ -126,7 +131,7 @@ function PassRow({
             transition={{ duration: 0.8, delay: 0.3, ease: smoothEase }}
             className="body-editorial text-muted-foreground mb-8"
           >
-            {loc(pass.description, pass.descriptionEn)}
+            {pickLocalized(language, pass.description, pass.descriptionEn, pass.descriptionEs, pass.descriptionIt)}
           </motion.p>
 
           <motion.div
@@ -155,7 +160,7 @@ function PassRow({
             className="flex flex-col sm:flex-row gap-3"
           >
             <Link
-              href={isEn ? `/en/day-pass/${pass.slug}` : `/day-pass/${pass.slug}`}
+              href={withLocale(language, `/day-pass/${pass.slug}`)}
               className="btn-primary inline-flex items-center justify-center gap-2"
             >
               {t("dayPass.ctaButton")}
@@ -177,8 +182,6 @@ function PassRow({
 
 export function DayPassContent({ passes }: { passes: DayPass[] }) {
   const { t, language } = useLanguage();
-  const isEn = language === "en";
-  const loc = (fr: string, en: string) => (isEn && en) ? en : fr;
   const data = passes;
 
   const heroRef = useRef(null);
@@ -302,7 +305,7 @@ export function DayPassContent({ passes }: { passes: DayPass[] }) {
       {/* ── Passes — Alternating editorial rows ── */}
       <section className="relative">
         {data.map((pass, i) => (
-          <PassRow key={pass.id} pass={pass} index={i} isEn={isEn} t={t} />
+          <PassRow key={pass.id} pass={pass} index={i} language={language} t={t} />
         ))}
       </section>
 

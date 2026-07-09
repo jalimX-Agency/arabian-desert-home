@@ -4,16 +4,20 @@ import { useRef } from "react";
 import Link from "next/link";
 import { motion, useInView } from "framer-motion";
 import { CTASection } from "@/components/arabian/CTASection";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, withLocale, pickLocalized } from "@/lib/i18n/context";
 import { Clock, Check, Bus, Calendar, ArrowRight } from "lucide-react";
 
 interface Activity {
   id: string;
   name: string;
   nameEn: string;
+  nameEs?: string;
+  nameIt?: string;
   slug: string;
   description: string;
   descriptionEn: string;
+  descriptionEs?: string;
+  descriptionIt?: string;
   longDescription: string;
   duration: string;
   price: number;
@@ -23,6 +27,8 @@ interface Activity {
   category: string;
   includes: string;
   includesEn: string;
+  includesEs?: string;
+  includesIt?: string;
   schedule: string;
   transportIncluded: boolean;
   order: number;
@@ -60,8 +66,6 @@ const fadeIn = {
 
 export function LesActivitesContent({ activities }: { activities: Activity[] }) {
   const { t, language } = useLanguage();
-  const isEn = language === "en";
-  const loc = (fr: string, en: string) => (isEn && en) ? en : fr;
   const data = activities;
 
   const individualActivities = data.filter((a) => a.category === "Activité");
@@ -187,10 +191,10 @@ export function LesActivitesContent({ activities }: { activities: Activity[] }) 
                     </div>
                     <span className="text-sm text-muted-foreground body-editorial">{activity.duration}</span>
                   </div>
-                  <h3 className="heading-editorial text-xl md:text-2xl mb-2 group-hover:text-amber transition-colors duration-400">{loc(activity.name, activity.nameEn)}</h3>
-                  <p className="text-sm text-muted-foreground mb-4 body-editorial">{loc(activity.description, activity.descriptionEn)}</p>
+                  <h3 className="heading-editorial text-xl md:text-2xl mb-2 group-hover:text-amber transition-colors duration-400">{pickLocalized(language, activity.name, activity.nameEn, activity.nameEs, activity.nameIt)}</h3>
+                  <p className="text-sm text-muted-foreground mb-4 body-editorial">{pickLocalized(language, activity.description, activity.descriptionEn, activity.descriptionEs, activity.descriptionIt)}</p>
                   <div className="space-y-2 mb-5">
-                    {loc(activity.includes, activity.includesEn).split(",").map((item, j) => (
+                    {pickLocalized(language, activity.includes, activity.includesEn, activity.includesEs, activity.includesIt).split(",").map((item, j) => (
                       <div key={j} className="flex items-center gap-2 text-sm text-muted-foreground/70 body-editorial">
                         <div className="w-5 h-5 rounded-full bg-amber/10 flex items-center justify-center shrink-0">
                           <Check className="w-3 h-3 text-amber" />
@@ -200,7 +204,7 @@ export function LesActivitesContent({ activities }: { activities: Activity[] }) 
                     ))}
                   </div>
                   <Link
-                    href={isEn ? `/en/les-activites/${activity.slug}` : `/les-activites/${activity.slug}`}
+                    href={withLocale(language, `/les-activites/${activity.slug}`)}
                     className="btn-outline w-full flex items-center justify-center gap-2 text-sm"
                   >
                     Voir les détails
@@ -277,15 +281,15 @@ export function LesActivitesContent({ activities }: { activities: Activity[] }) 
                       )}
                     </div>
 
-                    <h3 className="heading-editorial text-2xl md:text-3xl mb-2 group-hover:text-amber transition-colors duration-400">{loc(activity.name, activity.nameEn)}</h3>
+                    <h3 className="heading-editorial text-2xl md:text-3xl mb-2 group-hover:text-amber transition-colors duration-400">{pickLocalized(language, activity.name, activity.nameEn, activity.nameEs, activity.nameIt)}</h3>
                     <div className="divider-accent max-w-[80px] mb-4" />
-                    <p className="text-sm text-muted-foreground mb-2 body-editorial">{loc(activity.description, activity.descriptionEn)}</p>
+                    <p className="text-sm text-muted-foreground mb-2 body-editorial">{pickLocalized(language, activity.description, activity.descriptionEn, activity.descriptionEs, activity.descriptionIt)}</p>
                     <p className="text-sm text-muted-foreground/70 leading-relaxed mb-6 body-editorial">{activity.longDescription}</p>
 
                     <div className="mb-6">
                       <span className="luxury-label text-amber block mb-3">{t("activities.includes")}</span>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {loc(activity.includes, activity.includesEn).split(",").map((item, j) => (
+                        {pickLocalized(language, activity.includes, activity.includesEn, activity.includesEs, activity.includesIt).split(",").map((item, j) => (
                           <div key={j} className="flex items-center gap-2 text-sm text-muted-foreground/70 body-editorial">
                             <div className="w-5 h-5 rounded-full bg-amber/10 flex items-center justify-center shrink-0">
                               <Check className="w-3 h-3 text-amber" />
@@ -326,7 +330,7 @@ export function LesActivitesContent({ activities }: { activities: Activity[] }) 
                           </div>
                         </div>
                         <Link
-                          href={isEn ? `/en/les-activites/${activity.slug}` : `/les-activites/${activity.slug}`}
+                          href={withLocale(language, `/les-activites/${activity.slug}`)}
                           className="btn-outline flex items-center gap-2 text-sm shrink-0"
                         >
                           Voir les détails

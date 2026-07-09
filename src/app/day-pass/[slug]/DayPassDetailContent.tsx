@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, Sun } from "lucide-react";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, withLocale, pickLocalized } from "@/lib/i18n/context";
 
 interface DayPass {
   id: string;
@@ -18,17 +18,22 @@ interface DayPass {
   nameEn: string;
   descriptionEn: string;
   includesEn: string;
+  nameEs?: string;
+  descriptionEs?: string;
+  includesEs?: string;
+  nameIt?: string;
+  descriptionIt?: string;
+  includesIt?: string;
 }
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
 export function DayPassDetailContent({ pass }: { pass: DayPass }) {
   const { language, t } = useLanguage();
-  const isEn = language === "en";
 
-  const name        = (isEn && pass.nameEn)        ? pass.nameEn        : pass.name;
-  const description = (isEn && pass.descriptionEn) ? pass.descriptionEn : pass.description;
-  const inclSrc     = (isEn && pass.includesEn)    ? pass.includesEn    : pass.includes;
+  const name        = pickLocalized(language, pass.name, pass.nameEn, pass.nameEs, pass.nameIt);
+  const description = pickLocalized(language, pass.description, pass.descriptionEn, pass.descriptionEs, pass.descriptionIt);
+  const inclSrc     = pickLocalized(language, pass.includes, pass.includesEn, pass.includesEs, pass.includesIt);
 
   const includesList = inclSrc ? inclSrc.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
@@ -45,7 +50,7 @@ export function DayPassDetailContent({ pass }: { pass: DayPass }) {
           transition={{ duration: 0.6, ease: smoothEase }}
           className="absolute top-8 left-6 md:left-12"
         >
-          <Link href={isEn ? "/en/day-pass" : "/day-pass"} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
+          <Link href={withLocale(language, "/day-pass")} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
             <ArrowLeft className="w-4 h-4" />
             {t("dayPassDetail.back")}
           </Link>
@@ -180,7 +185,7 @@ export function DayPassDetailContent({ pass }: { pass: DayPass }) {
               {t("dayPassDetail.ctaBook")}
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href={isEn ? "/en/day-pass" : "/day-pass"} className="btn-outline flex items-center justify-center gap-2">
+            <Link href={withLocale(language, "/day-pass")} className="btn-outline flex items-center justify-center gap-2">
               <ArrowLeft className="w-4 h-4" />
               {t("dayPassDetail.ctaBack")}
             </Link>

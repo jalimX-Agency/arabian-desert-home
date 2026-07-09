@@ -74,3 +74,59 @@ export const lodgingSchemaEn = {
     { "@type": "LocationFeatureSpecification", name: "Events & Weddings" },
   ],
 };
+
+export const faqSchemaEs = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    { "@type": "Question", name: "¿Dónde se encuentra Arabian Desert Home?", acceptedAnswer: { "@type": "Answer", text: "Arabian Desert Home se encuentra en el desierto de Agafay, a 30 km de Marrakech (unos 45 minutos en coche), en la región de Marrakech-Safi, Marruecos." } },
+    { "@type": "Question", name: "¿Cuál es el precio de una noche en una tienda de lujo?", acceptedAnswer: { "@type": "Answer", text: "Las tiendas empiezan desde 170 EUR por noche para la tienda entera, independientemente del número de huéspedes. El desayuno está incluido." } },
+    { "@type": "Question", name: "¿Qué es un Day Pass en el desierto de Agafay?", acceptedAnswer: { "@type": "Answer", text: "El Day Pass da acceso a la piscina, un almuerzo marroquí tradicional y las actividades del campamento. Las tarifas empiezan desde 35 EUR por persona." } },
+    { "@type": "Question", name: "¿Qué actividades hay disponibles en el desierto de Agafay?", acceptedAnswer: { "@type": "Answer", text: "Arabian Desert Home ofrece paseos en camello, tours en quad, equitación, senderismo en el desierto y puestas de sol panorámicas en la finca de 6 hectáreas." } },
+    { "@type": "Question", name: "¿Hay un restaurante en el lugar?", acceptedAnswer: { "@type": "Answer", text: "Sí, el restaurante sirve cocina marroquí y mediterránea preparada con productos locales, en un entorno desértico único con vistas a las montañas del Atlas." } },
+    { "@type": "Question", name: "¿Cuál es la mejor temporada para visitar el desierto de Agafay?", acceptedAnswer: { "@type": "Answer", text: "El desierto de Agafay es accesible todo el año. La primavera (marzo-mayo) y el otoño (septiembre-noviembre) ofrecen temperaturas ideales (20-28°C)." } },
+    { "@type": "Question", name: "¿Cómo reservo en Arabian Desert Home?", acceptedAnswer: { "@type": "Answer", text: "La reserva se hace directamente a través del formulario en línea en arabiandeserthome.ma, o por teléfono al +212 667-370-206. Se envía una confirmación por correo electrónico en 24 horas." } },
+  ],
+};
+
+export const faqSchemaIt = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    { "@type": "Question", name: "Dove si trova Arabian Desert Home?", acceptedAnswer: { "@type": "Answer", text: "Arabian Desert Home si trova nel deserto di Agafay, a 30 km da Marrakech (circa 45 minuti in auto), nella regione di Marrakech-Safi, Marocco." } },
+    { "@type": "Question", name: "Qual è il prezzo di una notte in una tenda di lusso?", acceptedAnswer: { "@type": "Answer", text: "Le tende partono da 170 EUR a notte per l'intera tenda, indipendentemente dal numero di ospiti. La colazione è inclusa." } },
+    { "@type": "Question", name: "Cos'è un Day Pass nel deserto di Agafay?", acceptedAnswer: { "@type": "Answer", text: "Il Day Pass dà accesso alla piscina, a un pranzo marocchino tradizionale e alle attività del campo. Le tariffe partono da 35 EUR a persona." } },
+    { "@type": "Question", name: "Quali attività sono disponibili nel deserto di Agafay?", acceptedAnswer: { "@type": "Answer", text: "Arabian Desert Home offre passeggiate in cammello, tour in quad, equitazione, escursioni nel deserto e tramonti panoramici sulla tenuta di 6 ettari." } },
+    { "@type": "Question", name: "C'è un ristorante sul posto?", acceptedAnswer: { "@type": "Answer", text: "Sì, il ristorante propone una cucina marocchina e mediterranea preparata con prodotti locali, in una cornice desertica unica con vista sulle montagne dell'Atlante." } },
+    { "@type": "Question", name: "Qual è la stagione migliore per visitare il deserto di Agafay?", acceptedAnswer: { "@type": "Answer", text: "Il deserto di Agafay è accessibile tutto l'anno. La primavera (marzo-maggio) e l'autunno (settembre-novembre) offrono temperature ideali (20-28°C)." } },
+    { "@type": "Question", name: "Come si prenota a Arabian Desert Home?", acceptedAnswer: { "@type": "Answer", text: "La prenotazione avviene direttamente tramite il modulo online su arabiandeserthome.ma, o per telefono al +212 667-370-206. Una conferma viene inviata via email entro 24 ore." } },
+  ],
+};
+
+export const lodgingSchemaEs = {
+  ...lodgingSchemaFr,
+  description: "Vivac de lujo en el desierto de Agafay, a 30 minutos de Marrakech. Seis hectáreas de puro desierto, suites-tienda exclusivas, restaurante gastronómico y actividades a medida.",
+  amenityFeature: [
+    { "@type": "LocationFeatureSpecification", name: "Piscina" },
+    { "@type": "LocationFeatureSpecification", name: "Suites-tienda de lujo" },
+    { "@type": "LocationFeatureSpecification", name: "Restaurante gastronómico" },
+    { "@type": "LocationFeatureSpecification", name: "Paseo en camello" },
+    { "@type": "LocationFeatureSpecification", name: "Equitación" },
+    { "@type": "LocationFeatureSpecification", name: "Day Pass" },
+    { "@type": "LocationFeatureSpecification", name: "Eventos y Bodas" },
+  ],
+};
+
+export const lodgingSchemaIt = {
+  ...lodgingSchemaFr,
+  description: "Bivacco di lusso nel deserto di Agafay, a 30 minuti da Marrakech. Sei ettari di puro deserto, tende-suite esclusive, ristorante gourmet e attività su misura.",
+  amenityFeature: [
+    { "@type": "LocationFeatureSpecification", name: "Piscina" },
+    { "@type": "LocationFeatureSpecification", name: "Tende-suite di lusso" },
+    { "@type": "LocationFeatureSpecification", name: "Ristorante gourmet" },
+    { "@type": "LocationFeatureSpecification", name: "Passeggiata in cammello" },
+    { "@type": "LocationFeatureSpecification", name: "Equitazione" },
+    { "@type": "LocationFeatureSpecification", name: "Day Pass" },
+    { "@type": "LocationFeatureSpecification", name: "Eventi e Matrimoni" },
+  ],
+};

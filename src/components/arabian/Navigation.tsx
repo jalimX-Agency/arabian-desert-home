@@ -15,40 +15,55 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Route prefixes that currently have a real, server-rendered /en equivalent.
-// Extend this list as more /en/* routes ship.
-const EN_READY_PREFIXES = ["/les-tentes", "/les-activites", "/day-pass", "/blog", "/desert-agafay"];
+// Route prefixes that have real, server-rendered translations in every non-French locale.
+// Extend this list as more locale routes ship.
+const LOCALE_READY_PREFIXES = ["/les-tentes", "/les-activites", "/day-pass", "/blog", "/desert-agafay"];
+const NON_FR_LOCALES: Language[] = ["en", "es", "it"];
 
-function hasEnglishVersion(pathname: string): boolean {
+function hasLocaleVersion(pathname: string): boolean {
   if (pathname === "/") return true;
-  return EN_READY_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  return LOCALE_READY_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
-/** Maps a pathname to its opposite-locale equivalent, only when one actually exists. */
-function toLocalePath(pathname: string, target: Language): string {
-  const isCurrentlyEn = pathname === "/en" || pathname.startsWith("/en/");
-  if (target === "en") {
-    if (isCurrentlyEn) return pathname;
-    if (!hasEnglishVersion(pathname)) return pathname; // no /en sibling yet — stay put
-    return pathname === "/" ? "/en" : `/en${pathname}`;
+function currentLocalePrefix(pathname: string): Language | null {
+  for (const l of NON_FR_LOCALES) {
+    if (pathname === `/${l}` || pathname.startsWith(`/${l}/`)) return l;
   }
-  // target === "fr"
-  if (!isCurrentlyEn) return pathname;
-  const stripped = pathname.slice(3); // remove leading "/en"
+  return null;
+}
+
+/** Strips any leading /en, /es, /it prefix, returning the French-equivalent path. */
+function stripLocalePrefix(pathname: string): string {
+  const current = currentLocalePrefix(pathname);
+  if (!current) return pathname;
+  const stripped = pathname.slice(current.length + 1);
   return stripped === "" ? "/" : stripped;
 }
 
+/** Maps a pathname to its target-locale equivalent, only when one actually exists. */
+function toLocalePath(pathname: string, target: Language): string {
+  const frPath = stripLocalePrefix(pathname);
+  if (target === "fr") return frPath;
+  if (!hasLocaleVersion(frPath)) return pathname; // no translated sibling yet — stay put
+  return frPath === "/" ? `/${target}` : `/${target}${frPath}`;
+}
+
 const navLinkKeys = [
-  { labelKey: "nav.home", href: "/", enHref: "/en" },
-  { labelKey: "nav.tents", href: "/les-tentes", enHref: "/en/les-tentes" },
-  { labelKey: "nav.restaurant", href: "/restaurant", enHref: "/restaurant" },
-  { labelKey: "nav.activities", href: "/les-activites", enHref: "/en/les-activites" },
-  { labelKey: "nav.dayPass", href: "/day-pass", enHref: "/en/day-pass" },
-  { labelKey: "nav.events", href: "/les-evenements", enHref: "/les-evenements" },
-  { labelKey: "nav.agafayGuide", href: "/desert-agafay", enHref: "/en/desert-agafay" },
-  { labelKey: "nav.blog", href: "/blog", enHref: "/en/blog" },
-  { labelKey: "nav.contact", href: "/contact", enHref: "/contact" },
+  { labelKey: "nav.home", href: "/", localized: true },
+  { labelKey: "nav.tents", href: "/les-tentes", localized: true },
+  { labelKey: "nav.restaurant", href: "/restaurant", localized: false },
+  { labelKey: "nav.activities", href: "/les-activites", localized: true },
+  { labelKey: "nav.dayPass", href: "/day-pass", localized: true },
+  { labelKey: "nav.events", href: "/les-evenements", localized: false },
+  { labelKey: "nav.agafayGuide", href: "/desert-agafay", localized: true },
+  { labelKey: "nav.blog", href: "/blog", localized: true },
+  { labelKey: "nav.contact", href: "/contact", localized: false },
 ];
+
+function localizedHref(link: { href: string; localized: boolean }, language: Language): string {
+  if (language === "fr" || !link.localized) return link.href;
+  return link.href === "/" ? `/${language}` : `/${language}${link.href}`;
+}
 
 export function Navigation() {
   const [scrolled, setScrolled] = useState(false);
@@ -57,7 +72,6 @@ export function Navigation() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
-  const isEn = language === "en";
 
   const switchLanguage = useCallback(
     (target: Language) => {
@@ -115,7 +129,7 @@ export function Navigation() {
       >
         <nav className="max-w-7xl mx-auto px-5 sm:px-8 md:px-10 h-24 flex items-center justify-between">
           {/* ── Logo ── */}
-          <Link href={isEn ? "/en" : "/"} className="flex items-center group cursor-pointer">
+          <Link href={language === "fr" ? "/" : `/${language}`} className="flex items-center group cursor-pointer">
             <Image
               src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/logo/logoWithNoBg.png"
               alt="Arabian Desert Home — Agafay, Marrakech"
@@ -129,7 +143,7 @@ export function Navigation() {
           {/* ── Desktop Nav Links — Smooth Underline ── */}
           <div className="hidden lg:flex items-center gap-7">
             {navLinkKeys.map((link) => {
-              const href = isEn ? link.enHref : link.href;
+              const href = localizedHref(link, language);
               const isActive = pathname === href;
               return (
                 <Link
@@ -186,6 +200,26 @@ export function Navigation() {
                   </span>
                   {language === "en" && <Check className="w-4 h-4 text-amber" />}
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => switchLanguage("es")}
+                  className="flex items-center justify-between cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-base">🇪🇸</span>
+                    Español
+                  </span>
+                  {language === "es" && <Check className="w-4 h-4 text-amber" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => switchLanguage("it")}
+                  className="flex items-center justify-between cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-base">🇮🇹</span>
+                    Italiano
+                  </span>
+                  {language === "it" && <Check className="w-4 h-4 text-amber" />}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -196,9 +230,13 @@ export function Navigation() {
               </span>
             </Link>
 
-            {/* Mobile language toggle — always visible on mobile, one tap FR↔EN */}
+            {/* Mobile language toggle — always visible on mobile, cycles through fr→en→es→it */}
             <button
-              onClick={() => switchLanguage(language === "fr" ? "en" : "fr")}
+              onClick={() => {
+                const order: Language[] = ["fr", "en", "es", "it"];
+                const next = order[(order.indexOf(language) + 1) % order.length];
+                switchLanguage(next);
+              }}
               className="flex md:hidden items-center luxury-label px-2.5 h-8 rounded-full border border-amber/15 bg-amber/[0.04] text-amber text-xs cursor-pointer hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300"
               aria-label="Toggle language"
             >
@@ -262,7 +300,7 @@ export function Navigation() {
               {/* Nav Links — Large serif, staggered entrance */}
               <div className="flex-1 flex flex-col justify-center gap-1">
                 {navLinkKeys.map((link, i) => {
-                  const href = isEn ? link.enHref : link.href;
+                  const href = localizedHref(link, language);
                   const isActive = pathname === href;
                   return (
                     <motion.div
@@ -346,6 +384,26 @@ export function Navigation() {
                         English
                       </span>
                       {language === "en" && <Check className="w-4 h-4 text-amber" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => switchLanguage("es")}
+                      className="flex items-center justify-between cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="text-base">🇪🇸</span>
+                        Español
+                      </span>
+                      {language === "es" && <Check className="w-4 h-4 text-amber" />}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => switchLanguage("it")}
+                      className="flex items-center justify-between cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="text-base">🇮🇹</span>
+                        Italiano
+                      </span>
+                      {language === "it" && <Check className="w-4 h-4 text-amber" />}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

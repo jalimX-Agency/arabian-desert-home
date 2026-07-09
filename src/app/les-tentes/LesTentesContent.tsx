@@ -3,23 +3,31 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Star, Users, Maximize2 } from "lucide-react";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, withLocale, pickLocalized } from "@/lib/i18n/context";
 
 interface Suite {
   id: string;
   name: string;
   nameEn: string;
+  nameEs?: string;
+  nameIt?: string;
   slug: string;
   tagline: string;
   taglineEn: string;
+  taglineEs?: string;
+  taglineIt?: string;
   description: string;
   descriptionEn: string;
+  descriptionEs?: string;
+  descriptionIt?: string;
   longDescription: string;
   price: number;
   currency: string;
   features: string;
   amenities: string;
   amenitiesEn: string;
+  amenitiesEs?: string;
+  amenitiesIt?: string;
   image: string;
   images: string;
   maxGuests: number;
@@ -53,11 +61,10 @@ const cardVariants = {
 
 function SuiteCard({ suite }: { suite: Suite }) {
   const { language } = useLanguage();
-  const isEn = language === "en";
-  const name = (isEn && suite.nameEn) ? suite.nameEn : suite.name;
-  const tagline = (isEn && suite.taglineEn) ? suite.taglineEn : suite.tagline;
-  const description = (isEn && suite.descriptionEn) ? suite.descriptionEn : suite.description;
-  const amenitySrc = (isEn && suite.amenitiesEn) ? suite.amenitiesEn : suite.amenities;
+  const name = pickLocalized(language, suite.name, suite.nameEn, suite.nameEs, suite.nameIt);
+  const tagline = pickLocalized(language, suite.tagline, suite.taglineEn, suite.taglineEs, suite.taglineIt);
+  const description = pickLocalized(language, suite.description, suite.descriptionEn, suite.descriptionEs, suite.descriptionIt);
+  const amenitySrc = pickLocalized(language, suite.amenities, suite.amenitiesEn, suite.amenitiesEs, suite.amenitiesIt);
   const features = suite.features ? suite.features.split(",") : [];
   const amenities = amenitySrc ? amenitySrc.split(",") : [];
 
@@ -129,7 +136,7 @@ function SuiteCard({ suite }: { suite: Suite }) {
         </div>
 
         <Link
-          href={isEn ? `/en/les-tentes/${suite.slug}` : `/les-tentes/${suite.slug}`}
+          href={withLocale(language, `/les-tentes/${suite.slug}`)}
           className="btn-outline w-full flex items-center justify-center gap-2 text-sm"
         >
           Voir les détails

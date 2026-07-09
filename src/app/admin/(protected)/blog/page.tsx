@@ -25,12 +25,20 @@ export default function BlogPage() {
         { key: "titleEn", label: "Title (EN)" },
         { key: "excerptEn", label: "Excerpt (EN)", type: "textarea" },
         { key: "contentEn", label: "Content (EN)", type: "textarea" },
+        { key: "titleEs", label: "Título (ES)" },
+        { key: "excerptEs", label: "Extracto (ES)", type: "textarea" },
+        { key: "contentEs", label: "Contenido (ES)", type: "textarea" },
+        { key: "titleIt", label: "Titolo (IT)" },
+        { key: "excerptIt", label: "Estratto (IT)", type: "textarea" },
+        { key: "contentIt", label: "Contenuto (IT)", type: "textarea" },
         { key: "image", label: "Image principale", type: "image", folder: "blog" },
       ]}
       tabs={[
         { label: "Général", fieldKeys: ["title", "category", "author", "order", "featured"] },
         { label: "Contenu FR", fieldKeys: ["excerpt", "content"] },
         { label: "Contenu EN", fieldKeys: ["titleEn", "excerptEn", "contentEn"] },
+        { label: "Contenu ES", fieldKeys: ["titleEs", "excerptEs", "contentEs"] },
+        { label: "Contenu IT", fieldKeys: ["titleIt", "excerptIt", "contentIt"] },
         { label: "Médias", fieldKeys: ["image"] },
       ]}
     />

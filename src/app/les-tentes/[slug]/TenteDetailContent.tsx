@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Users, Maximize2, Star, Check, Wind, BedDouble, ArrowRight } from "lucide-react";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, withLocale, pickLocalized } from "@/lib/i18n/context";
 
 interface Suite {
   id: string;
@@ -30,20 +30,31 @@ interface Suite {
   longDescriptionEn: string;
   featuresEn: string;
   amenitiesEn: string;
+  nameEs?: string;
+  taglineEs?: string;
+  descriptionEs?: string;
+  longDescriptionEs?: string;
+  featuresEs?: string;
+  amenitiesEs?: string;
+  nameIt?: string;
+  taglineIt?: string;
+  descriptionIt?: string;
+  longDescriptionIt?: string;
+  featuresIt?: string;
+  amenitiesIt?: string;
 }
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
 export function TenteDetailContent({ suite }: { suite: Suite }) {
   const { language, t } = useLanguage();
-  const isEn = language === "en";
 
-  const name        = (isEn && suite.nameEn)            ? suite.nameEn            : suite.name;
-  const tagline     = (isEn && suite.taglineEn)         ? suite.taglineEn         : suite.tagline;
-  const description = (isEn && suite.descriptionEn)     ? suite.descriptionEn     : suite.description;
-  const longDesc    = (isEn && suite.longDescriptionEn) ? suite.longDescriptionEn : suite.longDescription;
-  const featSrc     = (isEn && suite.featuresEn)        ? suite.featuresEn        : suite.features;
-  const amenSrc     = (isEn && suite.amenitiesEn)       ? suite.amenitiesEn       : suite.amenities;
+  const name        = pickLocalized(language, suite.name, suite.nameEn, suite.nameEs, suite.nameIt);
+  const tagline     = pickLocalized(language, suite.tagline, suite.taglineEn, suite.taglineEs, suite.taglineIt);
+  const description = pickLocalized(language, suite.description, suite.descriptionEn, suite.descriptionEs, suite.descriptionIt);
+  const longDesc    = pickLocalized(language, suite.longDescription, suite.longDescriptionEn, suite.longDescriptionEs, suite.longDescriptionIt);
+  const featSrc     = pickLocalized(language, suite.features, suite.featuresEn, suite.featuresEs, suite.featuresIt);
+  const amenSrc     = pickLocalized(language, suite.amenities, suite.amenitiesEn, suite.amenitiesEs, suite.amenitiesIt);
 
   const featuresList = featSrc ? featSrc.split(",").map((s) => s.trim()).filter(Boolean) : [];
   const amenitiesList = amenSrc ? amenSrc.split(",").map((s) => s.trim()).filter(Boolean) : [];
@@ -63,7 +74,7 @@ export function TenteDetailContent({ suite }: { suite: Suite }) {
           transition={{ duration: 0.6, ease: smoothEase }}
           className="absolute top-8 left-6 md:left-12"
         >
-          <Link href={isEn ? "/en/les-tentes" : "/les-tentes"} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
+          <Link href={withLocale(language, "/les-tentes")} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
             <ArrowLeft className="w-4 h-4" />
             {t("suiteDetail.backToTents")}
           </Link>
@@ -265,7 +276,7 @@ export function TenteDetailContent({ suite }: { suite: Suite }) {
               {t("nav.bookNow")}
               <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link href={isEn ? "/en/les-tentes" : "/les-tentes"} className="btn-outline flex items-center justify-center gap-2">
+            <Link href={withLocale(language, "/les-tentes")} className="btn-outline flex items-center justify-center gap-2">
               <ArrowLeft className="w-4 h-4" />
               {t("suiteDetail.seeAllTents")}
             </Link>

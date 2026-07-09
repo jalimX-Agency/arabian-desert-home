@@ -4,7 +4,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import { motion, useInView } from "framer-motion";
 import { ArrowRight, Calendar, User, Tag } from "lucide-react";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, withLocale, pickLocalized, type Language } from "@/lib/i18n/context";
 import { format } from "date-fns";
 import { fr as frLocale } from "date-fns/locale";
 
@@ -19,15 +19,50 @@ interface BlogPost {
   createdAt: string;
   titleEn: string;
   excerptEn: string;
+  titleEs?: string;
+  excerptEs?: string;
+  titleIt?: string;
+  excerptIt?: string;
 }
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
-function PostCard({ post, index, isEn }: { post: BlogPost; index: number; isEn: boolean }) {
+const COPY: Record<Language, {
+  label: string; title1: string; title2: string; subtitle: string;
+  comingSoon: string; noArticles: string; readArticle: string;
+}> = {
+  fr: {
+    label: "Articles & Inspirations", title1: "Le Blog", title2: "du Désert",
+    subtitle: "Récits, conseils et inspirations au cœur du désert d'Agafay.",
+    comingSoon: "Bientôt disponible", noArticles: "Aucun article publié pour le moment.",
+    readArticle: "Lire l'article",
+  },
+  en: {
+    label: "Articles & Inspirations", title1: "The Blog", title2: "of the Desert",
+    subtitle: "Stories, tips and inspirations from the heart of the Agafay Desert.",
+    comingSoon: "Coming soon", noArticles: "No articles published yet.",
+    readArticle: "Read article",
+  },
+  es: {
+    label: "Artículos e Inspiraciones", title1: "El Blog", title2: "del Desierto",
+    subtitle: "Relatos, consejos e inspiraciones en el corazón del desierto de Agafay.",
+    comingSoon: "Próximamente", noArticles: "Aún no se han publicado artículos.",
+    readArticle: "Leer el artículo",
+  },
+  it: {
+    label: "Articoli e Ispirazioni", title1: "Il Blog", title2: "del Deserto",
+    subtitle: "Racconti, consigli e ispirazioni nel cuore del deserto di Agafay.",
+    comingSoon: "Prossimamente", noArticles: "Nessun articolo pubblicato al momento.",
+    readArticle: "Leggi l'articolo",
+  },
+};
+
+function PostCard({ post, index, language }: { post: BlogPost; index: number; language: Language }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
-  const title = isEn && post.titleEn ? post.titleEn : post.title;
-  const excerpt = isEn && post.excerptEn ? post.excerptEn : post.excerpt;
+  const title = pickLocalized(language, post.title, post.titleEn, post.titleEs, post.titleIt);
+  const excerpt = pickLocalized(language, post.excerpt, post.excerptEn, post.excerptEs, post.excerptIt);
+  const c = COPY[language];
 
   return (
     <motion.article
@@ -79,15 +114,15 @@ function PostCard({ post, index, isEn }: { post: BlogPost; index: number; isEn: 
           )}
           <span className="flex items-center gap-1.5">
             <Calendar className="w-3 h-3 text-amber/50" />
-            {format(new Date(post.createdAt), "d MMM yyyy", { locale: isEn ? undefined : frLocale })}
+            {format(new Date(post.createdAt), "d MMM yyyy", { locale: language === "fr" ? frLocale : undefined })}
           </span>
         </div>
 
         <Link
-          href={isEn ? `/en/blog/${post.slug}` : `/blog/${post.slug}`}
+          href={withLocale(language, `/blog/${post.slug}`)}
           className="btn-outline inline-flex items-center justify-center gap-2 text-sm mt-auto"
         >
-          {isEn ? "Read article" : "Lire l'article"}
+          {c.readArticle}
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
@@ -97,7 +132,7 @@ function PostCard({ post, index, isEn }: { post: BlogPost; index: number; isEn: 
 
 export function BlogContent({ posts }: { posts: BlogPost[] }) {
   const { language } = useLanguage();
-  const isEn = language === "en";
+  const c = COPY[language];
   const heroRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true });
 
@@ -115,7 +150,7 @@ export function BlogContent({ posts }: { posts: BlogPost[] }) {
             transition={{ duration: 0.8, ease: smoothEase }}
             className="luxury-label text-amber block mb-5"
           >
-            {isEn ? "Articles & Inspirations" : "Articles & Inspirations"}
+            {c.label}
           </motion.span>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -123,8 +158,8 @@ export function BlogContent({ posts }: { posts: BlogPost[] }) {
             transition={{ duration: 1, delay: 0.15, ease: smoothEase }}
             className="heading-display text-5xl md:text-7xl text-white mb-6"
           >
-            {isEn ? "The Blog" : "Le Blog"}{" "}
-            <span className="italic text-amber">{isEn ? "of the Desert" : "du Désert"}</span>
+            {c.title1}{" "}
+            <span className="italic text-amber">{c.title2}</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -132,9 +167,7 @@ export function BlogContent({ posts }: { posts: BlogPost[] }) {
             transition={{ duration: 0.8, delay: 0.3, ease: smoothEase }}
             className="body-editorial text-white/50 text-lg max-w-xl mx-auto"
           >
-            {isEn
-              ? "Stories, tips and inspirations from the heart of the Agafay Desert."
-              : "Récits, conseils et inspirations au cœur du désert d'Agafay."}
+            {c.subtitle}
           </motion.p>
           <motion.div
             initial={{ scaleX: 0 }}
@@ -152,16 +185,16 @@ export function BlogContent({ posts }: { posts: BlogPost[] }) {
           {posts.length === 0 ? (
             <div className="text-center py-20">
               <span className="luxury-label text-amber block mb-3">
-                {isEn ? "Coming soon" : "Bientôt disponible"}
+                {c.comingSoon}
               </span>
               <p className="body-editorial text-muted-foreground">
-                {isEn ? "No articles published yet." : "Aucun article publié pour le moment."}
+                {c.noArticles}
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {posts.map((post, i) => (
-                <PostCard key={post.id} post={post} index={i} isEn={isEn} />
+                <PostCard key={post.id} post={post} index={i} language={language} />
               ))}
             </div>
           )}
