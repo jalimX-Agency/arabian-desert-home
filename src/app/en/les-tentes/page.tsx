@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { LesTentesContent } from "@/app/les-tentes/LesTentesContent";
+import { LesTentesContent } from "@/app/(fr)/les-tentes/LesTentesContent";
 import { enAlternates } from "@/lib/seo/hreflang";
 
 export const revalidate = 3600;

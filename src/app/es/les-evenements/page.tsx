@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { EvenementsContent } from "@/app/les-evenements/EvenementsContent";
+import { EvenementsContent } from "@/app/(fr)/les-evenements/EvenementsContent";
 import { esAlternates } from "@/lib/seo/hreflang";
 
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";

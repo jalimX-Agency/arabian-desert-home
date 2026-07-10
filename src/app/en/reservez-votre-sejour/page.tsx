@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { ReservationContent } from "@/app/reservez-votre-sejour/ReservationContent";
+import { ReservationContent } from "@/app/(fr)/reservez-votre-sejour/ReservationContent";
 import { enAlternates } from "@/lib/seo/hreflang";
 
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/DJI_0020-scaled.webp";

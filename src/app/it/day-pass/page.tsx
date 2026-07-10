@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { DayPassContent } from "@/app/day-pass/DayPassContent";
+import { DayPassContent } from "@/app/(fr)/day-pass/DayPassContent";
 import { itAlternates } from "@/lib/seo/hreflang";
 
 export const revalidate = 3600;

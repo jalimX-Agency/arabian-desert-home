@@ -35,12 +35,22 @@ export function LanguageProvider({
   children,
   initialLanguage,
   locked = false,
+  syncHtmlLang = true,
 }: {
   children: React.ReactNode;
   /** Language to render on the server (e.g. "en" under /en/*). Defaults to "fr" for existing routes. */
   initialLanguage?: Language;
   /** When true, skip the localStorage auto-hydration — the URL dictates the language. */
   locked?: boolean;
+  /**
+   * When true, keep <html lang> in sync with this provider's language. Every
+   * route now has exactly one "real" locale-specific provider nested inside
+   * the root layout's fallback one — only that inner provider should own
+   * <html lang>, otherwise both providers' effects race on mount and the
+   * outer (root) one, which always resolves last, clobbers the correct value
+   * back to "fr". The root layout passes `syncHtmlLang={false}` for this reason.
+   */
+  syncHtmlLang?: boolean;
 }) {
   const [language, setLanguageState] = useState<Language>(initialLanguage ?? "fr");
 
@@ -56,8 +66,9 @@ export function LanguageProvider({
   // rendered "fr" server-side (Next.js only allows one root layout), so
   // non-French routes correct it here immediately after mount.
   useEffect(() => {
+    if (!syncHtmlLang) return;
     document.documentElement.lang = language;
-  }, [language]);
+  }, [language, syncHtmlLang]);
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);

@@ -1,10 +1,10 @@
 ﻿import type { Metadata } from "next";
+import Script from "next/script";
 import { Cinzel, Josefin_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AdminSessionProvider } from "@/components/admin/SessionProvider";
 import { LanguageProvider } from "@/lib/i18n/context";
 import { frAlternates } from "@/lib/seo/hreflang";
-import { faqSchemaFr, lodgingSchemaFr } from "@/lib/seo/schema";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -96,19 +96,23 @@ export default function RootLayout({
   // unreliable for statically-generated/ISR pages, whose initial HTML is built
   // without a live request context, silently defaulting everything to French.
   // Non-French locales get their own nested layout (src/app/en/layout.tsx,
-  // es/layout.tsx, it/layout.tsx) that sets the language deterministically
-  // based on the route's location in the file tree instead.
-  const faqSchema = JSON.stringify(faqSchemaFr);
-  const lodgingSchema = JSON.stringify(lodgingSchemaFr);
+  // es/layout.tsx, it/layout.tsx), and bare French routes get their own
+  // (src/app/(fr)/layout.tsx), each setting the language and JSON-LD schema
+  // deterministically based on the route's location in the file tree.
 
   return (
     <html lang="fr" suppressHydrationWarning>
+      <Script
+        id="lang-correction"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `(function(){var p=window.location.pathname,l="fr";if(p.indexOf("/en")===0)l="en";else if(p.indexOf("/es")===0)l="es";else if(p.indexOf("/it")===0)l="it";document.documentElement.lang=l;})();`,
+        }}
+      />
       <body className={`${cinzel.variable} ${josefin.variable} antialiased bg-background text-foreground`}>
-        <script id="faq-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqSchema }} />
-        <script id="structured-data" type="application/ld+json" dangerouslySetInnerHTML={{ __html: lodgingSchema }} />
         <AdminSessionProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
-            <LanguageProvider>
+            <LanguageProvider initialLanguage="fr" locked syncHtmlLang={false}>
               {children}
               <Toaster />
             </LanguageProvider>

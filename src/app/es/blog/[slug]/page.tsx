@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { BlogDetailContent } from "@/app/blog/[slug]/BlogDetailContent";
+import { BlogDetailContent } from "@/app/(fr)/blog/[slug]/BlogDetailContent";
 import { esAlternates } from "@/lib/seo/hreflang";
 
 export const revalidate = 60;

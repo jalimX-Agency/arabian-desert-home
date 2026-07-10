@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
-import { ApropoContent } from "@/app/apropo/ApropoContent";
+import { ApropoContent } from "@/app/(fr)/apropo/ApropoContent";
 import { enAlternates } from "@/lib/seo/hreflang";
 
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
