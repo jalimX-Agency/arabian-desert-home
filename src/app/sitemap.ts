@@ -31,7 +31,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Static routes that currently exist in each non-French locale — extend as more phases ship.
-  const LOCALE_READY_PATHS = ["/", "/desert-agafay", "/les-tentes", "/les-activites", "/day-pass", "/blog"];
+  const LOCALE_READY_PATHS = [
+    "/", "/desert-agafay", "/les-tentes", "/les-activites", "/day-pass", "/blog",
+    "/reservez-votre-sejour", "/les-evenements", "/restaurant", "/apropo", "/contact",
+  ];
   const NON_FR_LOCALES = ["en", "es", "it"];
 
   const localeStaticRoutes = NON_FR_LOCALES.flatMap((locale) =>

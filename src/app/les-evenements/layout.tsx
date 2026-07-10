@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { frAlternates } from "@/lib/seo/hreflang";
 
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
     description: "Mariage, séminaire ou team building sur 6 hectares de désert à 30 km de Marrakech.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://www.arabiandeserthome.ma/les-evenements" },
+  alternates: frAlternates("/les-evenements"),
 };
 
 export default function LesEvenementsLayout({ children }: { children: React.ReactNode }) {

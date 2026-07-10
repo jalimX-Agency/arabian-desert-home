@@ -4,6 +4,7 @@ export const revalidate = 3600;
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { RestaurantContent } from "./RestaurantContent";
+import { frAlternates } from "@/lib/seo/hreflang";
 
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
@@ -27,7 +28,7 @@ export const metadata = {
     description: "Gastronomie marocaine sous les étoiles. Menus à partir de 200 DH à 30 km de Marrakech.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://www.arabiandeserthome.ma/restaurant" },
+  alternates: frAlternates("/restaurant"),
 };
 
 export default async function RestaurantPage() {

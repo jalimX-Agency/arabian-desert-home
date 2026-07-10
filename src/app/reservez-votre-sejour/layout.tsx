@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { frAlternates } from "@/lib/seo/hreflang";
 
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/DJI_0020-scaled.webp";
 
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
     description: "Réservez votre nuit dans le désert d'Agafay. À partir de 170 EUR/nuit.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://www.arabiandeserthome.ma/reservez-votre-sejour" },
+  alternates: frAlternates("/reservez-votre-sejour"),
 };
 
 export default function ReservezLayout({ children }: { children: React.ReactNode }) {

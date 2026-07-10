@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { frAlternates } from "@/lib/seo/hreflang";
 
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
     description: "L'histoire d'Arabian Desert Home, bivouac de luxe dans le désert d'Agafay.",
     images: [OG_IMAGE],
   },
-  alternates: { canonical: "https://www.arabiandeserthome.ma/apropo" },
+  alternates: frAlternates("/apropo"),
 };
 
 export default function ApropoLayout({ children }: { children: React.ReactNode }) {

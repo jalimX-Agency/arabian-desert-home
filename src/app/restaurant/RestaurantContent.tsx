@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { CTASection } from "@/components/arabian/CTASection";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, withLocale, pickLocalized, type Language } from "@/lib/i18n/context";
 import { Users, Sparkles, Music } from "lucide-react";
 
 interface DiningVenue {
@@ -15,6 +15,15 @@ interface DiningVenue {
   image: string;
   capacity: string | null;
   order: number;
+  nameEn?: string;
+  descriptionEn?: string;
+  longDescriptionEn?: string;
+  nameEs?: string;
+  descriptionEs?: string;
+  longDescriptionEs?: string;
+  nameIt?: string;
+  descriptionIt?: string;
+  longDescriptionIt?: string;
 }
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
@@ -46,32 +55,67 @@ const fadeIn = {
 };
 
 
-const MENUS = [
-  {
-    num: "01",
-    name: "Menu Tradition",
-    items: ["Zaalouk", "Tajine de poulet au citron confit", "Coupe de fruits"],
+const COPY: Record<Language, {
+  menusLabel: string;
+  menusTitle1: string;
+  menusTitle2: string;
+  menusPricing: (from: React.ReactNode, to: React.ReactNode) => React.ReactNode;
+  menus: { num: string; name: string; items: string[] }[];
+}> = {
+  fr: {
+    menusLabel: "Nos Menus",
+    menusTitle1: "Saveurs du",
+    menusTitle2: "Maroc",
+    menusPricing: (from, to) => <>Tarif adulte entre {from} et {to} selon le menu choisi.</>,
+    menus: [
+      { num: "01", name: "Menu Tradition", items: ["Zaalouk", "Tajine de poulet au citron confit", "Coupe de fruits"] },
+      { num: "02", name: "Menu Saveurs", items: ["Taktouka", "Tajine de bœuf aux pruneaux", "Flan chocolat caramel"] },
+      { num: "03", name: "Menu Végétarien", items: ["Soupe marocaine", "Tajine végétarien", "Pâtisseries marocaines & thé à la menthe"] },
+      { num: "04", name: "Menu Gourmand", items: ["Salade marocaine", "Tajine de boulettes de bœuf", "Glace artisanale"] },
+    ],
   },
-  {
-    num: "02",
-    name: "Menu Saveurs",
-    items: ["Taktouka", "Tajine de bœuf aux pruneaux", "Flan chocolat caramel"],
+  en: {
+    menusLabel: "Our Menus",
+    menusTitle1: "Flavors of",
+    menusTitle2: "Morocco",
+    menusPricing: (from, to) => <>Adult rate between {from} and {to} depending on the menu chosen.</>,
+    menus: [
+      { num: "01", name: "Tradition Menu", items: ["Zaalouk", "Chicken tagine with preserved lemon", "Fruit cup"] },
+      { num: "02", name: "Flavors Menu", items: ["Taktouka", "Beef tagine with prunes", "Chocolate caramel flan"] },
+      { num: "03", name: "Vegetarian Menu", items: ["Moroccan soup", "Vegetarian tagine", "Moroccan pastries & mint tea"] },
+      { num: "04", name: "Gourmet Menu", items: ["Moroccan salad", "Beef meatball tagine", "Artisanal ice cream"] },
+    ],
   },
-  {
-    num: "03",
-    name: "Menu Végétarien",
-    items: ["Soupe marocaine", "Tajine végétarien", "Pâtisseries marocaines & thé à la menthe"],
+  es: {
+    menusLabel: "Nuestros Menús",
+    menusTitle1: "Sabores de",
+    menusTitle2: "Marruecos",
+    menusPricing: (from, to) => <>Tarifa adulto entre {from} y {to} según el menú elegido.</>,
+    menus: [
+      { num: "01", name: "Menú Tradición", items: ["Zaalouk", "Tajín de pollo al limón confitado", "Copa de frutas"] },
+      { num: "02", name: "Menú Sabores", items: ["Taktouka", "Tajín de ternera con ciruelas", "Flan de chocolate y caramelo"] },
+      { num: "03", name: "Menú Vegetariano", items: ["Sopa marroquí", "Tajín vegetariano", "Pastelería marroquí & té a la menta"] },
+      { num: "04", name: "Menú Gourmet", items: ["Ensalada marroquí", "Tajín de albóndigas de ternera", "Helado artesanal"] },
+    ],
   },
-  {
-    num: "04",
-    name: "Menu Gourmand",
-    items: ["Salade marocaine", "Tajine de boulettes de bœuf", "Glace artisanale"],
+  it: {
+    menusLabel: "I Nostri Menu",
+    menusTitle1: "Sapori del",
+    menusTitle2: "Marocco",
+    menusPricing: (from, to) => <>Tariffa adulto tra {from} e {to} a seconda del menu scelto.</>,
+    menus: [
+      { num: "01", name: "Menu Tradizione", items: ["Zaalouk", "Tajine di pollo al limone confit", "Coppa di frutta"] },
+      { num: "02", name: "Menu Sapori", items: ["Taktouka", "Tajine di manzo alle prugne", "Flan cioccolato e caramello"] },
+      { num: "03", name: "Menu Vegetariano", items: ["Zuppa marocchina", "Tajine vegetariano", "Pasticceria marocchina & tè alla menta"] },
+      { num: "04", name: "Menu Gourmet", items: ["Insalata marocchina", "Tajine di polpette di manzo", "Gelato artigianale"] },
+    ],
   },
-];
+};
 
 export function RestaurantContent({ venues }: { venues: DiningVenue[] }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const data = venues;
+  const c = COPY[language];
 
   const heroRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true });
@@ -164,38 +208,43 @@ export function RestaurantContent({ venues }: { venues: DiningVenue[] }) {
           <motion.div variants={fadeIn} initial="hidden" animate={venuesInView ? "visible" : "hidden"} custom={0.3} className="divider-accent max-w-xs mb-16" />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {data.map((venue, i) => (
-              <motion.div
-                key={venue.id}
-                variants={revealScale}
-                initial="hidden"
-                animate={venuesInView ? "visible" : "hidden"}
-                custom={0.4 + i * 0.15}
-                className="group glass-card card-warm overflow-hidden"
-              >
-                <div className="aspect-[4/3] overflow-hidden relative">
-                  <img src={venue.image} alt={venue.name} className="w-full h-full object-cover img-luxury" />
-                  <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-amber/[0.08] rounded-bl-3xl" />
-                </div>
-                <div className="p-6 md:p-8">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="heading-editorial text-xl md:text-2xl group-hover:text-amber transition-colors duration-400">{venue.name}</h3>
-                    {venue.capacity && (
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <div className="w-6 h-6 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center">
-                          <Users className="w-3 h-3 text-amber" />
-                        </div>
-                        <span className="text-xs">{venue.capacity}</span>
-                      </div>
-                    )}
+            {data.map((venue, i) => {
+              const name = pickLocalized(language, venue.name, venue.nameEn, venue.nameEs, venue.nameIt);
+              const description = pickLocalized(language, venue.description, venue.descriptionEn, venue.descriptionEs, venue.descriptionIt);
+              const longDescription = pickLocalized(language, venue.longDescription, venue.longDescriptionEn, venue.longDescriptionEs, venue.longDescriptionIt);
+              return (
+                <motion.div
+                  key={venue.id}
+                  variants={revealScale}
+                  initial="hidden"
+                  animate={venuesInView ? "visible" : "hidden"}
+                  custom={0.4 + i * 0.15}
+                  className="group glass-card card-warm overflow-hidden"
+                >
+                  <div className="aspect-[4/3] overflow-hidden relative">
+                    <img src={venue.image} alt={name} className="w-full h-full object-cover img-luxury" />
+                    <div className="absolute inset-0 bg-amber/0 group-hover:bg-amber/10 transition-all duration-500" />
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber/[0.08] rounded-bl-3xl" />
                   </div>
-                  <div className="divider-accent max-w-[60px] mb-4" />
-                  <p className="text-sm text-muted-foreground mb-3 body-editorial">{venue.description}</p>
-                  <p className="text-sm text-muted-foreground/70 leading-relaxed body-editorial">{venue.longDescription}</p>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="p-6 md:p-8">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="heading-editorial text-xl md:text-2xl group-hover:text-amber transition-colors duration-400">{name}</h3>
+                      {venue.capacity && (
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <div className="w-6 h-6 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center">
+                            <Users className="w-3 h-3 text-amber" />
+                          </div>
+                          <span className="text-xs">{venue.capacity}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="divider-accent max-w-[60px] mb-4" />
+                    <p className="text-sm text-muted-foreground mb-3 body-editorial">{description}</p>
+                    <p className="text-sm text-muted-foreground/70 leading-relaxed body-editorial">{longDescription}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -205,17 +254,19 @@ export function RestaurantContent({ venues }: { venues: DiningVenue[] }) {
         <div className="absolute inset-0 pattern-dots pointer-events-none" />
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-12">
-            <span className="luxury-label text-amber block mb-3">Nos Menus</span>
+            <span className="luxury-label text-amber block mb-3">{c.menusLabel}</span>
             <h2 className="heading-display text-3xl md:text-4xl mb-3">
-              Saveurs du <span className="italic text-amber">Maroc</span>
+              {c.menusTitle1} <span className="italic text-amber">{c.menusTitle2}</span>
             </h2>
             <p className="body-editorial text-muted-foreground max-w-xl mx-auto text-sm">
-              Tarif adulte entre <span className="text-amber mono-number">200</span> et{" "}
-              <span className="text-amber mono-number">250 DH</span> selon le menu choisi.
+              {c.menusPricing(
+                <span className="text-amber mono-number">200</span>,
+                <span className="text-amber mono-number">250 DH</span>
+              )}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {MENUS.map((menu) => (
+            {c.menus.map((menu) => (
               <div key={menu.num} className="glass-card card-warm p-7 flex flex-col">
                 <span className="mono-number text-amber/20 text-5xl leading-none mb-4">{menu.num}</span>
                 <h3 className="heading-editorial text-lg mb-4">{menu.name}</h3>
@@ -297,7 +348,7 @@ export function RestaurantContent({ venues }: { venues: DiningVenue[] }) {
         label={t("restaurant.ctaLabel")}
         title={t("restaurant.ctaTitle")}
         buttonText={t("restaurant.ctaButton")}
-        buttonHref="/contact"
+        buttonHref={withLocale(language, "/contact")}
       />
     </>
   );
