@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sun, Moon, Globe, ChevronDown, Check } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useLanguage, type Language } from "@/lib/i18n/context";
+import { useLanguage, withLocale, type Language } from "@/lib/i18n/context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +17,10 @@ import {
 
 // Route prefixes that have real, server-rendered translations in every non-French locale.
 // Extend this list as more locale routes ship.
-const LOCALE_READY_PREFIXES = ["/les-tentes", "/les-activites", "/day-pass", "/blog", "/desert-agafay"];
+const LOCALE_READY_PREFIXES = [
+  "/les-tentes", "/les-activites", "/day-pass", "/blog", "/desert-agafay",
+  "/restaurant", "/contact", "/apropo", "/les-evenements", "/reservez-votre-sejour",
+];
 const NON_FR_LOCALES: Language[] = ["en", "es", "it"];
 
 function hasLocaleVersion(pathname: string): boolean {
@@ -51,13 +54,12 @@ function toLocalePath(pathname: string, target: Language): string {
 const navLinkKeys = [
   { labelKey: "nav.home", href: "/", localized: true },
   { labelKey: "nav.tents", href: "/les-tentes", localized: true },
-  { labelKey: "nav.restaurant", href: "/restaurant", localized: false },
+  { labelKey: "nav.restaurant", href: "/restaurant", localized: true },
   { labelKey: "nav.activities", href: "/les-activites", localized: true },
   { labelKey: "nav.dayPass", href: "/day-pass", localized: true },
-  { labelKey: "nav.events", href: "/les-evenements", localized: false },
-  { labelKey: "nav.agafayGuide", href: "/desert-agafay", localized: true },
+  { labelKey: "nav.events", href: "/les-evenements", localized: true },
   { labelKey: "nav.blog", href: "/blog", localized: true },
-  { labelKey: "nav.contact", href: "/contact", localized: false },
+  { labelKey: "nav.contact", href: "/contact", localized: true },
 ];
 
 function localizedHref(link: { href: string; localized: boolean }, language: Language): string {
@@ -224,7 +226,7 @@ export function Navigation() {
             </DropdownMenu>
 
             {/* Book Now — Amber Gradient Pill */}
-            <Link href="/reservez-votre-sejour" className="hidden md:block">
+            <Link href={withLocale(language, "/reservez-votre-sejour")} className="hidden md:block">
               <span className="btn-primary inline-block cursor-pointer hover:no-underline">
                 {t("nav.bookNow")}
               </span>
@@ -346,7 +348,7 @@ export function Navigation() {
                 <div className="divider-accent mb-2" />
 
                 {/* Book Now Button */}
-                <Link href="/reservez-votre-sejour" onClick={closeMobile}>
+                <Link href={withLocale(language, "/reservez-votre-sejour")} onClick={closeMobile}>
                   <span className="btn-primary block text-center cursor-pointer w-full py-4">
                     {t("nav.bookYourStay")}
                   </span>

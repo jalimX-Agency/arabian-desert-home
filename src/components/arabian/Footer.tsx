@@ -4,18 +4,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Mail, MapPin, Phone, Facebook, ArrowRight, Star } from "lucide-react";
 import { motion } from "framer-motion";
-import { useLanguage, type Language } from "@/lib/i18n/context";
+import { useLanguage, withLocale, type Language } from "@/lib/i18n/context";
 
 const footerNavLinks = [
   { labelKey: "footer.navHome", href: "/", localized: true },
   { labelKey: "footer.navAgafayGuide", href: "/desert-agafay", localized: true },
   { labelKey: "footer.navTents", href: "/les-tentes", localized: true },
-  { labelKey: "footer.navRestaurant", href: "/restaurant", localized: false },
+  { labelKey: "footer.navRestaurant", href: "/restaurant", localized: true },
   { labelKey: "footer.navActivities", href: "/les-activites", localized: true },
   { labelKey: "footer.navDayPass", href: "/day-pass", localized: true },
-  { labelKey: "footer.navEvents", href: "/les-evenements", localized: false },
+  { labelKey: "footer.navEvents", href: "/les-evenements", localized: true },
   { labelKey: "footer.navBlog", href: "/blog", localized: true },
-  { labelKey: "footer.navAbout", href: "/apropo", localized: false },
+  { labelKey: "footer.navAbout", href: "/apropo", localized: true },
 ];
 
 function localizedHref(link: { href: string; localized: boolean }, language: Language): string {
@@ -80,7 +80,7 @@ export function Footer() {
               className="flex flex-col sm:flex-row gap-4 flex-shrink-0"
             >
               <Link
-                href="/reservez-votre-sejour"
+                href={withLocale(language, "/reservez-votre-sejour")}
                 className="btn-primary inline-flex items-center gap-3 cursor-pointer"
               >
                 {t("footer.bookNow")}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useLanguage } from "@/lib/i18n/context";
+import { useLanguage, withLocale } from "@/lib/i18n/context";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -43,7 +43,7 @@ interface SuiteDetailPageProps {
 }
 
 export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [suite, setSuite] = useState<Suite | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -401,7 +401,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
                   </div>
 
                   <Link
-                    href="/reservez-votre-sejour"
+                    href={withLocale(language, "/reservez-votre-sejour")}
                     className="btn-primary block w-full text-center cursor-pointer"
                   >
                     {t("suiteDetail.bookThisSuite")}

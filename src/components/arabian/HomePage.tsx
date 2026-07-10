@@ -190,7 +190,7 @@ function HeroSection() {
           transition={{ duration: 0.8, delay: 1.5, ease: smoothEase }}
           className="mt-10 flex items-center gap-6"
         >
-          <Link href="/reservez-votre-sejour">
+          <Link href={withLocale(language, "/reservez-votre-sejour")}>
             <span className="btn-primary inline-block cursor-pointer hover:no-underline">
               {t("hero.reserve")}
             </span>
@@ -599,7 +599,7 @@ function GallerySection({ galleryImages: rawGallery }: { galleryImages: { url: s
 // 5. PACKAGES SECTION — Rounded Pricing Cards
 // ============================================
 function PackagesSection() {
-  const { t, tArray } = useLanguage();
+  const { t, tArray, language } = useLanguage();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
 
@@ -722,7 +722,7 @@ function PackagesSection() {
               </ul>
 
               {/* CTA Button — Rounded Pill */}
-              <Link href="/reservez-votre-sejour" className="block">
+              <Link href={withLocale(language, "/reservez-votre-sejour")} className="block">
                 {pkg.highlighted ? (
                   <span className="btn-primary block text-center cursor-pointer w-full py-4">
                     {t("packages.book")}
