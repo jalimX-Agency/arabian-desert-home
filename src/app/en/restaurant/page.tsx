@@ -17,6 +17,7 @@ export const metadata = {
     "tajine desert agafay", "agafay restaurant morocco",
   ],
   openGraph: {
+    locale: "en_US",
     title: "Gastronomic Restaurant in the Agafay Desert | Arabian Desert Home",
     description: "Moroccan and Mediterranean cuisine prepared with local produce, in a unique desert setting with Atlas views. Menus from 200 DH.",
     url: "https://www.arabiandeserthome.ma/en/restaurant",

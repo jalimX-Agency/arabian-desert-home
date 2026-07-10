@@ -17,6 +17,7 @@ export const metadata = {
     "tajine deserto agafay", "agafay restaurant morocco",
   ],
   openGraph: {
+    locale: "it_IT",
     title: "Ristorante Gastronomico nel Deserto di Agafay | Arabian Desert Home",
     description: "Cucina marocchina e mediterranea preparata con prodotti locali, in un'ambientazione desertica unica con vista sull'Atlante. Menu a partire da 200 DH.",
     url: "https://www.arabiandeserthome.ma/it/restaurant",

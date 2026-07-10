@@ -16,6 +16,7 @@ export const metadata = {
     "arabian desert home phone",
   ],
   openGraph: {
+    locale: "en_US",
     title: "Contact Arabian Desert Home | Luxury Agafay Bivouac",
     description: "Contact us to book your stay in the Agafay desert. Guaranteed response within 24 hours.",
     url: "https://www.arabiandeserthome.ma/en/contact",

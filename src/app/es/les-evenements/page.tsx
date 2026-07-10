@@ -19,6 +19,7 @@ export const metadata = {
     "corporate event agafay morocco",
   ],
   openGraph: {
+    locale: "es_ES",
     title: "Eventos y Seminarios en el Desierto de Agafay | Arabian Desert Home",
     description:
       "Boda, seminario o team building en 6 hectáreas de desierto a 30 km de Marrakech. Entorno único, servicio a medida.",

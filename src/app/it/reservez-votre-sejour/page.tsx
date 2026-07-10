@@ -17,6 +17,7 @@ export const metadata = {
     "bivacco lusso agafay prenotazione",
   ],
   openGraph: {
+    locale: "it_IT",
     title: "Prenota a Arabian Desert Home | Bivacco di Lusso Agafay",
     description:
       "Prenota la tua notte nel deserto di Agafay. Tende a partire da 170 EUR/notte, colazione inclusa. A 30 km da Marrakech.",

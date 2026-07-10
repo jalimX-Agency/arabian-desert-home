@@ -17,6 +17,7 @@ export const metadata = {
     "tajín desierto agafay", "agafay restaurant morocco",
   ],
   openGraph: {
+    locale: "es_ES",
     title: "Restaurante Gastronómico en el Desierto de Agafay | Arabian Desert Home",
     description: "Cocina marroquí y mediterránea preparada con productos locales, en un entorno desértico único con vistas al Atlas. Menús desde 200 DH.",
     url: "https://www.arabiandeserthome.ma/es/restaurant",

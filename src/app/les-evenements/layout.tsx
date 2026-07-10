@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     "corporate event agafay morocco",
   ],
   openGraph: {
+    locale: "fr_FR",
     title: "Événements & Séminaires au Désert d'Agafay | Arabian Desert Home",
     description:
       "Mariage, séminaire ou team building sur 6 hectares de désert à 30 km de Marrakech. Cadre unique, service sur mesure.",

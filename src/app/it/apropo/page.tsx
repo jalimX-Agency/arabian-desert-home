@@ -16,6 +16,7 @@ export const metadata = {
     "luxury camp agafay morocco story",
   ],
   openGraph: {
+    locale: "it_IT",
     title: "Chi Siamo | Arabian Desert Home — Bivacco di Lusso Agafay",
     description: "Scopri la storia e i valori di Arabian Desert Home, bivacco di lusso nel deserto di Agafay.",
     url: "https://www.arabiandeserthome.ma/it/apropo",

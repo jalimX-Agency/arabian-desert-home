@@ -17,6 +17,7 @@ export const metadata = {
     "luxury agafay bivouac booking",
   ],
   openGraph: {
+    locale: "en_US",
     title: "Book at Arabian Desert Home | Luxury Agafay Bivouac",
     description:
       "Book your night in the Agafay desert. Tents from 170 EUR/night, breakfast included. 30 km from Marrakech.",

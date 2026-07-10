@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     "bivouac luxe agafay réservation",
   ],
   openGraph: {
+    locale: "fr_FR",
     title: "Réserver au Arabian Desert Home | Bivouac de Luxe Agafay",
     description:
       "Réservez votre nuit dans le désert d'Agafay. Tentes à partir de 170 EUR/nuit, petit-déjeuner inclus. À 30 km de Marrakech.",

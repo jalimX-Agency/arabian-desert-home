@@ -16,6 +16,7 @@ export const metadata = {
     "luxury camp agafay morocco story",
   ],
   openGraph: {
+    locale: "en_US",
     title: "About Us | Arabian Desert Home — Luxury Agafay Bivouac",
     description: "Discover the story and values of Arabian Desert Home, a luxury bivouac in the Agafay desert.",
     url: "https://www.arabiandeserthome.ma/en/apropo",

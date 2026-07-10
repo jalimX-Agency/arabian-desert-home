@@ -16,6 +16,7 @@ export const metadata = {
     "arabian desert home telefono",
   ],
   openGraph: {
+    locale: "es_ES",
     title: "Contacto Arabian Desert Home | Bivouac de Lujo Agafay",
     description: "Contáctanos para reservar tu estancia en el desierto de Agafay. Respuesta garantizada en 24 horas.",
     url: "https://www.arabiandeserthome.ma/es/contact",
