@@ -179,13 +179,13 @@ export function ActiviteDetailContent({ activity }: { activity: Activity }) {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href={`/reservez-votre-sejour?type=activite&slug=${activity.slug}`}
+                href={`${withLocale(language, "/reservez-votre-sejour")}?type=activite&slug=${activity.slug}`}
                 className="btn-primary flex items-center justify-center gap-2 text-sm"
               >
                 {t("activityDetail.bookButton")}
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/contact" className="btn-outline flex items-center justify-center gap-2 text-sm">
+              <Link href={withLocale(language, "/contact")} className="btn-outline flex items-center justify-center gap-2 text-sm">
                 {t("activityDetail.contactButton")}
               </Link>
             </div>
@@ -227,7 +227,7 @@ export function ActiviteDetailContent({ activity }: { activity: Activity }) {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Link
-              href={`/reservez-votre-sejour?type=activite&slug=${activity.slug}`}
+              href={`${withLocale(language, "/reservez-votre-sejour")}?type=activite&slug=${activity.slug}`}
               className="btn-primary flex items-center justify-center gap-2"
             >
               {t("activityDetail.ctaBook")}

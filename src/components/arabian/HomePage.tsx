@@ -1030,7 +1030,7 @@ interface HomePageProps {
 }
 
 export function HomePage({ suites, galleryImages, testimonials, blogPosts = [] }: HomePageProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   return (
     <>
       <HeroSection />
@@ -1050,8 +1050,8 @@ export function HomePage({ suites, galleryImages, testimonials, blogPosts = [] }
         }
         description={t("cta.description")}
         buttonText={t("cta.bookYourStay")}
-        buttonHref="/reservez-votre-sejour"
-        secondaryButton={{ text: t("nav.contact"), href: "/contact" }}
+        buttonHref={withLocale(language, "/reservez-votre-sejour")}
+        secondaryButton={{ text: t("nav.contact"), href: withLocale(language, "/contact") }}
         alignment="left"
       />
     </>

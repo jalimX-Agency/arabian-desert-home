@@ -265,7 +265,7 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
         label="Arabian Desert Home"
         title={c.experienceDesert}
         buttonText={c.bookYourStay}
-        buttonHref="/reservez-votre-sejour"
+        buttonHref={withLocale(language, "/reservez-votre-sejour")}
       />
     </>
   );

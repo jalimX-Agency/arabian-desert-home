@@ -200,7 +200,7 @@ export default function ItalianDesertAgafayPage() {
               pienamente confortevoli con letti veri, bagno privato e servizio
               da hotel, immerse nel deserto. Ad <strong>Arabian Desert Home</strong>, la nostra
               tenuta privata di 6 ettari offre <Link href="/it/les-tentes">tende e suite di
-              lusso</Link> con piscina, un <Link href="/restaurant">ristorante gourmet</Link>
+              lusso</Link> con piscina, un <Link href="/it/restaurant">ristorante gourmet</Link>
               marocchino e attività in loco.
             </p>
 
@@ -209,7 +209,7 @@ export default function ItalianDesertAgafayPage() {
               <li><strong>Day Pass</strong> (giornata con piscina + pranzo + attività): da 35€ a persona</li>
               <li><strong>Notte in un bivacco di lusso</strong>: da 170€ (Junior Tent) a 300€ (Suite) per l'intera tenda, colazione inclusa</li>
               <li><strong>Attività</strong>: giro in cammello, quad o equitazione come extra a seconda del pacchetto</li>
-              <li><strong>Eventi privati</strong>: <Link href="/les-evenements">matrimoni e seminari</Link> su richiesta</li>
+              <li><strong>Eventi privati</strong>: <Link href="/it/les-evenements">matrimoni e seminari</Link> su richiesta</li>
             </ul>
             <p>
               Rispetto ai 2-3 giorni di viaggio (trasporto + alloggio) necessari per Merzouga,
@@ -242,7 +242,7 @@ export default function ItalianDesertAgafayPage() {
               a 30 minuti da Marrakech.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/reservez-votre-sejour" className="btn-primary inline-flex items-center justify-center gap-3 cursor-pointer">
+              <Link href="/it/reservez-votre-sejour" className="btn-primary inline-flex items-center justify-center gap-3 cursor-pointer">
                 Prenota il Tuo Soggiorno
                 <ArrowRight className="w-4 h-4" />
               </Link>

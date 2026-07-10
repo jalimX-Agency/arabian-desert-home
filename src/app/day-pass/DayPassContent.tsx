@@ -167,7 +167,7 @@ function PassRow({
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/contact"
+              href={withLocale(language, "/contact")}
               className="btn-outline inline-flex items-center justify-center gap-2"
             >
               <Phone className="w-4 h-4" />
@@ -381,7 +381,7 @@ export function DayPassContent({ passes }: { passes: DayPass[] }) {
         label={t("dayPass.ctaLabel")}
         title={t("dayPass.ctaTitle")}
         buttonText={t("dayPass.ctaButton")}
-        buttonHref="/contact"
+        buttonHref={withLocale(language, "/contact")}
       />
     </>
   );

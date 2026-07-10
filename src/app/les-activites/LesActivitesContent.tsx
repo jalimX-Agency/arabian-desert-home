@@ -350,7 +350,7 @@ export function LesActivitesContent({ activities }: { activities: Activity[] }) 
         label={t("activities.ctaLabel")}
         title={t("activities.ctaTitle")}
         buttonText={t("activities.ctaButton")}
-        buttonHref="/reservez-votre-sejour"
+        buttonHref={withLocale(language, "/reservez-votre-sejour")}
       />
     </>
   );

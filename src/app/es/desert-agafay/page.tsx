@@ -200,7 +200,7 @@ export default function SpanishDesertAgafayPage() {
               ropa de cama de verdad, baño privado y un servicio de nivel hotelero, instaladas justo en el
               desierto. En <strong>Arabian Desert Home</strong>, nuestra propiedad privada de 6 hectáreas
               cuenta con <Link href="/es/les-tentes">jaimas y suites de lujo</Link> con piscina, un{" "}
-              <Link href="/restaurant">restaurante gourmet</Link> marroquí y actividades in situ.
+              <Link href="/es/restaurant">restaurante gourmet</Link> marroquí y actividades in situ.
             </p>
 
             <h2>Precios: ¿qué presupuesto para Agafay?</h2>
@@ -208,7 +208,7 @@ export default function SpanishDesertAgafayPage() {
               <li><strong>Day Pass</strong> (día con piscina + almuerzo + actividades): desde 35€ por persona</li>
               <li><strong>Noche en un bivouac de lujo</strong>: desde 170€ (Junior Tent) hasta 300€ (Suite) por jaima entera, desayuno incluido</li>
               <li><strong>Actividades</strong>: paseo en camello, quad o equitación como extras según el paquete</li>
-              <li><strong>Eventos privados</strong>: <Link href="/les-evenements">bodas y seminarios</Link> bajo petición</li>
+              <li><strong>Eventos privados</strong>: <Link href="/es/les-evenements">bodas y seminarios</Link> bajo petición</li>
             </ul>
             <p>
               En comparación con los 2-3 días de viaje (transporte + alojamiento) necesarios para Merzouga,
@@ -241,7 +241,7 @@ export default function SpanishDesertAgafayPage() {
               privado, a 30 minutos de Marrakech.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/reservez-votre-sejour" className="btn-primary inline-flex items-center justify-center gap-3 cursor-pointer">
+              <Link href="/es/reservez-votre-sejour" className="btn-primary inline-flex items-center justify-center gap-3 cursor-pointer">
                 Reserva Tu Estancia
                 <ArrowRight className="w-4 h-4" />
               </Link>

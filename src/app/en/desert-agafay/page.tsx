@@ -200,7 +200,7 @@ export default function EnglishDesertAgafayPage() {
               comfortable tent suites with real bedding, a private bathroom and hotel-level
               service, set right in the desert. At <strong>Arabian Desert Home</strong>, our
               private 6-hectare estate features <Link href="/en/les-tentes">luxury tents and
-              suites</Link> with a pool, a Moroccan <Link href="/restaurant">gourmet
+              suites</Link> with a pool, a Moroccan <Link href="/en/restaurant">gourmet
               restaurant</Link> and on-site activities.
             </p>
 
@@ -209,7 +209,7 @@ export default function EnglishDesertAgafayPage() {
               <li><strong>Day Pass</strong> (day with pool + lunch + activities): from €35 per person</li>
               <li><strong>Night in a luxury bivouac</strong>: from €170 (Junior Tent) to €300 (Suite) for the whole tent, breakfast included</li>
               <li><strong>Activities</strong>: camel ride, quad or horseback riding as extras depending on the package</li>
-              <li><strong>Private events</strong>: <Link href="/les-evenements">weddings and seminars</Link> on request</li>
+              <li><strong>Private events</strong>: <Link href="/en/les-evenements">weddings and seminars</Link> on request</li>
             </ul>
             <p>
               Compared to the 2-3 days of travel (transport + accommodation) required for Merzouga,
@@ -242,7 +242,7 @@ export default function EnglishDesertAgafayPage() {
               30 minutes from Marrakech.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/reservez-votre-sejour" className="btn-primary inline-flex items-center justify-center gap-3 cursor-pointer">
+              <Link href="/en/reservez-votre-sejour" className="btn-primary inline-flex items-center justify-center gap-3 cursor-pointer">
                 Book Your Stay
                 <ArrowRight className="w-4 h-4" />
               </Link>

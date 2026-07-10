@@ -476,7 +476,7 @@ export function SuiteDetailPage({ slug }: SuiteDetailPageProps) {
             {t("suiteDetail.startingFrom")} {priceLabel} {t("suiteDetail.perNight2")}
           </p>
           <Link
-            href="/reservez-votre-sejour"
+            href={withLocale(language, "/reservez-votre-sejour")}
             className="btn-primary inline-flex items-center gap-3 cursor-pointer"
           >
             {t("suiteDetail.bookThisSuite")}

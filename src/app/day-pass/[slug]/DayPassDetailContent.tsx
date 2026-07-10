@@ -133,13 +133,13 @@ export function DayPassDetailContent({ pass }: { pass: DayPass }) {
 
               <div className="mt-10 flex flex-col gap-3">
                 <Link
-                  href={`/contact?pass=${pass.slug}`}
+                  href={`${withLocale(language, "/contact")}?pass=${pass.slug}`}
                   className="btn-primary flex items-center justify-center gap-2 text-sm"
                 >
                   {t("dayPassDetail.bookButton")}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
-                <Link href="/contact" className="btn-outline flex items-center justify-center gap-2 text-sm">
+                <Link href={withLocale(language, "/contact")} className="btn-outline flex items-center justify-center gap-2 text-sm">
                   {t("dayPassDetail.infoButton")}
                 </Link>
               </div>
@@ -181,7 +181,7 @@ export function DayPassDetailContent({ pass }: { pass: DayPass }) {
             transition={{ duration: 0.8, delay: 0.3, ease: smoothEase }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link href={`/contact?pass=${pass.slug}`} className="btn-primary flex items-center justify-center gap-2">
+            <Link href={`${withLocale(language, "/contact")}?pass=${pass.slug}`} className="btn-primary flex items-center justify-center gap-2">
               {t("dayPassDetail.ctaBook")}
               <ArrowRight className="w-4 h-4" />
             </Link>

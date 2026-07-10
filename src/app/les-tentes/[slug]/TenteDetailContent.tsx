@@ -222,13 +222,13 @@ export function TenteDetailContent({ suite }: { suite: Suite }) {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href={`/reservez-votre-sejour?type=tente&slug=${suite.slug}`}
+                href={`${withLocale(language, "/reservez-votre-sejour")}?type=tente&slug=${suite.slug}`}
                 className="btn-primary flex items-center justify-center gap-2 text-sm"
               >
                 {t("suiteDetail.bookThisSuite")}
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/contact" className="btn-outline flex items-center justify-center gap-2 text-sm">
+              <Link href={withLocale(language, "/contact")} className="btn-outline flex items-center justify-center gap-2 text-sm">
                 {t("nav.contact")}
               </Link>
             </div>
@@ -270,7 +270,7 @@ export function TenteDetailContent({ suite }: { suite: Suite }) {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Link
-              href={`/reservez-votre-sejour?type=tente&slug=${suite.slug}`}
+              href={`${withLocale(language, "/reservez-votre-sejour")}?type=tente&slug=${suite.slug}`}
               className="btn-primary flex items-center justify-center gap-2"
             >
               {t("nav.bookNow")}
