@@ -163,7 +163,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.7, ease: smoothEase }}
-          className="heading-display text-white text-5xl sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[8.5rem] max-w-5xl text-balance"
+          className="heading-display text-white text-5xl sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[7.5rem] max-w-7xl text-balance"
         >
           <span className="sr-only">Bivouac de Luxe dans le Désert d&apos;Agafay — 30 min de Marrakech</span>
           <span aria-hidden="true">

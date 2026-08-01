@@ -1,5 +1,4 @@
 ﻿import type { Metadata } from "next";
-import Script from "next/script";
 import { Cinzel, Josefin_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AdminSessionProvider } from "@/components/admin/SessionProvider";
@@ -102,13 +101,14 @@ export default function RootLayout({
 
   return (
     <html lang="fr" suppressHydrationWarning>
-      <Script
-        id="lang-correction"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `(function(){var p=window.location.pathname,l="fr";if(p.indexOf("/en")===0)l="en";else if(p.indexOf("/es")===0)l="es";else if(p.indexOf("/it")===0)l="it";document.documentElement.lang=l;})();`,
-        }}
-      />
+      <head>
+        <script
+          id="lang-correction"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var p=window.location.pathname,l="fr";if(p.indexOf("/en")===0)l="en";else if(p.indexOf("/es")===0)l="es";else if(p.indexOf("/it")===0)l="it";document.documentElement.lang=l;})();`,
+          }}
+        />
+      </head>
       <body className={`${cinzel.variable} ${josefin.variable} antialiased bg-background text-foreground`}>
         <AdminSessionProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>

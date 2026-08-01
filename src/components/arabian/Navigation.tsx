@@ -138,7 +138,8 @@ export function Navigation() {
               width={500}
               height={200}
               priority
-              className="h-50 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80"
+              className={`h-50 w-auto object-contain transition-all duration-300 group-hover:opacity-80 ${scrolled ? "" : "brightness-0 invert"
+                }`}
             />
           </Link>
 
@@ -153,7 +154,9 @@ export function Navigation() {
                   href={href}
                   className={`luxury-label relative group cursor-pointer transition-colors duration-300 ${isActive
                     ? "text-amber"
-                    : "text-muted-foreground hover:text-foreground"
+                    : scrolled
+                      ? "text-muted-foreground hover:text-foreground"
+                      : "text-white/85 hover:text-white"
                     }`}
                 >
                   {t(link.labelKey)}
@@ -173,7 +176,8 @@ export function Navigation() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="hidden md:flex items-center gap-1.5 luxury-label px-3.5 h-9 rounded-full border border-amber/15 bg-amber/[0.04] text-muted-foreground hover:text-amber hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+                  className={`hidden md:flex items-center gap-1.5 luxury-label px-3.5 h-9 rounded-full border border-amber/15 bg-amber/[0.04] hover:text-amber hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-1 focus-visible:ring-offset-background ${scrolled ? "text-muted-foreground" : "text-white/85"
+                    }`}
                   aria-label="Select language"
                 >
                   <Globe className="w-3.5 h-3.5" />
@@ -248,7 +252,8 @@ export function Navigation() {
             {/* Mobile Hamburger — Rounded */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full border border-amber/15 bg-amber/[0.04] text-foreground hover:text-amber hover:border-amber/30 transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40"
+              className={`lg:hidden w-10 h-10 flex items-center justify-center rounded-full border border-amber/15 bg-amber/[0.04] hover:text-amber hover:border-amber/30 transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 ${scrolled ? "text-foreground" : "text-white"
+                }`}
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait" initial={false}>
