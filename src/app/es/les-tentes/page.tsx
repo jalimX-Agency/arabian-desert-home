@@ -17,6 +17,7 @@ export const metadata = {
     "campamento de lujo agafay marrakech", "glamping agafay marruecos", "suite jaima desierto marruecos",
   ],
   openGraph: {
+    locale: "es_ES",
     title: "Jaimas y Suites de Lujo en el Desierto de Agafay | Arabian Desert Home",
     description: "Duerme bajo las estrellas en nuestras exclusivas suites de jaimas, a 30 km de Marrakech. Desde 170€/noche, desayuno incluido.",
     url: "https://www.arabiandeserthome.ma/es/les-tentes",

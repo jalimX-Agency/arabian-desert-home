@@ -17,6 +17,7 @@ export const metadata = {
     "attività deserto agafay bambini", "tramonto deserto agafay",
   ],
   openGraph: {
+    locale: "it_IT",
     title: "Attività ed Esperienze nel Deserto ad Agafay | Arabian Desert Home",
     description: "Giri in cammello, quad, equitazione e tramonti su 6 ettari di deserto, a 30 km da Marrakech.",
     url: "https://www.arabiandeserthome.ma/it/les-activites",

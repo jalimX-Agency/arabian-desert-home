@@ -56,6 +56,8 @@ const fadeIn = {
 
 
 const COPY: Record<Language, {
+  heroAlt: string;
+  entertainmentAlt: string;
   menusLabel: string;
   menusTitle1: string;
   menusTitle2: string;
@@ -63,6 +65,8 @@ const COPY: Record<Language, {
   menus: { num: string; name: string; items: string[] }[];
 }> = {
   fr: {
+    heroAlt: "Restaurant en plein air au désert d'Agafay",
+    entertainmentAlt: "Soirée d'animation au Dar Agafay — dîner sous les étoiles",
     menusLabel: "Nos Menus",
     menusTitle1: "Saveurs du",
     menusTitle2: "Maroc",
@@ -75,6 +79,8 @@ const COPY: Record<Language, {
     ],
   },
   en: {
+    heroAlt: "Open-air restaurant in the Agafay desert",
+    entertainmentAlt: "Evening entertainment at Dar Agafay — dinner under the stars",
     menusLabel: "Our Menus",
     menusTitle1: "Flavors of",
     menusTitle2: "Morocco",
@@ -87,6 +93,8 @@ const COPY: Record<Language, {
     ],
   },
   es: {
+    heroAlt: "Restaurante al aire libre en el desierto de Agafay",
+    entertainmentAlt: "Velada de animación en Dar Agafay — cena bajo las estrellas",
     menusLabel: "Nuestros Menús",
     menusTitle1: "Sabores de",
     menusTitle2: "Marruecos",
@@ -99,6 +107,8 @@ const COPY: Record<Language, {
     ],
   },
   it: {
+    heroAlt: "Ristorante all'aperto nel deserto di Agafay",
+    entertainmentAlt: "Serata di animazione al Dar Agafay — cena sotto le stelle",
     menusLabel: "I Nostri Menu",
     menusTitle1: "Sapori del",
     menusTitle2: "Marocco",
@@ -131,7 +141,7 @@ export function RestaurantContent({ venues }: { venues: DiningVenue[] }) {
       {/* ── Hero ── */}
       <section ref={heroRef} className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-end overflow-hidden">
         <div className="absolute inset-0">
-          <img src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/restaurant-outdoor.png" alt="Restaurant en plein air au désert d'Agafay" className="w-full h-full object-cover" />
+          <img src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/restaurant-outdoor.png" alt={c.heroAlt} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
         </div>
@@ -325,7 +335,7 @@ export function RestaurantContent({ venues }: { venues: DiningVenue[] }) {
 
             <motion.div variants={revealScale} initial="hidden" animate={entertainmentInView ? "visible" : "hidden"} custom={0.3} className="relative">
               <div className="aspect-[4/3] overflow-hidden rounded-2xl relative">
-                <img src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/dar-agafay.png" alt="Soirée d'animation au Dar Agafay — dîner sous les étoiles" className="w-full h-full object-cover img-luxury" />
+                <img src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/dining/dar-agafay.png" alt={c.entertainmentAlt} className="w-full h-full object-cover img-luxury" />
                 <div className="absolute inset-0 bg-amber/0 hover:bg-amber/10 transition-all duration-500 rounded-2xl" />
               </div>
 

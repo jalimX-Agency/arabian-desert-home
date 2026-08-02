@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description,
     keywords: [name, "agafay day pass", "desert day pass marrakech", "agafay day pass desert pool"],
     openGraph: {
+    locale: "en_US",
       title: `${name} | Arabian Desert Home — Agafay Desert Day Pass`,
       description,
       url: `https://www.arabiandeserthome.ma/en/day-pass/${slug}`,

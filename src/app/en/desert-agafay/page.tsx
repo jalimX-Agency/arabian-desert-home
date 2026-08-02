@@ -19,6 +19,7 @@ export const metadata = {
     "agafay or merzouga", "stone desert marrakech",
   ],
   openGraph: {
+    locale: "en_US",
     title: "Agafay Desert: The Complete 2026 Guide",
     description:
       "Location, weather, activities, prices, accommodation — everything you need to know about the Agafay desert, 30 minutes from Marrakech.",

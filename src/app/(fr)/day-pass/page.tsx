@@ -17,6 +17,7 @@ export const metadata = {
     "journée désert marrakech", "day pass agafay desert pool",
   ],
   openGraph: {
+    locale: "fr_FR",
     title: "Day Pass Piscine & Déjeuner au Désert d'Agafay | Arabian Desert Home",
     description: "Piscine, déjeuner marocain et activités à partir de 35 EUR/pers. À 30 km de Marrakech, réservation conseillée 24 h à l'avance.",
     url: "https://www.arabiandeserthome.ma/day-pass",

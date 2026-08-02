@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description,
     keywords: [name, "actividades agafay", "actividad desierto marrakech", "actividades agafay marruecos"],
     openGraph: {
+    locale: "es_ES",
       title: `${name} | Arabian Desert Home — Desierto de Agafay`,
       description,
       url: `https://www.arabiandeserthome.ma/es/les-activites/${slug}`,

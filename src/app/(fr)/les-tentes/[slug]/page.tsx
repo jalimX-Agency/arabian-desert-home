@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: suite.description,
     keywords: [suite.name, "bivouac luxe agafay", "tente luxe désert marrakech", "glamping agafay morocco"],
     openGraph: {
+    locale: "fr_FR",
       title: `${suite.name} | Arabian Desert Home — Désert d'Agafay`,
       description: suite.description,
       url: `https://www.arabiandeserthome.ma/les-tentes/${slug}`,

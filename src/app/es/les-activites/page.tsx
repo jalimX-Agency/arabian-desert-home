@@ -17,6 +17,7 @@ export const metadata = {
     "actividades desierto agafay niños", "atardecer desierto agafay",
   ],
   openGraph: {
+    locale: "es_ES",
     title: "Actividades y Experiencias en el Desierto de Agafay | Arabian Desert Home",
     description: "Paseos en camello, quad, equitación y atardeceres en 6 hectáreas de desierto, a 30 km de Marrakech.",
     url: "https://www.arabiandeserthome.ma/es/les-activites",

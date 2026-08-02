@@ -17,6 +17,7 @@ export const metadata = {
     "agafay desert activities kids", "agafay desert sunset",
   ],
   openGraph: {
+    locale: "en_US",
     title: "Desert Activities & Experiences in Agafay | Arabian Desert Home",
     description: "Camel rides, quad biking, horseback riding and sunsets across 6 hectares of desert, 30 km from Marrakech.",
     url: "https://www.arabiandeserthome.ma/en/les-activites",

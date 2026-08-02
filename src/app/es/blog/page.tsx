@@ -14,6 +14,7 @@ export const metadata = {
     "bivouac de lujo agafay", "actividades desierto marrakech", "estancia desierto marruecos",
   ],
   openGraph: {
+    locale: "es_ES",
     title: "Blog | Arabian Desert Home — Inspiraciones del Desierto de Agafay",
     description: "Artículos e historias sobre el desierto de Agafay, actividades y la vida en un bivouac de lujo a 30 min de Marrakech.",
     url: "https://www.arabiandeserthome.ma/es/blog",

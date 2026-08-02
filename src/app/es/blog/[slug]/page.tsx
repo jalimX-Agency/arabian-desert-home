@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: `${title} | Blog de Arabian Desert Home`,
     description: excerpt || title,
     openGraph: {
+    locale: "es_ES",
       title,
       description: excerpt || title,
       url: `https://www.arabiandeserthome.ma/es/blog/${slug}`,

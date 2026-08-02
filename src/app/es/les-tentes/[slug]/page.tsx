@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description,
     keywords: [name, "bivouac de lujo agafay", "jaima de lujo desierto marrakech", "glamping agafay marruecos"],
     openGraph: {
+    locale: "es_ES",
       title: `${name} | Arabian Desert Home — Desierto de Agafay`,
       description,
       url: `https://www.arabiandeserthome.ma/es/les-tentes/${slug}`,

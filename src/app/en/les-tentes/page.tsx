@@ -17,6 +17,7 @@ export const metadata = {
     "luxury desert camp agafay marrakech", "glamping agafay morocco", "tent suite desert morocco",
   ],
   openGraph: {
+    locale: "en_US",
     title: "Luxury Tents & Suites in the Agafay Desert | Arabian Desert Home",
     description: "Sleep under the stars in our exclusive tent suites, 30 km from Marrakech. From €170/night, breakfast included.",
     url: "https://www.arabiandeserthome.ma/en/les-tentes",

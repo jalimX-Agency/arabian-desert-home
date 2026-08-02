@@ -19,6 +19,7 @@ export const metadata = {
     "agafay o merzouga", "desierto de piedra marrakech",
   ],
   openGraph: {
+    locale: "es_ES",
     title: "Desierto de Agafay: La Guía Completa 2026",
     description:
       "Ubicación, clima, actividades, precios, alojamiento — todo lo que necesitas saber sobre el desierto de Agafay, a 30 minutos de Marrakech.",

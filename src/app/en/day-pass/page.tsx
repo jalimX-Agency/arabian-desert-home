@@ -17,6 +17,7 @@ export const metadata = {
     "desert day marrakech", "agafay day pass desert pool",
   ],
   openGraph: {
+    locale: "en_US",
     title: "Pool & Lunch Day Pass in the Agafay Desert | Arabian Desert Home",
     description: "Pool, Moroccan lunch and activities from 35 EUR/person. 30 km from Marrakech, booking recommended 24h in advance.",
     url: "https://www.arabiandeserthome.ma/en/day-pass",

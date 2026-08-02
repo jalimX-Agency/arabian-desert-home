@@ -105,7 +105,7 @@ export function ApropoContent() {
           {/* Main image fills the entire right side */}
           <img
             src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/1781200882874-jrl20iist7.webp"
-            alt="Arabian Desert Home — Tentes de luxe Agafay"
+            alt={t("about.heroImageAlt")}
             className="w-full h-full object-cover"
           />
 
@@ -121,7 +121,7 @@ export function ApropoContent() {
           >
             <img
               src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/suites/1781272815539-j9ai7jss03b.webp"
-              alt="Vue aérienne Arabian Desert Home — Désert Agafay"
+              alt={t("about.heroAerialImageAlt")}
               className="w-40 h-40 md:w-56 md:h-56 rounded-2xl border-2 border-amber/20 shadow-2xl object-cover"
             />
           </motion.div>

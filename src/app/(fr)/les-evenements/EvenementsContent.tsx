@@ -97,7 +97,7 @@ export function EvenementsContent() {
         <div className="absolute inset-0">
           <img
             src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/events/events-gala.png"
-            alt="Événements de luxe au désert d'Agafay — Mariages & Galas"
+            alt={t("evenements.heroImageAlt")}
             className="w-full h-full object-cover"
           />
           {/* Seamless Gradient — dark top fades to background color at bottom */}

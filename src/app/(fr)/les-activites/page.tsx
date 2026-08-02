@@ -17,6 +17,7 @@ export const metadata = {
     "activités désert agafay enfants", "sunset désert agafay",
   ],
   openGraph: {
+    locale: "fr_FR",
     title: "Activités & Expériences Désert d'Agafay | Arabian Desert Home",
     description: "Balades à dromadaire, quad, équitation et couchers de soleil sur 6 hectares de désert à 30 km de Marrakech.",
     url: "https://www.arabiandeserthome.ma/les-activites",
