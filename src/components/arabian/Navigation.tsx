@@ -129,7 +129,13 @@ export function Navigation() {
           : "bg-transparent"
           }`}
       >
-        <nav className="max-w-7xl mx-auto px-5 sm:px-8 md:px-10 h-24 flex items-center justify-between">
+        {/* Scrim — guarantees contrast for the white logo/text before scroll, even on
+            pages whose hero doesn't sit flush under the header (unlike the homepage). */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-b from-black/45 to-transparent pointer-events-none transition-opacity duration-500 ${scrolled ? "opacity-0" : "opacity-100"
+            }`}
+        />
+        <nav className="relative max-w-7xl mx-auto px-5 sm:px-8 md:px-10 h-24 flex items-center justify-between">
           {/* ── Logo ── */}
           <Link href={language === "fr" ? "/" : `/${language}`} className="flex items-center group cursor-pointer">
             <Image
