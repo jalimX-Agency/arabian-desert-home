@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       experiences, specialReqs,
     } = body;
 
-    if (!firstName || !lastName || !email) {
+    if (!firstName || !lastName || !email || !phone) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
     if (serviceType === "suite" && (!suiteId || !checkIn || !checkOut)) {
@@ -55,8 +55,7 @@ export async function POST(request: Request) {
 
     const booking = await db.booking.create({
       data: {
-        firstName, lastName, email,
-        phone: phone || null,
+        firstName, lastName, email, phone,
         serviceType,
         suiteId: suiteId || null,
         activityId: activityId || null,

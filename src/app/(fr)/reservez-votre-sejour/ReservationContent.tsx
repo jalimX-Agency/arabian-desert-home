@@ -298,7 +298,8 @@ export function ReservationContent() {
   const isPersonalValid =
     personal.firstName.trim() !== "" &&
     personal.lastName.trim() !== "" &&
-    personal.email.trim() !== "";
+    personal.email.trim() !== "" &&
+    personal.phone.trim() !== "";
 
   const isDetailsValid =
     serviceType === "suite"
@@ -578,14 +579,14 @@ export function ReservationContent() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone" className="luxury-label text-xs">
-                        {t("booking2.phone")}{" "}
-                        <span className="text-muted-foreground">{t("booking2.phoneOptional")}</span>
+                        {t("booking2.phone")} *
                       </Label>
                       <Input
                         id="phone"
                         type="tel"
                         value={personal.phone}
                         onChange={(e) => setPersonal((p) => ({ ...p, phone: e.target.value }))}
+                        required
                         className="rounded-2xl border-border/50 focus:border-amber/50 bg-background/50"
                         placeholder="+212 6XX XXX XXX"
                       />
