@@ -1,9 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { format } from "date-fns";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  addMonths,
+  subMonths,
+  isSameDay,
+  isSameMonth,
+  isToday,
+} from "date-fns";
 import { fr } from "date-fns/locale";
-import { Trash2, Download } from "lucide-react";
+import { Trash2, Download, Table2, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -72,6 +84,23 @@ function formatDateCell(b: Booking): React.ReactNode {
   }
   if (b.date) return format(new Date(b.date), "d MMM yyyy", { locale: fr });
   return "—";
+}
+
+interface CalendarEntry {
+  booking: Booking;
+  date: Date;
+  label: string;
+}
+
+function bookingCalendarEntries(b: Booking): CalendarEntry[] {
+  if (b.serviceType === "suite") {
+    const entries: CalendarEntry[] = [];
+    if (b.checkIn) entries.push({ booking: b, date: new Date(b.checkIn), label: "Arrivée" });
+    if (b.checkOut) entries.push({ booking: b, date: new Date(b.checkOut), label: "Départ" });
+    return entries;
+  }
+  if (b.date) return [{ booking: b, date: new Date(b.date), label: serviceTypeLabel[b.serviceType] ?? b.serviceType }];
+  return [];
 }
 
 function csvField(value: string | number): string {
@@ -152,6 +181,8 @@ export default function ReservationsPage() {
   const [selected, setSelected] = useState<Booking | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const selectAllRef = useRef<HTMLInputElement>(null);
+  const [view, setView] = useState<"table" | "calendar">("table");
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
 
   async function load() {
     const res = await fetch("/api/admin/bookings");
@@ -210,6 +241,17 @@ export default function ReservationsPage() {
     });
   }
 
+  const calendarDays = eachDayOfInterval({
+    start: startOfWeek(startOfMonth(calendarMonth), { weekStartsOn: 1 }),
+    end: endOfWeek(endOfMonth(calendarMonth), { weekStartsOn: 1 }),
+  });
+
+  const calendarEntries = filtered.flatMap(bookingCalendarEntries);
+
+  function entriesForDay(day: Date): CalendarEntry[] {
+    return calendarEntries.filter((e) => isSameDay(e.date, day));
+  }
+
   function exportSelected() {
     const toExport = bookings.filter((b) => selectedIds.has(b.id));
     if (toExport.length === 0) return;
@@ -227,9 +269,35 @@ export default function ReservationsPage() {
 
   return (
     <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Réservations</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 dark:bg-white/5">
+            <button
+              onClick={() => setView("table")}
+              aria-pressed={view === "table"}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs uppercase tracking-widest transition-colors cursor-pointer ${
+                view === "table"
+                  ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm"
+                  : "text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white"
+              }`}
+            >
+              <Table2 className="w-3.5 h-3.5" />
+              Table
+            </button>
+            <button
+              onClick={() => setView("calendar")}
+              aria-pressed={view === "calendar"}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs uppercase tracking-widest transition-colors cursor-pointer ${
+                view === "calendar"
+                  ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm"
+                  : "text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white"
+              }`}
+            >
+              <CalendarDays className="w-3.5 h-3.5" />
+              Calendrier
+            </button>
+          </div>
           {["all", ...statusOptions].map((s) => (
             <button
               key={s}
@@ -254,6 +322,88 @@ export default function ReservationsPage() {
         </div>
       </div>
 
+      {view === "calendar" && (
+        <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-white/10">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCalendarMonth((m) => subMonths(m, 1))}
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-white/60 cursor-pointer"
+                aria-label="Mois précédent"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white capitalize w-36 text-center">
+                {format(calendarMonth, "MMMM yyyy", { locale: fr })}
+              </h2>
+              <button
+                onClick={() => setCalendarMonth((m) => addMonths(m, 1))}
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-white/60 cursor-pointer"
+                aria-label="Mois suivant"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            <button
+              onClick={() => setCalendarMonth(new Date())}
+              className="px-3 py-1.5 rounded-lg text-xs uppercase tracking-widest bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              Aujourd&apos;hui
+            </button>
+          </div>
+
+          <div className="grid grid-cols-7 border-b border-gray-200 dark:border-white/10 text-xs uppercase tracking-widest text-gray-400">
+            {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((d) => (
+              <div key={d} className="px-2 py-2 text-center">{d}</div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7">
+            {calendarDays.map((day) => {
+              const entries = entriesForDay(day);
+              const inMonth = isSameMonth(day, calendarMonth);
+              return (
+                <div
+                  key={day.toISOString()}
+                  className={`min-h-[100px] p-1.5 border-b border-r border-gray-100 dark:border-white/5 ${
+                    inMonth ? "" : "bg-gray-50/50 dark:bg-white/[0.01]"
+                  }`}
+                >
+                  <p
+                    className={`text-xs mb-1 ${
+                      isToday(day)
+                        ? "inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white font-semibold"
+                        : inMonth
+                        ? "text-gray-500 dark:text-white/60"
+                        : "text-gray-300 dark:text-white/20"
+                    }`}
+                  >
+                    {format(day, "d")}
+                  </p>
+                  <div className="space-y-1">
+                    {entries.slice(0, 3).map((entry, i) => (
+                      <button
+                        key={`${entry.booking.id}-${i}`}
+                        onClick={() => setSelected(entry.booking)}
+                        title={`${entry.booking.firstName} ${entry.booking.lastName} — ${entry.label}`}
+                        className={`w-full text-left truncate px-1.5 py-0.5 rounded text-[11px] border cursor-pointer ${statusColors[entry.booking.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"}`}
+                      >
+                        {entry.label === "Arrivée" ? "→ " : entry.label === "Départ" ? "← " : ""}
+                        {entry.booking.firstName} {entry.booking.lastName}
+                      </button>
+                    ))}
+                    {entries.length > 3 && (
+                      <p className="text-[11px] text-gray-400 px-1.5">+{entries.length - 3} de plus</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {view === "table" && (
       <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
@@ -344,6 +494,7 @@ export default function ReservationsPage() {
           )}
         </table>
       </div>
+      )}
 
       <Dialog open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent className="sm:max-w-xl">
