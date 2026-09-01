@@ -17,8 +17,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = await db.blogPost.findUnique({ where: { slug }, select: { title: true, excerpt: true, image: true } });
   if (!post) return {};
   const image = post.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
+  // Long editorial headlines are left bare so the <title> stays under ~60 chars;
+  // only short ones get the brand suffix appended.
+  const metaTitle = post.title.length <= 38 ? `${post.title} | Arabian Desert Home` : post.title;
   return {
-    title: `${post.title} | Arabian Desert Home Blog`,
+    title: metaTitle,
     description: post.excerpt || post.title,
     openGraph: {
     locale: "fr_FR",

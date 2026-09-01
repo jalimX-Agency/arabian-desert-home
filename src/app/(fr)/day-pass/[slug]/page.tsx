@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!pass) return {};
   const image = pass.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
-    title: `${pass.name} — Day Pass Désert Agafay | Arabian Desert Home`,
+    title: `${pass.name} | Arabian Desert Home`,
     description: pass.description,
     keywords: [pass.name, "day pass agafay", "day pass désert marrakech", "agafay day pass desert pool"],
     openGraph: {

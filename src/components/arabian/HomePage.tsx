@@ -515,12 +515,13 @@ function GallerySection({ galleryImages: rawGallery }: { galleryImages: { url: s
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
 
+  const fallbackAlt = "Arabian Desert Home — bivouac de luxe dans le désert d'Agafay";
   const galleryImages = rawGallery.map((img, i) => ({
     url: img.url,
-    alt: img.alt || img.altEn || "",
-    altEn: img.altEn || img.alt || "",
-    altEs: img.altEs || img.alt || "",
-    altIt: img.altIt || img.alt || "",
+    alt: img.alt || img.altEn || fallbackAlt,
+    altEn: img.altEn || img.alt || fallbackAlt,
+    altEs: img.altEs || img.alt || fallbackAlt,
+    altIt: img.altIt || img.alt || fallbackAlt,
     span: BENTO_SPANS[i % BENTO_SPANS.length],
   }));
 

@@ -80,7 +80,7 @@ export function EvenementsContent() {
       .then((r) => r.json())
       .then((data: { url: string; alt: string }[]) => {
         if (Array.isArray(data)) {
-          setGalleryImages(data.map((img) => ({ src: img.url, alt: img.alt || "" })));
+          setGalleryImages(data.map((img) => ({ src: img.url, alt: img.alt || t("evenements.galleryTitle1") })));
         }
       })
       .catch(() => {});

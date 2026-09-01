@@ -77,13 +77,21 @@ const COPY: Record<Language, {
   },
 };
 
+// Article body is admin-authored raw HTML — some <img> tags come without an
+// alt attribute, so inject one (falling back to the post title) before render.
+function ensureImgAlt(html: string, fallbackAlt: string): string {
+  const safeAlt = fallbackAlt.replace(/"/g, "&quot;");
+  return html.replace(/<img(?![^>]*\balt=)([^>]*)>/gi, `<img$1 alt="${safeAlt}">`);
+}
+
 export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost; relatedPosts?: RelatedPost[] }) {
   const { language, t } = useLanguage();
   const c = COPY[language];
 
   const title = pickLocalized(language, post.title, post.titleEn, post.titleEs, post.titleIt);
   const excerpt = pickLocalized(language, post.excerpt, post.excerptEn, post.excerptEs, post.excerptIt);
-  const content = pickLocalized(language, post.content, post.contentEn, post.contentEs, post.contentIt);
+  const rawContent = pickLocalized(language, post.content, post.contentEn, post.contentEs, post.contentIt);
+  const content = ensureImgAlt(rawContent, title);
 
   return (
     <>

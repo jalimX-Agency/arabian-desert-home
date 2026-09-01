@@ -22,8 +22,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const title = post.titleEs || post.title;
   const excerpt = post.excerptEs || post.excerpt;
   const image = post.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
+  // Long editorial headlines are left bare so the <title> stays under ~60 chars;
+  // only short ones get the brand suffix appended.
+  const metaTitle = title.length <= 30 ? `${title} | Blog de Arabian Desert Home` : title;
   return {
-    title: `${title} | Blog de Arabian Desert Home`,
+    title: metaTitle,
     description: excerpt || title,
     openGraph: {
     locale: "es_ES",

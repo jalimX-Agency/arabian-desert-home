@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!activity) return {};
   const image = activity.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
-    title: `${activity.name} — Activité Désert Agafay | Arabian Desert Home`,
+    title: `${activity.name} | Arabian Desert Home`,
     description: activity.description,
     keywords: [activity.name, "activités agafay", "activité désert marrakech", "agafay activities morocco"],
     openGraph: {

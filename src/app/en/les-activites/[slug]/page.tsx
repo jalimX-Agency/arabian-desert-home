@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const description = activity.descriptionEn || activity.description;
   const image = activity.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
-    title: `${name} — Agafay Desert Activity | Arabian Desert Home`,
+    title: `${name} | Arabian Desert Home`,
     description,
     keywords: [name, "agafay activities", "desert activity marrakech", "agafay activities morocco"],
     openGraph: {

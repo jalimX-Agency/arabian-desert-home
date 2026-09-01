@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const description = pass.descriptionIt || pass.description;
   const image = pass.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
-    title: `${name} — Day Pass Deserto di Agafay | Arabian Desert Home`,
+    title: `${name} | Arabian Desert Home`,
     description,
     keywords: [name, "day pass agafay", "day pass deserto marrakech", "day pass agafay piscina deserto"],
     openGraph: {
