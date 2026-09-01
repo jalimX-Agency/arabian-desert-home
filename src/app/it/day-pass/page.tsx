@@ -32,11 +32,40 @@ export const metadata = {
   alternates: itAlternates("/day-pass"),
 };
 
+const faqItems = [
+  { q: "Quanto dura il Day Pass?", a: "Il Day Pass è valido dalle 11 alle 16, per godervi appieno piscina, pranzo e attività in una sola giornata." },
+  { q: "Il prezzo include il pranzo?", a: "Sì, un pranzo marocchino completo è incluso in tutte le formule Day Pass, oltre all'accesso alla piscina e alle aree relax." },
+  { q: "C'è uno sconto per i bambini?", a: "Sì, i bambini hanno il -50% su tutte le formule Day Pass." },
+  { q: "Bisogna prenotare in anticipo?", a: "Sì, è richiesta la prenotazione con almeno 24 ore di anticipo per garantire il posto, soprattutto nei weekend e in alta stagione." },
+  { q: "Il trasferimento da Marrakech è incluso?", a: "Il trasferimento può essere organizzato su richiesta al momento della prenotazione; calcolate circa 30-45 minuti dal centro di Marrakech." },
+];
+
 export default async function ItalianDayPassPage() {
   const passes = await db.dayPass.findMany({ orderBy: { order: "asc" } });
 
+  const faqSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  });
+
+  const breadcrumbSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.arabiandeserthome.ma/it" },
+      { "@type": "ListItem", position: 2, name: "Day Pass", item: "https://www.arabiandeserthome.ma/it/day-pass" },
+    ],
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqSchema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbSchema }} />
       <Navigation />
       <main className="flex-1 pt-20">
         <DayPassContent passes={passes} />

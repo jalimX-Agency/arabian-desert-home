@@ -32,11 +32,40 @@ export const metadata = {
   alternates: enAlternates("/day-pass"),
 };
 
+const faqItems = [
+  { q: "How long does the Day Pass last?", a: "The Day Pass runs from 11am to 4pm, letting you fully enjoy the pool, lunch and activities in one day." },
+  { q: "Does the price include lunch?", a: "Yes, a full Moroccan lunch is included in every Day Pass option, along with access to the pool and lounge areas." },
+  { q: "Is there a discount for children?", a: "Yes, children get 50% off every Day Pass option." },
+  { q: "Do I need to book in advance?", a: "Yes, booking at least 24 hours ahead is required to guarantee your spot, especially on weekends and during high season." },
+  { q: "Is transfer from Marrakech included?", a: "Transfer can be arranged on request when you book — allow about 30 to 45 minutes from central Marrakech." },
+];
+
 export default async function EnglishDayPassPage() {
   const passes = await db.dayPass.findMany({ orderBy: { order: "asc" } });
 
+  const faqSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  });
+
+  const breadcrumbSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.arabiandeserthome.ma/en" },
+      { "@type": "ListItem", position: 2, name: "Day Pass", item: "https://www.arabiandeserthome.ma/en/day-pass" },
+    ],
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqSchema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbSchema }} />
       <Navigation />
       <main className="flex-1 pt-20">
         <DayPassContent passes={passes} />

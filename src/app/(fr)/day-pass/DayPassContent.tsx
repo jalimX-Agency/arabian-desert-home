@@ -377,6 +377,26 @@ export function DayPassContent({ passes }: { passes: DayPass[] }) {
         </div>
       </section>
 
+      {/* ── FAQ ── */}
+      <section className="py-16 md:py-24 px-6 md:px-10 relative">
+        <div className="max-w-3xl mx-auto relative z-10">
+          <div className="text-center mb-12">
+            <span className="luxury-label text-amber block mb-3">{t("dayPass.faqLabel")}</span>
+            <h2 className="heading-display text-3xl md:text-4xl">
+              {t("dayPass.faqTitle1")} <span className="italic text-amber">{t("dayPass.faqTitle2")}</span>
+            </h2>
+          </div>
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <div key={n} className="glass-card card-warm p-6 md:p-7">
+                <h3 className="heading-editorial text-lg mb-2">{t(`dayPass.faqQ${n}`)}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed body-editorial">{t(`dayPass.faqA${n}`)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <CTASection
         label={t("dayPass.ctaLabel")}
         title={t("dayPass.ctaTitle")}
