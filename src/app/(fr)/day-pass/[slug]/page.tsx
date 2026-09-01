@@ -4,6 +4,7 @@ import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { DayPassDetailContent } from "./DayPassDetailContent";
 import { frAlternates } from "@/lib/seo/hreflang";
+import { padDescription } from "@/lib/seo/description";
 
 export async function generateStaticParams() {
   const passes = await db.dayPass.findMany({ select: { slug: true } });
@@ -14,19 +15,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const pass = await db.dayPass.findUnique({ where: { slug }, select: { name: true, description: true, image: true, price: true } });
   if (!pass) return {};
+  const description = padDescription(pass.description, "fr");
   const image = pass.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
     title: `${pass.name} | Arabian Desert Home`,
-    description: pass.description,
+    description,
     keywords: [pass.name, "day pass agafay", "day pass désert marrakech", "agafay day pass desert pool"],
     openGraph: {
     locale: "fr_FR",
       title: `${pass.name} | Arabian Desert Home — Day Pass Désert d'Agafay`,
-      description: pass.description,
+      description,
       url: `https://www.arabiandeserthome.ma/day-pass/${slug}`,
       images: [{ url: image, width: 1200, height: 800, alt: pass.name }],
     },
-    twitter: { card: "summary_large_image" as const, title: pass.name, description: pass.description, images: [image] },
+    twitter: { card: "summary_large_image" as const, title: pass.name, description, images: [image] },
     alternates: frAlternates(`/day-pass/${slug}`),
   };
 }

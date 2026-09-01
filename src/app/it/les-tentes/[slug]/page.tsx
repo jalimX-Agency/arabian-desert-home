@@ -4,6 +4,7 @@ import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { TenteDetailContent } from "@/app/(fr)/les-tentes/[slug]/TenteDetailContent";
 import { itAlternates } from "@/lib/seo/hreflang";
+import { padDescription } from "@/lib/seo/description";
 
 export async function generateStaticParams() {
   const suites = await db.suite.findMany({ select: { slug: true } });
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
   if (!suite) return {};
   const name = suite.nameIt || suite.name;
-  const description = suite.descriptionIt || suite.description;
+  const description = padDescription(suite.descriptionIt || suite.description, "it");
   const image = suite.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
     title: `${name} — Tenda di Lusso Agafay | Arabian Desert Home`,

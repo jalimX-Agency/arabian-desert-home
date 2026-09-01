@@ -4,6 +4,7 @@ import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { TenteDetailContent } from "./TenteDetailContent";
 import { frAlternates } from "@/lib/seo/hreflang";
+import { padDescription } from "@/lib/seo/description";
 
 export async function generateStaticParams() {
   const suites = await db.suite.findMany({ select: { slug: true } });
@@ -14,19 +15,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const suite = await db.suite.findUnique({ where: { slug }, select: { name: true, description: true, images: true, price: true } });
   if (!suite) return {};
+  const description = padDescription(suite.description, "fr");
   const image = suite.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
     title: `${suite.name} — Tente de Luxe Agafay | Arabian Desert Home`,
-    description: suite.description,
+    description,
     keywords: [suite.name, "bivouac luxe agafay", "tente luxe désert marrakech", "glamping agafay morocco"],
     openGraph: {
     locale: "fr_FR",
       title: `${suite.name} | Arabian Desert Home — Désert d'Agafay`,
-      description: suite.description,
+      description,
       url: `https://www.arabiandeserthome.ma/les-tentes/${slug}`,
       images: [{ url: image, width: 1200, height: 800, alt: suite.name }],
     },
-    twitter: { card: "summary_large_image" as const, title: suite.name, description: suite.description, images: [image] },
+    twitter: { card: "summary_large_image" as const, title: suite.name, description, images: [image] },
     alternates: frAlternates(`/les-tentes/${slug}`),
   };
 }

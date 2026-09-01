@@ -4,6 +4,7 @@ import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { DayPassDetailContent } from "@/app/(fr)/day-pass/[slug]/DayPassDetailContent";
 import { itAlternates } from "@/lib/seo/hreflang";
+import { padDescription } from "@/lib/seo/description";
 
 export async function generateStaticParams() {
   const passes = await db.dayPass.findMany({ select: { slug: true } });
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
   if (!pass) return {};
   const name = pass.nameIt || pass.name;
-  const description = pass.descriptionIt || pass.description;
+  const description = padDescription(pass.descriptionIt || pass.description, "it");
   const image = pass.image || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
     title: `${name} | Arabian Desert Home`,

@@ -4,6 +4,7 @@ import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { ActiviteDetailContent } from "./ActiviteDetailContent";
 import { frAlternates } from "@/lib/seo/hreflang";
+import { padDescription } from "@/lib/seo/description";
 
 export async function generateStaticParams() {
   const activities = await db.activity.findMany({ select: { slug: true } });
@@ -14,19 +15,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const activity = await db.activity.findUnique({ where: { slug }, select: { name: true, description: true, images: true, price: true } });
   if (!activity) return {};
+  const description = padDescription(activity.description, "fr");
   const image = activity.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
     title: `${activity.name} | Arabian Desert Home`,
-    description: activity.description,
+    description,
     keywords: [activity.name, "activités agafay", "activité désert marrakech", "agafay activities morocco"],
     openGraph: {
     locale: "fr_FR",
       title: `${activity.name} | Arabian Desert Home — Désert d'Agafay`,
-      description: activity.description,
+      description,
       url: `https://www.arabiandeserthome.ma/les-activites/${slug}`,
       images: [{ url: image, width: 1200, height: 800, alt: activity.name }],
     },
-    twitter: { card: "summary_large_image" as const, title: activity.name, description: activity.description, images: [image] },
+    twitter: { card: "summary_large_image" as const, title: activity.name, description, images: [image] },
     alternates: frAlternates(`/les-activites/${slug}`),
   };
 }

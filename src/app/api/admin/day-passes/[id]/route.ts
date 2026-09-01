@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { deleteR2Urls } from "@/lib/r2";
+import { notifyIndexNow, localizedUrls } from "@/lib/indexnow";
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const deny = await requireAdmin();
@@ -9,6 +10,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const data = await req.json();
   const pass = await db.dayPass.update({ where: { id }, data });
+  notifyIndexNow(localizedUrls(`/day-pass/${pass.slug}`));
   return NextResponse.json(pass);
 }
 

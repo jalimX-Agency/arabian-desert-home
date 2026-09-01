@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { deleteR2Urls } from "@/lib/r2";
+import { notifyIndexNow, localizedUrls } from "@/lib/indexnow";
 
 function toSlug(title: string): string {
   return title
@@ -36,6 +37,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     data.slug = await uniqueSlug(toSlug(data.title), id);
   }
   const post = await db.blogPost.update({ where: { id }, data });
+  notifyIndexNow(localizedUrls(`/blog/${post.slug}`));
   return NextResponse.json(post);
 }
 

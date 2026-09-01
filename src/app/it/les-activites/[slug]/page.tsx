@@ -4,6 +4,7 @@ import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { ActiviteDetailContent } from "@/app/(fr)/les-activites/[slug]/ActiviteDetailContent";
 import { itAlternates } from "@/lib/seo/hreflang";
+import { padDescription } from "@/lib/seo/description";
 
 export async function generateStaticParams() {
   const activities = await db.activity.findMany({ select: { slug: true } });
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
   if (!activity) return {};
   const name = activity.nameIt || activity.name;
-  const description = activity.descriptionIt || activity.description;
+  const description = padDescription(activity.descriptionIt || activity.description, "it");
   const image = activity.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
   return {
     title: `${name} | Arabian Desert Home`,
