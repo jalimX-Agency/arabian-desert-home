@@ -12,7 +12,7 @@ const BASE = "https://www.arabiandeserthome.ma";
 export const metadata = {
   title: "Deserto di Agafay: la Guida Completa 2026 | Arabian Desert Home",
   description:
-    "Tutto sul deserto di Agafay: posizione a 30 km da Marrakech, clima, attività, prezzi, hotel e bivacchi di lusso. La guida completa firmata Arabian Desert Home.",
+    "Il deserto di Agafay: un altopiano di pietra a soli 30 min da Marrakech, senza le 9 ore di strada per Merzouga. Prezzi da 35 €, meteo, attività e bivacchi di lusso — guida 2026.",
   keywords: [
     "deserto agafay", "agafay", "deserto agafay marrakech", "guida deserto agafay",
     "bivacco agafay", "hotel agafay", "prezzi agafay", "attività agafay",

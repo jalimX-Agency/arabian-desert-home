@@ -12,7 +12,7 @@ const BASE = "https://www.arabiandeserthome.ma";
 export const metadata = {
   title: "Agafay Desert: The Complete 2026 Guide | Arabian Desert Home",
   description:
-    "Everything about the Agafay desert: location 30 km from Marrakech, weather, activities, prices, hotels and luxury bivouacs. The complete guide by Arabian Desert Home.",
+    "The Agafay desert: a stone plateau just 30 minutes from Marrakech — no 9-hour drive to Merzouga. Prices from €35, weather, activities and luxury bivouacs — full 2026 guide.",
   keywords: [
     "agafay desert", "agafay", "agafay desert marrakech", "agafay desert guide",
     "bivouac agafay", "hotel agafay", "agafay prices", "agafay activities",

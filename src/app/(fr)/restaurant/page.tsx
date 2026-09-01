@@ -32,11 +32,40 @@ export const metadata = {
   alternates: frAlternates("/restaurant"),
 };
 
+const faqItems = [
+  { q: "Faut-il réserver pour dîner au restaurant du désert d'Agafay ?", a: "Oui, la réservation est fortement recommandée, surtout pour le dîner sous les étoiles. Réservez au moins 24 heures à l'avance, en particulier pour les groupes et pendant la haute saison (printemps et automne)." },
+  { q: "Le restaurant est-il accessible sans réserver une tente ?", a: "Oui. Le déjeuner et le dîner sont inclus dans les formules Day Pass, et le restaurant accueille aussi les visiteurs extérieurs qui ne séjournent pas dans nos tentes-suites." },
+  { q: "Proposez-vous des menus végétariens ou adaptés aux allergies ?", a: "Oui, un menu végétarien complet est disponible, et nos équipes adaptent les plats aux allergies et intolérances sur simple demande lors de la réservation." },
+  { q: "Quel est le prix d'un repas ?", a: "Les menus démarrent à 200 DH et vont jusqu'à 250 DH par personne selon la formule choisie, boissons non incluses." },
+  { q: "Le dîner sous les étoiles inclut-il une animation ?", a: "Oui, les soirées au Dar Agafay incluent musique gnawa live, danse et éclairage d'ambiance autour du feu de camp, sans supplément." },
+];
+
 export default async function RestaurantPage() {
   const venues = await db.diningVenue.findMany({ orderBy: { order: "asc" } });
 
+  const faqSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  });
+
+  const breadcrumbSchema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://www.arabiandeserthome.ma" },
+      { "@type": "ListItem", position: 2, name: "Restaurant", item: "https://www.arabiandeserthome.ma/restaurant" },
+    ],
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqSchema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbSchema }} />
       <Navigation />
       <main className="flex-1 pt-20">
         <RestaurantContent venues={venues} />

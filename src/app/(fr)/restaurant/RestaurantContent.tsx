@@ -63,6 +63,10 @@ const COPY: Record<Language, {
   menusTitle2: string;
   menusPricing: (from: React.ReactNode, to: React.ReactNode) => React.ReactNode;
   menus: { num: string; name: string; items: string[] }[];
+  faqLabel: string;
+  faqTitle1: string;
+  faqTitle2: string;
+  faq: { q: string; a: string }[];
 }> = {
   fr: {
     heroAlt: "Restaurant en plein air au désert d'Agafay",
@@ -76,6 +80,16 @@ const COPY: Record<Language, {
       { num: "02", name: "Menu Saveurs", items: ["Taktouka", "Tajine de bœuf aux pruneaux", "Flan chocolat caramel"] },
       { num: "03", name: "Menu Végétarien", items: ["Soupe marocaine", "Tajine végétarien", "Pâtisseries marocaines & thé à la menthe"] },
       { num: "04", name: "Menu Gourmand", items: ["Salade marocaine", "Tajine de boulettes de bœuf", "Glace artisanale"] },
+    ],
+    faqLabel: "Questions Fréquentes",
+    faqTitle1: "Tout savoir sur le",
+    faqTitle2: "restaurant",
+    faq: [
+      { q: "Faut-il réserver pour dîner au restaurant du désert d'Agafay ?", a: "Oui, la réservation est fortement recommandée, surtout pour le dîner sous les étoiles. Réservez au moins 24 heures à l'avance, en particulier pour les groupes et pendant la haute saison (printemps et automne)." },
+      { q: "Le restaurant est-il accessible sans réserver une tente ?", a: "Oui. Le déjeuner et le dîner sont inclus dans les formules Day Pass, et le restaurant accueille aussi les visiteurs extérieurs qui ne séjournent pas dans nos tentes-suites." },
+      { q: "Proposez-vous des menus végétariens ou adaptés aux allergies ?", a: "Oui, un menu végétarien complet est disponible, et nos équipes adaptent les plats aux allergies et intolérances sur simple demande lors de la réservation." },
+      { q: "Quel est le prix d'un repas ?", a: "Les menus démarrent à 200 DH et vont jusqu'à 250 DH par personne selon la formule choisie, boissons non incluses." },
+      { q: "Le dîner sous les étoiles inclut-il une animation ?", a: "Oui, les soirées au Dar Agafay incluent musique gnawa live, danse et éclairage d'ambiance autour du feu de camp, sans supplément." },
     ],
   },
   en: {
@@ -91,6 +105,16 @@ const COPY: Record<Language, {
       { num: "03", name: "Vegetarian Menu", items: ["Moroccan soup", "Vegetarian tagine", "Moroccan pastries & mint tea"] },
       { num: "04", name: "Gourmet Menu", items: ["Moroccan salad", "Beef meatball tagine", "Artisanal ice cream"] },
     ],
+    faqLabel: "Frequently Asked Questions",
+    faqTitle1: "Everything about the",
+    faqTitle2: "restaurant",
+    faq: [
+      { q: "Do I need to book a table at the Agafay desert restaurant?", a: "Yes, booking is strongly recommended, especially for the dinner under the stars. Reserve at least 24 hours ahead, particularly for groups and during high season (spring and autumn)." },
+      { q: "Can I dine here without booking a tent?", a: "Yes. Lunch and dinner are included in our Day Pass packages, and the restaurant also welcomes outside visitors who aren't staying in our tents-suites." },
+      { q: "Do you offer vegetarian menus or cater to allergies?", a: "Yes, a full vegetarian menu is available, and our team can adapt dishes to allergies and intolerances on request when you book." },
+      { q: "How much does a meal cost?", a: "Menus start at 200 DH and go up to 250 DH per person depending on the option chosen, drinks not included." },
+      { q: "Does the dinner under the stars include entertainment?", a: "Yes, evenings at Dar Agafay include live gnawa music, dance and ambient lighting around the campfire, at no extra cost." },
+    ],
   },
   es: {
     heroAlt: "Restaurante al aire libre en el desierto de Agafay",
@@ -105,6 +129,16 @@ const COPY: Record<Language, {
       { num: "03", name: "Menú Vegetariano", items: ["Sopa marroquí", "Tajín vegetariano", "Pastelería marroquí & té a la menta"] },
       { num: "04", name: "Menú Gourmet", items: ["Ensalada marroquí", "Tajín de albóndigas de ternera", "Helado artesanal"] },
     ],
+    faqLabel: "Preguntas Frecuentes",
+    faqTitle1: "Todo sobre el",
+    faqTitle2: "restaurante",
+    faq: [
+      { q: "¿Hay que reservar para cenar en el restaurante del desierto de Agafay?", a: "Sí, la reserva es muy recomendable, especialmente para la cena bajo las estrellas. Reserve con al menos 24 horas de antelación, en particular para grupos y en temporada alta (primavera y otoño)." },
+      { q: "¿Se puede cenar sin reservar una jaima?", a: "Sí. El almuerzo y la cena están incluidos en nuestras opciones de Day Pass, y el restaurante también recibe a visitantes externos que no se alojan en nuestras jaimas de lujo." },
+      { q: "¿Ofrecen menús vegetarianos o adaptados a alergias?", a: "Sí, hay un menú vegetariano completo disponible, y nuestro equipo adapta los platos a alergias e intolerancias si se indica al reservar." },
+      { q: "¿Cuál es el precio de una comida?", a: "Los menús empiezan en 200 DH y llegan hasta 250 DH por persona según la opción elegida, bebidas no incluidas." },
+      { q: "¿La cena bajo las estrellas incluye animación?", a: "Sí, las veladas en Dar Agafay incluyen música gnawa en vivo, danza e iluminación ambiental junto a la hoguera, sin coste adicional." },
+    ],
   },
   it: {
     heroAlt: "Ristorante all'aperto nel deserto di Agafay",
@@ -118,6 +152,16 @@ const COPY: Record<Language, {
       { num: "02", name: "Menu Sapori", items: ["Taktouka", "Tajine di manzo alle prugne", "Flan cioccolato e caramello"] },
       { num: "03", name: "Menu Vegetariano", items: ["Zuppa marocchina", "Tajine vegetariano", "Pasticceria marocchina & tè alla menta"] },
       { num: "04", name: "Menu Gourmet", items: ["Insalata marocchina", "Tajine di polpette di manzo", "Gelato artigianale"] },
+    ],
+    faqLabel: "Domande Frequenti",
+    faqTitle1: "Tutto sul",
+    faqTitle2: "ristorante",
+    faq: [
+      { q: "Bisogna prenotare per cenare al ristorante nel deserto di Agafay?", a: "Sì, la prenotazione è fortemente consigliata, soprattutto per la cena sotto le stelle. Prenotate almeno 24 ore prima, in particolare per i gruppi e nell'alta stagione (primavera e autunno)." },
+      { q: "Si può cenare senza prenotare una tenda?", a: "Sì. Il pranzo e la cena sono inclusi nelle formule Day Pass, e il ristorante accoglie anche visitatori esterni che non soggiornano nelle nostre tende di lusso." },
+      { q: "Offrite menu vegetariani o adatti alle allergie?", a: "Sì, è disponibile un menu vegetariano completo, e il nostro team adatta i piatti ad allergie e intolleranze su richiesta al momento della prenotazione." },
+      { q: "Quanto costa un pasto?", a: "I menu partono da 200 DH e arrivano a 250 DH a persona a seconda della formula scelta, bevande escluse." },
+      { q: "La cena sotto le stelle include animazione?", a: "Sì, le serate al Dar Agafay includono musica gnawa dal vivo, danza e illuminazione d'atmosfera intorno al falò, senza costi aggiuntivi." },
     ],
   },
 };
@@ -350,6 +394,26 @@ export function RestaurantContent({ venues }: { venues: DiningVenue[] }) {
                 </p>
               </div>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="py-16 md:py-24 px-6 md:px-10 relative">
+        <div className="max-w-3xl mx-auto relative z-10">
+          <div className="text-center mb-12">
+            <span className="luxury-label text-amber block mb-3">{c.faqLabel}</span>
+            <h2 className="heading-display text-3xl md:text-4xl">
+              {c.faqTitle1} <span className="italic text-amber">{c.faqTitle2}</span>
+            </h2>
+          </div>
+          <div className="space-y-4">
+            {c.faq.map((item) => (
+              <div key={item.q} className="glass-card card-warm p-6 md:p-7">
+                <h3 className="heading-editorial text-lg mb-2">{item.q}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed body-editorial">{item.a}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
