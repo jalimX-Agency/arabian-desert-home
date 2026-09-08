@@ -51,6 +51,7 @@ model Suite {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   bookings          Booking[]
+  seasonalPrices    SeasonalPrice[]
 }
 
 model Activity {
@@ -87,6 +88,7 @@ model Activity {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   bookings          Booking[]
+  seasonalPrices    SeasonalPrice[]
 }
 
 model DayPass {
@@ -113,6 +115,7 @@ model DayPass {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   bookings          Booking[]
+  seasonalPrices    SeasonalPrice[]
 }
 
 model DiningVenue {
@@ -174,6 +177,22 @@ model Booking {
   status      String    @default("pending")
   totalAmount Int
   currency    String    @default("MAD")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model SeasonalPrice {
+  id          String    @id @default(cuid())
+  label       String
+  startDate   DateTime
+  endDate     DateTime
+  price       Int
+  suiteId     String?
+  suite       Suite?    @relation(fields: [suiteId], references: [id], onDelete: Cascade)
+  activityId  String?
+  activity    Activity? @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  dayPassId   String?
+  dayPass     DayPass?  @relation(fields: [dayPassId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }

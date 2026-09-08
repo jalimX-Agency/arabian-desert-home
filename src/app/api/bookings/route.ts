@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { sendBookingConfirmation, sendBookingNotification } from "@/lib/email";
+import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
 
 export async function POST(request: Request) {
   try {
@@ -30,25 +31,25 @@ export async function POST(request: Request) {
     let currency = "MAD";
 
     if (serviceType === "suite" && suiteId) {
-      const suite = await db.suite.findUnique({ where: { id: suiteId } });
+      const suite = await db.suite.findUnique({ where: { id: suiteId }, include: { seasonalPrices: true } });
       if (suite) {
-        const nights = Math.max(1, Math.round(
-          (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86_400_000
-        ));
-        // Flat price per night — covers the whole tent regardless of guest count
-        totalAmount = suite.price * nights;
+        // Flat price per night — covers the whole tent regardless of guest count.
+        // Seasonal overrides (e.g. New Year's) apply per night when they cover it.
+        totalAmount = nightlyTotal(suite.price, suite.seasonalPrices, new Date(checkIn), new Date(checkOut));
         currency = suite.currency;
       }
     } else if (serviceType === "activity" && activityId) {
-      const activity = await db.activity.findUnique({ where: { id: activityId } });
+      const activity = await db.activity.findUnique({ where: { id: activityId }, include: { seasonalPrices: true } });
       if (activity) {
-        totalAmount = guests * activity.price + children * Math.round(activity.price * activity.childPricePercent / 100);
+        const unitPrice = priceForDate(activity.price, activity.seasonalPrices, new Date(date));
+        totalAmount = guests * unitPrice + children * Math.round(unitPrice * activity.childPricePercent / 100);
         currency = activity.currency;
       }
     } else if (serviceType === "daypass" && dayPassId) {
-      const pass = await db.dayPass.findUnique({ where: { id: dayPassId } });
+      const pass = await db.dayPass.findUnique({ where: { id: dayPassId }, include: { seasonalPrices: true } });
       if (pass) {
-        totalAmount = guests * pass.price + children * Math.round(pass.price * pass.childPricePercent / 100);
+        const unitPrice = priceForDate(pass.price, pass.seasonalPrices, new Date(date));
+        totalAmount = guests * unitPrice + children * Math.round(unitPrice * pass.childPricePercent / 100);
         currency = pass.currency;
       }
     }
