@@ -413,10 +413,7 @@ export const it: Record<string, unknown> = {
     summaryDate: "Data",
     newReservation: "Nuova prenotazione",
     priceAfterDates: "Il prezzo verrà mostrato dopo aver scelto le date",
-    night: "notte",
-    nights: "notti",
     specialRatePrefix: "Tariffa speciale",
-    selectDates: "Selezionate le vostre date",
     seasonalLegend: "Giorni in ambra = periodo tariffario speciale",
   },
 

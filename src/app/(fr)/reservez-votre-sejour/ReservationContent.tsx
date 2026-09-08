@@ -268,73 +268,6 @@ function DatePicker({
   );
 }
 
-function RangeDatePicker({
-  checkIn,
-  checkOut,
-  onChange,
-  dateFnsLocale,
-  seasonalWindows = [],
-  t,
-}: {
-  checkIn: Date | undefined;
-  checkOut: Date | undefined;
-  onChange: (range: { from?: Date; to?: Date }) => void;
-  dateFnsLocale: Locale;
-  seasonalWindows?: SeasonalWindow[];
-  t: (key: string) => string;
-}) {
-  const [open, setOpen] = useState(false);
-  const nights = checkIn && checkOut
-    ? Math.max(1, Math.round((checkOut.getTime() - checkIn.getTime()) / 86_400_000))
-    : 0;
-
-  return (
-    <div className="space-y-2">
-      <Label className="luxury-label text-xs">{t("booking2.checkIn")} / {t("booking2.checkOut")} *</Label>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <button
-            type="button"
-            className="w-full flex items-center gap-3 rounded-2xl border border-border/50 bg-background/50 hover:border-amber/30 px-4 py-3 text-left text-sm transition-all duration-300 cursor-pointer"
-          >
-            <div className="w-8 h-8 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center flex-shrink-0">
-              <CalendarIcon className="w-4 h-4 text-amber/70" />
-            </div>
-            {checkIn && checkOut ? (
-              <span className="flex items-center gap-2 flex-wrap">
-                <span className="text-foreground">
-                  {format(checkIn, "d MMM", { locale: dateFnsLocale })} → {format(checkOut, "d MMM yyyy", { locale: dateFnsLocale })}
-                </span>
-                <span className="text-xs text-amber px-2 py-0.5 rounded-full bg-amber/10">
-                  {nights} {nights > 1 ? t("booking2.nights") : t("booking2.night")}
-                </span>
-              </span>
-            ) : (
-              <span className="text-muted-foreground">{t("booking2.selectDates")}</span>
-            )}
-          </button>
-        </DialogTrigger>
-        <DialogContent className="p-0 max-w-auto w-auto rounded-3xl">
-          <DialogHeader className="sr-only"><DialogTitle>{t("booking2.selectDates")}</DialogTitle></DialogHeader>
-          <Calendar
-            mode="range"
-            selected={{ from: checkIn, to: checkOut }}
-            onSelect={(r) => {
-              onChange({ from: r?.from, to: r?.to });
-              if (r?.from && r?.to) setOpen(false);
-            }}
-            disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
-            modifiers={{ seasonal: (d: Date) => seasonalWindows.some((w) => d >= w.startDate && d <= w.endDate) }}
-            modifiersClassNames={{ seasonal: seasonalModifierClassName }}
-            initialFocus
-            className="rounded-3xl"
-          />
-          <SeasonalLegend seasonalWindows={seasonalWindows} t={t} />
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
 
 export function ReservationContent() {
   const heroRef = useRef(null);
@@ -768,6 +701,8 @@ export function ReservationContent() {
                         <CarouselWrapper>
                           {suites.map((suite) => {
                             const name = localizeName(suite.name, suite.nameEn, suite.nameEs, suite.nameIt);
+                            const cardPrice = checkIn ? priceForDate(suite.price, toWindows(suite.seasonalPrices), checkIn) : null;
+                            const isSeasonal = cardPrice !== null && cardPrice !== suite.price;
                             return (
                               <button
                                 key={suite.id}
@@ -787,9 +722,26 @@ export function ReservationContent() {
                                   <p className="text-[10px] text-muted-foreground">
                                     {t("booking2.wholeTent")}
                                   </p>
-                                  <p className="text-[10px] text-amber/80 mt-1">
-                                    {t("booking2.priceAfterDates")}
-                                  </p>
+                                  {cardPrice === null ? (
+                                    <p className="text-[10px] text-amber/80 mt-1">
+                                      {t("booking2.priceAfterDates")}
+                                    </p>
+                                  ) : (
+                                    <>
+                                      <div className="flex items-baseline gap-1 flex-wrap mt-1">
+                                        {suite.originalPrice && !isSeasonal && (
+                                          <span className="text-muted-foreground line-through text-xs mono-number">{suite.originalPrice}</span>
+                                        )}
+                                        <span className="mono-number text-amber text-base">{cardPrice}</span>
+                                        <span className="text-xs text-muted-foreground">{suite.currency}{t("booking2.perNight")}</span>
+                                      </div>
+                                      {isSeasonal && (
+                                        <p className="text-[10px] text-amber flex items-center gap-1">
+                                          <Sparkles className="w-2.5 h-2.5" />{t("booking2.specialRatePrefix")}
+                                        </p>
+                                      )}
+                                    </>
+                                  )}
                                   <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1"><Users className="w-3 h-3 text-amber/60" />{suite.maxGuests}</span>
                                     <span className="flex items-center gap-1"><Baby className="w-3 h-3 text-amber/60" />{suite.maxChildren}</span>
@@ -806,14 +758,27 @@ export function ReservationContent() {
                         </CarouselWrapper>
                       </div>
 
-                      <RangeDatePicker
-                        checkIn={checkIn}
-                        checkOut={checkOut}
-                        onChange={(r) => { setCheckIn(r.from); setCheckOut(r.to); }}
-                        dateFnsLocale={dateFnsLocale}
-                        seasonalWindows={toWindows(selectedSuite?.seasonalPrices)}
-                        t={t}
-                      />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <DatePicker
+                          label={t("booking2.checkIn")}
+                          value={checkIn}
+                          onChange={setCheckIn}
+                          placeholder={t("booking2.selectDate")}
+                          dateFnsLocale={dateFnsLocale}
+                          seasonalWindows={toWindows(selectedSuite?.seasonalPrices)}
+                          t={t}
+                        />
+                        <DatePicker
+                          label={t("booking2.checkOut")}
+                          value={checkOut}
+                          onChange={setCheckOut}
+                          disableBefore={checkIn ?? new Date()}
+                          placeholder={t("booking2.selectDate")}
+                          dateFnsLocale={dateFnsLocale}
+                          seasonalWindows={toWindows(selectedSuite?.seasonalPrices)}
+                          t={t}
+                        />
+                      </div>
                     </>
                   )}
 
@@ -827,6 +792,8 @@ export function ReservationContent() {
                         <CarouselWrapper>
                           {activities.map((act) => {
                             const name = localizeName(act.name, act.nameEn, act.nameEs, act.nameIt);
+                            const cardPrice = singleDate ? priceForDate(act.price, toWindows(act.seasonalPrices), singleDate) : null;
+                            const isSeasonal = cardPrice !== null && cardPrice !== act.price;
                             return (
                               <button
                                 key={act.id}
@@ -844,9 +811,26 @@ export function ReservationContent() {
                                 <div className="p-3">
                                   <p className="font-serif text-sm mb-1">{name}</p>
                                   {act.duration && <p className="text-xs text-muted-foreground">{act.duration}</p>}
-                                  <p className="text-[10px] text-amber/80 mt-1">
-                                    {t("booking2.priceAfterDates")}
-                                  </p>
+                                  {cardPrice === null ? (
+                                    <p className="text-[10px] text-amber/80 mt-1">
+                                      {t("booking2.priceAfterDates")}
+                                    </p>
+                                  ) : (
+                                    <>
+                                      <div className="flex items-baseline gap-1 flex-wrap mt-1">
+                                        {act.originalPrice && !isSeasonal && (
+                                          <span className="text-muted-foreground line-through text-xs mono-number">{act.originalPrice}</span>
+                                        )}
+                                        <span className="mono-number text-amber text-base">{cardPrice}</span>
+                                        <span className="text-xs text-muted-foreground">{act.currency}{t("booking2.perPerson")}</span>
+                                      </div>
+                                      {isSeasonal && (
+                                        <p className="text-[10px] text-amber flex items-center gap-1">
+                                          <Sparkles className="w-2.5 h-2.5" />{t("booking2.specialRatePrefix")}
+                                        </p>
+                                      )}
+                                    </>
+                                  )}
                                 </div>
                                 {selectedActivityId === act.id && (
                                   <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
@@ -880,6 +864,8 @@ export function ReservationContent() {
                         <CarouselWrapper>
                           {dayPasses.map((pass) => {
                             const name = localizeName(pass.name, pass.nameEn, pass.nameEs, pass.nameIt);
+                            const cardPrice = singleDate ? priceForDate(pass.price, toWindows(pass.seasonalPrices), singleDate) : null;
+                            const isSeasonal = cardPrice !== null && cardPrice !== pass.price;
                             return (
                               <button
                                 key={pass.id}
@@ -896,9 +882,26 @@ export function ReservationContent() {
                                 )}
                                 <div className="p-3">
                                   <p className="font-serif text-sm mb-1">{name}</p>
-                                  <p className="text-[10px] text-amber/80 mt-1">
-                                    {t("booking2.priceAfterDates")}
-                                  </p>
+                                  {cardPrice === null ? (
+                                    <p className="text-[10px] text-amber/80 mt-1">
+                                      {t("booking2.priceAfterDates")}
+                                    </p>
+                                  ) : (
+                                    <>
+                                      <div className="flex items-baseline gap-1 flex-wrap mt-1">
+                                        {pass.originalPrice && !isSeasonal && (
+                                          <span className="text-muted-foreground line-through text-xs mono-number">{pass.originalPrice}</span>
+                                        )}
+                                        <span className="mono-number text-amber text-base">{cardPrice}</span>
+                                        <span className="text-xs text-muted-foreground">{pass.currency}{t("booking2.perPerson")}</span>
+                                      </div>
+                                      {isSeasonal && (
+                                        <p className="text-[10px] text-amber flex items-center gap-1">
+                                          <Sparkles className="w-2.5 h-2.5" />{t("booking2.specialRatePrefix")}
+                                        </p>
+                                      )}
+                                    </>
+                                  )}
                                 </div>
                                 {selectedDayPassId === pass.id && (
                                   <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">

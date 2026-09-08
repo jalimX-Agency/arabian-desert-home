@@ -413,10 +413,7 @@ export const fr: Record<string, unknown> = {
     summaryDate: "Date",
     newReservation: "Nouvelle réservation",
     priceAfterDates: "Le tarif s'affiche après le choix des dates",
-    night: "nuit",
-    nights: "nuits",
     specialRatePrefix: "Tarif spécial",
-    selectDates: "Sélectionner vos dates",
     seasonalLegend: "Jours ambrés = période tarifaire spéciale",
   },
 
