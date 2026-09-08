@@ -248,6 +248,9 @@ function DatePicker({
           <DialogHeader className="sr-only"><DialogTitle>{label}</DialogTitle></DialogHeader>
           <Calendar
             mode="single"
+            captionLayout="dropdown"
+            startMonth={disableBefore ?? new Date()}
+            endMonth={new Date(new Date().getFullYear() + 2, 11)}
             selected={value}
             onSelect={(d) => { onChange(d); setOpen(false); }}
             disabled={(d) => d < (disableBefore ?? new Date(new Date().setHours(0, 0, 0, 0)))}
