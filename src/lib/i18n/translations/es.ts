@@ -412,6 +412,12 @@ export const es: Record<string, unknown> = {
     summaryTotal: "Total estimado",
     summaryDate: "Fecha",
     newReservation: "Nueva reserva",
+    priceAfterDates: "El precio se mostrará al elegir sus fechas",
+    night: "noche",
+    nights: "noches",
+    specialRatePrefix: "Tarifa especial",
+    selectDates: "Seleccione sus fechas",
+    seasonalLegend: "Días en ámbar = periodo de tarifa especial",
   },
 
   // Footer

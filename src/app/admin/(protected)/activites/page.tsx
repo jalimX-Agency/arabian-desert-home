@@ -44,7 +44,7 @@ export default function ActivitesPage() {
         { key: "includesIt", label: "Incluso (IT)", type: "tags" },
         // Tarifs
         { key: "price", label: "Prix (actuel)", type: "number", required: true },
-        { key: "originalPrice", label: "Prix original (avant remise)", type: "number" },
+        { key: "originalPrice", label: "Prix original (avant remise)", type: "toggleNumber" },
         { key: "childPricePercent", label: "Prix enfant (%)", type: "number" },
         { key: "currency", label: "Devise", type: "select", options: ["MAD", "EUR"] },
         { key: "duration", label: "Durée (ex: 45 min)" },

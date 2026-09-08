@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
 
   // If slug is provided, return a single suite
   if (slug) {
-    const suite = await db.suite.findUnique({ where: { slug } });
+    const suite = await db.suite.findUnique({ where: { slug }, include: { seasonalPrices: true } });
     return Response.json(suite);
   }
 
@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
   const data = await db.suite.findMany({
     where,
     orderBy: { order: "asc" },
+    include: { seasonalPrices: true },
   });
   return Response.json(data);
 }

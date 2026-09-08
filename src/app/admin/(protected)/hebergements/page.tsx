@@ -51,7 +51,7 @@ export default function HebergementsPage() {
         { key: "amenitiesIt", label: "Comfort (IT)", type: "tags" },
         // Tarifs & Infos
         { key: "price", label: "Prix (actuel)", type: "number", required: true },
-        { key: "originalPrice", label: "Prix original (avant remise)", type: "number" },
+        { key: "originalPrice", label: "Prix original (avant remise)", type: "toggleNumber" },
         { key: "currency", label: "Devise", type: "select", options: ["MAD", "EUR"] },
         { key: "maxGuests", label: "Nb. adultes max", type: "number" },
         { key: "maxChildren", label: "Nb. enfants max", type: "number" },

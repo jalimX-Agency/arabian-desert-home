@@ -31,8 +31,27 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage, pickLocalized } from "@/lib/i18n/context";
+import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
 
 const DATE_LOCALES = { fr: frLocale, en: enUS, es: esLocale, it: itLocale };
+
+interface SeasonalPriceWindow {
+  id: string;
+  label: string;
+  startDate: string;
+  endDate: string;
+  price: number;
+}
+
+/** Converts the wire-format (string dates) seasonal windows into Date-based ones for pricing/calendar logic. */
+function toWindows(sp: SeasonalPriceWindow[] | undefined) {
+  return (sp ?? []).map((w) => ({
+    startDate: new Date(w.startDate),
+    endDate: new Date(w.endDate),
+    price: w.price,
+    label: w.label,
+  }));
+}
 
 interface Suite {
   id: string;
@@ -47,6 +66,7 @@ interface Suite {
   maxChildren: number;
   childPricePercent: number;
   image?: string;
+  seasonalPrices?: SeasonalPriceWindow[];
 }
 
 interface Activity {
@@ -61,6 +81,7 @@ interface Activity {
   childPricePercent: number;
   image?: string;
   duration?: string;
+  seasonalPrices?: SeasonalPriceWindow[];
 }
 
 interface DayPass {
@@ -74,6 +95,7 @@ interface DayPass {
   currency: string;
   childPricePercent: number;
   image?: string;
+  seasonalPrices?: SeasonalPriceWindow[];
 }
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
@@ -166,6 +188,21 @@ function Counter({
   );
 }
 
+type SeasonalWindow = { startDate: Date; endDate: Date; price: number; label: string };
+
+const seasonalModifierClassName =
+  "relative after:content-[''] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-amber";
+
+function SeasonalLegend({ seasonalWindows, t }: { seasonalWindows: SeasonalWindow[]; t: (key: string) => string }) {
+  if (seasonalWindows.length === 0) return null;
+  return (
+    <p className="px-4 pb-4 text-xs text-muted-foreground flex items-center gap-1.5">
+      <span className="w-1.5 h-1.5 rounded-full bg-amber inline-block shrink-0" />
+      {t("booking2.seasonalLegend")}
+    </p>
+  );
+}
+
 function DatePicker({
   label,
   value,
@@ -173,6 +210,8 @@ function DatePicker({
   disableBefore,
   placeholder,
   dateFnsLocale,
+  seasonalWindows = [],
+  t,
 }: {
   label: string;
   value: Date | undefined;
@@ -180,8 +219,14 @@ function DatePicker({
   disableBefore?: Date;
   placeholder: string;
   dateFnsLocale: Locale;
+  seasonalWindows?: SeasonalWindow[];
+  t: (key: string) => string;
 }) {
   const [open, setOpen] = useState(false);
+  const activeWindow = value
+    ? seasonalWindows.find((w) => value >= w.startDate && value <= w.endDate)
+    : undefined;
+
   return (
     <div className="space-y-2">
       <Label className="luxury-label text-xs">{label} *</Label>
@@ -206,9 +251,85 @@ function DatePicker({
             selected={value}
             onSelect={(d) => { onChange(d); setOpen(false); }}
             disabled={(d) => d < (disableBefore ?? new Date(new Date().setHours(0, 0, 0, 0)))}
+            modifiers={{ seasonal: (d: Date) => seasonalWindows.some((w) => d >= w.startDate && d <= w.endDate) }}
+            modifiersClassNames={{ seasonal: seasonalModifierClassName }}
             initialFocus
             className="rounded-3xl"
           />
+          <SeasonalLegend seasonalWindows={seasonalWindows} t={t} />
+        </DialogContent>
+      </Dialog>
+      {activeWindow && (
+        <p className="text-xs text-amber flex items-center gap-1.5">
+          <Sparkles className="w-3 h-3" /> {t("booking2.specialRatePrefix")} « {activeWindow.label} »
+        </p>
+      )}
+    </div>
+  );
+}
+
+function RangeDatePicker({
+  checkIn,
+  checkOut,
+  onChange,
+  dateFnsLocale,
+  seasonalWindows = [],
+  t,
+}: {
+  checkIn: Date | undefined;
+  checkOut: Date | undefined;
+  onChange: (range: { from?: Date; to?: Date }) => void;
+  dateFnsLocale: Locale;
+  seasonalWindows?: SeasonalWindow[];
+  t: (key: string) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  const nights = checkIn && checkOut
+    ? Math.max(1, Math.round((checkOut.getTime() - checkIn.getTime()) / 86_400_000))
+    : 0;
+
+  return (
+    <div className="space-y-2">
+      <Label className="luxury-label text-xs">{t("booking2.checkIn")} / {t("booking2.checkOut")} *</Label>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <button
+            type="button"
+            className="w-full flex items-center gap-3 rounded-2xl border border-border/50 bg-background/50 hover:border-amber/30 px-4 py-3 text-left text-sm transition-all duration-300 cursor-pointer"
+          >
+            <div className="w-8 h-8 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center flex-shrink-0">
+              <CalendarIcon className="w-4 h-4 text-amber/70" />
+            </div>
+            {checkIn && checkOut ? (
+              <span className="flex items-center gap-2 flex-wrap">
+                <span className="text-foreground">
+                  {format(checkIn, "d MMM", { locale: dateFnsLocale })} → {format(checkOut, "d MMM yyyy", { locale: dateFnsLocale })}
+                </span>
+                <span className="text-xs text-amber px-2 py-0.5 rounded-full bg-amber/10">
+                  {nights} {nights > 1 ? t("booking2.nights") : t("booking2.night")}
+                </span>
+              </span>
+            ) : (
+              <span className="text-muted-foreground">{t("booking2.selectDates")}</span>
+            )}
+          </button>
+        </DialogTrigger>
+        <DialogContent className="p-0 max-w-auto w-auto rounded-3xl">
+          <DialogHeader className="sr-only"><DialogTitle>{t("booking2.selectDates")}</DialogTitle></DialogHeader>
+          <Calendar
+            mode="range"
+            selected={{ from: checkIn, to: checkOut }}
+            onSelect={(r) => {
+              onChange({ from: r?.from, to: r?.to });
+              if (r?.from && r?.to) setOpen(false);
+            }}
+            disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
+            modifiers={{ seasonal: (d: Date) => seasonalWindows.some((w) => d >= w.startDate && d <= w.endDate) }}
+            modifiersClassNames={{ seasonal: seasonalModifierClassName }}
+            initialFocus
+            className="rounded-3xl"
+          />
+          <SeasonalLegend seasonalWindows={seasonalWindows} t={t} />
         </DialogContent>
       </Dialog>
     </div>
@@ -270,21 +391,24 @@ export function ReservationContent() {
     fetch("/api/day-passes").then((r) => r.json()).then(setDayPasses).catch(() => {});
   }, []);
 
-  // Suite price is flat (whole tent per night, not per person)
+  // Suite price is flat (whole tent per night, not per person). Prices are
+  // seasonal-aware and deliberately withheld until the relevant date(s) are
+  // chosen, since the total can't be known before then.
   function calcTotal(): number {
     if (serviceType === "suite" && selectedSuite && checkIn && checkOut) {
-      const nights = Math.max(1, Math.round((checkOut.getTime() - checkIn.getTime()) / 86_400_000));
-      return selectedSuite.price * nights;
+      return nightlyTotal(selectedSuite.price, toWindows(selectedSuite.seasonalPrices), checkIn, checkOut);
     }
-    if (serviceType === "activity") {
+    if (serviceType === "activity" && singleDate) {
       const act = activities.find((a) => a.id === selectedActivityId);
       if (!act) return 0;
-      return adults * act.price + children * Math.round(act.price * act.childPricePercent / 100);
+      const unitPrice = priceForDate(act.price, toWindows(act.seasonalPrices), singleDate);
+      return adults * unitPrice + children * Math.round(unitPrice * act.childPricePercent / 100);
     }
-    if (serviceType === "daypass") {
+    if (serviceType === "daypass" && singleDate) {
       const pass = dayPasses.find((p) => p.id === selectedDayPassId);
       if (!pass) return 0;
-      return adults * pass.price + children * Math.round(pass.price * pass.childPricePercent / 100);
+      const unitPrice = priceForDate(pass.price, toWindows(pass.seasonalPrices), singleDate);
+      return adults * unitPrice + children * Math.round(unitPrice * pass.childPricePercent / 100);
     }
     return 0;
   }
@@ -660,15 +784,11 @@ export function ReservationContent() {
                                 )}
                                 <div className="p-3">
                                   <p className="font-serif text-sm mb-1">{name}</p>
-                                  <div className="flex items-baseline gap-1 flex-wrap">
-                                    {suite.originalPrice && (
-                                      <span className="text-muted-foreground line-through text-xs mono-number">{suite.originalPrice}</span>
-                                    )}
-                                    <span className="mono-number text-amber text-base">{suite.price}</span>
-                                    <span className="text-xs text-muted-foreground">{suite.currency}{t("booking2.perNight")}</span>
-                                  </div>
-                                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                                  <p className="text-[10px] text-muted-foreground">
                                     {t("booking2.wholeTent")}
+                                  </p>
+                                  <p className="text-[10px] text-amber/80 mt-1">
+                                    {t("booking2.priceAfterDates")}
                                   </p>
                                   <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1"><Users className="w-3 h-3 text-amber/60" />{suite.maxGuests}</span>
@@ -686,23 +806,14 @@ export function ReservationContent() {
                         </CarouselWrapper>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <DatePicker
-                          label={t("booking2.checkIn")}
-                          value={checkIn}
-                          onChange={setCheckIn}
-                          placeholder={t("booking2.selectDate")}
-                          dateFnsLocale={dateFnsLocale}
-                        />
-                        <DatePicker
-                          label={t("booking2.checkOut")}
-                          value={checkOut}
-                          onChange={setCheckOut}
-                          disableBefore={checkIn ?? new Date()}
-                          placeholder={t("booking2.selectDate")}
-                          dateFnsLocale={dateFnsLocale}
-                        />
-                      </div>
+                      <RangeDatePicker
+                        checkIn={checkIn}
+                        checkOut={checkOut}
+                        onChange={(r) => { setCheckIn(r.from); setCheckOut(r.to); }}
+                        dateFnsLocale={dateFnsLocale}
+                        seasonalWindows={toWindows(selectedSuite?.seasonalPrices)}
+                        t={t}
+                      />
                     </>
                   )}
 
@@ -732,14 +843,10 @@ export function ReservationContent() {
                                 )}
                                 <div className="p-3">
                                   <p className="font-serif text-sm mb-1">{name}</p>
-                                  <div className="flex items-baseline gap-1 flex-wrap">
-                                    {act.originalPrice && (
-                                      <span className="text-muted-foreground line-through text-xs mono-number">{act.originalPrice}</span>
-                                    )}
-                                    <span className="mono-number text-amber text-base">{act.price}</span>
-                                    <span className="text-xs text-muted-foreground">{act.currency}{t("booking2.perPerson")}</span>
-                                  </div>
-                                  {act.duration && <p className="text-xs text-muted-foreground mt-0.5">{act.duration}</p>}
+                                  {act.duration && <p className="text-xs text-muted-foreground">{act.duration}</p>}
+                                  <p className="text-[10px] text-amber/80 mt-1">
+                                    {t("booking2.priceAfterDates")}
+                                  </p>
                                 </div>
                                 {selectedActivityId === act.id && (
                                   <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
@@ -757,6 +864,8 @@ export function ReservationContent() {
                         onChange={setSingleDate}
                         placeholder={t("booking2.selectDate")}
                         dateFnsLocale={dateFnsLocale}
+                        seasonalWindows={toWindows(activities.find((a) => a.id === selectedActivityId)?.seasonalPrices)}
+                        t={t}
                       />
                     </>
                   )}
@@ -787,13 +896,9 @@ export function ReservationContent() {
                                 )}
                                 <div className="p-3">
                                   <p className="font-serif text-sm mb-1">{name}</p>
-                                  <div className="flex items-baseline gap-1 flex-wrap">
-                                    {pass.originalPrice && (
-                                      <span className="text-muted-foreground line-through text-xs mono-number">{pass.originalPrice}</span>
-                                    )}
-                                    <span className="mono-number text-amber text-base">{pass.price}</span>
-                                    <span className="text-xs text-muted-foreground">{pass.currency}{t("booking2.perPerson")}</span>
-                                  </div>
+                                  <p className="text-[10px] text-amber/80 mt-1">
+                                    {t("booking2.priceAfterDates")}
+                                  </p>
                                 </div>
                                 {selectedDayPassId === pass.id && (
                                   <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
@@ -811,6 +916,8 @@ export function ReservationContent() {
                         onChange={setSingleDate}
                         placeholder={t("booking2.selectDate")}
                         dateFnsLocale={dateFnsLocale}
+                        seasonalWindows={toWindows(dayPasses.find((p) => p.id === selectedDayPassId)?.seasonalPrices)}
+                        t={t}
                       />
                     </>
                   )}

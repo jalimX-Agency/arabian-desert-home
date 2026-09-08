@@ -9,7 +9,7 @@ import { TagsInput } from "./TagsInput";
 interface Field {
   key: string;
   label: string;
-  type?: "text" | "number" | "textarea" | "checkbox" | "select" | "image" | "images" | "tags";
+  type?: "text" | "number" | "textarea" | "checkbox" | "select" | "image" | "images" | "tags" | "toggleNumber";
   options?: string[];
   required?: boolean;
   folder?: string;
@@ -35,6 +35,31 @@ function FieldInput({ field, value, onChange }: {
 }) {
   const base = "w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/70 focus:ring-1 focus:ring-amber-500/30";
 
+  if (field.type === "toggleNumber") {
+    const enabled = value !== null && value !== undefined && value !== "";
+    return (
+      <div className="space-y-2">
+        <button
+          type="button"
+          onClick={() => onChange(enabled ? null : 0)}
+          className={`flex items-center gap-2 text-sm cursor-pointer ${enabled ? "text-amber-600" : "text-gray-400"}`}
+        >
+          <div className={`w-5 h-5 rounded border flex items-center justify-center ${enabled ? "bg-amber-500 border-amber-500" : "border-gray-300 bg-white"}`}>
+            {enabled && <Check className="w-3 h-3 text-white" />}
+          </div>
+          {enabled ? "Activé" : "Désactivé"}
+        </button>
+        {enabled && (
+          <input
+            type="number"
+            value={String(value ?? "")}
+            onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
+            className={base}
+          />
+        )}
+      </div>
+    );
+  }
   if (field.type === "image") {
     return <ImageUpload value={String(value ?? "")} onChange={onChange} folder={field.folder} />;
   }
@@ -110,7 +135,9 @@ export function ResourceManager({ title, apiPath, fields, columns, tabs }: Resou
 
   function openCreate() {
     const defaults: Record<string, unknown> = {};
-    fields.forEach((f) => { defaults[f.key] = f.type === "checkbox" ? false : f.type === "number" ? 0 : ""; });
+    fields.forEach((f) => {
+      defaults[f.key] = f.type === "checkbox" ? false : f.type === "toggleNumber" ? null : f.type === "number" ? 0 : "";
+    });
     setForm(defaults);
     setEditing(null);
     setModal("create");
