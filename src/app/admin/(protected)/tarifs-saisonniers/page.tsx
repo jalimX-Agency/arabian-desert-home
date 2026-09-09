@@ -57,7 +57,7 @@ export default function TarifsSaisonniersPage() {
   const [error, setError] = useState("");
 
   const [targetType, setTargetType] = useState<TargetType>("suite");
-  const [targetId, setTargetId] = useState("");
+  const [targetIds, setTargetIds] = useState<string[]>([]);
   const [options, setOptions] = useState<EntityOption[]>([]);
   const [label, setLabel] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -78,16 +78,24 @@ export default function TarifsSaisonniersPage() {
       .then((r) => r.json())
       .then((data: EntityOption[]) => {
         setOptions(data);
-        if (modal === "create") setTargetId(data[0]?.id ?? "");
+        if (modal === "create") setTargetIds([]);
       })
       .catch(() => setOptions([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetType]);
 
+  function toggleTarget(id: string) {
+    setTargetIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  }
+
+  function toggleAllTargets() {
+    setTargetIds((prev) => (prev.length === options.length ? [] : options.map((o) => o.id)));
+  }
+
   function openCreate() {
     setEditing(null);
     setTargetType("suite");
-    setTargetId("");
+    setTargetIds([]);
     setLabel("");
     setStartDate("");
     setEndDate("");
@@ -99,7 +107,7 @@ export default function TarifsSaisonniersPage() {
   function openEdit(sp: SeasonalPrice) {
     setEditing(sp);
     setTargetType(targetTypeOf(sp));
-    setTargetId(sp.suiteId ?? sp.activityId ?? sp.dayPassId ?? "");
+    setTargetIds([sp.suiteId ?? sp.activityId ?? sp.dayPassId ?? ""]);
     setLabel(sp.label);
     setStartDate(sp.startDate.slice(0, 10));
     setEndDate(sp.endDate.slice(0, 10));
@@ -109,8 +117,8 @@ export default function TarifsSaisonniersPage() {
   }
 
   async function handleSave() {
-    if (!label || !startDate || !endDate || !price || !targetId) {
-      setError("Tous les champs sont requis.");
+    if (!label || !startDate || !endDate || !price || targetIds.length === 0) {
+      setError(modal === "create" ? "Tous les champs sont requis, et au moins un élément doit être sélectionné." : "Tous les champs sont requis.");
       return;
     }
     setSaving(true);
@@ -118,9 +126,8 @@ export default function TarifsSaisonniersPage() {
     try {
       const body: Record<string, unknown> = { label, startDate, endDate, price: Number(price) };
       if (modal === "create") {
-        body.suiteId = targetType === "suite" ? targetId : null;
-        body.activityId = targetType === "activity" ? targetId : null;
-        body.dayPassId = targetType === "dayPass" ? targetId : null;
+        body.targetType = targetType;
+        body.targetIds = targetIds;
       }
       const url = modal === "edit" ? `/api/admin/seasonal-prices/${editing!.id}` : "/api/admin/seasonal-prices";
       const method = modal === "edit" ? "PUT" : "POST";
@@ -163,7 +170,7 @@ export default function TarifsSaisonniersPage() {
         </button>
       </div>
       <p className="text-sm text-gray-400 mb-8">
-        Définissez un prix différent pour une tente, une activité ou un Day Pass durant une période précise
+        Définissez un prix différent pour une ou plusieurs tentes, activités ou Day Pass durant une période précise
         (Nouvel An, fêtes, haute saison...). Le tarif s&apos;applique automatiquement aux réservations dont
         la date tombe dans la période — en dehors, le prix normal reste en vigueur.
       </p>
@@ -252,16 +259,44 @@ export default function TarifsSaisonniersPage() {
               </div>
 
               <div>
-                <label className="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">Élément</label>
-                <select
-                  value={targetId}
-                  onChange={(e) => setTargetId(e.target.value)}
-                  disabled={modal === "edit"}
-                  className={`${inputClass} disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {options.length === 0 && <option value="">Aucun élément disponible</option>}
-                  {options.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
-                </select>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                    {modal === "create"
+                      ? `Éléments${targetIds.length > 0 ? ` (${targetIds.length} sélectionné${targetIds.length > 1 ? "s" : ""})` : ""}`
+                      : "Élément"}
+                  </label>
+                  {modal === "create" && options.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={toggleAllTargets}
+                      className="text-xs text-amber-600 dark:text-amber-400 hover:underline cursor-pointer"
+                    >
+                      {targetIds.length === options.length ? "Tout désélectionner" : "Tout sélectionner"}
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-44 overflow-y-auto border border-gray-300 dark:border-gray-700 rounded-lg divide-y divide-gray-100 dark:divide-gray-800">
+                  {options.length === 0 && (
+                    <p className="px-3 py-2.5 text-sm text-gray-400">Aucun élément disponible</p>
+                  )}
+                  {options.map((o) => (
+                    <label
+                      key={o.id}
+                      className={`flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 ${
+                        modal === "edit" ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={targetIds.includes(o.id)}
+                        disabled={modal === "edit"}
+                        onChange={() => toggleTarget(o.id)}
+                        className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 disabled:cursor-not-allowed"
+                      />
+                      {o.name}
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div>
