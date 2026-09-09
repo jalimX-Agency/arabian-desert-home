@@ -9,6 +9,7 @@ export interface CartItemInput {
   checkIn?: string;
   checkOut?: string;
   date?: string;
+  quantity?: number; // suites only — how many of this tent type
   guests?: number;
   children?: number;
   experiences?: string;
@@ -22,6 +23,7 @@ export interface PricedItem {
   checkIn: Date | null;
   checkOut: Date | null;
   date: Date | null;
+  quantity: number;
   guests: number;
   children: number;
   experiences: string | null;
@@ -38,6 +40,7 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
     if (!item.suiteId || !item.checkIn || !item.checkOut) {
       throw new Error("Suite booking requires suiteId, checkIn, checkOut");
     }
+    const quantity = Math.max(1, item.quantity ?? 1);
     const suite = await db.suite.findUnique({ where: { id: item.suiteId }, include: { seasonalPrices: true } });
     if (!suite) throw new Error("Suite not found");
     const checkIn = new Date(item.checkIn);
@@ -50,10 +53,11 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
       checkIn,
       checkOut,
       date: null,
+      quantity,
       guests,
       children,
       experiences: item.experiences || null,
-      totalAmount: nightlyTotal(suite.price, suite.seasonalPrices, checkIn, checkOut),
+      totalAmount: nightlyTotal(suite.price, suite.seasonalPrices, checkIn, checkOut) * quantity,
       currency: suite.currency,
     };
   }
@@ -74,6 +78,7 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
       checkIn: null,
       checkOut: null,
       date,
+      quantity: 1,
       guests,
       children,
       experiences: item.experiences || null,
@@ -98,6 +103,7 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
       checkIn: null,
       checkOut: null,
       date,
+      quantity: 1,
       guests,
       children,
       experiences: item.experiences || null,

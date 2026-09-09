@@ -36,6 +36,7 @@ interface Booking {
   checkIn?: string | null;
   checkOut?: string | null;
   date?: string | null;
+  quantity: number;
   guests: number;
   children: number;
   experiences?: string | null;
@@ -67,10 +68,11 @@ const serviceTypeBadge: Record<string, string> = {
 };
 
 function getServiceName(b: Booking): string {
-  if (b.serviceType === "suite") return b.suite?.name ?? "—";
-  if (b.serviceType === "activity") return b.activity?.name ?? "—";
-  if (b.serviceType === "daypass") return b.dayPass?.name ?? "—";
-  return "—";
+  const base =
+    b.serviceType === "suite" ? b.suite?.name ?? "—" :
+    b.serviceType === "activity" ? b.activity?.name ?? "—" :
+    b.serviceType === "daypass" ? b.dayPass?.name ?? "—" : "—";
+  return b.quantity > 1 ? `${base} × ${b.quantity}` : base;
 }
 
 function formatDateCell(b: Booking): React.ReactNode {

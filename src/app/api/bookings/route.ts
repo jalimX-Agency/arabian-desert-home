@@ -47,6 +47,7 @@ export async function POST(request: Request) {
             checkIn: p.checkIn,
             checkOut: p.checkOut,
             date: p.date,
+            quantity: p.quantity,
             guests: p.guests,
             children: p.children,
             experiences: p.experiences,

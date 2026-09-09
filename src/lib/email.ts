@@ -82,6 +82,7 @@ type BookingWithRelations = {
   email: string;
   phone?: string | null;
   serviceType: string;
+  quantity?: number;
   guests: number;
   children: number;
   totalAmount: number;
@@ -97,10 +98,11 @@ type BookingWithRelations = {
 };
 
 function getServiceName(booking: BookingWithRelations): string {
-  if (booking.serviceType === "suite") return booking.suite?.name ?? "—";
-  if (booking.serviceType === "activity") return booking.activity?.name ?? "—";
-  if (booking.serviceType === "daypass") return booking.dayPass?.name ?? "—";
-  return "—";
+  const base =
+    booking.serviceType === "suite" ? booking.suite?.name ?? "—" :
+    booking.serviceType === "activity" ? booking.activity?.name ?? "—" :
+    booking.serviceType === "daypass" ? booking.dayPass?.name ?? "—" : "—";
+  return booking.quantity && booking.quantity > 1 ? `${base} × ${booking.quantity}` : base;
 }
 
 function getServiceTypeLabel(serviceType: string): string {

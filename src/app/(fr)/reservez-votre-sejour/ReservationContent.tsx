@@ -112,6 +112,7 @@ interface CartItem {
   checkIn?: Date;
   checkOut?: Date;
   date?: Date;
+  quantity?: number;
   guests: number;
   children: number;
   price: number;
@@ -331,7 +332,9 @@ function CartList({
                   <Icon className="w-4 h-4 text-amber" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{item.name}</p>
+                  <p className="text-sm font-medium truncate">
+                    {item.name}{item.quantity && item.quantity > 1 ? ` × ${item.quantity}` : ""}
+                  </p>
                   <p className="text-xs text-muted-foreground truncate">
                     {dates} · {item.guests} {item.guests > 1 ? t("booking2.adults") : t("booking2.adults")}
                     {item.children > 0 ? `, ${item.children} ${t("booking2.children")}` : ""}
@@ -380,9 +383,9 @@ export function ReservationContent() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [dayPasses, setDayPasses] = useState<DayPass[]>([]);
 
-  // The primary item — a tent stay, one activity, or one Day Pass.
+  // The primary item — one or more tent types (with quantities), one activity, or one Day Pass.
   const [primaryType, setPrimaryType] = useState<PrimaryType>("suite");
-  const [suiteId, setSuiteId] = useState("");
+  const [tentQuantities, setTentQuantities] = useState<Record<string, number>>({});
   const [checkIn, setCheckIn] = useState<Date | undefined>();
   const [checkOut, setCheckOut] = useState<Date | undefined>();
   const [activityId, setActivityId] = useState("");
@@ -405,18 +408,33 @@ export function ReservationContent() {
   const [personal, setPersonal] = useState({ firstName: "", lastName: "", email: "", phone: "" });
   const [specialReqs, setSpecialReqs] = useState("");
 
-  const selectedSuite = suites.find((s) => s.id === suiteId);
-  const maxAdults = primaryType === "suite" ? (selectedSuite?.maxGuests ?? 10) : 20;
-  const maxChildren = primaryType === "suite" ? (selectedSuite?.maxChildren ?? 6) : 10;
+  const selectedSuites = suites.filter((s) => (tentQuantities[s.id] ?? 0) > 0);
+  const totalTentQty = Object.values(tentQuantities).reduce((sum, q) => sum + q, 0);
+  const maxAdults =
+    primaryType === "suite"
+      ? selectedSuites.length > 0
+        ? selectedSuites.reduce((sum, s) => sum + s.maxGuests * (tentQuantities[s.id] ?? 0), 0)
+        : 10
+      : 20;
+  const maxChildren =
+    primaryType === "suite"
+      ? selectedSuites.length > 0
+        ? selectedSuites.reduce((sum, s) => sum + s.maxChildren * (tentQuantities[s.id] ?? 0), 0)
+        : 6
+      : 10;
 
-  // Clamp guests when suite changes
+  function setTentQuantity(suiteId: string, qty: number) {
+    setTentQuantities((prev) => ({ ...prev, [suiteId]: Math.max(0, qty) }));
+  }
+
+  // Clamp guests when the tent selection changes
   useEffect(() => {
-    if (primaryType === "suite" && selectedSuite) {
-      if (primaryAdults > selectedSuite.maxGuests) setPrimaryAdults(selectedSuite.maxGuests);
-      if (primaryChildren > selectedSuite.maxChildren) setPrimaryChildren(selectedSuite.maxChildren);
+    if (primaryType === "suite") {
+      if (primaryAdults > maxAdults) setPrimaryAdults(maxAdults);
+      if (primaryChildren > maxChildren) setPrimaryChildren(maxChildren);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [suiteId]);
+  }, [tentQuantities]);
 
   useEffect(() => {
     fetch("/api/suites").then((r) => r.json()).then(setSuites).catch(() => {});
@@ -429,7 +447,7 @@ export function ReservationContent() {
   function selectPrimaryType(next: PrimaryType) {
     if (next === primaryType) return;
     setPrimaryType(next);
-    setSuiteId(""); setCheckIn(undefined); setCheckOut(undefined);
+    setTentQuantities({}); setCheckIn(undefined); setCheckOut(undefined);
     setActivityId(""); setDayPassId(""); setPrimaryDate(undefined);
     setPrimaryAdults(2); setPrimaryChildren(0);
     setAddOns([]); setAddOnActivityId(""); setAddOnDate(undefined);
@@ -448,7 +466,7 @@ export function ReservationContent() {
 
   const isPrimaryValid =
     primaryType === "suite"
-      ? suiteId !== "" && checkIn !== undefined && checkOut !== undefined
+      ? totalTentQty > 0 && checkIn !== undefined && checkOut !== undefined
       : primaryType === "activity"
       ? activityId !== "" && primaryDate !== undefined
       : dayPassId !== "" && primaryDate !== undefined;
@@ -487,55 +505,60 @@ export function ReservationContent() {
     setAddOns((c) => c.filter((item) => item.key !== key));
   }
 
-  /** The primary item, in the same shape as an add-on, for review/submit. */
-  function getPrimaryCartItem(): CartItem | null {
-    if (primaryType === "suite" && selectedSuite && checkIn && checkOut) {
-      return {
-        key: "primary",
-        serviceType: "suite",
-        itemId: selectedSuite.id,
-        name: localizeName(selectedSuite.name, selectedSuite.nameEn, selectedSuite.nameEs, selectedSuite.nameIt),
-        checkIn, checkOut,
-        guests: primaryAdults, children: primaryChildren,
-        price: nightlyTotal(selectedSuite.price, toWindows(selectedSuite.seasonalPrices), checkIn, checkOut),
-        currency: selectedSuite.currency,
-      };
+  /** The primary item(s), in the same shape as an add-on, for review/submit. One entry per selected tent type. */
+  function getPrimaryCartItems(): CartItem[] {
+    if (primaryType === "suite" && checkIn && checkOut) {
+      return selectedSuites.map((suite) => {
+        const qty = tentQuantities[suite.id] ?? 0;
+        return {
+          key: `primary-${suite.id}`,
+          serviceType: "suite" as const,
+          itemId: suite.id,
+          name: localizeName(suite.name, suite.nameEn, suite.nameEs, suite.nameIt),
+          checkIn, checkOut,
+          quantity: qty,
+          guests: primaryAdults, children: primaryChildren,
+          price: nightlyTotal(suite.price, toWindows(suite.seasonalPrices), checkIn, checkOut) * qty,
+          currency: suite.currency,
+        };
+      });
     }
     if (primaryType === "activity" && primaryDate) {
       const act = activities.find((a) => a.id === activityId);
-      if (!act) return null;
+      if (!act) return [];
       const unitPrice = priceForDate(act.price, toWindows(act.seasonalPrices), primaryDate);
-      return {
+      return [{
         key: "primary",
         serviceType: "activity",
         itemId: act.id,
         name: localizeName(act.name, act.nameEn, act.nameEs, act.nameIt),
         date: primaryDate,
+        quantity: 1,
         guests: primaryAdults, children: primaryChildren,
         price: primaryAdults * unitPrice + primaryChildren * Math.round(unitPrice * act.childPricePercent / 100),
         currency: act.currency,
-      };
+      }];
     }
     if (primaryType === "daypass" && primaryDate) {
       const pass = dayPasses.find((p) => p.id === dayPassId);
-      if (!pass) return null;
+      if (!pass) return [];
       const unitPrice = priceForDate(pass.price, toWindows(pass.seasonalPrices), primaryDate);
-      return {
+      return [{
         key: "primary",
         serviceType: "daypass",
         itemId: pass.id,
         name: localizeName(pass.name, pass.nameEn, pass.nameEs, pass.nameIt),
         date: primaryDate,
+        quantity: 1,
         guests: primaryAdults, children: primaryChildren,
         price: primaryAdults * unitPrice + primaryChildren * Math.round(unitPrice * pass.childPricePercent / 100),
         currency: pass.currency,
-      };
+      }];
     }
-    return null;
+    return [];
   }
 
-  const primaryCartItem = getPrimaryCartItem();
-  const allItems = primaryCartItem ? [primaryCartItem, ...addOns] : addOns;
+  const allItems = [...getPrimaryCartItems(), ...addOns];
   const grandTotal = allItems.reduce((sum, item) => sum + item.price, 0);
   const grandCurrency = allItems[0]?.currency ?? "MAD";
 
@@ -559,6 +582,7 @@ export function ReservationContent() {
           checkIn: item.checkIn?.toISOString(),
           checkOut: item.checkOut?.toISOString(),
           date: item.date?.toISOString(),
+          quantity: item.quantity,
           guests: item.guests,
           children: item.children,
         })),
@@ -573,7 +597,7 @@ export function ReservationContent() {
       if (res.ok) {
         const data = await res.json();
         setManageUrl(data.manageUrl ?? "");
-        setStep(4);
+        setStep(5);
       } else {
         toast({ title: t("booking2.errorTitle"), description: t("booking2.errorDesc"), variant: "destructive" });
       }
@@ -587,6 +611,7 @@ export function ReservationContent() {
 
   const stepLabels = [
     t("booking2.stepService"),
+    t("booking2.stepDetails"),
     t("booking2.stepInfo"),
     t("booking2.stepReview"),
     "✓",
@@ -595,8 +620,8 @@ export function ReservationContent() {
   function resetAll() {
     setStep(1);
     setPersonal({ firstName: "", lastName: "", email: "", phone: "" });
-    selectPrimaryType("suite");
-    setSuiteId(""); setCheckIn(undefined); setCheckOut(undefined);
+    setPrimaryType("suite");
+    setTentQuantities({}); setCheckIn(undefined); setCheckOut(undefined);
     setActivityId(""); setDayPassId(""); setPrimaryDate(undefined);
     setPrimaryAdults(2); setPrimaryChildren(0);
     setAddOns([]);
@@ -680,7 +705,7 @@ export function ReservationContent() {
 
           <AnimatePresence mode="wait">
 
-            {/* ── Step 1: Primary item + optional activity add-ons ── */}
+            {/* ── Step 1: Service type ── */}
             {step === 1 && (
               <motion.div
                 key="step1"
@@ -697,7 +722,7 @@ export function ReservationContent() {
                   {t("booking2.chooseExperienceDesc")}
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {(
                     [
                       { type: "suite" as const, icon: Tent, title: t("booking2.serviceTypeTentTitle"), desc: t("booking2.serviceTypeTentDesc") },
@@ -731,45 +756,76 @@ export function ReservationContent() {
                   ))}
                 </div>
 
+                <div className="flex justify-end mt-10">
+                  <button
+                    onClick={() => setStep(2)}
+                    className="btn-primary inline-flex items-center gap-2 cursor-pointer"
+                  >
+                    {t("booking2.continue")}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── Step 2: Item + date + guests, plus optional activity add-ons ── */}
+            {step === 2 && (
+              <motion.div
+                key="step2"
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: 0.5, ease: smoothEase }}
+                className="glass-card card-warm p-8 md:p-10"
+              >
+                <h2 className="heading-editorial text-2xl md:text-3xl mb-2">
+                  {t("booking2.bookingDetailsTitle")}
+                </h2>
+                <p className="text-sm text-muted-foreground mb-8 body-editorial">
+                  {t("booking2.bookingDetailsDesc")}
+                </p>
+
                 <div className="space-y-6">
-                  {/* ── Suite flow ── */}
+                  {/* ── Suite flow — multi-select tent types, each with its own quantity ── */}
                   {primaryType === "suite" && (
                     <>
                       <div className="space-y-2">
                         <Label className="luxury-label text-xs">
                           {t("booking2.chooseTent")} *
                         </Label>
-                        <CarouselWrapper>
+                        <p className="text-xs text-muted-foreground body-editorial">
+                          {t("booking2.multiTentNote")}
+                        </p>
+                        <div className="space-y-3">
                           {suites.map((suite) => {
                             const name = localizeName(suite.name, suite.nameEn, suite.nameEs, suite.nameIt);
                             const cardPrice = checkIn ? priceForDate(suite.price, toWindows(suite.seasonalPrices), checkIn) : null;
                             const isSeasonal = cardPrice !== null && cardPrice !== suite.price;
+                            const qty = tentQuantities[suite.id] ?? 0;
                             return (
-                              <button
+                              <div
                                 key={suite.id}
-                                type="button"
-                                onClick={() => setSuiteId(suite.id)}
-                                className={`relative overflow-hidden rounded-2xl text-left transition-all duration-400 cursor-pointer snap-start shrink-0 w-[200px] ${
-                                  suiteId === suite.id
+                                className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 ${
+                                  qty > 0
                                     ? "border-2 border-amber bg-amber/[0.08]"
-                                    : "border border-border/50 bg-background/50 hover:border-amber/30"
+                                    : "border border-border/50 bg-background/50"
                                 }`}
                               >
                                 {suite.image && (
-                                  <img src={suite.image} alt={name} className="w-full h-28 object-cover" />
+                                  <img src={suite.image} alt={name} className="w-20 h-20 rounded-xl object-cover shrink-0" />
                                 )}
-                                <div className="p-3">
-                                  <p className="font-serif text-sm mb-1">{name}</p>
-                                  <p className="text-[10px] text-muted-foreground">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-serif text-base mb-1">{name}</p>
+                                  <p className="text-[10px] text-muted-foreground mb-1">
                                     {t("booking2.wholeTent")}
                                   </p>
                                   {cardPrice === null ? (
-                                    <p className="text-[10px] text-amber/80 mt-1">
+                                    <p className="text-[10px] text-amber/80">
                                       {t("booking2.priceAfterDates")}
                                     </p>
                                   ) : (
                                     <>
-                                      <div className="flex items-baseline gap-1 flex-wrap mt-1">
+                                      <div className="flex items-baseline gap-1 flex-wrap">
                                         {suite.originalPrice && !isSeasonal && (
                                           <span className="text-muted-foreground line-through text-xs mono-number">{suite.originalPrice}</span>
                                         )}
@@ -783,20 +839,33 @@ export function ReservationContent() {
                                       )}
                                     </>
                                   )}
-                                  <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground">
+                                  <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1"><Users className="w-3 h-3 text-amber/60" />{suite.maxGuests}</span>
                                     <span className="flex items-center gap-1"><Baby className="w-3 h-3 text-amber/60" />{suite.maxChildren}</span>
                                   </div>
                                 </div>
-                                {suiteId === suite.id && (
-                                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
-                                    <Check className="w-3 h-3 text-warm-black" />
-                                  </div>
-                                )}
-                              </button>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => setTentQuantity(suite.id, qty - 1)}
+                                    disabled={qty <= 0}
+                                    className="w-8 h-8 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 disabled:opacity-30 cursor-pointer"
+                                  >
+                                    <Minus className="w-3 h-3" />
+                                  </button>
+                                  <span className="text-lg mono-number text-amber w-6 text-center">{qty}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setTentQuantity(suite.id, qty + 1)}
+                                    className="w-8 h-8 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 cursor-pointer"
+                                  >
+                                    <Plus className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </div>
                             );
                           })}
-                        </CarouselWrapper>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -806,7 +875,7 @@ export function ReservationContent() {
                           onChange={setCheckIn}
                           placeholder={t("booking2.selectDate")}
                           dateFnsLocale={dateFnsLocale}
-                          seasonalWindows={toWindows(selectedSuite?.seasonalPrices)}
+                          seasonalWindows={toWindows(selectedSuites[0]?.seasonalPrices)}
                           t={t}
                         />
                         <DatePicker
@@ -816,7 +885,7 @@ export function ReservationContent() {
                           disableBefore={checkIn ?? new Date()}
                           placeholder={t("booking2.selectDate")}
                           dateFnsLocale={dateFnsLocale}
-                          seasonalWindows={toWindows(selectedSuite?.seasonalPrices)}
+                          seasonalWindows={toWindows(selectedSuites[0]?.seasonalPrices)}
                           t={t}
                         />
                       </div>
@@ -970,9 +1039,9 @@ export function ReservationContent() {
                   <div className="space-y-1">
                     <Label className="luxury-label text-xs block mb-1">
                       {t("booking2.guestsLabel")}
-                      {primaryType === "suite" && selectedSuite && (
+                      {primaryType === "suite" && selectedSuites.length > 0 && (
                         <span className="ml-2 text-muted-foreground font-normal normal-case">
-                          — {t("booking2.maxGuestsPrefix")} {selectedSuite.maxGuests} {t("booking2.maxAdultsWord")} · {selectedSuite.maxChildren} {t("booking2.maxChildrenWord")}
+                          — {t("booking2.maxGuestsPrefix")} {maxAdults} {t("booking2.maxAdultsWord")} · {maxChildren} {t("booking2.maxChildrenWord")}
                         </span>
                       )}
                     </Label>
@@ -1090,9 +1159,13 @@ export function ReservationContent() {
                   )}
                 </div>
 
-                <div className="flex justify-end mt-10">
+                <div className="flex justify-between mt-10">
+                  <button onClick={() => setStep(1)} className="btn-outline inline-flex items-center gap-2 cursor-pointer">
+                    <ArrowLeft className="w-4 h-4" />
+                    {t("booking2.back")}
+                  </button>
                   <button
-                    onClick={() => setStep(2)}
+                    onClick={() => setStep(3)}
                     disabled={!isPrimaryValid}
                     className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
@@ -1103,10 +1176,10 @@ export function ReservationContent() {
               </motion.div>
             )}
 
-            {/* ── Step 2: Personal Details ── */}
-            {step === 2 && (
+            {/* ── Step 3: Personal Details ── */}
+            {step === 3 && (
               <motion.div
-                key="step2"
+                key="step3"
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -30 }}
@@ -1180,12 +1253,12 @@ export function ReservationContent() {
                 </div>
 
                 <div className="flex justify-between mt-10">
-                  <button onClick={() => setStep(1)} className="btn-outline inline-flex items-center gap-2 cursor-pointer">
+                  <button onClick={() => setStep(2)} className="btn-outline inline-flex items-center gap-2 cursor-pointer">
                     <ArrowLeft className="w-4 h-4" />
                     {t("booking2.back")}
                   </button>
                   <button
-                    onClick={() => setStep(3)}
+                    onClick={() => setStep(4)}
                     disabled={!isPersonalValid}
                     className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
@@ -1196,10 +1269,10 @@ export function ReservationContent() {
               </motion.div>
             )}
 
-            {/* ── Step 3: Review & Submit ── */}
-            {step === 3 && (
+            {/* ── Step 4: Review & Submit ── */}
+            {step === 4 && (
               <motion.div
-                key="step3"
+                key="step4"
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -30 }}
@@ -1233,7 +1306,7 @@ export function ReservationContent() {
                 </div>
 
                 <div className="flex justify-between mt-10">
-                  <button onClick={() => setStep(2)} className="btn-outline inline-flex items-center gap-2 cursor-pointer">
+                  <button onClick={() => setStep(3)} className="btn-outline inline-flex items-center gap-2 cursor-pointer">
                     <ArrowLeft className="w-4 h-4" />
                     {t("booking2.back")}
                   </button>
@@ -1258,10 +1331,10 @@ export function ReservationContent() {
               </motion.div>
             )}
 
-            {/* ── Step 4: Success ── */}
-            {step === 4 && (
+            {/* ── Step 5: Success ── */}
+            {step === 5 && (
               <motion.div
-                key="step4"
+                key="step5"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, ease: smoothEase }}
