@@ -44,6 +44,7 @@ interface Booking {
   totalAmount: number;
   currency: string;
   createdAt: string;
+  reservation?: { id: string; totalAmount: number; currency: string; _count: { items: number } } | null;
 }
 
 const statusOptions = ["pending", "confirmed", "cancelled"];
@@ -450,7 +451,17 @@ export default function ReservationsPage() {
                     />
                   </td>
                   <td className="px-5 py-4">
-                    <p className="text-gray-900 dark:text-white">{b.firstName} {b.lastName}</p>
+                    <p className="text-gray-900 dark:text-white flex items-center gap-1.5">
+                      {b.firstName} {b.lastName}
+                      {b.reservation && b.reservation._count.items > 1 && (
+                        <span
+                          title={`Fait partie d'une réservation de ${b.reservation._count.items} prestations — total ${b.reservation.totalAmount.toLocaleString("fr-FR")} ${b.reservation.currency}`}
+                          className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium"
+                        >
+                          {b.reservation._count.items} articles
+                        </span>
+                      )}
+                    </p>
                     <p className="text-xs text-gray-400">{b.email}</p>
                     {b.phone && <p className="text-xs text-gray-400">{b.phone}</p>}
                   </td>
@@ -542,6 +553,13 @@ export default function ReservationsPage() {
                     <p className="text-amber-600 dark:text-amber-400">{selected.totalAmount.toLocaleString("fr-FR")} {selected.currency ?? "MAD"}</p>
                   </div>
                 </div>
+
+                {selected.reservation && selected.reservation._count.items > 1 && (
+                  <div className="rounded-lg bg-blue-50 dark:bg-blue-500/10 px-3 py-2.5 text-xs text-blue-700 dark:text-blue-400">
+                    Fait partie d&apos;une réservation de {selected.reservation._count.items} prestations —
+                    total combiné {selected.reservation.totalAmount.toLocaleString("fr-FR")} {selected.reservation.currency}
+                  </div>
+                )}
 
                 {selected.experiences && (
                   <div>

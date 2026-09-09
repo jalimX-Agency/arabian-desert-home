@@ -129,18 +129,37 @@ function buildDateRows(booking: BookingWithRelations): string {
   return "";
 }
 
-export async function sendBookingConfirmation(
-  to: string,
-  firstName: string,
-  booking: BookingWithRelations,
-) {
+function buildItemBlock(booking: BookingWithRelations, index: number): string {
   const serviceName = getServiceName(booking);
   const serviceLabel = getServiceTypeLabel(booking.serviceType);
+  return `
+    <div style="${index > 0 ? "border-top:1px solid #e8dfc8;margin-top:16px;padding-top:16px" : ""}">
+      <table style="width:100%;border-collapse:collapse;font-size:14px">
+        <tr><td style="padding:6px 0;color:#888;width:120px">${serviceLabel}</td><td style="padding:6px 0;font-weight:600">${serviceName}</td></tr>
+        ${buildDateRows(booking)}
+        <tr><td style="padding:6px 0;color:#888">Adultes</td><td style="padding:6px 0">${booking.guests}</td></tr>
+        ${booking.children > 0 ? `<tr><td style="padding:6px 0;color:#888">Enfants</td><td style="padding:6px 0">${booking.children}</td></tr>` : ""}
+        <tr><td style="padding:6px 0;color:#888">Sous-total</td><td style="padding:6px 0;font-weight:600">${booking.totalAmount.toLocaleString("fr-FR")} ${booking.currency}</td></tr>
+      </table>
+      ${booking.experiences ? `<p style="color:#888;font-size:12px;margin:8px 0 2px">Expériences souhaitées</p><p style="font-size:13px;margin:0">${booking.experiences}</p>` : ""}
+    </div>
+  `;
+}
 
+export async function sendReservationConfirmation(
+  to: string,
+  firstName: string,
+  items: BookingWithRelations[],
+  totalAmount: number,
+  currency: string,
+  manageUrl: string,
+) {
   await resend.emails.send({
     from: FROM,
     to,
-    subject: `Confirmation de réservation — ${serviceName}`,
+    subject: items.length > 1
+      ? `Confirmation de réservation — ${items.length} prestations`
+      : `Confirmation de réservation — ${getServiceName(items[0])}`,
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
         <div style="background:#0f0f0f;padding:32px;text-align:center">
@@ -149,17 +168,16 @@ export async function sendBookingConfirmation(
         <div style="padding:40px 32px">
           <h1 style="font-size:24px;font-weight:400;margin:0 0 8px">Bonjour ${firstName},</h1>
           <p style="color:#555;line-height:1.7;margin:0 0 32px">Votre demande de réservation a bien été reçue. Nous vous contacterons sous 24h pour confirmer les détails.</p>
-          <div style="background:#faf8f5;border:1px solid #e8dfc8;border-radius:8px;padding:24px;margin:0 0 32px">
+          <div style="background:#faf8f5;border:1px solid #e8dfc8;border-radius:8px;padding:24px;margin:0 0 24px">
             <p style="color:#c8922a;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 16px">Détails de votre réservation</p>
+            ${items.map((item, i) => buildItemBlock(item, i)).join("")}
             <table style="width:100%;border-collapse:collapse;font-size:14px">
-              <tr><td style="padding:6px 0;color:#888;width:120px">Service</td><td style="padding:6px 0">${serviceLabel}</td></tr>
-              <tr><td style="padding:6px 0;color:#888">${serviceLabel}</td><td style="padding:6px 0;font-weight:600">${serviceName}</td></tr>
-              ${buildDateRows(booking)}
-              <tr><td style="padding:6px 0;color:#888">Adultes</td><td style="padding:6px 0">${booking.guests}</td></tr>
-              ${booking.children > 0 ? `<tr><td style="padding:6px 0;color:#888">Enfants</td><td style="padding:6px 0">${booking.children}</td></tr>` : ""}
-              <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">Total estimé</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#c8922a">${booking.totalAmount.toLocaleString("fr-FR")} ${booking.currency}</td></tr>
+              <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">Total estimé</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#c8922a;text-align:right">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
             </table>
           </div>
+          <p style="text-align:center;margin:0 0 32px">
+            <a href="${manageUrl}" style="display:inline-block;background:#c8922a;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:600">Gérer ma réservation</a>
+          </p>
           <p style="color:#555;line-height:1.7;margin:0 0 8px">Des questions ? Contactez-nous :</p>
           <p style="margin:0;color:#333;font-size:14px">📞 +212 667-370-206 &nbsp;·&nbsp; 📧 info@arabiandeserthome.ma</p>
         </div>
@@ -171,15 +189,19 @@ export async function sendBookingConfirmation(
   });
 }
 
-export async function sendBookingNotification(booking: BookingWithRelations) {
+export async function sendReservationNotification(
+  items: BookingWithRelations[],
+  totalAmount: number,
+  currency: string,
+  specialReqs?: string | null,
+) {
   const adminEmail = await getAdminEmail();
-  const serviceName = getServiceName(booking);
-  const serviceLabel = getServiceTypeLabel(booking.serviceType);
+  const first = items[0];
 
   await resend.emails.send({
     from: FROM,
     to: adminEmail,
-    subject: `[Réservation] ${booking.firstName} ${booking.lastName} — ${serviceName}`,
+    subject: `[Réservation] ${first.firstName} ${first.lastName} — ${items.length > 1 ? `${items.length} prestations` : getServiceName(first)}`,
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
         <div style="background:#0f0f0f;padding:24px 32px">
@@ -187,18 +209,16 @@ export async function sendBookingNotification(booking: BookingWithRelations) {
         </div>
         <div style="padding:32px">
           <table style="width:100%;border-collapse:collapse;font-size:14px">
-            <tr><td style="padding:7px 0;color:#888;width:120px">Client</td><td style="padding:7px 0;font-weight:600">${booking.firstName} ${booking.lastName}</td></tr>
-            <tr><td style="padding:7px 0;color:#888">Email</td><td style="padding:7px 0"><a href="mailto:${booking.email}" style="color:#c8922a">${booking.email}</a></td></tr>
-            <tr><td style="padding:7px 0;color:#888">Téléphone</td><td style="padding:7px 0">${booking.phone ?? "—"}</td></tr>
-            <tr><td style="padding:7px 0;color:#888">Service</td><td style="padding:7px 0">${serviceLabel}</td></tr>
-            <tr><td style="padding:7px 0;color:#888">${serviceLabel}</td><td style="padding:7px 0;font-weight:600">${serviceName}</td></tr>
-            ${buildDateRows(booking)}
-            <tr><td style="padding:7px 0;color:#888">Adultes</td><td style="padding:7px 0">${booking.guests}</td></tr>
-            ${booking.children > 0 ? `<tr><td style="padding:7px 0;color:#888">Enfants</td><td style="padding:7px 0">${booking.children}</td></tr>` : ""}
-            <tr><td style="padding:7px 0;color:#888;font-weight:600">Total</td><td style="padding:7px 0;font-weight:700;color:#c8922a">${booking.totalAmount.toLocaleString("fr-FR")} ${booking.currency}</td></tr>
+            <tr><td style="padding:7px 0;color:#888;width:120px">Client</td><td style="padding:7px 0;font-weight:600">${first.firstName} ${first.lastName}</td></tr>
+            <tr><td style="padding:7px 0;color:#888">Email</td><td style="padding:7px 0"><a href="mailto:${first.email}" style="color:#c8922a">${first.email}</a></td></tr>
+            <tr><td style="padding:7px 0;color:#888">Téléphone</td><td style="padding:7px 0">${first.phone ?? "—"}</td></tr>
           </table>
-          ${booking.experiences ? `<hr style="border:none;border-top:1px solid #eee;margin:16px 0"/><p style="color:#888;font-size:12px;margin:0 0 4px">Expériences souhaitées</p><p style="font-size:14px;margin:0">${booking.experiences}</p>` : ""}
-          ${booking.specialReqs ? `<p style="color:#888;font-size:12px;margin:12px 0 4px">Demandes spéciales</p><p style="font-size:14px;margin:0">${booking.specialReqs}</p>` : ""}
+          <hr style="border:none;border-top:1px solid #eee;margin:16px 0"/>
+          ${items.map((item, i) => buildItemBlock(item, i)).join("")}
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">Total</td><td style="padding:12px 0 0;font-weight:700;color:#c8922a;text-align:right">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
+          </table>
+          ${specialReqs ? `<p style="color:#888;font-size:12px;margin:16px 0 4px">Demandes spéciales</p><p style="font-size:14px;margin:0">${specialReqs}</p>` : ""}
         </div>
       </div>
     `,

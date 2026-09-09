@@ -154,13 +154,32 @@ model SpaTreatment {
   updatedAt   DateTime @updatedAt
 }
 
-model Booking {
+// One order placed by a guest — can bundle several Bookings (e.g. a tent
+// stay + an activity) under one contact record, total and access link.
+model Reservation {
   id          String    @id @default(cuid())
+  accessToken String    @unique @default(cuid())
   firstName   String
   lastName    String
   email       String
-  phone       String?
-  serviceType String    @default("suite")
+  phone       String
+  specialReqs String?
+  totalAmount Int
+  currency    String    @default("MAD")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  items       Booking[]
+}
+
+model Booking {
+  id            String       @id @default(cuid())
+  reservationId String?
+  reservation   Reservation? @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  firstName     String
+  lastName      String
+  email         String
+  phone         String?
+  serviceType   String    @default("suite")
   suiteId     String?
   suite       Suite?    @relation(fields: [suiteId], references: [id])
   activityId  String?

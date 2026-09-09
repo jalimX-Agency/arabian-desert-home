@@ -11,6 +11,7 @@ export async function GET() {
       suite: { select: { name: true } },
       activity: { select: { name: true } },
       dayPass: { select: { name: true } },
+      reservation: { select: { id: true, totalAmount: true, currency: true, _count: { select: { items: true } } } },
     },
   });
   return NextResponse.json(bookings);

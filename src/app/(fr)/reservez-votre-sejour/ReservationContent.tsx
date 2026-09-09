@@ -15,6 +15,8 @@ import {
   Bike,
   Sun,
   Sparkles,
+  Trash2,
+  ShoppingBag,
 } from "lucide-react";
 import { format, type Locale } from "date-fns";
 import { fr as frLocale, enUS, es as esLocale, it as itLocale } from "date-fns/locale";
@@ -101,6 +103,20 @@ interface DayPass {
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
 type ServiceType = "suite" | "activity" | "daypass";
+
+interface CartItem {
+  key: string;
+  serviceType: ServiceType;
+  itemId: string;
+  name: string;
+  checkIn?: Date;
+  checkOut?: Date;
+  date?: Date;
+  guests: number;
+  children: number;
+  price: number;
+  currency: string;
+}
 
 function CarouselWrapper({ children }: { children: React.ReactNode }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -271,6 +287,71 @@ function DatePicker({
   );
 }
 
+function CartList({
+  cart,
+  onRemove,
+  dateFnsLocale,
+  t,
+}: {
+  cart: CartItem[];
+  onRemove: (key: string) => void;
+  dateFnsLocale: Locale;
+  t: (key: string) => string;
+}) {
+  const SERVICE_ICON: Record<ServiceType, React.ElementType> = { suite: Tent, activity: Bike, daypass: Sun };
+  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  const currency = cart[0]?.currency ?? "MAD";
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-4">
+        <ShoppingBag className="w-4 h-4 text-amber" />
+        <h3 className="luxury-label text-amber">{t("booking2.cartTitle")}{cart.length > 0 ? ` (${cart.length})` : ""}</h3>
+      </div>
+      {cart.length === 0 ? (
+        <p className="text-sm text-muted-foreground body-editorial">{t("booking2.cartEmpty")}</p>
+      ) : (
+        <div className="space-y-3">
+          {cart.map((item) => {
+            const Icon = SERVICE_ICON[item.serviceType];
+            const dates = item.checkIn && item.checkOut
+              ? `${format(item.checkIn, "d MMM", { locale: dateFnsLocale })} → ${format(item.checkOut, "d MMM yyyy", { locale: dateFnsLocale })}`
+              : item.date
+              ? format(item.date, "d MMM yyyy", { locale: dateFnsLocale })
+              : "";
+            return (
+              <div key={item.key} className="flex items-center gap-3 p-3 rounded-2xl border border-border/40 bg-background/50">
+                <div className="w-9 h-9 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center shrink-0">
+                  <Icon className="w-4 h-4 text-amber" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{item.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {dates} · {item.guests} {item.guests > 1 ? t("booking2.adults") : t("booking2.adults")}
+                    {item.children > 0 ? `, ${item.children} ${t("booking2.children")}` : ""}
+                  </p>
+                </div>
+                <span className="mono-number text-amber text-sm shrink-0">{item.price.toLocaleString("fr-FR")} {item.currency}</span>
+                <button
+                  type="button"
+                  onClick={() => onRemove(item.key)}
+                  title={t("booking2.removeItem")}
+                  className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer shrink-0"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            );
+          })}
+          <div className="flex items-center justify-between pt-3 border-t border-border/30">
+            <span className="text-sm font-medium">{t("booking2.summaryTotal")}</span>
+            <span className="mono-number text-amber text-lg">{total.toLocaleString("fr-FR")} {currency}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function ReservationContent() {
   const heroRef = useRef(null);
@@ -283,43 +364,44 @@ export function ReservationContent() {
     pickLocalized(language, base, en, es, it);
 
   const [step, setStep] = useState(1);
-  const [serviceType, setServiceType] = useState<ServiceType>("suite");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [manageUrl, setManageUrl] = useState("");
 
   // Data
   const [suites, setSuites] = useState<Suite[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [dayPasses, setDayPasses] = useState<DayPass[]>([]);
 
+  // Cart — the reservation being built, can hold several items of different types
+  const [cart, setCart] = useState<CartItem[]>([]);
+
+  // Item builder — the form used to configure and add one item to the cart
+  const [builderType, setBuilderType] = useState<ServiceType>("suite");
+  const [builderSuiteId, setBuilderSuiteId] = useState("");
+  const [builderActivityId, setBuilderActivityId] = useState("");
+  const [builderDayPassId, setBuilderDayPassId] = useState("");
+  const [builderCheckIn, setBuilderCheckIn] = useState<Date | undefined>();
+  const [builderCheckOut, setBuilderCheckOut] = useState<Date | undefined>();
+  const [builderDate, setBuilderDate] = useState<Date | undefined>();
+  const [builderAdults, setBuilderAdults] = useState(2);
+  const [builderChildren, setBuilderChildren] = useState(0);
+
   // Personal info
   const [personal, setPersonal] = useState({ firstName: "", lastName: "", email: "", phone: "" });
-
-  // Suite state
-  const [selectedSuiteId, setSelectedSuiteId] = useState("");
-  const [checkIn, setCheckIn] = useState<Date | undefined>();
-  const [checkOut, setCheckOut] = useState<Date | undefined>();
-
-  // Activity/daypass state
-  const [selectedActivityId, setSelectedActivityId] = useState("");
-  const [selectedDayPassId, setSelectedDayPassId] = useState("");
-  const [singleDate, setSingleDate] = useState<Date | undefined>();
-
-  // Shared counters
-  const [adults, setAdults] = useState(2);
-  const [children, setChildren] = useState(0);
   const [specialReqs, setSpecialReqs] = useState("");
 
-  const selectedSuite = suites.find((s) => s.id === selectedSuiteId);
-  const maxAdults = serviceType === "suite" ? (selectedSuite?.maxGuests ?? 10) : 20;
-  const maxChildren = serviceType === "suite" ? (selectedSuite?.maxChildren ?? 6) : 10;
+  const builderSuite = suites.find((s) => s.id === builderSuiteId);
+  const maxAdults = builderType === "suite" ? (builderSuite?.maxGuests ?? 10) : 20;
+  const maxChildren = builderType === "suite" ? (builderSuite?.maxChildren ?? 6) : 10;
 
   // Clamp adults/children when suite changes
   useEffect(() => {
-    if (serviceType === "suite" && selectedSuite) {
-      if (adults > selectedSuite.maxGuests) setAdults(selectedSuite.maxGuests);
-      if (children > selectedSuite.maxChildren) setChildren(selectedSuite.maxChildren);
+    if (builderType === "suite" && builderSuite) {
+      if (builderAdults > builderSuite.maxGuests) setBuilderAdults(builderSuite.maxGuests);
+      if (builderChildren > builderSuite.maxChildren) setBuilderChildren(builderSuite.maxChildren);
     }
-  }, [selectedSuiteId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [builderSuiteId]);
 
   useEffect(() => {
     fetch("/api/suites").then((r) => r.json()).then(setSuites).catch(() => {});
@@ -327,32 +409,76 @@ export function ReservationContent() {
     fetch("/api/day-passes").then((r) => r.json()).then(setDayPasses).catch(() => {});
   }, []);
 
-  // Suite price is flat (whole tent per night, not per person). Prices are
-  // seasonal-aware and deliberately withheld until the relevant date(s) are
-  // chosen, since the total can't be known before then.
-  function calcTotal(): number {
-    if (serviceType === "suite" && selectedSuite && checkIn && checkOut) {
-      return nightlyTotal(selectedSuite.price, toWindows(selectedSuite.seasonalPrices), checkIn, checkOut);
-    }
-    if (serviceType === "activity" && singleDate) {
-      const act = activities.find((a) => a.id === selectedActivityId);
-      if (!act) return 0;
-      const unitPrice = priceForDate(act.price, toWindows(act.seasonalPrices), singleDate);
-      return adults * unitPrice + children * Math.round(unitPrice * act.childPricePercent / 100);
-    }
-    if (serviceType === "daypass" && singleDate) {
-      const pass = dayPasses.find((p) => p.id === selectedDayPassId);
-      if (!pass) return 0;
-      const unitPrice = priceForDate(pass.price, toWindows(pass.seasonalPrices), singleDate);
-      return adults * unitPrice + children * Math.round(unitPrice * pass.childPricePercent / 100);
-    }
-    return 0;
+  function resetBuilder() {
+    setBuilderSuiteId(""); setBuilderActivityId(""); setBuilderDayPassId("");
+    setBuilderCheckIn(undefined); setBuilderCheckOut(undefined); setBuilderDate(undefined);
+    setBuilderAdults(2); setBuilderChildren(0);
   }
 
-  function selectedCurrency(): string {
-    if (serviceType === "suite") return selectedSuite?.currency ?? "MAD";
-    if (serviceType === "activity") return activities.find((a) => a.id === selectedActivityId)?.currency ?? "MAD";
-    return dayPasses.find((p) => p.id === selectedDayPassId)?.currency ?? "MAD";
+  const isBuilderValid =
+    builderType === "suite"
+      ? builderSuiteId !== "" && builderCheckIn !== undefined && builderCheckOut !== undefined
+      : builderType === "activity"
+      ? builderActivityId !== "" && builderDate !== undefined
+      : builderDayPassId !== "" && builderDate !== undefined;
+
+  function addToCart() {
+    if (!isBuilderValid) return;
+
+    if (builderType === "suite" && builderSuite && builderCheckIn && builderCheckOut) {
+      const price = nightlyTotal(builderSuite.price, toWindows(builderSuite.seasonalPrices), builderCheckIn, builderCheckOut);
+      setCart((c) => [...c, {
+        key: `${Date.now()}-${Math.random()}`,
+        serviceType: "suite",
+        itemId: builderSuite.id,
+        name: localizeName(builderSuite.name, builderSuite.nameEn, builderSuite.nameEs, builderSuite.nameIt),
+        checkIn: builderCheckIn,
+        checkOut: builderCheckOut,
+        guests: builderAdults,
+        children: builderChildren,
+        price,
+        currency: builderSuite.currency,
+      }]);
+    } else if (builderType === "activity" && builderDate) {
+      const act = activities.find((a) => a.id === builderActivityId);
+      if (!act) return;
+      const unitPrice = priceForDate(act.price, toWindows(act.seasonalPrices), builderDate);
+      const price = builderAdults * unitPrice + builderChildren * Math.round(unitPrice * act.childPricePercent / 100);
+      setCart((c) => [...c, {
+        key: `${Date.now()}-${Math.random()}`,
+        serviceType: "activity",
+        itemId: act.id,
+        name: localizeName(act.name, act.nameEn, act.nameEs, act.nameIt),
+        date: builderDate,
+        guests: builderAdults,
+        children: builderChildren,
+        price,
+        currency: act.currency,
+      }]);
+    } else if (builderType === "daypass" && builderDate) {
+      const pass = dayPasses.find((p) => p.id === builderDayPassId);
+      if (!pass) return;
+      const unitPrice = priceForDate(pass.price, toWindows(pass.seasonalPrices), builderDate);
+      const price = builderAdults * unitPrice + builderChildren * Math.round(unitPrice * pass.childPricePercent / 100);
+      setCart((c) => [...c, {
+        key: `${Date.now()}-${Math.random()}`,
+        serviceType: "daypass",
+        itemId: pass.id,
+        name: localizeName(pass.name, pass.nameEn, pass.nameEs, pass.nameIt),
+        date: builderDate,
+        guests: builderAdults,
+        children: builderChildren,
+        price,
+        currency: pass.currency,
+      }]);
+    }
+
+    toast({ title: t("booking2.itemAdded") });
+    resetBuilder();
+  }
+
+  function removeFromCart(key: string) {
+    setCart((c) => c.filter((item) => item.key !== key));
   }
 
   const isPersonalValid =
@@ -361,35 +487,24 @@ export function ReservationContent() {
     personal.email.trim() !== "" &&
     personal.phone.trim() !== "";
 
-  const isDetailsValid =
-    serviceType === "suite"
-      ? selectedSuiteId !== "" && checkIn !== undefined && checkOut !== undefined
-      : serviceType === "activity"
-      ? selectedActivityId !== "" && singleDate !== undefined
-      : selectedDayPassId !== "" && singleDate !== undefined;
-
   const handleSubmit = useCallback(async () => {
     setIsSubmitting(true);
     try {
-      const payload: Record<string, unknown> = {
+      const payload = {
         ...personal,
-        serviceType,
-        guests: adults,
-        children,
         specialReqs: specialReqs || undefined,
+        items: cart.map((item) => ({
+          serviceType: item.serviceType,
+          suiteId: item.serviceType === "suite" ? item.itemId : undefined,
+          activityId: item.serviceType === "activity" ? item.itemId : undefined,
+          dayPassId: item.serviceType === "daypass" ? item.itemId : undefined,
+          checkIn: item.checkIn?.toISOString(),
+          checkOut: item.checkOut?.toISOString(),
+          date: item.date?.toISOString(),
+          guests: item.guests,
+          children: item.children,
+        })),
       };
-
-      if (serviceType === "suite") {
-        payload.suiteId = selectedSuiteId;
-        payload.checkIn = checkIn?.toISOString();
-        payload.checkOut = checkOut?.toISOString();
-      } else if (serviceType === "activity") {
-        payload.activityId = selectedActivityId;
-        payload.date = singleDate?.toISOString();
-      } else {
-        payload.dayPassId = selectedDayPassId;
-        payload.date = singleDate?.toISOString();
-      }
 
       const res = await fetch("/api/bookings", {
         method: "POST",
@@ -398,6 +513,8 @@ export function ReservationContent() {
       });
 
       if (res.ok) {
+        const data = await res.json();
+        setManageUrl(data.manageUrl ?? "");
         setStep(4);
       } else {
         toast({ title: t("booking2.errorTitle"), description: t("booking2.errorDesc"), variant: "destructive" });
@@ -407,36 +524,26 @@ export function ReservationContent() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [personal, serviceType, adults, children, specialReqs, selectedSuiteId, checkIn, checkOut, selectedActivityId, selectedDayPassId, singleDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [personal, specialReqs, cart]);
 
   const stepLabels = [
     t("booking2.stepService"),
     t("booking2.stepInfo"),
-    t("booking2.stepDetails"),
+    t("booking2.stepReview"),
     "✓",
   ];
 
-  const total = calcTotal();
+  const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
+  const cartCurrency = cart[0]?.currency ?? "MAD";
 
   function resetAll() {
     setStep(1);
     setPersonal({ firstName: "", lastName: "", email: "", phone: "" });
-    setSelectedSuiteId(""); setCheckIn(undefined); setCheckOut(undefined);
-    setSelectedActivityId(""); setSelectedDayPassId(""); setSingleDate(undefined);
-    setAdults(2); setChildren(0); setSpecialReqs("");
-  }
-
-  function getSuccessSummaryName(): string {
-    if (serviceType === "suite") {
-      const s = suites.find((x) => x.id === selectedSuiteId);
-      return s ? localizeName(s.name, s.nameEn, s.nameEs, s.nameIt) : "—";
-    }
-    if (serviceType === "activity") {
-      const a = activities.find((x) => x.id === selectedActivityId);
-      return a ? localizeName(a.name, a.nameEn, a.nameEs, a.nameIt) : "—";
-    }
-    const p = dayPasses.find((x) => x.id === selectedDayPassId);
-    return p ? localizeName(p.name, p.nameEn, p.nameEs, p.nameIt) : "—";
+    setCart([]);
+    resetBuilder();
+    setSpecialReqs("");
+    setManageUrl("");
   }
 
   const serviceTypeLabels: Record<ServiceType, string> = {
@@ -515,7 +622,7 @@ export function ReservationContent() {
 
           <AnimatePresence mode="wait">
 
-            {/* ── Step 1: Service Type ── */}
+            {/* ── Step 1: Build cart — add one or more items ── */}
             {step === 1 && (
               <motion.div
                 key="step1"
@@ -526,13 +633,13 @@ export function ReservationContent() {
                 className="glass-card card-warm p-8 md:p-10"
               >
                 <h2 className="heading-editorial text-2xl md:text-3xl mb-2">
-                  {t("booking2.chooseExperienceTitle")}
+                  {t("booking2.addItemsTitle")}
                 </h2>
                 <p className="text-sm text-muted-foreground mb-8 body-editorial">
-                  {t("booking2.chooseExperienceDesc")}
+                  {t("booking2.addItemsDesc")}
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                   {(
                     [
                       { type: "suite" as const, icon: Tent, title: t("booking2.serviceTypeTentTitle"), desc: t("booking2.serviceTypeTentDesc") },
@@ -543,21 +650,21 @@ export function ReservationContent() {
                     <button
                       key={type}
                       type="button"
-                      onClick={() => setServiceType(type)}
-                      className={`relative p-6 rounded-2xl text-left transition-all duration-400 cursor-pointer ${
-                        serviceType === type
+                      onClick={() => setBuilderType(type)}
+                      className={`relative p-5 rounded-2xl text-left transition-all duration-400 cursor-pointer ${
+                        builderType === type
                           ? "border-2 border-amber bg-amber/[0.08] shadow-lg shadow-amber/10"
                           : "border border-border/50 bg-background/50 hover:border-amber/30 hover:bg-amber/[0.04]"
                       }`}
                     >
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-all duration-300 ${
-                        serviceType === type ? "bg-amber text-warm-black" : "bg-amber/10 border border-amber/15"
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-300 ${
+                        builderType === type ? "bg-amber text-warm-black" : "bg-amber/10 border border-amber/15"
                       }`}>
-                        <Icon className={`w-6 h-6 ${serviceType === type ? "text-warm-black" : "text-amber"}`} />
+                        <Icon className={`w-5 h-5 ${builderType === type ? "text-warm-black" : "text-amber"}`} />
                       </div>
-                      <p className="font-serif text-base mb-1">{title}</p>
+                      <p className="font-serif text-sm mb-1">{title}</p>
                       <p className="text-xs text-muted-foreground body-editorial">{desc}</p>
-                      {serviceType === type && (
+                      {builderType === type && (
                         <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
                           <Check className="w-3 h-3 text-warm-black" />
                         </div>
@@ -566,14 +673,307 @@ export function ReservationContent() {
                   ))}
                 </div>
 
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => setStep(2)}
-                    className="btn-primary inline-flex items-center gap-2 cursor-pointer"
-                  >
-                    {t("booking2.continue")}
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                <div className="space-y-6">
+                  {/* ── Suite flow ── */}
+                  {builderType === "suite" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label className="luxury-label text-xs">
+                          {t("booking2.chooseTent")} *
+                        </Label>
+                        <CarouselWrapper>
+                          {suites.map((suite) => {
+                            const name = localizeName(suite.name, suite.nameEn, suite.nameEs, suite.nameIt);
+                            const cardPrice = builderCheckIn ? priceForDate(suite.price, toWindows(suite.seasonalPrices), builderCheckIn) : null;
+                            const isSeasonal = cardPrice !== null && cardPrice !== suite.price;
+                            return (
+                              <button
+                                key={suite.id}
+                                type="button"
+                                onClick={() => setBuilderSuiteId(suite.id)}
+                                className={`relative overflow-hidden rounded-2xl text-left transition-all duration-400 cursor-pointer snap-start shrink-0 w-[200px] ${
+                                  builderSuiteId === suite.id
+                                    ? "border-2 border-amber bg-amber/[0.08]"
+                                    : "border border-border/50 bg-background/50 hover:border-amber/30"
+                                }`}
+                              >
+                                {suite.image && (
+                                  <img src={suite.image} alt={name} className="w-full h-28 object-cover" />
+                                )}
+                                <div className="p-3">
+                                  <p className="font-serif text-sm mb-1">{name}</p>
+                                  <p className="text-[10px] text-muted-foreground">
+                                    {t("booking2.wholeTent")}
+                                  </p>
+                                  {cardPrice === null ? (
+                                    <p className="text-[10px] text-amber/80 mt-1">
+                                      {t("booking2.priceAfterDates")}
+                                    </p>
+                                  ) : (
+                                    <>
+                                      <div className="flex items-baseline gap-1 flex-wrap mt-1">
+                                        {suite.originalPrice && !isSeasonal && (
+                                          <span className="text-muted-foreground line-through text-xs mono-number">{suite.originalPrice}</span>
+                                        )}
+                                        <span className="mono-number text-amber text-base">{cardPrice}</span>
+                                        <span className="text-xs text-muted-foreground">{suite.currency}{t("booking2.perNight")}</span>
+                                      </div>
+                                      {isSeasonal && (
+                                        <p className="text-[10px] text-amber flex items-center gap-1">
+                                          <Sparkles className="w-2.5 h-2.5" />{t("booking2.specialRatePrefix")}
+                                        </p>
+                                      )}
+                                    </>
+                                  )}
+                                  <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground">
+                                    <span className="flex items-center gap-1"><Users className="w-3 h-3 text-amber/60" />{suite.maxGuests}</span>
+                                    <span className="flex items-center gap-1"><Baby className="w-3 h-3 text-amber/60" />{suite.maxChildren}</span>
+                                  </div>
+                                </div>
+                                {builderSuiteId === suite.id && (
+                                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
+                                    <Check className="w-3 h-3 text-warm-black" />
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </CarouselWrapper>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <DatePicker
+                          label={t("booking2.checkIn")}
+                          value={builderCheckIn}
+                          onChange={setBuilderCheckIn}
+                          placeholder={t("booking2.selectDate")}
+                          dateFnsLocale={dateFnsLocale}
+                          seasonalWindows={toWindows(builderSuite?.seasonalPrices)}
+                          t={t}
+                        />
+                        <DatePicker
+                          label={t("booking2.checkOut")}
+                          value={builderCheckOut}
+                          onChange={setBuilderCheckOut}
+                          disableBefore={builderCheckIn ?? new Date()}
+                          placeholder={t("booking2.selectDate")}
+                          dateFnsLocale={dateFnsLocale}
+                          seasonalWindows={toWindows(builderSuite?.seasonalPrices)}
+                          t={t}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* ── Activity flow ── */}
+                  {builderType === "activity" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label className="luxury-label text-xs">
+                          {t("booking2.chooseActivity")} *
+                        </Label>
+                        <CarouselWrapper>
+                          {activities.map((act) => {
+                            const name = localizeName(act.name, act.nameEn, act.nameEs, act.nameIt);
+                            const cardPrice = builderDate ? priceForDate(act.price, toWindows(act.seasonalPrices), builderDate) : null;
+                            const isSeasonal = cardPrice !== null && cardPrice !== act.price;
+                            return (
+                              <button
+                                key={act.id}
+                                type="button"
+                                onClick={() => setBuilderActivityId(act.id)}
+                                className={`relative overflow-hidden rounded-2xl text-left transition-all duration-400 cursor-pointer snap-start shrink-0 w-[200px] ${
+                                  builderActivityId === act.id
+                                    ? "border-2 border-amber bg-amber/[0.08]"
+                                    : "border border-border/50 bg-background/50 hover:border-amber/30"
+                                }`}
+                              >
+                                {act.image && (
+                                  <img src={act.image} alt={name} className="w-full h-28 object-cover" />
+                                )}
+                                <div className="p-3">
+                                  <p className="font-serif text-sm mb-1">{name}</p>
+                                  {act.duration && <p className="text-xs text-muted-foreground">{act.duration}</p>}
+                                  {cardPrice === null ? (
+                                    <p className="text-[10px] text-amber/80 mt-1">
+                                      {t("booking2.priceAfterDates")}
+                                    </p>
+                                  ) : (
+                                    <>
+                                      <div className="flex items-baseline gap-1 flex-wrap mt-1">
+                                        {act.originalPrice && !isSeasonal && (
+                                          <span className="text-muted-foreground line-through text-xs mono-number">{act.originalPrice}</span>
+                                        )}
+                                        <span className="mono-number text-amber text-base">{cardPrice}</span>
+                                        <span className="text-xs text-muted-foreground">{act.currency}{t("booking2.perPerson")}</span>
+                                      </div>
+                                      {isSeasonal && (
+                                        <p className="text-[10px] text-amber flex items-center gap-1">
+                                          <Sparkles className="w-2.5 h-2.5" />{t("booking2.specialRatePrefix")}
+                                        </p>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                                {builderActivityId === act.id && (
+                                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
+                                    <Check className="w-3 h-3 text-warm-black" />
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </CarouselWrapper>
+                      </div>
+                      <DatePicker
+                        label={t("booking2.preferredDate")}
+                        value={builderDate}
+                        onChange={setBuilderDate}
+                        placeholder={t("booking2.selectDate")}
+                        dateFnsLocale={dateFnsLocale}
+                        seasonalWindows={toWindows(activities.find((a) => a.id === builderActivityId)?.seasonalPrices)}
+                        t={t}
+                      />
+                    </>
+                  )}
+
+                  {/* ── Day Pass flow ── */}
+                  {builderType === "daypass" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label className="luxury-label text-xs">
+                          {t("booking2.chooseDayPass")} *
+                        </Label>
+                        <CarouselWrapper>
+                          {dayPasses.map((pass) => {
+                            const name = localizeName(pass.name, pass.nameEn, pass.nameEs, pass.nameIt);
+                            const cardPrice = builderDate ? priceForDate(pass.price, toWindows(pass.seasonalPrices), builderDate) : null;
+                            const isSeasonal = cardPrice !== null && cardPrice !== pass.price;
+                            return (
+                              <button
+                                key={pass.id}
+                                type="button"
+                                onClick={() => setBuilderDayPassId(pass.id)}
+                                className={`relative overflow-hidden rounded-2xl text-left transition-all duration-400 cursor-pointer snap-start shrink-0 w-[200px] ${
+                                  builderDayPassId === pass.id
+                                    ? "border-2 border-amber bg-amber/[0.08]"
+                                    : "border border-border/50 bg-background/50 hover:border-amber/30"
+                                }`}
+                              >
+                                {pass.image && (
+                                  <img src={pass.image} alt={name} className="w-full h-28 object-cover" />
+                                )}
+                                <div className="p-3">
+                                  <p className="font-serif text-sm mb-1">{name}</p>
+                                  {cardPrice === null ? (
+                                    <p className="text-[10px] text-amber/80 mt-1">
+                                      {t("booking2.priceAfterDates")}
+                                    </p>
+                                  ) : (
+                                    <>
+                                      <div className="flex items-baseline gap-1 flex-wrap mt-1">
+                                        {pass.originalPrice && !isSeasonal && (
+                                          <span className="text-muted-foreground line-through text-xs mono-number">{pass.originalPrice}</span>
+                                        )}
+                                        <span className="mono-number text-amber text-base">{cardPrice}</span>
+                                        <span className="text-xs text-muted-foreground">{pass.currency}{t("booking2.perPerson")}</span>
+                                      </div>
+                                      {isSeasonal && (
+                                        <p className="text-[10px] text-amber flex items-center gap-1">
+                                          <Sparkles className="w-2.5 h-2.5" />{t("booking2.specialRatePrefix")}
+                                        </p>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                                {builderDayPassId === pass.id && (
+                                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
+                                    <Check className="w-3 h-3 text-warm-black" />
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </CarouselWrapper>
+                      </div>
+                      <DatePicker
+                        label={t("booking2.preferredDate")}
+                        value={builderDate}
+                        onChange={setBuilderDate}
+                        placeholder={t("booking2.selectDate")}
+                        dateFnsLocale={dateFnsLocale}
+                        seasonalWindows={toWindows(dayPasses.find((p) => p.id === builderDayPassId)?.seasonalPrices)}
+                        t={t}
+                      />
+                    </>
+                  )}
+
+                  {/* Guests counters */}
+                  <div className="space-y-1">
+                    <Label className="luxury-label text-xs block mb-1">
+                      {t("booking2.guestsLabel")}
+                      {builderType === "suite" && builderSuite && (
+                        <span className="ml-2 text-muted-foreground font-normal normal-case">
+                          — {t("booking2.maxGuestsPrefix")} {builderSuite.maxGuests} {t("booking2.maxAdultsWord")} · {builderSuite.maxChildren} {t("booking2.maxChildrenWord")}
+                        </span>
+                      )}
+                    </Label>
+                    {builderType === "suite" && (
+                      <p className="text-xs text-muted-foreground mb-3 body-editorial">
+                        {t("booking2.tentPriceFixedNote")}
+                      </p>
+                    )}
+                    <div className="rounded-2xl border border-border/50 bg-background/50 px-4">
+                      <Counter
+                        value={builderAdults}
+                        min={1}
+                        max={maxAdults}
+                        onChange={setBuilderAdults}
+                        label={t("booking2.adults")}
+                        icon={Users}
+                      />
+                      <Counter
+                        value={builderChildren}
+                        min={0}
+                        max={maxChildren}
+                        onChange={setBuilderChildren}
+                        label={t("booking2.children")}
+                        icon={Baby}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={addToCart}
+                      disabled={!isBuilderValid}
+                      className="btn-outline inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      {t("booking2.addToCart")}
+                    </button>
+                  </div>
+
+                  <div className="pt-6 border-t border-border/30">
+                    <CartList cart={cart} onRemove={removeFromCart} dateFnsLocale={dateFnsLocale} t={t} />
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-2 mt-10">
+                  <div className="flex justify-end w-full">
+                    <button
+                      onClick={() => setStep(2)}
+                      disabled={cart.length === 0}
+                      className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      {t("booking2.continue")}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {cart.length === 0 && (
+                    <p className="text-xs text-muted-foreground">{t("booking2.cartRequiredNote")}</p>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -671,7 +1071,7 @@ export function ReservationContent() {
               </motion.div>
             )}
 
-            {/* ── Step 3: Service Details ── */}
+            {/* ── Step 3: Review & Submit ── */}
             {step === 3 && (
               <motion.div
                 key="step3"
@@ -681,289 +1081,16 @@ export function ReservationContent() {
                 transition={{ duration: 0.5, ease: smoothEase }}
                 className="glass-card card-warm p-8 md:p-10"
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2.5 py-1 rounded-full bg-amber/10 border border-amber/20 text-amber text-xs luxury-label">
-                    {serviceTypeLabels[serviceType]}
-                  </span>
-                </div>
                 <h2 className="heading-editorial text-2xl md:text-3xl mb-2">
-                  {t("booking2.bookingDetailsTitle")}
+                  {t("booking2.reviewTitle")}
                 </h2>
                 <p className="text-sm text-muted-foreground mb-8 body-editorial">
-                  {t("booking2.bookingDetailsDesc")}
+                  {t("booking2.reviewDesc")}
                 </p>
 
                 <div className="space-y-6">
-                  {/* ── Suite flow ── */}
-                  {serviceType === "suite" && (
-                    <>
-                      <div className="space-y-2">
-                        <Label className="luxury-label text-xs">
-                          {t("booking2.chooseTent")} *
-                        </Label>
-                        <CarouselWrapper>
-                          {suites.map((suite) => {
-                            const name = localizeName(suite.name, suite.nameEn, suite.nameEs, suite.nameIt);
-                            const cardPrice = checkIn ? priceForDate(suite.price, toWindows(suite.seasonalPrices), checkIn) : null;
-                            const isSeasonal = cardPrice !== null && cardPrice !== suite.price;
-                            return (
-                              <button
-                                key={suite.id}
-                                type="button"
-                                onClick={() => setSelectedSuiteId(suite.id)}
-                                className={`relative overflow-hidden rounded-2xl text-left transition-all duration-400 cursor-pointer snap-start shrink-0 w-[200px] ${
-                                  selectedSuiteId === suite.id
-                                    ? "border-2 border-amber bg-amber/[0.08]"
-                                    : "border border-border/50 bg-background/50 hover:border-amber/30"
-                                }`}
-                              >
-                                {suite.image && (
-                                  <img src={suite.image} alt={name} className="w-full h-28 object-cover" />
-                                )}
-                                <div className="p-3">
-                                  <p className="font-serif text-sm mb-1">{name}</p>
-                                  <p className="text-[10px] text-muted-foreground">
-                                    {t("booking2.wholeTent")}
-                                  </p>
-                                  {cardPrice === null ? (
-                                    <p className="text-[10px] text-amber/80 mt-1">
-                                      {t("booking2.priceAfterDates")}
-                                    </p>
-                                  ) : (
-                                    <>
-                                      <div className="flex items-baseline gap-1 flex-wrap mt-1">
-                                        {suite.originalPrice && !isSeasonal && (
-                                          <span className="text-muted-foreground line-through text-xs mono-number">{suite.originalPrice}</span>
-                                        )}
-                                        <span className="mono-number text-amber text-base">{cardPrice}</span>
-                                        <span className="text-xs text-muted-foreground">{suite.currency}{t("booking2.perNight")}</span>
-                                      </div>
-                                      {isSeasonal && (
-                                        <p className="text-[10px] text-amber flex items-center gap-1">
-                                          <Sparkles className="w-2.5 h-2.5" />{t("booking2.specialRatePrefix")}
-                                        </p>
-                                      )}
-                                    </>
-                                  )}
-                                  <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground">
-                                    <span className="flex items-center gap-1"><Users className="w-3 h-3 text-amber/60" />{suite.maxGuests}</span>
-                                    <span className="flex items-center gap-1"><Baby className="w-3 h-3 text-amber/60" />{suite.maxChildren}</span>
-                                  </div>
-                                </div>
-                                {selectedSuiteId === suite.id && (
-                                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
-                                    <Check className="w-3 h-3 text-warm-black" />
-                                  </div>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </CarouselWrapper>
-                      </div>
+                  <CartList cart={cart} onRemove={removeFromCart} dateFnsLocale={dateFnsLocale} t={t} />
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <DatePicker
-                          label={t("booking2.checkIn")}
-                          value={checkIn}
-                          onChange={setCheckIn}
-                          placeholder={t("booking2.selectDate")}
-                          dateFnsLocale={dateFnsLocale}
-                          seasonalWindows={toWindows(selectedSuite?.seasonalPrices)}
-                          t={t}
-                        />
-                        <DatePicker
-                          label={t("booking2.checkOut")}
-                          value={checkOut}
-                          onChange={setCheckOut}
-                          disableBefore={checkIn ?? new Date()}
-                          placeholder={t("booking2.selectDate")}
-                          dateFnsLocale={dateFnsLocale}
-                          seasonalWindows={toWindows(selectedSuite?.seasonalPrices)}
-                          t={t}
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {/* ── Activity flow ── */}
-                  {serviceType === "activity" && (
-                    <>
-                      <div className="space-y-2">
-                        <Label className="luxury-label text-xs">
-                          {t("booking2.chooseActivity")} *
-                        </Label>
-                        <CarouselWrapper>
-                          {activities.map((act) => {
-                            const name = localizeName(act.name, act.nameEn, act.nameEs, act.nameIt);
-                            const cardPrice = singleDate ? priceForDate(act.price, toWindows(act.seasonalPrices), singleDate) : null;
-                            const isSeasonal = cardPrice !== null && cardPrice !== act.price;
-                            return (
-                              <button
-                                key={act.id}
-                                type="button"
-                                onClick={() => setSelectedActivityId(act.id)}
-                                className={`relative overflow-hidden rounded-2xl text-left transition-all duration-400 cursor-pointer snap-start shrink-0 w-[200px] ${
-                                  selectedActivityId === act.id
-                                    ? "border-2 border-amber bg-amber/[0.08]"
-                                    : "border border-border/50 bg-background/50 hover:border-amber/30"
-                                }`}
-                              >
-                                {act.image && (
-                                  <img src={act.image} alt={name} className="w-full h-28 object-cover" />
-                                )}
-                                <div className="p-3">
-                                  <p className="font-serif text-sm mb-1">{name}</p>
-                                  {act.duration && <p className="text-xs text-muted-foreground">{act.duration}</p>}
-                                  {cardPrice === null ? (
-                                    <p className="text-[10px] text-amber/80 mt-1">
-                                      {t("booking2.priceAfterDates")}
-                                    </p>
-                                  ) : (
-                                    <>
-                                      <div className="flex items-baseline gap-1 flex-wrap mt-1">
-                                        {act.originalPrice && !isSeasonal && (
-                                          <span className="text-muted-foreground line-through text-xs mono-number">{act.originalPrice}</span>
-                                        )}
-                                        <span className="mono-number text-amber text-base">{cardPrice}</span>
-                                        <span className="text-xs text-muted-foreground">{act.currency}{t("booking2.perPerson")}</span>
-                                      </div>
-                                      {isSeasonal && (
-                                        <p className="text-[10px] text-amber flex items-center gap-1">
-                                          <Sparkles className="w-2.5 h-2.5" />{t("booking2.specialRatePrefix")}
-                                        </p>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                                {selectedActivityId === act.id && (
-                                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
-                                    <Check className="w-3 h-3 text-warm-black" />
-                                  </div>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </CarouselWrapper>
-                      </div>
-                      <DatePicker
-                        label={t("booking2.preferredDate")}
-                        value={singleDate}
-                        onChange={setSingleDate}
-                        placeholder={t("booking2.selectDate")}
-                        dateFnsLocale={dateFnsLocale}
-                        seasonalWindows={toWindows(activities.find((a) => a.id === selectedActivityId)?.seasonalPrices)}
-                        t={t}
-                      />
-                    </>
-                  )}
-
-                  {/* ── Day Pass flow ── */}
-                  {serviceType === "daypass" && (
-                    <>
-                      <div className="space-y-2">
-                        <Label className="luxury-label text-xs">
-                          {t("booking2.chooseDayPass")} *
-                        </Label>
-                        <CarouselWrapper>
-                          {dayPasses.map((pass) => {
-                            const name = localizeName(pass.name, pass.nameEn, pass.nameEs, pass.nameIt);
-                            const cardPrice = singleDate ? priceForDate(pass.price, toWindows(pass.seasonalPrices), singleDate) : null;
-                            const isSeasonal = cardPrice !== null && cardPrice !== pass.price;
-                            return (
-                              <button
-                                key={pass.id}
-                                type="button"
-                                onClick={() => setSelectedDayPassId(pass.id)}
-                                className={`relative overflow-hidden rounded-2xl text-left transition-all duration-400 cursor-pointer snap-start shrink-0 w-[200px] ${
-                                  selectedDayPassId === pass.id
-                                    ? "border-2 border-amber bg-amber/[0.08]"
-                                    : "border border-border/50 bg-background/50 hover:border-amber/30"
-                                }`}
-                              >
-                                {pass.image && (
-                                  <img src={pass.image} alt={name} className="w-full h-28 object-cover" />
-                                )}
-                                <div className="p-3">
-                                  <p className="font-serif text-sm mb-1">{name}</p>
-                                  {cardPrice === null ? (
-                                    <p className="text-[10px] text-amber/80 mt-1">
-                                      {t("booking2.priceAfterDates")}
-                                    </p>
-                                  ) : (
-                                    <>
-                                      <div className="flex items-baseline gap-1 flex-wrap mt-1">
-                                        {pass.originalPrice && !isSeasonal && (
-                                          <span className="text-muted-foreground line-through text-xs mono-number">{pass.originalPrice}</span>
-                                        )}
-                                        <span className="mono-number text-amber text-base">{cardPrice}</span>
-                                        <span className="text-xs text-muted-foreground">{pass.currency}{t("booking2.perPerson")}</span>
-                                      </div>
-                                      {isSeasonal && (
-                                        <p className="text-[10px] text-amber flex items-center gap-1">
-                                          <Sparkles className="w-2.5 h-2.5" />{t("booking2.specialRatePrefix")}
-                                        </p>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                                {selectedDayPassId === pass.id && (
-                                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
-                                    <Check className="w-3 h-3 text-warm-black" />
-                                  </div>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </CarouselWrapper>
-                      </div>
-                      <DatePicker
-                        label={t("booking2.preferredDate")}
-                        value={singleDate}
-                        onChange={setSingleDate}
-                        placeholder={t("booking2.selectDate")}
-                        dateFnsLocale={dateFnsLocale}
-                        seasonalWindows={toWindows(dayPasses.find((p) => p.id === selectedDayPassId)?.seasonalPrices)}
-                        t={t}
-                      />
-                    </>
-                  )}
-
-                  {/* Guests counters */}
-                  <div className="space-y-1">
-                    <Label className="luxury-label text-xs block mb-1">
-                      {t("booking2.guestsLabel")}
-                      {serviceType === "suite" && selectedSuite && (
-                        <span className="ml-2 text-muted-foreground font-normal normal-case">
-                          — {t("booking2.maxGuestsPrefix")} {selectedSuite.maxGuests} {t("booking2.maxAdultsWord")} · {selectedSuite.maxChildren} {t("booking2.maxChildrenWord")}
-                        </span>
-                      )}
-                    </Label>
-                    {serviceType === "suite" && (
-                      <p className="text-xs text-muted-foreground mb-3 body-editorial">
-                        {t("booking2.tentPriceFixedNote")}
-                      </p>
-                    )}
-                    <div className="rounded-2xl border border-border/50 bg-background/50 px-4">
-                      <Counter
-                        value={adults}
-                        min={1}
-                        max={maxAdults}
-                        onChange={setAdults}
-                        label={t("booking2.adults")}
-                        icon={Users}
-                      />
-                      <Counter
-                        value={children}
-                        min={0}
-                        max={maxChildren}
-                        onChange={setChildren}
-                        label={t("booking2.children")}
-                        icon={Baby}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Special requests */}
                   <div className="space-y-2">
                     <Label htmlFor="specialReqs" className="luxury-label text-xs">
                       {t("booking2.specialRequests")}{" "}
@@ -978,21 +1105,6 @@ export function ReservationContent() {
                       placeholder={t("booking2.specialRequestsPlaceholder")}
                     />
                   </div>
-
-                  {/* Live price summary */}
-                  {total > 0 && (
-                    <div className="rounded-2xl border border-amber/20 bg-amber/[0.04] p-4">
-                      <p className="luxury-label text-amber mb-2">{t("booking2.estimatedTotal")}</p>
-                      <p className="mono-number text-3xl text-amber">
-                        {total.toLocaleString("fr-FR")} <span className="text-base text-muted-foreground font-sans font-normal">{selectedCurrency()}</span>
-                      </p>
-                      {children > 0 && (
-                        <p className="text-xs text-muted-foreground mt-1 body-editorial">
-                          {adults} {t("booking2.adults")} + {children} {t("booking2.children")}
-                        </p>
-                      )}
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex justify-between mt-10">
@@ -1002,7 +1114,7 @@ export function ReservationContent() {
                   </button>
                   <button
                     onClick={handleSubmit}
-                    disabled={!isDetailsValid || isSubmitting}
+                    disabled={cart.length === 0 || isSubmitting}
                     className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {isSubmitting ? (
@@ -1040,54 +1152,39 @@ export function ReservationContent() {
                   {t("booking2.thankYouDesc")}
                 </p>
 
-                <div className="max-w-md mx-auto glass-card p-6 text-left space-y-3 mb-10">
+                <div className="max-w-md mx-auto glass-card p-6 text-left space-y-3 mb-8">
                   <p className="luxury-label text-amber mb-3">
                     {t("booking2.summary")}
                   </p>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t("booking2.summaryService")}</span>
-                    <span className="font-medium">{serviceTypeLabels[serviceType]}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{serviceType === "suite" ? t("booking2.summaryTent") : serviceType === "activity" ? t("booking2.summaryActivity") : "Day Pass"}</span>
-                    <span>{getSuccessSummaryName()}</span>
-                  </div>
-                  <div className="h-px bg-border/30" />
-                  {serviceType === "suite" && (
-                    <>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">{t("booking2.checkIn")}</span>
-                        <span>{checkIn ? format(checkIn, "dd MMM yyyy", { locale: dateFnsLocale }) : "—"}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">{t("booking2.checkOut")}</span>
-                        <span>{checkOut ? format(checkOut, "dd MMM yyyy", { locale: dateFnsLocale }) : "—"}</span>
-                      </div>
-                    </>
-                  )}
-                  {serviceType !== "suite" && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t("booking2.summaryDate")}</span>
-                      <span>{singleDate ? format(singleDate, "dd MMM yyyy", { locale: dateFnsLocale }) : "—"}</span>
+                  {cart.map((item) => (
+                    <div key={item.key} className="flex justify-between text-sm gap-4">
+                      <span className="text-muted-foreground">{serviceTypeLabels[item.serviceType]} — {item.name}</span>
+                      <span className="text-right shrink-0">{item.price.toLocaleString("fr-FR")} {item.currency}</span>
                     </div>
-                  )}
-                  <div className="h-px bg-border/30" />
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t("booking2.summaryAdults")}</span>
-                    <span>{adults}</span>
-                  </div>
-                  {children > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t("booking2.summaryChildren")}</span>
-                      <span>{children}</span>
-                    </div>
-                  )}
+                  ))}
                   <div className="h-px bg-border/30" />
                   <div className="flex justify-between text-sm font-medium">
                     <span className="text-muted-foreground">{t("booking2.summaryTotal")}</span>
-                    <span className="text-amber mono-number">{total.toLocaleString("fr-FR")} {selectedCurrency()}</span>
+                    <span className="text-amber mono-number">{cartTotal.toLocaleString("fr-FR")} {cartCurrency}</span>
                   </div>
                 </div>
+
+                {manageUrl && (
+                  <div className="max-w-md mx-auto mb-10 p-4 rounded-2xl border border-amber/20 bg-amber/[0.04]">
+                    <p className="text-xs text-muted-foreground body-editorial mb-3">
+                      {t("booking2.manageLinkNote")}
+                    </p>
+                    <a
+                      href={manageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-outline inline-flex items-center gap-2 text-sm cursor-pointer"
+                    >
+                      {t("booking2.manageLinkButton")}
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                )}
 
                 <button
                   onClick={resetAll}
