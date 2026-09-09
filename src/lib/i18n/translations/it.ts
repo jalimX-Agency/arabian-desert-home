@@ -420,6 +420,7 @@ export const it: Record<string, unknown> = {
     itemAdded: "Prestazione aggiunta al carrello",
     addActivityTitle: "Aggiungere un'attività?",
     addActivityDesc: "Approfittatene per aggiungere una o più attività, ciascuna con la propria data.",
+    addActivityRequiredNote: "Aggiungi un'attività al carrello, oppure deseleziona la casella qui sopra.",
   },
 
   // Footer

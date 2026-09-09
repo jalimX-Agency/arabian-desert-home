@@ -420,6 +420,7 @@ export const fr: Record<string, unknown> = {
     itemAdded: "Prestation ajoutée au panier",
     addActivityTitle: "Ajouter une activité ?",
     addActivityDesc: "Profitez-en pour ajouter une ou plusieurs activités — chacune avec sa propre date.",
+    addActivityRequiredNote: "Veuillez ajouter une activité au panier, ou décocher la case ci-dessus.",
   },
 
   // Footer

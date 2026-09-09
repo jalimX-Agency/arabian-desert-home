@@ -420,6 +420,7 @@ export const es: Record<string, unknown> = {
     itemAdded: "Prestación añadida al carrito",
     addActivityTitle: "¿Añadir una actividad?",
     addActivityDesc: "Aproveche para añadir una o varias actividades, cada una con su propia fecha.",
+    addActivityRequiredNote: "Añada una actividad al carrito, o desmarque la casilla de arriba.",
   },
 
   // Footer

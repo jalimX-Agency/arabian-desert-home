@@ -281,7 +281,7 @@ function DatePicker({
       </Dialog>
       {activeWindow && (
         <p className="text-xs text-amber flex items-center gap-1.5">
-          <Sparkles className="w-3 h-3" /> {t("booking2.specialRatePrefix")} « {activeWindow.label} »
+          <Sparkles className="w-3 h-3" /> {t("booking2.specialRatePrefix")}
         </p>
       )}
     </div>
@@ -378,14 +378,15 @@ export function ReservationContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [manageUrl, setManageUrl] = useState("");
   const isFirstRender = useRef(true);
+  const wizardRef = useRef<HTMLElement>(null);
 
-  // Scroll back to the top of the form on every step change, for good UX.
+  // Scroll back to the top of the wizard (not the whole page) on every step change.
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    wizardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [step]);
 
   // Data
@@ -482,6 +483,10 @@ export function ReservationContent() {
       : primaryType === "activity"
       ? activityId !== "" && primaryDate !== undefined
       : dayPassId !== "" && primaryDate !== undefined;
+
+  // The user checked "add an activity?" but never actually added one to the cart.
+  const addOnIncomplete = wantsAddOn && addOns.length === 0;
+  const canContinueStep2 = isPrimaryValid && !addOnIncomplete;
 
   const canAddOn =
     primaryType === "suite" ? checkIn !== undefined :
@@ -684,7 +689,7 @@ export function ReservationContent() {
       </section>
 
       {/* Form */}
-      <section className="relative py-16 md:py-24 px-6 md:px-10 pattern-dots">
+      <section ref={wizardRef} className="relative py-16 md:py-24 px-6 md:px-10 pattern-dots">
         <div className="max-w-3xl mx-auto">
           {/* Step indicators */}
           <div className="flex items-center justify-center gap-2 mb-12">
@@ -1188,14 +1193,20 @@ export function ReservationContent() {
                   )}
                 </div>
 
-                <div className="flex justify-between mt-10">
+                {addOnIncomplete && (
+                  <p className="text-xs text-amber text-right mt-4">
+                    {t("booking2.addActivityRequiredNote")}
+                  </p>
+                )}
+
+                <div className="flex justify-between mt-4">
                   <button onClick={() => setStep(1)} className="btn-outline inline-flex items-center gap-2 cursor-pointer">
                     <ArrowLeft className="w-4 h-4" />
                     {t("booking2.back")}
                   </button>
                   <button
                     onClick={() => setStep(3)}
-                    disabled={!isPrimaryValid}
+                    disabled={!canContinueStep2}
                     className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {t("booking2.continue")}

@@ -420,6 +420,7 @@ export const en: Record<string, unknown> = {
     itemAdded: "Item added to cart",
     addActivityTitle: "Add an activity?",
     addActivityDesc: "Feel free to add one or more activities — each with its own date.",
+    addActivityRequiredNote: "Please add an activity to the cart, or uncheck the box above.",
   },
 
   // Footer
