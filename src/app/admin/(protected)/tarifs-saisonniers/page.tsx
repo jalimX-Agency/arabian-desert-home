@@ -10,6 +10,7 @@ type TargetType = "suite" | "activity" | "dayPass";
 interface EntityOption {
   id: string;
   name: string;
+  price?: number;
 }
 
 interface SeasonalPrice {
@@ -48,6 +49,10 @@ function targetName(sp: SeasonalPrice): string {
   return sp.suite?.name ?? sp.activity?.name ?? sp.dayPass?.name ?? "—";
 }
 
+function prefillPrice(id: string, options: EntityOption[]): string {
+  return String(options.find((o) => o.id === id)?.price ?? "");
+}
+
 export default function TarifsSaisonniersPage() {
   const [prices, setPrices] = useState<SeasonalPrice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,11 +63,12 @@ export default function TarifsSaisonniersPage() {
 
   const [targetType, setTargetType] = useState<TargetType>("suite");
   const [targetIds, setTargetIds] = useState<string[]>([]);
+  const [itemPrices, setItemPrices] = useState<Record<string, string>>({});
   const [options, setOptions] = useState<EntityOption[]>([]);
   const [label, setLabel] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [price, setPrice] = useState("");
+  const [price, setPrice] = useState(""); // edit mode only — one row, one price
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -85,17 +91,30 @@ export default function TarifsSaisonniersPage() {
   }, [targetType]);
 
   function toggleTarget(id: string) {
-    setTargetIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    setTargetIds((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      setItemPrices((ip) => (ip[id] !== undefined ? ip : { ...ip, [id]: prefillPrice(id, options) }));
+      return [...prev, id];
+    });
   }
 
   function toggleAllTargets() {
-    setTargetIds((prev) => (prev.length === options.length ? [] : options.map((o) => o.id)));
+    setTargetIds((prev) => {
+      if (prev.length === options.length) return [];
+      setItemPrices((ip) => {
+        const next = { ...ip };
+        options.forEach((o) => { if (next[o.id] === undefined) next[o.id] = String(o.price ?? ""); });
+        return next;
+      });
+      return options.map((o) => o.id);
+    });
   }
 
   function openCreate() {
     setEditing(null);
     setTargetType("suite");
     setTargetIds([]);
+    setItemPrices({});
     setLabel("");
     setStartDate("");
     setEndDate("");
@@ -108,6 +127,7 @@ export default function TarifsSaisonniersPage() {
     setEditing(sp);
     setTargetType(targetTypeOf(sp));
     setTargetIds([sp.suiteId ?? sp.activityId ?? sp.dayPassId ?? ""]);
+    setItemPrices({});
     setLabel(sp.label);
     setStartDate(sp.startDate.slice(0, 10));
     setEndDate(sp.endDate.slice(0, 10));
@@ -117,17 +137,27 @@ export default function TarifsSaisonniersPage() {
   }
 
   async function handleSave() {
-    if (!label || !startDate || !endDate || !price || targetIds.length === 0) {
-      setError(modal === "create" ? "Tous les champs sont requis, et au moins un élément doit être sélectionné." : "Tous les champs sont requis.");
+    if (!label || !startDate || !endDate || targetIds.length === 0) {
+      setError("Tous les champs sont requis, et au moins un élément doit être sélectionné.");
+      return;
+    }
+    if (modal === "edit" && !price) {
+      setError("Le prix est requis.");
+      return;
+    }
+    if (modal === "create" && targetIds.some((id) => !itemPrices[id] || Number(itemPrices[id]) <= 0)) {
+      setError("Indiquez un prix pour chaque élément sélectionné.");
       return;
     }
     setSaving(true);
     setError("");
     try {
-      const body: Record<string, unknown> = { label, startDate, endDate, price: Number(price) };
+      const body: Record<string, unknown> = { label, startDate, endDate };
       if (modal === "create") {
         body.targetType = targetType;
-        body.targetIds = targetIds;
+        body.items = targetIds.map((id) => ({ id, price: Number(itemPrices[id]) }));
+      } else {
+        body.price = Number(price);
       }
       const url = modal === "edit" ? `/api/admin/seasonal-prices/${editing!.id}` : "/api/admin/seasonal-prices";
       const method = modal === "edit" ? "PUT" : "POST";
@@ -275,28 +305,50 @@ export default function TarifsSaisonniersPage() {
                     </button>
                   )}
                 </div>
-                <div className="max-h-44 overflow-y-auto border border-gray-300 dark:border-gray-700 rounded-lg divide-y divide-gray-100 dark:divide-gray-800">
+                <div className="max-h-56 overflow-y-auto border border-gray-300 dark:border-gray-700 rounded-lg divide-y divide-gray-100 dark:divide-gray-800">
                   {options.length === 0 && (
                     <p className="px-3 py-2.5 text-sm text-gray-400">Aucun élément disponible</p>
                   )}
-                  {options.map((o) => (
-                    <label
-                      key={o.id}
-                      className={`flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 ${
-                        modal === "edit" ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={targetIds.includes(o.id)}
-                        disabled={modal === "edit"}
-                        onChange={() => toggleTarget(o.id)}
-                        className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 disabled:cursor-not-allowed"
-                      />
-                      {o.name}
-                    </label>
-                  ))}
+                  {options.map((o) => {
+                    const checked = targetIds.includes(o.id);
+                    return (
+                      <div
+                        key={o.id}
+                        className={`flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 ${
+                          modal === "edit" ? "opacity-50" : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={modal === "edit"}
+                          onChange={() => toggleTarget(o.id)}
+                          className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-amber-500 focus:ring-amber-500 disabled:cursor-not-allowed cursor-pointer"
+                        />
+                        <span
+                          onClick={() => modal === "create" && toggleTarget(o.id)}
+                          className={`flex-1 ${modal === "create" ? "cursor-pointer" : ""}`}
+                        >
+                          {o.name}
+                        </span>
+                        {modal === "create" && checked && (
+                          <input
+                            type="number"
+                            value={itemPrices[o.id] ?? ""}
+                            onChange={(e) => setItemPrices((ip) => ({ ...ip, [o.id]: e.target.value }))}
+                            placeholder="Prix"
+                            className="w-24 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md px-2 py-1.5 text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/70 focus:ring-1 focus:ring-amber-500/30"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
+                {modal === "create" && (
+                  <p className="text-xs text-gray-400 mt-1.5">
+                    Le prix est pré-rempli avec le tarif actuel de chaque élément — ajustez-le pour cette période.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -315,10 +367,12 @@ export default function TarifsSaisonniersPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">Prix pour cette période *</label>
-                <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="ex: 250" className={inputClass} />
-              </div>
+              {modal === "edit" && (
+                <div>
+                  <label className="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5">Prix pour cette période *</label>
+                  <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="ex: 250" className={inputClass} />
+                </div>
+              )}
 
               {error && <p className="text-red-500 text-sm">{error}</p>}
             </div>
