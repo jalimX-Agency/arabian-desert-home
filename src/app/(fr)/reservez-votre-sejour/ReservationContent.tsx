@@ -377,6 +377,16 @@ export function ReservationContent() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [manageUrl, setManageUrl] = useState("");
+  const isFirstRender = useRef(true);
+
+  // Scroll back to the top of the form on every step change, for good UX.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
 
   // Data
   const [suites, setSuites] = useState<Suite[]>([]);
@@ -398,6 +408,7 @@ export function ReservationContent() {
   // date(s) set. Never offered on top of another activity, and Day Pass is
   // never offered as an add-on to a tent stay (redundant: tent guests
   // already have full property access).
+  const [wantsAddOn, setWantsAddOn] = useState(false);
   const [addOns, setAddOns] = useState<CartItem[]>([]);
   const [addOnActivityId, setAddOnActivityId] = useState("");
   const [addOnDate, setAddOnDate] = useState<Date | undefined>();
@@ -450,6 +461,7 @@ export function ReservationContent() {
     setTentQuantities({}); setCheckIn(undefined); setCheckOut(undefined);
     setActivityId(""); setDayPassId(""); setPrimaryDate(undefined);
     setPrimaryAdults(2); setPrimaryChildren(0);
+    setWantsAddOn(false);
     setAddOns([]); setAddOnActivityId(""); setAddOnDate(undefined);
     setAddOnAdults(2); setAddOnChildren(0);
   }
@@ -471,7 +483,7 @@ export function ReservationContent() {
       ? activityId !== "" && primaryDate !== undefined
       : dayPassId !== "" && primaryDate !== undefined;
 
-  const showAddOnSection =
+  const canAddOn =
     primaryType === "suite" ? checkIn !== undefined :
     primaryType === "daypass" ? primaryDate !== undefined :
     false;
@@ -624,6 +636,7 @@ export function ReservationContent() {
     setTentQuantities({}); setCheckIn(undefined); setCheckOut(undefined);
     setActivityId(""); setDayPassId(""); setPrimaryDate(undefined);
     setPrimaryAdults(2); setPrimaryChildren(0);
+    setWantsAddOn(false);
     setAddOns([]);
     setSpecialReqs("");
     setManageUrl("");
@@ -1071,13 +1084,27 @@ export function ReservationContent() {
                   </div>
 
                   {/* ── Optional activity add-ons — only after a tent or Day Pass has its date(s) ── */}
-                  {showAddOnSection && (
+                  {canAddOn && (
                     <div className="pt-6 border-t border-border/30 space-y-5">
-                      <div>
-                        <h3 className="heading-editorial text-lg mb-1">{t("booking2.addActivityTitle")}</h3>
-                        <p className="text-xs text-muted-foreground body-editorial">{t("booking2.addActivityDesc")}</p>
-                      </div>
+                      <label className="flex items-start gap-3 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={wantsAddOn}
+                          onChange={(e) => setWantsAddOn(e.target.checked)}
+                          className="mt-1 w-4 h-4 rounded border-border/50 text-amber focus:ring-amber cursor-pointer"
+                        />
+                        <span>
+                          <span className="heading-editorial text-lg block mb-1 group-hover:text-amber transition-colors duration-200">
+                            {t("booking2.addActivityTitle")}
+                          </span>
+                          <span className="text-xs text-muted-foreground body-editorial block">
+                            {t("booking2.addActivityDesc")}
+                          </span>
+                        </span>
+                      </label>
 
+                      {wantsAddOn && (
+                      <>
                       <CarouselWrapper>
                         {activities.map((act) => {
                           const name = localizeName(act.name, act.nameEn, act.nameEs, act.nameIt);
@@ -1155,6 +1182,8 @@ export function ReservationContent() {
                       </div>
 
                       <CartList cart={addOns} onRemove={removeAddOn} dateFnsLocale={dateFnsLocale} t={t} hideEmptyState />
+                      </>
+                      )}
                     </div>
                   )}
                 </div>

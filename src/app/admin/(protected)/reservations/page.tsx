@@ -89,6 +89,26 @@ function formatDateCell(b: Booking): React.ReactNode {
   return "—";
 }
 
+interface ReservationGroup {
+  id: string;
+  items: Booking[];
+}
+
+/** Groups line-item bookings back into one reservation per customer submission. */
+function groupBookings(bookings: Booking[]): ReservationGroup[] {
+  const map = new Map<string, Booking[]>();
+  for (const b of bookings) {
+    const key = b.reservation?.id ?? b.id;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(b);
+  }
+  return Array.from(map.entries()).map(([id, items]) => ({ id, items }));
+}
+
+function groupTotalAmount(g: ReservationGroup): number {
+  return g.items[0]?.reservation?.totalAmount ?? g.items.reduce((sum, b) => sum + b.totalAmount, 0);
+}
+
 interface CalendarEntry {
   booking: Booking;
   date: Date;
@@ -181,7 +201,7 @@ export default function ReservationsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
-  const [selected, setSelected] = useState<Booking | null>(null);
+  const [selected, setSelected] = useState<ReservationGroup | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const selectAllRef = useRef<HTMLInputElement>(null);
   const [view, setView] = useState<"table" | "calendar">("table");
@@ -195,27 +215,38 @@ export default function ReservationsPage() {
 
   useEffect(() => { load(); }, []);
 
-  async function updateStatus(id: string, status: string) {
-    await fetch(`/api/admin/bookings/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
+  async function updateStatus(group: ReservationGroup, status: string) {
+    await Promise.all(
+      group.items.map((b) =>
+        fetch(`/api/admin/bookings/${b.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        })
+      )
+    );
     await load();
-    setSelected((prev) => (prev && prev.id === id ? { ...prev, status } : prev));
+    setSelected((prev) =>
+      prev && prev.id === group.id
+        ? { ...prev, items: prev.items.map((b) => ({ ...b, status })) }
+        : prev
+    );
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Supprimer cette réservation ? Cette action est irréversible.")) return;
-    await fetch(`/api/admin/bookings/${id}`, { method: "DELETE" });
-    setBookings((prev) => prev.filter((b) => b.id !== id));
-    setSelected((prev) => (prev && prev.id === id ? null : prev));
+  async function handleDelete(group: ReservationGroup) {
+    const label = group.items.length > 1 ? `cette réservation (${group.items.length} prestations)` : "cette réservation";
+    if (!confirm(`Supprimer ${label} ? Cette action est irréversible.`)) return;
+    const ids = new Set(group.items.map((b) => b.id));
+    await Promise.all([...ids].map((id) => fetch(`/api/admin/bookings/${id}`, { method: "DELETE" })));
+    setBookings((prev) => prev.filter((b) => !ids.has(b.id)));
+    setSelected((prev) => (prev && prev.id === group.id ? null : prev));
   }
 
   const filtered = filter === "all" ? bookings : bookings.filter((b) => b.status === filter);
+  const groups = groupBookings(filtered);
 
-  const allFilteredSelected = filtered.length > 0 && filtered.every((b) => selectedIds.has(b.id));
-  const someFilteredSelected = filtered.some((b) => selectedIds.has(b.id));
+  const allFilteredSelected = groups.length > 0 && groups.every((g) => selectedIds.has(g.id));
+  const someFilteredSelected = groups.some((g) => selectedIds.has(g.id));
 
   useEffect(() => {
     if (selectAllRef.current) {
@@ -236,9 +267,9 @@ export default function ReservationsPage() {
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (allFilteredSelected) {
-        filtered.forEach((b) => next.delete(b.id));
+        groups.forEach((g) => next.delete(g.id));
       } else {
-        filtered.forEach((b) => next.add(b.id));
+        groups.forEach((g) => next.add(g.id));
       }
       return next;
     });
@@ -256,7 +287,7 @@ export default function ReservationsPage() {
   }
 
   function exportSelected() {
-    const toExport = bookings.filter((b) => selectedIds.has(b.id));
+    const toExport = bookings.filter((b) => selectedIds.has(b.reservation?.id ?? b.id));
     if (toExport.length === 0) return;
     const csv = bookingsToCsv(toExport);
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
@@ -387,7 +418,10 @@ export default function ReservationsPage() {
                     {entries.slice(0, 3).map((entry, i) => (
                       <button
                         key={`${entry.booking.id}-${i}`}
-                        onClick={() => setSelected(entry.booking)}
+                        onClick={() => {
+                          const g = groups.find((grp) => grp.items.some((i) => i.id === entry.booking.id));
+                          if (g) setSelected(g);
+                        }}
                         title={`${entry.booking.firstName} ${entry.booking.lastName} — ${entry.label}`}
                         className={`w-full text-left truncate px-1.5 py-0.5 rounded text-[11px] border cursor-pointer ${statusColors[entry.booking.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"}`}
                       >
@@ -434,75 +468,84 @@ export default function ReservationsPage() {
             <TableSkeleton />
           ) : (
             <tbody>
-              {filtered.length === 0 && (
+              {groups.length === 0 && (
                 <tr><td colSpan={8} className="px-5 py-8 text-center text-gray-400">Aucune réservation</td></tr>
               )}
-              {filtered.map((b) => (
-                <tr
-                  key={b.id}
-                  onClick={() => setSelected(b)}
-                  className="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
-                >
-                  <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(b.id)}
-                      onChange={() => toggleOne(b.id)}
-                      aria-label={`Sélectionner la réservation de ${b.firstName} ${b.lastName}`}
-                      className="w-4 h-4 rounded border-gray-300 dark:border-white/20 text-amber-500 focus:ring-amber-500 cursor-pointer"
-                    />
-                  </td>
-                  <td className="px-5 py-4">
-                    <p className="text-gray-900 dark:text-white flex items-center gap-1.5">
-                      {b.firstName} {b.lastName}
-                      {b.reservation && b.reservation._count.items > 1 && (
-                        <span
-                          title={`Fait partie d'une réservation de ${b.reservation._count.items} prestations — total ${b.reservation.totalAmount.toLocaleString("fr-FR")} ${b.reservation.currency}`}
-                          className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium"
-                        >
-                          {b.reservation._count.items} articles
-                        </span>
+              {groups.map((g) => {
+                const primary = g.items[0];
+                const allSameStatus = g.items.every((b) => b.status === primary.status);
+                return (
+                  <tr
+                    key={g.id}
+                    onClick={() => setSelected(g)}
+                    className="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
+                  >
+                    <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(g.id)}
+                        onChange={() => toggleOne(g.id)}
+                        aria-label={`Sélectionner la réservation de ${primary.firstName} ${primary.lastName}`}
+                        className="w-4 h-4 rounded border-gray-300 dark:border-white/20 text-amber-500 focus:ring-amber-500 cursor-pointer"
+                      />
+                    </td>
+                    <td className="px-5 py-4">
+                      <p className="text-gray-900 dark:text-white flex items-center gap-1.5">
+                        {primary.firstName} {primary.lastName}
+                        {g.items.length > 1 && (
+                          <span
+                            title={`Réservation de ${g.items.length} prestations — total ${groupTotalAmount(g).toLocaleString("fr-FR")} ${primary.currency}`}
+                            className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium"
+                          >
+                            {g.items.length} prestations
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-xs text-gray-400">{primary.email}</p>
+                      {primary.phone && <p className="text-xs text-gray-400">{primary.phone}</p>}
+                    </td>
+                    <td className="px-5 py-4 space-y-1">
+                      {g.items.map((b) => (
+                        <div key={b.id}>
+                          <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium mb-0.5 ${serviceTypeBadge[b.serviceType] ?? "bg-gray-100 text-gray-600"}`}>
+                            {serviceTypeLabel[b.serviceType] ?? b.serviceType}
+                          </span>
+                          <p className="text-gray-600 dark:text-white/70 text-xs">{getServiceName(b)}</p>
+                        </div>
+                      ))}
+                    </td>
+                    <td className="px-5 py-4 text-gray-600 dark:text-white/70 text-xs space-y-1.5">
+                      {g.items.map((b) => <div key={b.id}>{formatDateCell(b)}</div>)}
+                    </td>
+                    <td className="px-5 py-4 text-gray-600 dark:text-white/70">
+                      <span>{primary.guests} adulte{primary.guests > 1 ? "s" : ""}</span>
+                      {primary.children > 0 && (
+                        <span className="block text-xs text-gray-400">{primary.children} enfant{primary.children > 1 ? "s" : ""}</span>
                       )}
-                    </p>
-                    <p className="text-xs text-gray-400">{b.email}</p>
-                    {b.phone && <p className="text-xs text-gray-400">{b.phone}</p>}
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium mb-1 ${serviceTypeBadge[b.serviceType] ?? "bg-gray-100 text-gray-600"}`}>
-                      {serviceTypeLabel[b.serviceType] ?? b.serviceType}
-                    </span>
-                    <p className="text-gray-600 dark:text-white/70 text-xs">{getServiceName(b)}</p>
-                  </td>
-                  <td className="px-5 py-4 text-gray-600 dark:text-white/70 text-xs">
-                    {formatDateCell(b)}
-                  </td>
-                  <td className="px-5 py-4 text-gray-600 dark:text-white/70">
-                    <span>{b.guests} adulte{b.guests > 1 ? "s" : ""}</span>
-                    {b.children > 0 && (
-                      <span className="block text-xs text-gray-400">{b.children} enfant{b.children > 1 ? "s" : ""}</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-4 text-amber-600 dark:text-amber-400">{b.totalAmount.toLocaleString("fr-FR")} {b.currency ?? "MAD"}</td>
-                  <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
-                    <select
-                      value={b.status}
-                      onChange={(e) => updateStatus(b.id, e.target.value)}
-                      className={`text-xs px-2 py-1 rounded-lg border bg-transparent cursor-pointer ${statusColors[b.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"}`}
-                    >
-                      {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </td>
-                  <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => handleDelete(b.id)}
-                      className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-300 dark:text-white/20 hover:text-red-500 transition-colors cursor-pointer"
-                      title="Supprimer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-5 py-4 text-amber-600 dark:text-amber-400">{groupTotalAmount(g).toLocaleString("fr-FR")} {primary.currency ?? "MAD"}</td>
+                    <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                      <select
+                        value={allSameStatus ? primary.status : ""}
+                        onChange={(e) => updateStatus(g, e.target.value)}
+                        className={`text-xs px-2 py-1 rounded-lg border bg-transparent cursor-pointer ${statusColors[primary.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"}`}
+                      >
+                        {!allSameStatus && <option value="">Mixte</option>}
+                        {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </td>
+                    <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => handleDelete(g)}
+                        className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-300 dark:text-white/20 hover:text-red-500 transition-colors cursor-pointer"
+                        title="Supprimer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           )}
         </table>
@@ -511,91 +554,90 @@ export default function ReservationsPage() {
 
       <Dialog open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent className="sm:max-w-xl">
-          {selected && (
-            <>
-              <DialogHeader>
-                <DialogTitle>{selected.firstName} {selected.lastName}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 text-sm">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Email</p>
-                    <p className="text-gray-900 dark:text-white break-all">{selected.email}</p>
+          {selected && (() => {
+            const primary = selected.items[0];
+            const allSameStatus = selected.items.every((b) => b.status === primary.status);
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle>{primary.firstName} {primary.lastName}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 text-sm">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Email</p>
+                      <p className="text-gray-900 dark:text-white break-all">{primary.email}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Téléphone</p>
+                      <p className="text-gray-900 dark:text-white">{primary.phone || "—"}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Téléphone</p>
-                    <p className="text-gray-900 dark:text-white">{selected.phone || "—"}</p>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Service</p>
-                    <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium ${serviceTypeBadge[selected.serviceType] ?? "bg-gray-100 text-gray-600"}`}>
-                      {serviceTypeLabel[selected.serviceType] ?? selected.serviceType}
-                    </span>
-                    <p className="text-gray-600 dark:text-white/70 text-xs mt-1">{getServiceName(selected)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Date(s)</p>
-                    <p className="text-gray-900 dark:text-white text-xs">{formatDateCell(selected)}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Personnes</p>
-                    <p className="text-gray-900 dark:text-white">
-                      {selected.guests} adulte{selected.guests > 1 ? "s" : ""}
-                      {selected.children > 0 && `, ${selected.children} enfant${selected.children > 1 ? "s" : ""}`}
+                    <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">
+                      Prestations{selected.items.length > 1 ? ` (${selected.items.length})` : ""}
                     </p>
+                    <div className="space-y-2">
+                      {selected.items.map((b) => (
+                        <div key={b.id} className="rounded-lg border border-gray-200 dark:border-white/10 px-3 py-2.5 flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium mb-1 ${serviceTypeBadge[b.serviceType] ?? "bg-gray-100 text-gray-600"}`}>
+                              {serviceTypeLabel[b.serviceType] ?? b.serviceType}
+                            </span>
+                            <p className="text-gray-900 dark:text-white text-xs truncate">{getServiceName(b)}</p>
+                            <p className="text-gray-500 dark:text-white/50 text-xs">{formatDateCell(b)}</p>
+                            <p className="text-gray-500 dark:text-white/50 text-xs">
+                              {b.guests} adulte{b.guests > 1 ? "s" : ""}
+                              {b.children > 0 && `, ${b.children} enfant${b.children > 1 ? "s" : ""}`}
+                            </p>
+                          </div>
+                          <span className="text-amber-600 dark:text-amber-400 text-xs shrink-0">{b.totalAmount.toLocaleString("fr-FR")} {b.currency ?? "MAD"}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Montant</p>
-                    <p className="text-amber-600 dark:text-amber-400">{selected.totalAmount.toLocaleString("fr-FR")} {selected.currency ?? "MAD"}</p>
-                  </div>
-                </div>
 
-                {selected.reservation && selected.reservation._count.items > 1 && (
-                  <div className="rounded-lg bg-blue-50 dark:bg-blue-500/10 px-3 py-2.5 text-xs text-blue-700 dark:text-blue-400">
-                    Fait partie d&apos;une réservation de {selected.reservation._count.items} prestations —
-                    total combiné {selected.reservation.totalAmount.toLocaleString("fr-FR")} {selected.reservation.currency}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Montant total</p>
+                      <p className="text-amber-600 dark:text-amber-400 font-medium">{groupTotalAmount(selected).toLocaleString("fr-FR")} {primary.currency ?? "MAD"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Reçue le</p>
+                      <p className="text-gray-900 dark:text-white text-xs">{format(new Date(primary.createdAt), "d MMM yyyy à HH:mm", { locale: fr })}</p>
+                    </div>
                   </div>
-                )}
 
-                {selected.experiences && (
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Expériences</p>
-                    <p className="text-gray-900 dark:text-white">{selected.experiences}</p>
-                  </div>
-                )}
+                  {primary.experiences && (
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Expériences</p>
+                      <p className="text-gray-900 dark:text-white">{primary.experiences}</p>
+                    </div>
+                  )}
 
-                {selected.specialReqs && (
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Demandes spéciales</p>
-                    <p className="text-gray-900 dark:text-white">{selected.specialReqs}</p>
-                  </div>
-                )}
+                  {primary.specialReqs && (
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Demandes spéciales</p>
+                      <p className="text-gray-900 dark:text-white">{primary.specialReqs}</p>
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Statut</p>
                     <select
-                      value={selected.status}
-                      onChange={(e) => updateStatus(selected.id, e.target.value)}
-                      className={`text-xs px-2 py-1 rounded-lg border bg-transparent cursor-pointer ${statusColors[selected.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"}`}
+                      value={allSameStatus ? primary.status : ""}
+                      onChange={(e) => updateStatus(selected, e.target.value)}
+                      className={`text-xs px-2 py-1 rounded-lg border bg-transparent cursor-pointer ${statusColors[primary.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"}`}
                     >
+                      {!allSameStatus && <option value="">Mixte</option>}
                       {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-400 mb-1">Reçue le</p>
-                    <p className="text-gray-900 dark:text-white text-xs">{format(new Date(selected.createdAt), "d MMM yyyy à HH:mm", { locale: fr })}</p>
-                  </div>
                 </div>
-              </div>
-            </>
-          )}
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>
