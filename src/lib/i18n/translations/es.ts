@@ -428,6 +428,8 @@ export const es: Record<string, unknown> = {
     manageLinkNote: "Puede gestionar su reserva (cancelar una prestación) en cualquier momento a través del enlace enviado por email.",
     manageLinkButton: "Gestionar mi reserva",
     itemAdded: "Prestación añadida al carrito",
+    addActivityTitle: "¿Añadir una actividad?",
+    addActivityDesc: "Aproveche para añadir una o varias actividades, cada una con su propia fecha.",
   },
 
   // Footer

@@ -292,21 +292,27 @@ function CartList({
   onRemove,
   dateFnsLocale,
   t,
+  titleText,
+  hideEmptyState = false,
 }: {
   cart: CartItem[];
   onRemove: (key: string) => void;
   dateFnsLocale: Locale;
   t: (key: string) => string;
+  titleText?: string;
+  hideEmptyState?: boolean;
 }) {
   const SERVICE_ICON: Record<ServiceType, React.ElementType> = { suite: Tent, activity: Bike, daypass: Sun };
   const total = cart.reduce((sum, item) => sum + item.price, 0);
   const currency = cart[0]?.currency ?? "MAD";
 
+  if (cart.length === 0 && hideEmptyState) return null;
+
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
         <ShoppingBag className="w-4 h-4 text-amber" />
-        <h3 className="luxury-label text-amber">{t("booking2.cartTitle")}{cart.length > 0 ? ` (${cart.length})` : ""}</h3>
+        <h3 className="luxury-label text-amber">{titleText ?? t("booking2.cartTitle")}{cart.length > 0 ? ` (${cart.length})` : ""}</h3>
       </div>
       {cart.length === 0 ? (
         <p className="text-sm text-muted-foreground body-editorial">{t("booking2.cartEmpty")}</p>
@@ -353,6 +359,8 @@ function CartList({
   );
 }
 
+type PrimaryType = "suite" | "activity" | "daypass";
+
 export function ReservationContent() {
   const heroRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true });
@@ -372,36 +380,43 @@ export function ReservationContent() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [dayPasses, setDayPasses] = useState<DayPass[]>([]);
 
-  // Cart — the reservation being built, can hold several items of different types
-  const [cart, setCart] = useState<CartItem[]>([]);
+  // The primary item — a tent stay, one activity, or one Day Pass.
+  const [primaryType, setPrimaryType] = useState<PrimaryType>("suite");
+  const [suiteId, setSuiteId] = useState("");
+  const [checkIn, setCheckIn] = useState<Date | undefined>();
+  const [checkOut, setCheckOut] = useState<Date | undefined>();
+  const [activityId, setActivityId] = useState("");
+  const [dayPassId, setDayPassId] = useState("");
+  const [primaryDate, setPrimaryDate] = useState<Date | undefined>();
+  const [primaryAdults, setPrimaryAdults] = useState(2);
+  const [primaryChildren, setPrimaryChildren] = useState(0);
 
-  // Item builder — the form used to configure and add one item to the cart
-  const [builderType, setBuilderType] = useState<ServiceType>("suite");
-  const [builderSuiteId, setBuilderSuiteId] = useState("");
-  const [builderActivityId, setBuilderActivityId] = useState("");
-  const [builderDayPassId, setBuilderDayPassId] = useState("");
-  const [builderCheckIn, setBuilderCheckIn] = useState<Date | undefined>();
-  const [builderCheckOut, setBuilderCheckOut] = useState<Date | undefined>();
-  const [builderDate, setBuilderDate] = useState<Date | undefined>();
-  const [builderAdults, setBuilderAdults] = useState(2);
-  const [builderChildren, setBuilderChildren] = useState(0);
+  // Add-on activities — only offered once a tent stay or a Day Pass has its
+  // date(s) set. Never offered on top of another activity, and Day Pass is
+  // never offered as an add-on to a tent stay (redundant: tent guests
+  // already have full property access).
+  const [addOns, setAddOns] = useState<CartItem[]>([]);
+  const [addOnActivityId, setAddOnActivityId] = useState("");
+  const [addOnDate, setAddOnDate] = useState<Date | undefined>();
+  const [addOnAdults, setAddOnAdults] = useState(2);
+  const [addOnChildren, setAddOnChildren] = useState(0);
 
   // Personal info
   const [personal, setPersonal] = useState({ firstName: "", lastName: "", email: "", phone: "" });
   const [specialReqs, setSpecialReqs] = useState("");
 
-  const builderSuite = suites.find((s) => s.id === builderSuiteId);
-  const maxAdults = builderType === "suite" ? (builderSuite?.maxGuests ?? 10) : 20;
-  const maxChildren = builderType === "suite" ? (builderSuite?.maxChildren ?? 6) : 10;
+  const selectedSuite = suites.find((s) => s.id === suiteId);
+  const maxAdults = primaryType === "suite" ? (selectedSuite?.maxGuests ?? 10) : 20;
+  const maxChildren = primaryType === "suite" ? (selectedSuite?.maxChildren ?? 6) : 10;
 
-  // Clamp adults/children when suite changes
+  // Clamp guests when suite changes
   useEffect(() => {
-    if (builderType === "suite" && builderSuite) {
-      if (builderAdults > builderSuite.maxGuests) setBuilderAdults(builderSuite.maxGuests);
-      if (builderChildren > builderSuite.maxChildren) setBuilderChildren(builderSuite.maxChildren);
+    if (primaryType === "suite" && selectedSuite) {
+      if (primaryAdults > selectedSuite.maxGuests) setPrimaryAdults(selectedSuite.maxGuests);
+      if (primaryChildren > selectedSuite.maxChildren) setPrimaryChildren(selectedSuite.maxChildren);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [builderSuiteId]);
+  }, [suiteId]);
 
   useEffect(() => {
     fetch("/api/suites").then((r) => r.json()).then(setSuites).catch(() => {});
@@ -409,77 +424,120 @@ export function ReservationContent() {
     fetch("/api/day-passes").then((r) => r.json()).then(setDayPasses).catch(() => {});
   }, []);
 
-  function resetBuilder() {
-    setBuilderSuiteId(""); setBuilderActivityId(""); setBuilderDayPassId("");
-    setBuilderCheckIn(undefined); setBuilderCheckOut(undefined); setBuilderDate(undefined);
-    setBuilderAdults(2); setBuilderChildren(0);
+  // Changing the primary type starts a fresh selection — including add-ons,
+  // since Day Pass add-ons are only meaningful attached to their own primary.
+  function selectPrimaryType(next: PrimaryType) {
+    if (next === primaryType) return;
+    setPrimaryType(next);
+    setSuiteId(""); setCheckIn(undefined); setCheckOut(undefined);
+    setActivityId(""); setDayPassId(""); setPrimaryDate(undefined);
+    setPrimaryAdults(2); setPrimaryChildren(0);
+    setAddOns([]); setAddOnActivityId(""); setAddOnDate(undefined);
+    setAddOnAdults(2); setAddOnChildren(0);
   }
 
-  const isBuilderValid =
-    builderType === "suite"
-      ? builderSuiteId !== "" && builderCheckIn !== undefined && builderCheckOut !== undefined
-      : builderType === "activity"
-      ? builderActivityId !== "" && builderDate !== undefined
-      : builderDayPassId !== "" && builderDate !== undefined;
+  // Suggest the primary date as the add-on's starting date once it's known —
+  // only as a default; the guest can still change it.
+  useEffect(() => {
+    if (addOnDate === undefined) {
+      if (primaryType === "suite" && checkIn) setAddOnDate(checkIn);
+      else if (primaryType === "daypass" && primaryDate) setAddOnDate(primaryDate);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkIn, primaryDate]);
 
-  function addToCart() {
-    if (!isBuilderValid) return;
+  const isPrimaryValid =
+    primaryType === "suite"
+      ? suiteId !== "" && checkIn !== undefined && checkOut !== undefined
+      : primaryType === "activity"
+      ? activityId !== "" && primaryDate !== undefined
+      : dayPassId !== "" && primaryDate !== undefined;
 
-    if (builderType === "suite" && builderSuite && builderCheckIn && builderCheckOut) {
-      const price = nightlyTotal(builderSuite.price, toWindows(builderSuite.seasonalPrices), builderCheckIn, builderCheckOut);
-      setCart((c) => [...c, {
-        key: `${Date.now()}-${Math.random()}`,
+  const showAddOnSection =
+    primaryType === "suite" ? checkIn !== undefined :
+    primaryType === "daypass" ? primaryDate !== undefined :
+    false;
+
+  const isAddOnValid = addOnActivityId !== "" && addOnDate !== undefined;
+
+  function addActivityAddOn() {
+    if (!isAddOnValid || !addOnDate) return;
+    const act = activities.find((a) => a.id === addOnActivityId);
+    if (!act) return;
+    const unitPrice = priceForDate(act.price, toWindows(act.seasonalPrices), addOnDate);
+    const price = addOnAdults * unitPrice + addOnChildren * Math.round(unitPrice * act.childPricePercent / 100);
+    setAddOns((c) => [...c, {
+      key: `${Date.now()}-${Math.random()}`,
+      serviceType: "activity",
+      itemId: act.id,
+      name: localizeName(act.name, act.nameEn, act.nameEs, act.nameIt),
+      date: addOnDate,
+      guests: addOnAdults,
+      children: addOnChildren,
+      price,
+      currency: act.currency,
+    }]);
+    setAddOnActivityId("");
+    setAddOnAdults(2);
+    setAddOnChildren(0);
+    toast({ title: t("booking2.itemAdded") });
+  }
+
+  function removeAddOn(key: string) {
+    setAddOns((c) => c.filter((item) => item.key !== key));
+  }
+
+  /** The primary item, in the same shape as an add-on, for review/submit. */
+  function getPrimaryCartItem(): CartItem | null {
+    if (primaryType === "suite" && selectedSuite && checkIn && checkOut) {
+      return {
+        key: "primary",
         serviceType: "suite",
-        itemId: builderSuite.id,
-        name: localizeName(builderSuite.name, builderSuite.nameEn, builderSuite.nameEs, builderSuite.nameIt),
-        checkIn: builderCheckIn,
-        checkOut: builderCheckOut,
-        guests: builderAdults,
-        children: builderChildren,
-        price,
-        currency: builderSuite.currency,
-      }]);
-    } else if (builderType === "activity" && builderDate) {
-      const act = activities.find((a) => a.id === builderActivityId);
-      if (!act) return;
-      const unitPrice = priceForDate(act.price, toWindows(act.seasonalPrices), builderDate);
-      const price = builderAdults * unitPrice + builderChildren * Math.round(unitPrice * act.childPricePercent / 100);
-      setCart((c) => [...c, {
-        key: `${Date.now()}-${Math.random()}`,
+        itemId: selectedSuite.id,
+        name: localizeName(selectedSuite.name, selectedSuite.nameEn, selectedSuite.nameEs, selectedSuite.nameIt),
+        checkIn, checkOut,
+        guests: primaryAdults, children: primaryChildren,
+        price: nightlyTotal(selectedSuite.price, toWindows(selectedSuite.seasonalPrices), checkIn, checkOut),
+        currency: selectedSuite.currency,
+      };
+    }
+    if (primaryType === "activity" && primaryDate) {
+      const act = activities.find((a) => a.id === activityId);
+      if (!act) return null;
+      const unitPrice = priceForDate(act.price, toWindows(act.seasonalPrices), primaryDate);
+      return {
+        key: "primary",
         serviceType: "activity",
         itemId: act.id,
         name: localizeName(act.name, act.nameEn, act.nameEs, act.nameIt),
-        date: builderDate,
-        guests: builderAdults,
-        children: builderChildren,
-        price,
+        date: primaryDate,
+        guests: primaryAdults, children: primaryChildren,
+        price: primaryAdults * unitPrice + primaryChildren * Math.round(unitPrice * act.childPricePercent / 100),
         currency: act.currency,
-      }]);
-    } else if (builderType === "daypass" && builderDate) {
-      const pass = dayPasses.find((p) => p.id === builderDayPassId);
-      if (!pass) return;
-      const unitPrice = priceForDate(pass.price, toWindows(pass.seasonalPrices), builderDate);
-      const price = builderAdults * unitPrice + builderChildren * Math.round(unitPrice * pass.childPricePercent / 100);
-      setCart((c) => [...c, {
-        key: `${Date.now()}-${Math.random()}`,
+      };
+    }
+    if (primaryType === "daypass" && primaryDate) {
+      const pass = dayPasses.find((p) => p.id === dayPassId);
+      if (!pass) return null;
+      const unitPrice = priceForDate(pass.price, toWindows(pass.seasonalPrices), primaryDate);
+      return {
+        key: "primary",
         serviceType: "daypass",
         itemId: pass.id,
         name: localizeName(pass.name, pass.nameEn, pass.nameEs, pass.nameIt),
-        date: builderDate,
-        guests: builderAdults,
-        children: builderChildren,
-        price,
+        date: primaryDate,
+        guests: primaryAdults, children: primaryChildren,
+        price: primaryAdults * unitPrice + primaryChildren * Math.round(unitPrice * pass.childPricePercent / 100),
         currency: pass.currency,
-      }]);
+      };
     }
-
-    toast({ title: t("booking2.itemAdded") });
-    resetBuilder();
+    return null;
   }
 
-  function removeFromCart(key: string) {
-    setCart((c) => c.filter((item) => item.key !== key));
-  }
+  const primaryCartItem = getPrimaryCartItem();
+  const allItems = primaryCartItem ? [primaryCartItem, ...addOns] : addOns;
+  const grandTotal = allItems.reduce((sum, item) => sum + item.price, 0);
+  const grandCurrency = allItems[0]?.currency ?? "MAD";
 
   const isPersonalValid =
     personal.firstName.trim() !== "" &&
@@ -493,7 +551,7 @@ export function ReservationContent() {
       const payload = {
         ...personal,
         specialReqs: specialReqs || undefined,
-        items: cart.map((item) => ({
+        items: allItems.map((item) => ({
           serviceType: item.serviceType,
           suiteId: item.serviceType === "suite" ? item.itemId : undefined,
           activityId: item.serviceType === "activity" ? item.itemId : undefined,
@@ -525,7 +583,7 @@ export function ReservationContent() {
       setIsSubmitting(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [personal, specialReqs, cart]);
+  }, [personal, specialReqs, allItems]);
 
   const stepLabels = [
     t("booking2.stepService"),
@@ -534,19 +592,19 @@ export function ReservationContent() {
     "✓",
   ];
 
-  const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
-  const cartCurrency = cart[0]?.currency ?? "MAD";
-
   function resetAll() {
     setStep(1);
     setPersonal({ firstName: "", lastName: "", email: "", phone: "" });
-    setCart([]);
-    resetBuilder();
+    selectPrimaryType("suite");
+    setSuiteId(""); setCheckIn(undefined); setCheckOut(undefined);
+    setActivityId(""); setDayPassId(""); setPrimaryDate(undefined);
+    setPrimaryAdults(2); setPrimaryChildren(0);
+    setAddOns([]);
     setSpecialReqs("");
     setManageUrl("");
   }
 
-  const serviceTypeLabels: Record<ServiceType, string> = {
+  const serviceTypeLabels: Record<PrimaryType, string> = {
     suite: t("booking2.serviceTypeSuiteLabel"),
     activity: t("booking2.serviceTypeActivityLabel"),
     daypass: "Day Pass",
@@ -622,7 +680,7 @@ export function ReservationContent() {
 
           <AnimatePresence mode="wait">
 
-            {/* ── Step 1: Build cart — add one or more items ── */}
+            {/* ── Step 1: Primary item + optional activity add-ons ── */}
             {step === 1 && (
               <motion.div
                 key="step1"
@@ -633,13 +691,13 @@ export function ReservationContent() {
                 className="glass-card card-warm p-8 md:p-10"
               >
                 <h2 className="heading-editorial text-2xl md:text-3xl mb-2">
-                  {t("booking2.addItemsTitle")}
+                  {t("booking2.chooseExperienceTitle")}
                 </h2>
                 <p className="text-sm text-muted-foreground mb-8 body-editorial">
-                  {t("booking2.addItemsDesc")}
+                  {t("booking2.chooseExperienceDesc")}
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
                   {(
                     [
                       { type: "suite" as const, icon: Tent, title: t("booking2.serviceTypeTentTitle"), desc: t("booking2.serviceTypeTentDesc") },
@@ -650,21 +708,21 @@ export function ReservationContent() {
                     <button
                       key={type}
                       type="button"
-                      onClick={() => setBuilderType(type)}
-                      className={`relative p-5 rounded-2xl text-left transition-all duration-400 cursor-pointer ${
-                        builderType === type
+                      onClick={() => selectPrimaryType(type)}
+                      className={`relative p-6 rounded-2xl text-left transition-all duration-400 cursor-pointer ${
+                        primaryType === type
                           ? "border-2 border-amber bg-amber/[0.08] shadow-lg shadow-amber/10"
                           : "border border-border/50 bg-background/50 hover:border-amber/30 hover:bg-amber/[0.04]"
                       }`}
                     >
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-300 ${
-                        builderType === type ? "bg-amber text-warm-black" : "bg-amber/10 border border-amber/15"
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-all duration-300 ${
+                        primaryType === type ? "bg-amber text-warm-black" : "bg-amber/10 border border-amber/15"
                       }`}>
-                        <Icon className={`w-5 h-5 ${builderType === type ? "text-warm-black" : "text-amber"}`} />
+                        <Icon className={`w-6 h-6 ${primaryType === type ? "text-warm-black" : "text-amber"}`} />
                       </div>
-                      <p className="font-serif text-sm mb-1">{title}</p>
+                      <p className="font-serif text-base mb-1">{title}</p>
                       <p className="text-xs text-muted-foreground body-editorial">{desc}</p>
-                      {builderType === type && (
+                      {primaryType === type && (
                         <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
                           <Check className="w-3 h-3 text-warm-black" />
                         </div>
@@ -675,7 +733,7 @@ export function ReservationContent() {
 
                 <div className="space-y-6">
                   {/* ── Suite flow ── */}
-                  {builderType === "suite" && (
+                  {primaryType === "suite" && (
                     <>
                       <div className="space-y-2">
                         <Label className="luxury-label text-xs">
@@ -684,15 +742,15 @@ export function ReservationContent() {
                         <CarouselWrapper>
                           {suites.map((suite) => {
                             const name = localizeName(suite.name, suite.nameEn, suite.nameEs, suite.nameIt);
-                            const cardPrice = builderCheckIn ? priceForDate(suite.price, toWindows(suite.seasonalPrices), builderCheckIn) : null;
+                            const cardPrice = checkIn ? priceForDate(suite.price, toWindows(suite.seasonalPrices), checkIn) : null;
                             const isSeasonal = cardPrice !== null && cardPrice !== suite.price;
                             return (
                               <button
                                 key={suite.id}
                                 type="button"
-                                onClick={() => setBuilderSuiteId(suite.id)}
+                                onClick={() => setSuiteId(suite.id)}
                                 className={`relative overflow-hidden rounded-2xl text-left transition-all duration-400 cursor-pointer snap-start shrink-0 w-[200px] ${
-                                  builderSuiteId === suite.id
+                                  suiteId === suite.id
                                     ? "border-2 border-amber bg-amber/[0.08]"
                                     : "border border-border/50 bg-background/50 hover:border-amber/30"
                                 }`}
@@ -730,7 +788,7 @@ export function ReservationContent() {
                                     <span className="flex items-center gap-1"><Baby className="w-3 h-3 text-amber/60" />{suite.maxChildren}</span>
                                   </div>
                                 </div>
-                                {builderSuiteId === suite.id && (
+                                {suiteId === suite.id && (
                                   <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
                                     <Check className="w-3 h-3 text-warm-black" />
                                   </div>
@@ -744,29 +802,29 @@ export function ReservationContent() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <DatePicker
                           label={t("booking2.checkIn")}
-                          value={builderCheckIn}
-                          onChange={setBuilderCheckIn}
+                          value={checkIn}
+                          onChange={setCheckIn}
                           placeholder={t("booking2.selectDate")}
                           dateFnsLocale={dateFnsLocale}
-                          seasonalWindows={toWindows(builderSuite?.seasonalPrices)}
+                          seasonalWindows={toWindows(selectedSuite?.seasonalPrices)}
                           t={t}
                         />
                         <DatePicker
                           label={t("booking2.checkOut")}
-                          value={builderCheckOut}
-                          onChange={setBuilderCheckOut}
-                          disableBefore={builderCheckIn ?? new Date()}
+                          value={checkOut}
+                          onChange={setCheckOut}
+                          disableBefore={checkIn ?? new Date()}
                           placeholder={t("booking2.selectDate")}
                           dateFnsLocale={dateFnsLocale}
-                          seasonalWindows={toWindows(builderSuite?.seasonalPrices)}
+                          seasonalWindows={toWindows(selectedSuite?.seasonalPrices)}
                           t={t}
                         />
                       </div>
                     </>
                   )}
 
-                  {/* ── Activity flow ── */}
-                  {builderType === "activity" && (
+                  {/* ── Activity flow (standalone — no add-ons) ── */}
+                  {primaryType === "activity" && (
                     <>
                       <div className="space-y-2">
                         <Label className="luxury-label text-xs">
@@ -775,15 +833,15 @@ export function ReservationContent() {
                         <CarouselWrapper>
                           {activities.map((act) => {
                             const name = localizeName(act.name, act.nameEn, act.nameEs, act.nameIt);
-                            const cardPrice = builderDate ? priceForDate(act.price, toWindows(act.seasonalPrices), builderDate) : null;
+                            const cardPrice = primaryDate ? priceForDate(act.price, toWindows(act.seasonalPrices), primaryDate) : null;
                             const isSeasonal = cardPrice !== null && cardPrice !== act.price;
                             return (
                               <button
                                 key={act.id}
                                 type="button"
-                                onClick={() => setBuilderActivityId(act.id)}
+                                onClick={() => setActivityId(act.id)}
                                 className={`relative overflow-hidden rounded-2xl text-left transition-all duration-400 cursor-pointer snap-start shrink-0 w-[200px] ${
-                                  builderActivityId === act.id
+                                  activityId === act.id
                                     ? "border-2 border-amber bg-amber/[0.08]"
                                     : "border border-border/50 bg-background/50 hover:border-amber/30"
                                 }`}
@@ -815,7 +873,7 @@ export function ReservationContent() {
                                     </>
                                   )}
                                 </div>
-                                {builderActivityId === act.id && (
+                                {activityId === act.id && (
                                   <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
                                     <Check className="w-3 h-3 text-warm-black" />
                                   </div>
@@ -827,18 +885,18 @@ export function ReservationContent() {
                       </div>
                       <DatePicker
                         label={t("booking2.preferredDate")}
-                        value={builderDate}
-                        onChange={setBuilderDate}
+                        value={primaryDate}
+                        onChange={setPrimaryDate}
                         placeholder={t("booking2.selectDate")}
                         dateFnsLocale={dateFnsLocale}
-                        seasonalWindows={toWindows(activities.find((a) => a.id === builderActivityId)?.seasonalPrices)}
+                        seasonalWindows={toWindows(activities.find((a) => a.id === activityId)?.seasonalPrices)}
                         t={t}
                       />
                     </>
                   )}
 
                   {/* ── Day Pass flow ── */}
-                  {builderType === "daypass" && (
+                  {primaryType === "daypass" && (
                     <>
                       <div className="space-y-2">
                         <Label className="luxury-label text-xs">
@@ -847,15 +905,15 @@ export function ReservationContent() {
                         <CarouselWrapper>
                           {dayPasses.map((pass) => {
                             const name = localizeName(pass.name, pass.nameEn, pass.nameEs, pass.nameIt);
-                            const cardPrice = builderDate ? priceForDate(pass.price, toWindows(pass.seasonalPrices), builderDate) : null;
+                            const cardPrice = primaryDate ? priceForDate(pass.price, toWindows(pass.seasonalPrices), primaryDate) : null;
                             const isSeasonal = cardPrice !== null && cardPrice !== pass.price;
                             return (
                               <button
                                 key={pass.id}
                                 type="button"
-                                onClick={() => setBuilderDayPassId(pass.id)}
+                                onClick={() => setDayPassId(pass.id)}
                                 className={`relative overflow-hidden rounded-2xl text-left transition-all duration-400 cursor-pointer snap-start shrink-0 w-[200px] ${
-                                  builderDayPassId === pass.id
+                                  dayPassId === pass.id
                                     ? "border-2 border-amber bg-amber/[0.08]"
                                     : "border border-border/50 bg-background/50 hover:border-amber/30"
                                 }`}
@@ -886,7 +944,7 @@ export function ReservationContent() {
                                     </>
                                   )}
                                 </div>
-                                {builderDayPassId === pass.id && (
+                                {dayPassId === pass.id && (
                                   <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
                                     <Check className="w-3 h-3 text-warm-black" />
                                   </div>
@@ -898,11 +956,11 @@ export function ReservationContent() {
                       </div>
                       <DatePicker
                         label={t("booking2.preferredDate")}
-                        value={builderDate}
-                        onChange={setBuilderDate}
+                        value={primaryDate}
+                        onChange={setPrimaryDate}
                         placeholder={t("booking2.selectDate")}
                         dateFnsLocale={dateFnsLocale}
-                        seasonalWindows={toWindows(dayPasses.find((p) => p.id === builderDayPassId)?.seasonalPrices)}
+                        seasonalWindows={toWindows(dayPasses.find((p) => p.id === dayPassId)?.seasonalPrices)}
                         t={t}
                       />
                     </>
@@ -912,68 +970,135 @@ export function ReservationContent() {
                   <div className="space-y-1">
                     <Label className="luxury-label text-xs block mb-1">
                       {t("booking2.guestsLabel")}
-                      {builderType === "suite" && builderSuite && (
+                      {primaryType === "suite" && selectedSuite && (
                         <span className="ml-2 text-muted-foreground font-normal normal-case">
-                          — {t("booking2.maxGuestsPrefix")} {builderSuite.maxGuests} {t("booking2.maxAdultsWord")} · {builderSuite.maxChildren} {t("booking2.maxChildrenWord")}
+                          — {t("booking2.maxGuestsPrefix")} {selectedSuite.maxGuests} {t("booking2.maxAdultsWord")} · {selectedSuite.maxChildren} {t("booking2.maxChildrenWord")}
                         </span>
                       )}
                     </Label>
-                    {builderType === "suite" && (
+                    {primaryType === "suite" && (
                       <p className="text-xs text-muted-foreground mb-3 body-editorial">
                         {t("booking2.tentPriceFixedNote")}
                       </p>
                     )}
                     <div className="rounded-2xl border border-border/50 bg-background/50 px-4">
                       <Counter
-                        value={builderAdults}
+                        value={primaryAdults}
                         min={1}
                         max={maxAdults}
-                        onChange={setBuilderAdults}
+                        onChange={setPrimaryAdults}
                         label={t("booking2.adults")}
                         icon={Users}
                       />
                       <Counter
-                        value={builderChildren}
+                        value={primaryChildren}
                         min={0}
                         max={maxChildren}
-                        onChange={setBuilderChildren}
+                        onChange={setPrimaryChildren}
                         label={t("booking2.children")}
                         icon={Baby}
                       />
                     </div>
                   </div>
 
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={addToCart}
-                      disabled={!isBuilderValid}
-                      className="btn-outline inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4" />
-                      {t("booking2.addToCart")}
-                    </button>
-                  </div>
+                  {/* ── Optional activity add-ons — only after a tent or Day Pass has its date(s) ── */}
+                  {showAddOnSection && (
+                    <div className="pt-6 border-t border-border/30 space-y-5">
+                      <div>
+                        <h3 className="heading-editorial text-lg mb-1">{t("booking2.addActivityTitle")}</h3>
+                        <p className="text-xs text-muted-foreground body-editorial">{t("booking2.addActivityDesc")}</p>
+                      </div>
 
-                  <div className="pt-6 border-t border-border/30">
-                    <CartList cart={cart} onRemove={removeFromCart} dateFnsLocale={dateFnsLocale} t={t} />
-                  </div>
+                      <CarouselWrapper>
+                        {activities.map((act) => {
+                          const name = localizeName(act.name, act.nameEn, act.nameEs, act.nameIt);
+                          const cardPrice = addOnDate ? priceForDate(act.price, toWindows(act.seasonalPrices), addOnDate) : null;
+                          const isSeasonal = cardPrice !== null && cardPrice !== act.price;
+                          return (
+                            <button
+                              key={act.id}
+                              type="button"
+                              onClick={() => setAddOnActivityId(act.id)}
+                              className={`relative overflow-hidden rounded-2xl text-left transition-all duration-400 cursor-pointer snap-start shrink-0 w-[200px] ${
+                                addOnActivityId === act.id
+                                  ? "border-2 border-amber bg-amber/[0.08]"
+                                  : "border border-border/50 bg-background/50 hover:border-amber/30"
+                              }`}
+                            >
+                              {act.image && (
+                                <img src={act.image} alt={name} className="w-full h-28 object-cover" />
+                              )}
+                              <div className="p-3">
+                                <p className="font-serif text-sm mb-1">{name}</p>
+                                {act.duration && <p className="text-xs text-muted-foreground">{act.duration}</p>}
+                                {cardPrice !== null && (
+                                  <>
+                                    <div className="flex items-baseline gap-1 flex-wrap mt-1">
+                                      {act.originalPrice && !isSeasonal && (
+                                        <span className="text-muted-foreground line-through text-xs mono-number">{act.originalPrice}</span>
+                                      )}
+                                      <span className="mono-number text-amber text-base">{cardPrice}</span>
+                                      <span className="text-xs text-muted-foreground">{act.currency}{t("booking2.perPerson")}</span>
+                                    </div>
+                                    {isSeasonal && (
+                                      <p className="text-[10px] text-amber flex items-center gap-1">
+                                        <Sparkles className="w-2.5 h-2.5" />{t("booking2.specialRatePrefix")}
+                                      </p>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                              {addOnActivityId === act.id && (
+                                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
+                                  <Check className="w-3 h-3 text-warm-black" />
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </CarouselWrapper>
+
+                      <DatePicker
+                        label={t("booking2.preferredDate")}
+                        value={addOnDate}
+                        onChange={setAddOnDate}
+                        placeholder={t("booking2.selectDate")}
+                        dateFnsLocale={dateFnsLocale}
+                        seasonalWindows={toWindows(activities.find((a) => a.id === addOnActivityId)?.seasonalPrices)}
+                        t={t}
+                      />
+
+                      <div className="rounded-2xl border border-border/50 bg-background/50 px-4">
+                        <Counter value={addOnAdults} min={1} max={20} onChange={setAddOnAdults} label={t("booking2.adults")} icon={Users} />
+                        <Counter value={addOnChildren} min={0} max={10} onChange={setAddOnChildren} label={t("booking2.children")} icon={Baby} />
+                      </div>
+
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={addActivityAddOn}
+                          disabled={!isAddOnValid}
+                          className="btn-outline inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                          {t("booking2.addToCart")}
+                        </button>
+                      </div>
+
+                      <CartList cart={addOns} onRemove={removeAddOn} dateFnsLocale={dateFnsLocale} t={t} hideEmptyState />
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex flex-col items-end gap-2 mt-10">
-                  <div className="flex justify-end w-full">
-                    <button
-                      onClick={() => setStep(2)}
-                      disabled={cart.length === 0}
-                      className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      {t("booking2.continue")}
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                  {cart.length === 0 && (
-                    <p className="text-xs text-muted-foreground">{t("booking2.cartRequiredNote")}</p>
-                  )}
+                <div className="flex justify-end mt-10">
+                  <button
+                    onClick={() => setStep(2)}
+                    disabled={!isPrimaryValid}
+                    className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {t("booking2.continue")}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
               </motion.div>
             )}
@@ -1089,7 +1214,7 @@ export function ReservationContent() {
                 </p>
 
                 <div className="space-y-6">
-                  <CartList cart={cart} onRemove={removeFromCart} dateFnsLocale={dateFnsLocale} t={t} />
+                  <CartList cart={allItems} onRemove={(key) => key === "primary" ? undefined : removeAddOn(key)} dateFnsLocale={dateFnsLocale} t={t} />
 
                   <div className="space-y-2">
                     <Label htmlFor="specialReqs" className="luxury-label text-xs">
@@ -1114,7 +1239,7 @@ export function ReservationContent() {
                   </button>
                   <button
                     onClick={handleSubmit}
-                    disabled={cart.length === 0 || isSubmitting}
+                    disabled={allItems.length === 0 || isSubmitting}
                     className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {isSubmitting ? (
@@ -1156,7 +1281,7 @@ export function ReservationContent() {
                   <p className="luxury-label text-amber mb-3">
                     {t("booking2.summary")}
                   </p>
-                  {cart.map((item) => (
+                  {allItems.map((item) => (
                     <div key={item.key} className="flex justify-between text-sm gap-4">
                       <span className="text-muted-foreground">{serviceTypeLabels[item.serviceType]} — {item.name}</span>
                       <span className="text-right shrink-0">{item.price.toLocaleString("fr-FR")} {item.currency}</span>
@@ -1165,7 +1290,7 @@ export function ReservationContent() {
                   <div className="h-px bg-border/30" />
                   <div className="flex justify-between text-sm font-medium">
                     <span className="text-muted-foreground">{t("booking2.summaryTotal")}</span>
-                    <span className="text-amber mono-number">{cartTotal.toLocaleString("fr-FR")} {cartCurrency}</span>
+                    <span className="text-amber mono-number">{grandTotal.toLocaleString("fr-FR")} {grandCurrency}</span>
                   </div>
                 </div>
 
@@ -1201,3 +1326,4 @@ export function ReservationContent() {
     </>
   );
 }
+

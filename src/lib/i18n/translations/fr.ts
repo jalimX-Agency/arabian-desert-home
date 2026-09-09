@@ -428,6 +428,8 @@ export const fr: Record<string, unknown> = {
     manageLinkNote: "Vous pouvez gérer votre réservation (annuler une prestation) à tout moment via le lien envoyé par email.",
     manageLinkButton: "Gérer ma réservation",
     itemAdded: "Prestation ajoutée au panier",
+    addActivityTitle: "Ajouter une activité ?",
+    addActivityDesc: "Profitez-en pour ajouter une ou plusieurs activités — chacune avec sa propre date.",
   },
 
   // Footer

@@ -428,6 +428,8 @@ export const en: Record<string, unknown> = {
     manageLinkNote: "You can manage your reservation (cancel an item) anytime via the link sent by email.",
     manageLinkButton: "Manage my reservation",
     itemAdded: "Item added to cart",
+    addActivityTitle: "Add an activity?",
+    addActivityDesc: "Feel free to add one or more activities — each with its own date.",
   },
 
   // Footer

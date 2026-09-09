@@ -428,6 +428,8 @@ export const it: Record<string, unknown> = {
     manageLinkNote: "Potete gestire la vostra prenotazione (annullare una prestazione) in qualsiasi momento tramite il link inviato via email.",
     manageLinkButton: "Gestisci la mia prenotazione",
     itemAdded: "Prestazione aggiunta al carrello",
+    addActivityTitle: "Aggiungere un'attività?",
+    addActivityDesc: "Approfittatene per aggiungere una o più attività, ciascuna con la propria data.",
   },
 
   // Footer
