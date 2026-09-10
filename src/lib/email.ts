@@ -191,6 +191,50 @@ export async function sendReservationConfirmation(
   });
 }
 
+export async function sendReservationConfirmedEmail(
+  to: string,
+  firstName: string,
+  items: BookingWithRelations[],
+  totalAmount: number,
+  currency: string,
+  pdfBuffer: Buffer,
+) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: "Votre réservation est confirmée — Arabian Desert Home",
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#0f0f0f;padding:32px;text-align:center">
+          <p style="color:#c8922a;letter-spacing:4px;font-size:11px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
+        </div>
+        <div style="padding:40px 32px">
+          <h1 style="font-size:24px;font-weight:400;margin:0 0 8px">Bonjour ${firstName},</h1>
+          <p style="color:#555;line-height:1.7;margin:0 0 24px">Bonne nouvelle : votre réservation est confirmée ! Vous trouverez votre fiche de réservation en pièce jointe — merci de la présenter à votre arrivée au campement.</p>
+          <div style="background:#faf8f5;border:1px solid #e8dfc8;border-radius:8px;padding:24px;margin:0 0 24px">
+            <p style="color:#c8922a;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 16px">Récapitulatif</p>
+            ${items.map((item, i) => buildItemBlock(item, i)).join("")}
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">Tarif total</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#c8922a;text-align:right">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
+            </table>
+          </div>
+          <p style="color:#555;line-height:1.7;margin:0 0 8px">Des questions ? Contactez-nous :</p>
+          <p style="margin:0;color:#333;font-size:14px">📞 +212 667-370-206 &nbsp;·&nbsp; 📧 info@arabiandeserthome.ma</p>
+        </div>
+        <div style="background:#f5f0e8;padding:20px 32px;text-align:center">
+          <p style="color:#999;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0">Agafay · Marrakech · Maroc</p>
+        </div>
+      </div>
+    `,
+    attachments: [
+      {
+        filename: "Fiche-de-reservation.pdf",
+        content: pdfBuffer,
+      },
+    ],
+  });
+}
+
 export async function sendReservationNotification(
   items: BookingWithRelations[],
   totalAmount: number,

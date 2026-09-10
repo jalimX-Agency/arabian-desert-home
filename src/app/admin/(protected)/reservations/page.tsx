@@ -203,6 +203,7 @@ export default function ReservationsPage() {
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState<ReservationGroup | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
   const selectAllRef = useRef<HTMLInputElement>(null);
   const [view, setView] = useState<"table" | "calendar">("table");
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
@@ -216,21 +217,26 @@ export default function ReservationsPage() {
   useEffect(() => { load(); }, []);
 
   async function updateStatus(group: ReservationGroup, status: string) {
-    await Promise.all(
-      group.items.map((b) =>
-        fetch(`/api/admin/bookings/${b.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status }),
-        })
-      )
-    );
-    await load();
-    setSelected((prev) =>
-      prev && prev.id === group.id
-        ? { ...prev, items: prev.items.map((b) => ({ ...b, status })) }
-        : prev
-    );
+    setSavingIds((prev) => new Set(prev).add(group.id));
+    try {
+      await fetch(`/api/admin/reservations/${group.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      await load();
+      setSelected((prev) =>
+        prev && prev.id === group.id
+          ? { ...prev, items: prev.items.map((b) => ({ ...b, status })) }
+          : prev
+      );
+    } finally {
+      setSavingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(group.id);
+        return next;
+      });
+    }
   }
 
   async function handleDelete(group: ReservationGroup) {
@@ -528,11 +534,15 @@ export default function ReservationsPage() {
                       <select
                         value={allSameStatus ? primary.status : ""}
                         onChange={(e) => updateStatus(g, e.target.value)}
-                        className={`text-xs px-2 py-1 rounded-lg border bg-transparent cursor-pointer ${statusColors[primary.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"}`}
+                        disabled={savingIds.has(g.id)}
+                        className={`text-xs px-2 py-1 rounded-lg border bg-transparent cursor-pointer disabled:opacity-50 disabled:cursor-wait ${statusColors[primary.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"}`}
                       >
                         {!allSameStatus && <option value="">Mixte</option>}
                         {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
+                      {savingIds.has(g.id) && (
+                        <p className="text-[10px] text-gray-400 mt-1">Mise à jour…</p>
+                      )}
                     </td>
                     <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                       <button
@@ -628,11 +638,15 @@ export default function ReservationsPage() {
                     <select
                       value={allSameStatus ? primary.status : ""}
                       onChange={(e) => updateStatus(selected, e.target.value)}
-                      className={`text-xs px-2 py-1 rounded-lg border bg-transparent cursor-pointer ${statusColors[primary.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"}`}
+                      disabled={savingIds.has(selected.id)}
+                      className={`text-xs px-2 py-1 rounded-lg border bg-transparent cursor-pointer disabled:opacity-50 disabled:cursor-wait ${statusColors[primary.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"}`}
                     >
                       {!allSameStatus && <option value="">Mixte</option>}
                       {statusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
+                    {savingIds.has(selected.id) && (
+                      <p className="text-[10px] text-gray-400 mt-1">Envoi de l&apos;email de confirmation…</p>
+                    )}
                   </div>
                 </div>
               </>
