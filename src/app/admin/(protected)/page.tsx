@@ -15,7 +15,8 @@ interface Stats {
   totalActivities: number;
   recentBookings: {
     id: string; firstName: string; lastName: string;
-    suite: { name: string }; checkIn: string; status: string; totalAmount: number;
+    serviceName: string; itemCount: number;
+    checkIn: string | null; status: string; totalAmount: number; currency: string;
   }[];
   recentMessages: {
     id: string; name: string; email: string; subject: string; createdAt: string; read: boolean;
@@ -124,11 +125,20 @@ export default function AdminDashboardPage() {
               {stats.recentBookings.map((b) => (
                 <div key={b.id} className="px-5 py-3.5 flex items-center justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="text-sm text-gray-900 dark:text-white truncate">{b.firstName} {b.lastName}</p>
-                    <p className="text-xs text-gray-400 truncate">{b.suite?.name ?? "—"} · {format(new Date(b.checkIn), "d MMM yyyy", { locale: fr })}</p>
+                    <p className="text-sm text-gray-900 dark:text-white truncate flex items-center gap-1.5">
+                      {b.firstName} {b.lastName}
+                      {b.itemCount > 1 && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium shrink-0">
+                          {b.itemCount} prestations
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-xs text-gray-400 truncate">
+                      {b.serviceName}{b.checkIn ? ` · ${format(new Date(b.checkIn), "d MMM yyyy", { locale: fr })}` : ""}
+                    </p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-sm text-amber-600 dark:text-amber-400">{b.totalAmount} MAD</span>
+                    <span className="text-sm text-amber-600 dark:text-amber-400">{b.totalAmount} {b.currency}</span>
                     <span className={`text-[10px] px-2 py-1 rounded-full uppercase tracking-widest ${statusColors[b.status] ?? "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60"}`}>
                       {b.status}
                     </span>
