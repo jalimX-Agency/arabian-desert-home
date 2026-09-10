@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { sendClientCancellationNotification } from "@/lib/email";
 
 // Token-gated, not admin-gated: the access token in the URL IS the auth —
 // this is the guest's own "manage my reservation" link from their
@@ -32,6 +33,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ to
   const body = await req.json();
   const { action } = body as { action?: string };
 
+  const contact = { firstName: reservation.firstName, lastName: reservation.lastName, email: reservation.email, phone: reservation.phone };
+
   if (action === "cancelItem") {
     const { itemId } = body as { itemId?: string };
     const item = reservation.items.find((i) => i.id === itemId);
@@ -40,18 +43,40 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ to
       return NextResponse.json({ error: "Already cancelled" }, { status: 400 });
     }
     await db.booking.update({ where: { id: item.id }, data: { status: "cancelled" } });
-  } else if (action === "cancelAll") {
+
+    const updated = await loadReservation(token);
+    const allCancelled = updated!.items.every((i) => i.status === "cancelled");
+    try {
+      await sendClientCancellationNotification(contact, [item], allCancelled);
+    } catch (err) {
+      console.error("Failed to notify admin of item cancellation:", err);
+    }
+    return NextResponse.json(updated);
+  }
+
+  if (action === "cancelAll") {
+    const activeItems = reservation.items.filter((i) => i.status !== "cancelled");
     await db.booking.updateMany({
       where: { reservationId: reservation.id, status: { not: "cancelled" } },
       data: { status: "cancelled" },
     });
-  } else if (action === "updateSpecialReqs") {
-    const { specialReqs } = body as { specialReqs?: string };
-    await db.reservation.update({ where: { id: reservation.id }, data: { specialReqs: specialReqs || null } });
-  } else {
-    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+
+    const updated = await loadReservation(token);
+    if (activeItems.length > 0) {
+      try {
+        await sendClientCancellationNotification(contact, activeItems, true);
+      } catch (err) {
+        console.error("Failed to notify admin of reservation cancellation:", err);
+      }
+    }
+    return NextResponse.json(updated);
   }
 
-  const updated = await loadReservation(token);
-  return NextResponse.json(updated);
+  if (action === "updateSpecialReqs") {
+    const { specialReqs } = body as { specialReqs?: string };
+    await db.reservation.update({ where: { id: reservation.id }, data: { specialReqs: specialReqs || null } });
+    return NextResponse.json(await loadReservation(token));
+  }
+
+  return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 }

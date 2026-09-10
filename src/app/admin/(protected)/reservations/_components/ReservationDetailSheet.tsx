@@ -237,7 +237,7 @@ export function ReservationDetailSheet({
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
             Enregistrer les modifications
           </Button>
-          <p className="text-[11px] text-gray-400 text-center">Le client recevra un email l&apos;informant des modifications.</p>
+          <p className="text-[11px] text-gray-400 text-center">La réservation sera confirmée et le client recevra sa fiche par email.</p>
         </SheetFooter>
       </SheetContent>
 

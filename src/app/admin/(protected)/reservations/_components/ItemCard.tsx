@@ -23,8 +23,15 @@ interface ItemCardProps {
 }
 
 export function ItemCard({ item, catalog, computedPrice, onChange, onRemove }: ItemCardProps) {
+  const cancelledByClient = item.status === "cancelled";
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-white/10 p-4 space-y-3">
+    <div className={`rounded-xl border p-4 space-y-3 ${cancelledByClient ? "border-red-200 dark:border-red-500/30 bg-red-50/40 dark:bg-red-500/[0.04]" : "border-gray-200 dark:border-white/10"}`}>
+      {cancelledByClient && (
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-red-600 dark:text-red-400 uppercase tracking-widest">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+          Annulée par le client
+        </div>
+      )}
       <div className="flex items-center justify-between gap-3">
         <Select
           value={item.serviceType}
@@ -37,6 +44,7 @@ export function ItemCard({ item, catalog, computedPrice, onChange, onRemove }: I
         </Select>
         <button
           onClick={onRemove}
+          title={cancelledByClient ? "Retirer cette prestation annulée" : "Supprimer"}
           className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-300 dark:text-white/20 hover:text-red-500 transition-colors cursor-pointer"
         >
           <Trash2 className="w-3.5 h-3.5" />

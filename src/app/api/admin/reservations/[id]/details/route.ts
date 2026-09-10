@@ -1,7 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
-import { sendReservationUpdatedEmail } from "@/lib/email";
+import { sendReservationConfirmedEmail } from "@/lib/email";
+import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
+
+export const maxDuration = 60;
 
 const include = { suite: true, activity: true, dayPass: true } as const;
 
@@ -36,7 +39,8 @@ interface EditBody {
 
 /** Full-detail edit of a reservation — contact info, per-item dates/guests/price, add/remove items.
  *  Distinct from the status-only PATCH on the parent route, which stays untouched for the quick
- *  inline status change. Any successful edit here notifies the client by email. */
+ *  inline status change. Saving an edit here confirms the reservation and sends the client the
+ *  fiche PDF, same as manually confirming — editing details is treated as finalizing them. */
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const deny = await requireAdmin();
   if (deny) return deny;
@@ -93,12 +97,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         children: item.children,
         totalAmount: item.totalAmount,
         currency: item.currency ?? "MAD",
+        // Editing details finalizes the reservation — auto-confirm rather than
+        // leaving it in whatever mixed state it was in before the edit.
+        status: "confirmed",
       };
 
       if (item.id) {
         await tx.booking.update({ where: { id: item.id }, data });
       } else {
-        await tx.booking.create({ data: { ...data, reservationId: id, status: "pending" } });
+        await tx.booking.create({ data: { ...data, reservationId: id } });
       }
     }
   });
@@ -109,11 +116,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     orderBy: { createdAt: "asc" },
   });
 
-  try {
-    await sendReservationUpdatedEmail(contact.email, contact.firstName, freshItems, totalAmount, currency);
-  } catch (err) {
-    console.error("Failed to send reservation-updated email:", err);
-  }
+  // PDF generation (cold Chromium boot) can take longer than the edge/proxy holds a
+  // request open, so it runs after the response is sent — same fix as the confirm-status route.
+  after(async () => {
+    try {
+      const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
+      const html = buildFicheHtml({ reservationRef, items: freshItems, totalAmount, currency });
+      const pdf = await generateFichePdf(html);
+      await sendReservationConfirmedEmail(contact.email, contact.firstName, freshItems, totalAmount, currency, pdf);
+    } catch (err) {
+      console.error("Failed to send reservation-updated confirmation email:", err);
+    }
+  });
 
   return NextResponse.json({ items: freshItems });
 }

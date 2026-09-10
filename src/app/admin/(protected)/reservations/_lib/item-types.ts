@@ -35,6 +35,9 @@ export interface EditableItem {
   totalAmount: number;
   currency: string;
   customPrice: boolean;
+  /** The booking's status as loaded — read-only here; only used to flag items the
+   *  client cancelled from their own page so the admin notices and can remove them. */
+  status?: string;
 }
 
 export function bookingToEditable(b: Booking): EditableItem {
@@ -54,6 +57,7 @@ export function bookingToEditable(b: Booking): EditableItem {
     totalAmount: b.totalAmount,
     currency: b.currency ?? "MAD",
     customPrice: false,
+    status: b.status,
   };
 }
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
-import { sendReservationConfirmedEmail } from "@/lib/email";
+import { sendReservationConfirmedEmail, sendReservationCancelledByAdminEmail } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 
 export const maxDuration = 60;
@@ -43,6 +43,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf);
       } catch (err) {
         console.error("Failed to send reservation-confirmed email:", err);
+      }
+    });
+  } else if (status === "cancelled" && items.length > 0) {
+    after(async () => {
+      try {
+        const first = items[0];
+        const currency = first.currency;
+        await sendReservationCancelledByAdminEmail(first.email, first.firstName, items, currency);
+      } catch (err) {
+        console.error("Failed to send reservation-cancelled email:", err);
       }
     });
   }

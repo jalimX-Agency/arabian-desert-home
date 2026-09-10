@@ -239,41 +239,72 @@ export async function sendReservationConfirmedEmail(
   });
 }
 
-export async function sendReservationUpdatedEmail(
+export async function sendReservationCancelledByAdminEmail(
   to: string,
   firstName: string,
   items: BookingWithRelations[],
-  totalAmount: number,
   currency: string,
 ) {
   await resend.emails.send({
     from: FROM,
     to,
-    subject: "Votre réservation a été mise à jour — Arabian Desert Home",
+    subject: "Votre réservation a été annulée — Arabian Desert Home",
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
-        <div style="background:#2a5b8a;padding:32px;text-align:center">
+        <div style="background:#7a3b3b;padding:32px;text-align:center">
           <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);display:inline-flex;align-items:center;justify-content:center;margin:0 0 12px">
-            <span style="color:#fff;font-size:22px;line-height:1">✎</span>
+            <span style="color:#fff;font-size:22px;line-height:1">✕</span>
           </div>
-          <p style="color:#fff;font-size:18px;font-weight:600;margin:0 0 4px">Réservation mise à jour</p>
+          <p style="color:#fff;font-size:18px;font-weight:600;margin:0 0 4px">Réservation annulée</p>
           <p style="color:rgba(255,255,255,0.75);letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
         </div>
         <div style="padding:40px 32px">
           <h1 style="font-size:24px;font-weight:400;margin:0 0 8px">Bonjour ${firstName},</h1>
-          <p style="color:#555;line-height:1.7;margin:0 0 24px">Votre réservation a été modifiée par notre équipe. Voici le récapitulatif actualisé :</p>
-          <div style="background:#f4f8fb;border:1px solid #cfe0ec;border-radius:8px;padding:24px;margin:0 0 24px">
-            <p style="color:#2a5b8a;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 16px">Récapitulatif actualisé</p>
+          <p style="color:#555;line-height:1.7;margin:0 0 24px">Votre réservation ci-dessous a été annulée par notre équipe. Si vous pensez qu'il s'agit d'une erreur, ou pour toute question, contactez-nous directement.</p>
+          <div style="background:#faf5f5;border:1px solid #e8d0d0;border-radius:8px;padding:24px;margin:0 0 24px">
+            <p style="color:#7a3b3b;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 16px">Prestations annulées</p>
             ${items.map((item, i) => buildItemBlock(item, i)).join("")}
-            <table style="width:100%;border-collapse:collapse;font-size:14px">
-              <tr style="border-top:1px solid #cfe0ec"><td style="padding:12px 0 0;color:#888;font-weight:600">Tarif total</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#2a5b8a;text-align:right">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
-            </table>
           </div>
           <p style="color:#555;line-height:1.7;margin:0 0 8px">Des questions ? Contactez-nous :</p>
           <p style="margin:0;color:#333;font-size:14px">📞 +212 667-370-206 &nbsp;·&nbsp; 📧 info@arabiandeserthome.ma</p>
         </div>
         <div style="background:#f5f0e8;padding:20px 32px;text-align:center">
           <p style="color:#999;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0">Agafay · Marrakech · Maroc</p>
+        </div>
+      </div>
+    `,
+  });
+}
+
+export async function sendClientCancellationNotification(
+  contact: { firstName: string; lastName: string; email: string; phone?: string | null },
+  cancelledItems: BookingWithRelations[],
+  allCancelled: boolean,
+) {
+  const adminEmail = await getAdminEmail();
+  await resend.emails.send({
+    from: FROM,
+    to: adminEmail,
+    subject: allCancelled
+      ? `[Annulation] ${contact.firstName} ${contact.lastName} a annulé sa réservation`
+      : `[Annulation partielle] ${contact.firstName} ${contact.lastName} — ${cancelledItems.length} prestation${cancelledItems.length > 1 ? "s" : ""} annulée${cancelledItems.length > 1 ? "s" : ""}`,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#7a3b3b;padding:24px 32px">
+          <p style="color:#fff;letter-spacing:2px;font-size:12px;text-transform:uppercase;margin:0">${allCancelled ? "Réservation annulée par le client" : "Annulation partielle par le client"}</p>
+        </div>
+        <div style="padding:32px">
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <tr><td style="padding:7px 0;color:#888;width:120px">Client</td><td style="padding:7px 0;font-weight:600">${contact.firstName} ${contact.lastName}</td></tr>
+            <tr><td style="padding:7px 0;color:#888">Email</td><td style="padding:7px 0"><a href="mailto:${contact.email}" style="color:#c8922a">${contact.email}</a></td></tr>
+            ${contact.phone ? `<tr><td style="padding:7px 0;color:#888">Téléphone</td><td style="padding:7px 0">${contact.phone}</td></tr>` : ""}
+          </table>
+          <hr style="border:none;border-top:1px solid #eee;margin:16px 0"/>
+          <p style="color:#7a3b3b;letter-spacing:2px;font-size:11px;text-transform:uppercase;margin:0 0 12px">
+            ${allCancelled ? "Toutes les prestations ont été annulées" : "Prestations annulées"}
+          </p>
+          ${cancelledItems.map((item, i) => buildItemBlock(item, i)).join("")}
+          ${!allCancelled ? `<p style="color:#888;font-size:12px;margin:16px 0 0">Le reste de la réservation n'est pas affecté. Ouvrez la fiche dans le panneau d'administration pour retirer la prestation annulée si besoin.</p>` : ""}
         </div>
       </div>
     `,
