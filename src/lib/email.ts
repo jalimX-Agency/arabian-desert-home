@@ -205,17 +205,21 @@ export async function sendReservationConfirmedEmail(
     subject: "Votre réservation est confirmée — Arabian Desert Home",
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
-        <div style="background:#0f0f0f;padding:32px;text-align:center">
-          <p style="color:#c8922a;letter-spacing:4px;font-size:11px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
+        <div style="background:#1e6b3f;padding:32px;text-align:center">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);display:inline-flex;align-items:center;justify-content:center;margin:0 0 12px">
+            <span style="color:#fff;font-size:24px;line-height:1">✓</span>
+          </div>
+          <p style="color:#fff;font-size:18px;font-weight:600;margin:0 0 4px">Réservation confirmée</p>
+          <p style="color:rgba(255,255,255,0.75);letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
         </div>
         <div style="padding:40px 32px">
           <h1 style="font-size:24px;font-weight:400;margin:0 0 8px">Bonjour ${firstName},</h1>
           <p style="color:#555;line-height:1.7;margin:0 0 24px">Bonne nouvelle : votre réservation est confirmée ! Vous trouverez votre fiche de réservation en pièce jointe — merci de la présenter à votre arrivée au campement.</p>
-          <div style="background:#faf8f5;border:1px solid #e8dfc8;border-radius:8px;padding:24px;margin:0 0 24px">
-            <p style="color:#c8922a;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 16px">Récapitulatif</p>
+          <div style="background:#f4faf6;border:1px solid #cde8d6;border-radius:8px;padding:24px;margin:0 0 24px">
+            <p style="color:#1e6b3f;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 16px">Récapitulatif</p>
             ${items.map((item, i) => buildItemBlock(item, i)).join("")}
             <table style="width:100%;border-collapse:collapse;font-size:14px">
-              <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">Tarif total</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#c8922a;text-align:right">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
+              <tr style="border-top:1px solid #cde8d6"><td style="padding:12px 0 0;color:#888;font-weight:600">Tarif total</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#1e6b3f;text-align:right">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
             </table>
           </div>
           <p style="color:#555;line-height:1.7;margin:0 0 8px">Des questions ? Contactez-nous :</p>
