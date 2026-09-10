@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, FileText } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -143,7 +143,18 @@ export function ReservationDetailSheet({
     <Sheet open={group !== null} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{primary.firstName} {primary.lastName}</SheetTitle>
+          <div className="flex items-center justify-between gap-3 pr-8">
+            <SheetTitle>{primary.firstName} {primary.lastName}</SheetTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs cursor-pointer shrink-0"
+              onClick={() => window.open(`/api/admin/reservations/${group.id}/fiche`, "_blank")}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              Voir la fiche PDF
+            </Button>
+          </div>
         </SheetHeader>
 
         <div className="px-4 space-y-6 pb-4">

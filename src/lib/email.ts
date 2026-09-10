@@ -206,8 +206,8 @@ export async function sendReservationConfirmedEmail(
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
         <div style="background:#1e6b3f;padding:32px;text-align:center">
-          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);display:inline-flex;align-items:center;justify-content:center;margin:0 0 12px">
-            <span style="color:#fff;font-size:24px;line-height:1">✓</span>
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);margin:0 auto 12px;text-align:center;font-size:0">
+            <span style="color:#fff;font-size:24px;line-height:48px">✓</span>
           </div>
           <p style="color:#fff;font-size:18px;font-weight:600;margin:0 0 4px">Réservation confirmée</p>
           <p style="color:rgba(255,255,255,0.75);letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
@@ -252,8 +252,8 @@ export async function sendReservationCancelledByAdminEmail(
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
         <div style="background:#7a3b3b;padding:32px;text-align:center">
-          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);display:inline-flex;align-items:center;justify-content:center;margin:0 0 12px">
-            <span style="color:#fff;font-size:22px;line-height:1">✕</span>
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);margin:0 auto 12px;text-align:center;font-size:0">
+            <span style="color:#fff;font-size:22px;line-height:48px">✕</span>
           </div>
           <p style="color:#fff;font-size:18px;font-weight:600;margin:0 0 4px">Réservation annulée</p>
           <p style="color:rgba(255,255,255,0.75);letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
