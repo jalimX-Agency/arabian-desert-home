@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
   // ships a compressed Chromium binary it resolves at runtime relative to
   // its own package path, which webpack bundling breaks.
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
+  // Vercel's own file tracer doesn't detect @sparticuz/chromium's brotli
+  // binaries under bin/ since they're only referenced dynamically at
+  // runtime, not via static import — force them into the function bundle.
+  outputFileTracingIncludes: {
+    "/api/admin/reservations/[id]": ["./node_modules/@sparticuz/chromium/bin/**"],
+  },
   images: {
     remotePatterns: [
       {
