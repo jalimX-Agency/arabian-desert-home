@@ -364,7 +364,7 @@ export function buildFicheHtml({ reservationRef, items, totalAmount, currency }:
     <div class="two-col">
       <div class="field">
         <label>Méthode de paiement</label>
-        <div class="v">À régler sur place (espèces ou carte)</div>
+        <div class="v">À régler sur place, en espèces</div>
       </div>
       <div class="field">
         <label>Remarques</label>

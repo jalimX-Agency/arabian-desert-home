@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { sendReservationConfirmedEmail } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 const include = { suite: true, activity: true, dayPass: true } as const;
 
@@ -25,25 +25,27 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         return db.booking.findMany({ where: { id }, include });
       })();
 
-  let emailError: string | null = null;
-
-  // The status change is the core action and must not be undone by a failure
-  // further down — a PDF/email hiccup is reported back, not turned into a 500.
+  // The status change is the core action; PDF generation + email can take
+  // longer than the edge/proxy will hold a request open (Chromium cold
+  // start alone can take tens of seconds), so it runs *after* the response
+  // has already been sent instead of blocking it — avoids gateway timeouts
+  // on an action that actually succeeds server-side either way.
   if (status === "confirmed" && items.length > 0) {
-    try {
-      const first = items[0];
-      const totalAmount = items.reduce((sum, b) => sum + b.totalAmount, 0);
-      const currency = first.currency;
-      const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
+    after(async () => {
+      try {
+        const first = items[0];
+        const totalAmount = items.reduce((sum, b) => sum + b.totalAmount, 0);
+        const currency = first.currency;
+        const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
 
-      const html = buildFicheHtml({ reservationRef, items, totalAmount, currency });
-      const pdf = await generateFichePdf(html);
-      await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf);
-    } catch (err) {
-      console.error("Failed to send reservation-confirmed email:", err);
-      emailError = err instanceof Error ? err.message : "Unknown error";
-    }
+        const html = buildFicheHtml({ reservationRef, items, totalAmount, currency });
+        const pdf = await generateFichePdf(html);
+        await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf);
+      } catch (err) {
+        console.error("Failed to send reservation-confirmed email:", err);
+      }
+    });
   }
 
-  return NextResponse.json({ items, emailError });
+  return NextResponse.json({ items });
 }
