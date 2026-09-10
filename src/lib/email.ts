@@ -239,6 +239,47 @@ export async function sendReservationConfirmedEmail(
   });
 }
 
+export async function sendReservationUpdatedEmail(
+  to: string,
+  firstName: string,
+  items: BookingWithRelations[],
+  totalAmount: number,
+  currency: string,
+) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: "Votre réservation a été mise à jour — Arabian Desert Home",
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#2a5b8a;padding:32px;text-align:center">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);display:inline-flex;align-items:center;justify-content:center;margin:0 0 12px">
+            <span style="color:#fff;font-size:22px;line-height:1">✎</span>
+          </div>
+          <p style="color:#fff;font-size:18px;font-weight:600;margin:0 0 4px">Réservation mise à jour</p>
+          <p style="color:rgba(255,255,255,0.75);letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
+        </div>
+        <div style="padding:40px 32px">
+          <h1 style="font-size:24px;font-weight:400;margin:0 0 8px">Bonjour ${firstName},</h1>
+          <p style="color:#555;line-height:1.7;margin:0 0 24px">Votre réservation a été modifiée par notre équipe. Voici le récapitulatif actualisé :</p>
+          <div style="background:#f4f8fb;border:1px solid #cfe0ec;border-radius:8px;padding:24px;margin:0 0 24px">
+            <p style="color:#2a5b8a;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 16px">Récapitulatif actualisé</p>
+            ${items.map((item, i) => buildItemBlock(item, i)).join("")}
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              <tr style="border-top:1px solid #cfe0ec"><td style="padding:12px 0 0;color:#888;font-weight:600">Tarif total</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#2a5b8a;text-align:right">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
+            </table>
+          </div>
+          <p style="color:#555;line-height:1.7;margin:0 0 8px">Des questions ? Contactez-nous :</p>
+          <p style="margin:0;color:#333;font-size:14px">📞 +212 667-370-206 &nbsp;·&nbsp; 📧 info@arabiandeserthome.ma</p>
+        </div>
+        <div style="background:#f5f0e8;padding:20px 32px;text-align:center">
+          <p style="color:#999;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0">Agafay · Marrakech · Maroc</p>
+        </div>
+      </div>
+    `,
+  });
+}
+
 export async function sendReservationNotification(
   items: BookingWithRelations[],
   totalAmount: number,

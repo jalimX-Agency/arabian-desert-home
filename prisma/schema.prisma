@@ -164,6 +164,7 @@ model Reservation {
   email       String
   phone       String
   specialReqs String?
+  channel     String    @default("website")
   totalAmount Int
   currency    String    @default("MAD")
   createdAt   DateTime  @default(now())
