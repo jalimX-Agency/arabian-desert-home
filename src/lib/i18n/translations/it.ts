@@ -408,6 +408,7 @@ export const it: Record<string, unknown> = {
     priceAfterDates: "Il prezzo verrà mostrato dopo aver scelto le date",
     specialRatePrefix: "Tariffa speciale",
     seasonalLegend: "Giorni in ambra = periodo tariffario speciale",
+    unavailableLegend: "Giorni in grigio = non disponibile",
     addToCart: "Aggiungi al carrello",
     cartTitle: "Il vostro carrello",
     cartEmpty: "Nessuna prestazione ancora aggiunta.",

@@ -52,6 +52,7 @@ model Suite {
   updatedAt         DateTime  @updatedAt
   bookings          Booking[]
   seasonalPrices    SeasonalPrice[]
+  closures          TentClosure[]
 }
 
 model Activity {
@@ -216,6 +217,18 @@ model SeasonalPrice {
   dayPass     DayPass?  @relation(fields: [dayPassId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+/** A period during which a tent type is closed for booking (maintenance, private use, etc). */
+model TentClosure {
+  id        String   @id @default(cuid())
+  label     String
+  startDate DateTime
+  endDate   DateTime
+  suiteId   String
+  suite     Suite    @relation(fields: [suiteId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ContactMessage {

@@ -55,6 +55,21 @@ function toWindows(sp: SeasonalPriceWindow[] | undefined) {
   }));
 }
 
+/** Converts wire-format closure windows into Date-based ones for calendar blocking. */
+function toClosureWindows(closures: ClosureWindow[] | undefined) {
+  return (closures ?? []).map((c) => ({
+    startDate: new Date(c.startDate),
+    endDate: new Date(c.endDate),
+  }));
+}
+
+interface ClosureWindow {
+  id: string;
+  label: string;
+  startDate: string;
+  endDate: string;
+}
+
 interface Suite {
   id: string;
   name: string;
@@ -69,6 +84,7 @@ interface Suite {
   childPricePercent: number;
   image?: string;
   seasonalPrices?: SeasonalPriceWindow[];
+  closures?: ClosureWindow[];
 }
 
 interface Activity {
@@ -206,17 +222,38 @@ function Counter({
 }
 
 type SeasonalWindow = { startDate: Date; endDate: Date; price: number; label: string };
+type BlockedWindow = { startDate: Date; endDate: Date };
 
 const seasonalModifierClassName =
   "relative after:content-[''] after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-amber";
 
-function SeasonalLegend({ seasonalWindows, t }: { seasonalWindows: SeasonalWindow[]; t: (key: string) => string }) {
-  if (seasonalWindows.length === 0) return null;
+const blockedModifierClassName = "opacity-40 line-through";
+
+function SeasonalLegend({
+  seasonalWindows,
+  blockedWindows = [],
+  t,
+}: {
+  seasonalWindows: SeasonalWindow[];
+  blockedWindows?: BlockedWindow[];
+  t: (key: string) => string;
+}) {
+  if (seasonalWindows.length === 0 && blockedWindows.length === 0) return null;
   return (
-    <p className="px-4 pb-4 text-xs text-muted-foreground flex items-center gap-1.5">
-      <span className="w-1.5 h-1.5 rounded-full bg-amber inline-block shrink-0" />
-      {t("booking2.seasonalLegend")}
-    </p>
+    <div className="px-4 pb-4 space-y-1">
+      {seasonalWindows.length > 0 && (
+        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber inline-block shrink-0" />
+          {t("booking2.seasonalLegend")}
+        </p>
+      )}
+      {blockedWindows.length > 0 && (
+        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 inline-block shrink-0" />
+          {t("booking2.unavailableLegend")}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -228,6 +265,7 @@ function DatePicker({
   placeholder,
   dateFnsLocale,
   seasonalWindows = [],
+  blockedWindows = [],
   t,
 }: {
   label: string;
@@ -237,6 +275,7 @@ function DatePicker({
   placeholder: string;
   dateFnsLocale: Locale;
   seasonalWindows?: SeasonalWindow[];
+  blockedWindows?: BlockedWindow[];
   t: (key: string) => string;
 }) {
   const [open, setOpen] = useState(false);
@@ -270,13 +309,19 @@ function DatePicker({
             endMonth={new Date(new Date().getFullYear() + 2, 11)}
             selected={value}
             onSelect={(d) => { onChange(d); setOpen(false); }}
-            disabled={(d) => d < (disableBefore ?? new Date(new Date().setHours(0, 0, 0, 0)))}
-            modifiers={{ seasonal: (d: Date) => seasonalWindows.some((w) => d >= w.startDate && d <= w.endDate) }}
-            modifiersClassNames={{ seasonal: seasonalModifierClassName }}
+            disabled={(d) =>
+              d < (disableBefore ?? new Date(new Date().setHours(0, 0, 0, 0))) ||
+              blockedWindows.some((w) => d >= w.startDate && d <= w.endDate)
+            }
+            modifiers={{
+              seasonal: (d: Date) => seasonalWindows.some((w) => d >= w.startDate && d <= w.endDate),
+              blocked: (d: Date) => blockedWindows.some((w) => d >= w.startDate && d <= w.endDate),
+            }}
+            modifiersClassNames={{ seasonal: seasonalModifierClassName, blocked: blockedModifierClassName }}
             initialFocus
             className="rounded-3xl"
           />
-          <SeasonalLegend seasonalWindows={seasonalWindows} t={t} />
+          <SeasonalLegend seasonalWindows={seasonalWindows} blockedWindows={blockedWindows} t={t} />
         </DialogContent>
       </Dialog>
       {activeWindow && (
@@ -422,6 +467,9 @@ export function ReservationContent() {
 
   const selectedSuites = suites.filter((s) => (tentQuantities[s.id] ?? 0) > 0);
   const totalTentQty = Object.values(tentQuantities).reduce((sum, q) => sum + q, 0);
+  // Union of every selected tent type's closed periods — a date unavailable for
+  // any one of them can't work for the combined stay as currently configured.
+  const suiteBlockedWindows = selectedSuites.flatMap((s) => toClosureWindows(s.closures));
   const maxAdults =
     primaryType === "suite"
       ? selectedSuites.length > 0
@@ -894,6 +942,7 @@ export function ReservationContent() {
                           placeholder={t("booking2.selectDate")}
                           dateFnsLocale={dateFnsLocale}
                           seasonalWindows={toWindows(selectedSuites[0]?.seasonalPrices)}
+                          blockedWindows={suiteBlockedWindows}
                           t={t}
                         />
                         <DatePicker
@@ -904,6 +953,7 @@ export function ReservationContent() {
                           placeholder={t("booking2.selectDate")}
                           dateFnsLocale={dateFnsLocale}
                           seasonalWindows={toWindows(selectedSuites[0]?.seasonalPrices)}
+                          blockedWindows={suiteBlockedWindows}
                           t={t}
                         />
                       </div>

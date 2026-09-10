@@ -408,6 +408,7 @@ export const en: Record<string, unknown> = {
     priceAfterDates: "The price will show once you select your dates",
     specialRatePrefix: "Special rate",
     seasonalLegend: "Amber days = special pricing period",
+    unavailableLegend: "Greyed-out days = unavailable",
     addToCart: "Add to cart",
     cartTitle: "Your cart",
     cartEmpty: "No item added yet.",

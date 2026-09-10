@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   const data = await db.suite.findMany({
     where,
     orderBy: { order: "asc" },
-    include: { seasonalPrices: true },
+    include: { seasonalPrices: true, closures: true },
   });
   return Response.json(data);
 }

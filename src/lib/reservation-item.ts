@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
+import { rangeOverlapsClosure } from "@/lib/availability";
 
 export interface CartItemInput {
   serviceType: "suite" | "activity" | "daypass";
@@ -13,6 +14,8 @@ export interface CartItemInput {
   guests?: number;
   children?: number;
   experiences?: string;
+  /** Admin-only escape hatch for manually recording a stay during a closed period. */
+  allowClosedPeriod?: boolean;
 }
 
 export interface PricedItem {
@@ -41,10 +44,13 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
       throw new Error("Suite booking requires suiteId, checkIn, checkOut");
     }
     const quantity = Math.max(1, item.quantity ?? 1);
-    const suite = await db.suite.findUnique({ where: { id: item.suiteId }, include: { seasonalPrices: true } });
+    const suite = await db.suite.findUnique({ where: { id: item.suiteId }, include: { seasonalPrices: true, closures: true } });
     if (!suite) throw new Error("Suite not found");
     const checkIn = new Date(item.checkIn);
     const checkOut = new Date(item.checkOut);
+    if (!item.allowClosedPeriod && rangeOverlapsClosure(checkIn, checkOut, suite.closures)) {
+      throw new Error(`${suite.name} n'est pas disponible sur ces dates`);
+    }
     return {
       serviceType: "suite",
       suiteId: suite.id,

@@ -35,7 +35,9 @@ export async function POST(req: NextRequest) {
 
   let priced;
   try {
-    priced = await Promise.all(items.map((item) => priceCartItem(item)));
+    // Admin-recorded bookings (phone/WhatsApp/OTA) are allowed through a closed
+    // period — the admin already knows what they're doing when entering one manually.
+    priced = await Promise.all(items.map((item) => priceCartItem({ ...item, allowClosedPeriod: true })));
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "Invalid item" }, { status: 400 });
   }
