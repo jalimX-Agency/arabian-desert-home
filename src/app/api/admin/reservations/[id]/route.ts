@@ -25,16 +25,25 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         return db.booking.findMany({ where: { id }, include });
       })();
 
-  if (status === "confirmed" && items.length > 0) {
-    const first = items[0];
-    const totalAmount = items.reduce((sum, b) => sum + b.totalAmount, 0);
-    const currency = first.currency;
-    const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
+  let emailError: string | null = null;
 
-    const html = buildFicheHtml({ reservationRef, items, totalAmount, currency });
-    const pdf = await generateFichePdf(html);
-    await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf);
+  // The status change is the core action and must not be undone by a failure
+  // further down — a PDF/email hiccup is reported back, not turned into a 500.
+  if (status === "confirmed" && items.length > 0) {
+    try {
+      const first = items[0];
+      const totalAmount = items.reduce((sum, b) => sum + b.totalAmount, 0);
+      const currency = first.currency;
+      const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
+
+      const html = buildFicheHtml({ reservationRef, items, totalAmount, currency });
+      const pdf = await generateFichePdf(html);
+      await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf);
+    } catch (err) {
+      console.error("Failed to send reservation-confirmed email:", err);
+      emailError = err instanceof Error ? err.message : "Unknown error";
+    }
   }
 
-  return NextResponse.json(items);
+  return NextResponse.json({ items, emailError });
 }

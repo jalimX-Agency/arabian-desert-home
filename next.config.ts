@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Let Next.js install these as plain node_modules for the serverless
+  // function instead of bundling them with webpack — @sparticuz/chromium
+  // ships a compressed Chromium binary it resolves at runtime relative to
+  // its own package path, which webpack bundling breaks.
+  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
   images: {
     remotePatterns: [
       {

@@ -219,11 +219,17 @@ export default function ReservationsPage() {
   async function updateStatus(group: ReservationGroup, status: string) {
     setSavingIds((prev) => new Set(prev).add(group.id));
     try {
-      await fetch(`/api/admin/reservations/${group.id}`, {
+      const res = await fetch(`/api/admin/reservations/${group.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data?.emailError) {
+          alert(`Le statut a été mis à jour, mais l'envoi de l'email de confirmation a échoué :\n${data.emailError}`);
+        }
+      }
       await load();
       setSelected((prev) =>
         prev && prev.id === group.id
