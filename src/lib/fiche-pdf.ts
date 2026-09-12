@@ -2,11 +2,141 @@ import { readFileSync, existsSync } from "fs";
 import path from "path";
 import type { Booking, Suite, Activity, DayPass } from "@prisma/client";
 
+export type FicheLang = "fr" | "en" | "es";
+
 export type FicheBooking = Booking & {
-  suite?: Pick<Suite, "name"> | null;
-  activity?: Pick<Activity, "name"> | null;
-  dayPass?: Pick<DayPass, "name"> | null;
+  suite?: Pick<Suite, "name" | "nameEn" | "nameEs"> | null;
+  activity?: Pick<Activity, "name" | "nameEn" | "nameEs"> | null;
+  dayPass?: Pick<DayPass, "name" | "nameEn" | "nameEs"> | null;
 };
+
+const DATE_LOCALE: Record<FicheLang, string> = { fr: "fr-FR", en: "en-US", es: "es-ES" };
+const NUMBER_LOCALE: Record<FicheLang, string> = { fr: "fr-FR", en: "en-US", es: "es-ES" };
+
+const FICHE_I18N = {
+  fr: {
+    docSubtitle: "Document de séjour",
+    docTitle: "Fiche de Réservation",
+    ref: "Réf.",
+    issuedOn: "Émise le",
+    client: "Client",
+    clientName: "Nom du client",
+    phone: "Téléphone",
+    email: "Email",
+    stay: "Séjour",
+    arrival: "Arrivée",
+    departure: "Départ",
+    duration: "Durée",
+    night: "nuit",
+    nights: "nuits",
+    travelers: "Voyageurs",
+    adult: "adulte",
+    adults: "adultes",
+    date: "Date",
+    prestations: "Prestations réservées",
+    prestation: "Prestation",
+    dates: "Dates",
+    pers: "Pers.",
+    amount: "Montant",
+    total: "Tarif total",
+    paymentMethod: "Méthode de paiement",
+    paymentGeneric: "Paiement sur place",
+    remarks: "Remarques",
+    confirmedTitle: "Réservation confirmée.",
+    confirmedBody: "Merci de présenter cette fiche à votre arrivée au campement.",
+    stamp: "Confirmé",
+    location: "Agafay, Marrakech",
+    finePrint: "Ce document atteste d'une réservation confirmée auprès d'Arabian Desert Home.",
+    accommodation: "Hébergement",
+    activityLabel: "Activité",
+    dayPassLabel: "Day Pass",
+    tent: "tente",
+    tents: "tentes",
+    none: "—",
+  },
+  en: {
+    docSubtitle: "Stay document",
+    docTitle: "Reservation Voucher",
+    ref: "Ref.",
+    issuedOn: "Issued on",
+    client: "Guest",
+    clientName: "Guest name",
+    phone: "Phone",
+    email: "Email",
+    stay: "Stay",
+    arrival: "Check-in",
+    departure: "Check-out",
+    duration: "Duration",
+    night: "night",
+    nights: "nights",
+    travelers: "Travelers",
+    adult: "adult",
+    adults: "adults",
+    date: "Date",
+    prestations: "Booked services",
+    prestation: "Service",
+    dates: "Dates",
+    pers: "Pers.",
+    amount: "Amount",
+    total: "Total price",
+    paymentMethod: "Payment method",
+    paymentGeneric: "Payment on site",
+    remarks: "Remarks",
+    confirmedTitle: "Reservation confirmed.",
+    confirmedBody: "Please present this voucher upon your arrival at the camp.",
+    stamp: "Confirmed",
+    location: "Agafay, Marrakech",
+    finePrint: "This document certifies a confirmed reservation with Arabian Desert Home.",
+    accommodation: "Accommodation",
+    activityLabel: "Activity",
+    dayPassLabel: "Day Pass",
+    tent: "tent",
+    tents: "tents",
+    none: "—",
+  },
+  es: {
+    docSubtitle: "Documento de estancia",
+    docTitle: "Ficha de Reserva",
+    ref: "Ref.",
+    issuedOn: "Emitida el",
+    client: "Cliente",
+    clientName: "Nombre del cliente",
+    phone: "Teléfono",
+    email: "Email",
+    stay: "Estancia",
+    arrival: "Llegada",
+    departure: "Salida",
+    duration: "Duración",
+    night: "noche",
+    nights: "noches",
+    travelers: "Viajeros",
+    adult: "adulto",
+    adults: "adultos",
+    date: "Fecha",
+    prestations: "Servicios reservados",
+    prestation: "Servicio",
+    dates: "Fechas",
+    pers: "Pers.",
+    amount: "Importe",
+    total: "Precio total",
+    paymentMethod: "Método de pago",
+    paymentGeneric: "Pago en el lugar",
+    remarks: "Observaciones",
+    confirmedTitle: "Reserva confirmada.",
+    confirmedBody: "Por favor, presente esta ficha a su llegada al campamento.",
+    stamp: "Confirmada",
+    location: "Agafay, Marrakech",
+    finePrint: "Este documento certifica una reserva confirmada con Arabian Desert Home.",
+    accommodation: "Alojamiento",
+    activityLabel: "Actividad",
+    dayPassLabel: "Day Pass",
+    tent: "tienda",
+    tents: "tiendas",
+    none: "—",
+  },
+} as const satisfies Record<FicheLang, Record<string, string>>;
+
+type FicheDict = Record<keyof (typeof FICHE_I18N)["fr"], string>;
 
 let cachedLogoDataUri: string | null = null;
 
@@ -18,27 +148,33 @@ function getLogoDataUri(): string {
   return cachedLogoDataUri;
 }
 
-function getServiceTypeLabel(serviceType: string): string {
-  if (serviceType === "suite") return "Hébergement";
-  if (serviceType === "activity") return "Activité";
-  if (serviceType === "daypass") return "Day Pass";
+function pickName(lang: FicheLang, base: string, en?: string | null, es?: string | null): string {
+  if (lang === "en" && en) return en;
+  if (lang === "es" && es) return es;
+  return base;
+}
+
+function getServiceTypeLabel(t: FicheDict, serviceType: string): string {
+  if (serviceType === "suite") return t.accommodation;
+  if (serviceType === "activity") return t.activityLabel;
+  if (serviceType === "daypass") return t.dayPassLabel;
   return serviceType;
 }
 
-function getServiceName(b: FicheBooking): string {
+function getServiceName(t: FicheDict, lang: FicheLang, b: FicheBooking): string {
   const base =
-    b.serviceType === "suite" ? b.suite?.name ?? "—" :
-    b.serviceType === "activity" ? b.activity?.name ?? "—" :
-    b.serviceType === "daypass" ? b.dayPass?.name ?? "—" : "—";
+    b.serviceType === "suite" ? pickName(lang, b.suite?.name ?? t.none, b.suite?.nameEn, b.suite?.nameEs) :
+    b.serviceType === "activity" ? pickName(lang, b.activity?.name ?? t.none, b.activity?.nameEn, b.activity?.nameEs) :
+    b.serviceType === "daypass" ? pickName(lang, b.dayPass?.name ?? t.none, b.dayPass?.nameEn, b.dayPass?.nameEs) : t.none;
   return b.quantity > 1 ? `${base} × ${b.quantity}` : base;
 }
 
-function formatDateLong(d: Date): string {
-  return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+function formatDateLong(d: Date, lang: FicheLang): string {
+  return d.toLocaleDateString(DATE_LOCALE[lang], { day: "2-digit", month: "long", year: "numeric" });
 }
 
-function formatDateShort(d: Date): string {
-  return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "long" });
+function formatDateShort(d: Date, lang: FicheLang): string {
+  return d.toLocaleDateString(DATE_LOCALE[lang], { day: "2-digit", month: "long" });
 }
 
 function escapeHtml(s: string): string {
@@ -65,30 +201,30 @@ function computeStayWindow(items: FicheBooking[]): {
   return {};
 }
 
-function buildPrestationRows(items: FicheBooking[]): string {
+function buildPrestationRows(t: FicheDict, lang: FicheLang, items: FicheBooking[]): string {
   return items
     .map((b) => {
       const dates =
         b.serviceType === "suite" && b.checkIn && b.checkOut
-          ? `${formatDateShort(b.checkIn)} → ${formatDateShort(b.checkOut)}`
+          ? `${formatDateShort(b.checkIn, lang)} → ${formatDateShort(b.checkOut, lang)}`
           : b.date
-          ? formatDateLong(b.date)
-          : "—";
+          ? formatDateLong(b.date, lang)
+          : t.none;
       const sub =
         b.serviceType === "suite"
-          ? `<span class="item-sub">${b.quantity > 1 ? `${b.quantity} tentes` : "1 tente"}</span>`
+          ? `<span class="item-sub">${b.quantity > 1 ? `${b.quantity} ${t.tents}` : `1 ${t.tent}`}</span>`
           : "";
       const pax = b.children > 0 ? `${b.guests} +${b.children}` : `${b.guests}`;
       return `
         <tr>
           <td>
-            <span class="item-type">${escapeHtml(getServiceTypeLabel(b.serviceType))}</span>
-            <span class="item-name">${escapeHtml(getServiceName(b))}</span>
+            <span class="item-type">${escapeHtml(getServiceTypeLabel(t, b.serviceType))}</span>
+            <span class="item-name">${escapeHtml(getServiceName(t, lang, b))}</span>
             ${sub}
           </td>
           <td>${dates}</td>
           <td>${pax}</td>
-          <td class="amount">${b.totalAmount.toLocaleString("fr-FR")} ${b.currency}</td>
+          <td class="amount">${b.totalAmount.toLocaleString(NUMBER_LOCALE[lang])} ${b.currency}</td>
         </tr>`;
     })
     .join("");
@@ -99,29 +235,32 @@ export interface FicheOptions {
   items: FicheBooking[];
   totalAmount: number;
   currency: string;
+  lang?: FicheLang;
 }
 
 /** Builds the print-ready "Fiche de Réservation" HTML sent as a PDF once a reservation is confirmed. */
-export function buildFicheHtml({ reservationRef, items, totalAmount, currency }: FicheOptions): string {
+export function buildFicheHtml({ reservationRef, items, totalAmount, currency, lang = "fr" }: FicheOptions): string {
+  const t = FICHE_I18N[lang];
   const first = items[0];
   const stay = computeStayWindow(items);
   const paxTotal = items.reduce((max, i) => Math.max(max, i.guests), 0);
-  const remarks = first.specialReqs?.trim() || "—";
+  const remarks = first.specialReqs?.trim() || t.none;
+  const adultsWord = paxTotal > 1 ? t.adults : t.adult;
 
   const sejourFields = stay.arrival && stay.departure
     ? `
-      <div class="field"><label>Arrivée</label><div class="v">${formatDateLong(stay.arrival)}</div></div>
-      <div class="field"><label>Départ</label><div class="v">${formatDateLong(stay.departure)}</div></div>
-      <div class="field"><label>Durée</label><div class="v">${stay.nights} nuit${stay.nights! > 1 ? "s" : ""}</div></div>
-      <div class="field"><label>Voyageurs</label><div class="v">${paxTotal} adulte${paxTotal > 1 ? "s" : ""}</div></div>`
+      <div class="field"><label>${t.arrival}</label><div class="v">${formatDateLong(stay.arrival, lang)}</div></div>
+      <div class="field"><label>${t.departure}</label><div class="v">${formatDateLong(stay.departure, lang)}</div></div>
+      <div class="field"><label>${t.duration}</label><div class="v">${stay.nights} ${stay.nights! > 1 ? t.nights : t.night}</div></div>
+      <div class="field"><label>${t.travelers}</label><div class="v">${paxTotal} ${adultsWord}</div></div>`
     : stay.singleDate
     ? `
-      <div class="field"><label>Date</label><div class="v">${formatDateLong(stay.singleDate)}</div></div>
-      <div class="field"><label>Voyageurs</label><div class="v">${paxTotal} adulte${paxTotal > 1 ? "s" : ""}</div></div>`
-    : `<div class="field"><label>Voyageurs</label><div class="v">${paxTotal} adulte${paxTotal > 1 ? "s" : ""}</div></div>`;
+      <div class="field"><label>${t.date}</label><div class="v">${formatDateLong(stay.singleDate, lang)}</div></div>
+      <div class="field"><label>${t.travelers}</label><div class="v">${paxTotal} ${adultsWord}</div></div>`
+    : `<div class="field"><label>${t.travelers}</label><div class="v">${paxTotal} ${adultsWord}</div></div>`;
 
   return `<!doctype html>
-<html lang="fr">
+<html lang="${lang}">
 <head>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -312,76 +451,76 @@ export function buildFicheHtml({ reservationRef, items, totalAmount, currency }:
 
     <div class="title-row">
       <div class="doc-title">
-        <small>Document de séjour</small>
-        Fiche de Réservation
+        <small>${t.docSubtitle}</small>
+        ${t.docTitle}
       </div>
       <div class="doc-meta">
-        <div><span class="k">Réf.</span>${escapeHtml(reservationRef)}</div>
-        <div><span class="k">Émise le</span>${formatDateLong(new Date())}</div>
+        <div><span class="k">${t.ref}</span>${escapeHtml(reservationRef)}</div>
+        <div><span class="k">${t.issuedOn}</span>${formatDateLong(new Date(), lang)}</div>
       </div>
     </div>
 
-    <p class="section-label">Client</p>
+    <p class="section-label">${t.client}</p>
     <div class="info-grid guest">
       <div class="field">
-        <label>Nom du client</label>
+        <label>${t.clientName}</label>
         <div class="v big">${escapeHtml(first.firstName)} ${escapeHtml(first.lastName)}</div>
       </div>
       <div class="field">
-        <label>Téléphone</label>
-        <div class="v">${escapeHtml(first.phone || "—")}</div>
+        <label>${t.phone}</label>
+        <div class="v">${escapeHtml(first.phone || t.none)}</div>
       </div>
       <div class="field">
-        <label>Email</label>
+        <label>${t.email}</label>
         <div class="v">${escapeHtml(first.email)}</div>
       </div>
     </div>
 
-    <p class="section-label">Séjour</p>
+    <p class="section-label">${t.stay}</p>
     <div class="info-grid">
       ${sejourFields}
     </div>
 
-    <p class="section-label">Prestations réservées</p>
+    <p class="section-label">${t.prestations}</p>
     <table class="prestations">
       <thead>
         <tr>
-          <th style="width:52%">Prestation</th>
-          <th style="width:23%">Dates</th>
-          <th style="width:10%">Pers.</th>
-          <th style="width:15%">Montant</th>
+          <th style="width:52%">${t.prestation}</th>
+          <th style="width:23%">${t.dates}</th>
+          <th style="width:10%">${t.pers}</th>
+          <th style="width:15%">${t.amount}</th>
         </tr>
       </thead>
       <tbody>
-        ${buildPrestationRows(items)}
+        ${buildPrestationRows(t, lang, items)}
       </tbody>
     </table>
     <div class="total-row">
-      <span class="lbl">Tarif total</span>
-      <span class="val">${totalAmount.toLocaleString("fr-FR")} ${currency}</span>
+      <span class="lbl">${t.total}</span>
+      <span class="val">${totalAmount.toLocaleString(NUMBER_LOCALE[lang])} ${currency}</span>
     </div>
 
     <div class="two-col">
       <div class="field">
-        <label>Méthode de paiement</label>
-        <div class="v">À régler sur place, en espèces</div>
+        <label>${t.paymentMethod}</label>
+        <div class="v">${t.paymentGeneric}</div>
       </div>
       <div class="field">
-        <label>Remarques</label>
+        <label>${t.remarks}</label>
         <div class="v">${escapeHtml(remarks)}</div>
       </div>
     </div>
 
     <div class="confirm-strip">
       <div class="txt">
-        <strong>Réservation confirmée.</strong><br>
-        Merci de présenter cette fiche à votre arrivée au campement.
+        <strong>${t.confirmedTitle}</strong><br>
+        ${t.confirmedBody}
       </div>
-      <div class="stamp">Confirmé<br>ADH</div>
+      <div class="stamp">${t.stamp}<br>ADH</div>
     </div>
 
-    <p class="page-footer">Arabian Desert Home<span class="sep">·</span>Agafay, Marrakech<span class="sep">·</span>+212 667-370-206</p>
-    <p class="fine-print">Ce document atteste d'une réservation confirmée auprès d'Arabian Desert Home.</p>
+    <p class="page-footer">Arabian Desert Home<span class="sep">·</span>${t.location}<span class="sep">·</span>+212 667-370-206</p>
+    <p class="fine-print">${t.finePrint}</p>
   </div>
 </body>
 </html>`;

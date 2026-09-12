@@ -3,7 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus, Loader2, FileText } from "lucide-react";
+import { Plus, Loader2, FileText, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -145,15 +151,35 @@ export function ReservationDetailSheet({
         <SheetHeader>
           <div className="flex items-center justify-between gap-3 pr-8">
             <SheetTitle>{primary.firstName} {primary.lastName}</SheetTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs cursor-pointer shrink-0"
-              onClick={() => window.open(`/api/admin/reservations/${group.id}/fiche`, "_blank")}
-            >
-              <FileText className="w-3.5 h-3.5" />
-              Voir la fiche PDF
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="text-xs cursor-pointer shrink-0">
+                  <FileText className="w-3.5 h-3.5" />
+                  Voir la fiche PDF
+                  <ChevronDown className="w-3 h-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => window.open(`/api/admin/reservations/${group.id}/fiche?lang=fr`, "_blank")}
+                >
+                  🇫🇷 Français
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => window.open(`/api/admin/reservations/${group.id}/fiche?lang=en`, "_blank")}
+                >
+                  🇬🇧 English
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => window.open(`/api/admin/reservations/${group.id}/fiche?lang=es`, "_blank")}
+                >
+                  🇪🇸 Español
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </SheetHeader>
 
