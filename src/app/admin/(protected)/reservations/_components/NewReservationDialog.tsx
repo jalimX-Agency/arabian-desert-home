@@ -45,7 +45,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
   const [contact, setContact] = useState({ firstName: "", lastName: "", email: "", phone: "", specialReqs: "" });
   const [channel, setChannel] = useState("");
   const [status, setStatus] = useState("pending");
-  const [currency, setCurrency] = useState("MAD");
+  const [currency, setCurrency] = useState("EUR");
   const [notifyClient, setNotifyClient] = useState(true);
   const [items, setItems] = useState<EditableItem[]>([emptyItem()]);
   const [saving, setSaving] = useState(false);
@@ -86,7 +86,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
     setContact({ firstName: "", lastName: "", email: "", phone: "", specialReqs: "" });
     setChannel("");
     setStatus("pending");
-    setCurrency("MAD");
+    setCurrency("EUR");
     setItems([emptyItem()]);
   }
 
@@ -171,9 +171,9 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
                 </Select>
               </div>
             </div>
-            {currency !== "MAD" && (
+            {currency !== "EUR" && (
               <p className="text-xs text-amber-600 dark:text-amber-400">
-                Les prix des prestations sont calculés dans la devise du catalogue (généralement MAD) — vérifiez et ajustez-les si besoin pour cette devise.
+                Les prix des prestations sont calculés dans la devise du catalogue (généralement EUR) — vérifiez et ajustez-les si besoin pour cette devise.
               </p>
             )}
             <div>

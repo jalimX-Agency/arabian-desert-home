@@ -65,6 +65,7 @@ export function ReservationDetailSheet({
   const catalog: Catalog = { suites, activities, dayPasses };
 
   const [contact, setContact] = useState({ firstName: "", lastName: "", email: "", phone: "", specialReqs: "", channel: "website" });
+  const [currency, setCurrency] = useState("EUR");
   const [items, setItems] = useState<EditableItem[]>([]);
   const [saving, setSaving] = useState(false);
   const [confirmDeleteKey, setConfirmDeleteKey] = useState<string | null>(null);
@@ -82,6 +83,7 @@ export function ReservationDetailSheet({
       specialReqs: primary.specialReqs ?? "",
       channel: groupChannel(group),
     });
+    setCurrency(primary.currency ?? "EUR");
     setItems(group.items.map(bookingToEditable));
   }, [group]);
 
@@ -93,8 +95,12 @@ export function ReservationDetailSheet({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [suites, activities, dayPasses, JSON.stringify(items.map((i) => [i.serviceType, i.suiteId, i.activityId, i.dayPassId, i.checkIn, i.checkOut, i.date, i.guests, i.children, i.quantity]))]);
 
+  // Keep every item's displayed currency in sync with the chosen reservation currency.
+  useEffect(() => {
+    setItems((prev) => prev.map((it) => (it.currency === currency ? it : { ...it, currency })));
+  }, [currency]);
+
   const grandTotal = useMemo(() => items.reduce((sum, it) => sum + it.totalAmount, 0), [items]);
-  const currency = items[0]?.currency ?? "MAD";
 
   function updateItem(key: string, patch: Partial<EditableItem>) {
     setItems((prev) => prev.map((it) => (it.key === key ? { ...it, ...patch } : it)));
@@ -228,6 +234,16 @@ export function ReservationDetailSheet({
                   <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {CHANNELS.map((c) => <SelectItem key={c} value={c}>{channelLabel[c]}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs text-gray-400 mb-1 block">Devise</Label>
+                <Select value={currency} onValueChange={setCurrency}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MAD">MAD — Dirham marocain</SelectItem>
+                    <SelectItem value="EUR">EUR — Euro</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
