@@ -21,7 +21,14 @@ import {
   serviceTypeLabel,
   CHANNELS,
   channelLabel,
+  type SortMode,
 } from "../_lib/reservation-utils";
+
+const SORT_MODE_LABEL: Record<SortMode, string> = {
+  checkin: "Date d'arrivée",
+  reservationDate: "Date de réservation",
+  range: "Plage de dates",
+};
 
 interface ReservationToolbarProps {
   search: string;
@@ -32,6 +39,8 @@ interface ReservationToolbarProps {
   onServiceFilterChange: (v: string) => void;
   channelFilter: string;
   onChannelFilterChange: (v: string) => void;
+  sortMode: SortMode;
+  onSortModeChange: (v: SortMode) => void;
   dateFrom: string;
   onDateFromChange: (v: string) => void;
   dateTo: string;
@@ -53,6 +62,8 @@ export function ReservationToolbar({
   onServiceFilterChange,
   channelFilter,
   onChannelFilterChange,
+  sortMode,
+  onSortModeChange,
   dateFrom,
   onDateFromChange,
   dateTo,
@@ -173,21 +184,34 @@ export function ReservationToolbar({
           </SelectContent>
         </Select>
 
-        <div className="flex items-center gap-1.5 text-xs text-gray-400">
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => onDateFromChange(e.target.value)}
-            className="px-2 py-1.5 rounded-lg text-xs bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40"
-          />
-          <span>→</span>
-          <input
-            type="date"
-            value={dateTo}
-            onChange={(e) => onDateToChange(e.target.value)}
-            className="px-2 py-1.5 rounded-lg text-xs bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40"
-          />
-        </div>
+        <Select value={sortMode} onValueChange={(v) => onSortModeChange(v as SortMode)}>
+          <SelectTrigger size="sm" className="text-xs w-40 bg-white dark:bg-white/5">
+            <SelectValue placeholder="Trier par" />
+          </SelectTrigger>
+          <SelectContent>
+            {(Object.keys(SORT_MODE_LABEL) as SortMode[]).map((m) => (
+              <SelectItem key={m} value={m}>{SORT_MODE_LABEL[m]}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {sortMode === "range" && (
+          <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => onDateFromChange(e.target.value)}
+              className="px-2 py-1.5 rounded-lg text-xs bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            />
+            <span>→</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => onDateToChange(e.target.value)}
+              className="px-2 py-1.5 rounded-lg text-xs bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -8,6 +8,8 @@ import {
   groupBookings,
   earliestDate,
   bookingsToCsv,
+  sortGroups,
+  type SortMode,
 } from "./_lib/reservation-utils";
 import { ReservationToolbar } from "./_components/ReservationToolbar";
 import { ReservationTable } from "./_components/ReservationTable";
@@ -24,6 +26,7 @@ export default function ReservationsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [serviceFilter, setServiceFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
+  const [sortMode, setSortMode] = useState<SortMode>("reservationDate");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [view, setView] = useState<"table" | "calendar">("table");
@@ -82,7 +85,7 @@ export default function ReservationsPage() {
       const haystack = `${b.firstName} ${b.lastName} ${b.email} ${b.phone ?? ""}`.toLowerCase();
       if (!haystack.includes(searchLower)) return false;
     }
-    if (dateFrom || dateTo) {
+    if (sortMode === "range" && (dateFrom || dateTo)) {
       const d = earliestDate(b);
       if (!d) return false;
       if (dateFrom && d < new Date(dateFrom)) return false;
@@ -91,7 +94,7 @@ export default function ReservationsPage() {
     return true;
   });
 
-  const groups = groupBookings(filtered);
+  const groups = sortGroups(groupBookings(filtered), sortMode);
 
   const allFilteredSelected = groups.length > 0 && groups.every((g) => selectedIds.has(g.id));
   const someFilteredSelected = groups.some((g) => selectedIds.has(g.id));
@@ -139,6 +142,8 @@ export default function ReservationsPage() {
         onServiceFilterChange={setServiceFilter}
         channelFilter={channelFilter}
         onChannelFilterChange={setChannelFilter}
+        sortMode={sortMode}
+        onSortModeChange={setSortMode}
         dateFrom={dateFrom}
         onDateFromChange={setDateFrom}
         dateTo={dateTo}

@@ -127,6 +127,32 @@ export function groupNearestDate(g: ReservationGroup): Date | null {
   return new Date(Math.min(...dates.map((d) => d.getTime())));
 }
 
+export function groupReservationDate(g: ReservationGroup): Date {
+  return new Date(g.items[0].createdAt);
+}
+
+export const sortModeOptions = ["reservationDate", "checkin", "range"] as const;
+export type SortMode = (typeof sortModeOptions)[number];
+
+/** Orders reservations either by soonest check-in (also used while browsing a
+ *  date range) or by most recent submission — the list's default. */
+export function sortGroups(groups: ReservationGroup[], sortMode: SortMode): ReservationGroup[] {
+  const sorted = [...groups];
+  if (sortMode === "checkin" || sortMode === "range") {
+    sorted.sort((a, b) => {
+      const da = groupNearestDate(a);
+      const db = groupNearestDate(b);
+      if (!da && !db) return 0;
+      if (!da) return 1;
+      if (!db) return -1;
+      return da.getTime() - db.getTime();
+    });
+  } else {
+    sorted.sort((a, b) => groupReservationDate(b).getTime() - groupReservationDate(a).getTime());
+  }
+  return sorted;
+}
+
 interface CalendarEntry {
   booking: Booking;
   date: Date;
