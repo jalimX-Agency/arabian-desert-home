@@ -16,6 +16,9 @@ export interface CartItemInput {
   experiences?: string;
   /** Admin-only escape hatch for manually recording a stay during a closed period. */
   allowClosedPeriod?: boolean;
+  /** Admin-only: record this item in a currency other than the catalog item's own
+   *  (e.g. an OTA/phone booking quoted in EUR). The public site never sets this. */
+  currencyOverride?: string;
 }
 
 export interface PricedItem {
@@ -64,7 +67,7 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
       children,
       experiences: item.experiences || null,
       totalAmount: nightlyTotal(suite.price, suite.seasonalPrices, checkIn, checkOut) * quantity,
-      currency: suite.currency,
+      currency: item.currencyOverride ?? suite.currency,
     };
   }
 
@@ -89,7 +92,7 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
       children,
       experiences: item.experiences || null,
       totalAmount: guests * unitPrice + children * Math.round(unitPrice * activity.childPricePercent / 100),
-      currency: activity.currency,
+      currency: item.currencyOverride ?? activity.currency,
     };
   }
 
@@ -114,7 +117,7 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
       children,
       experiences: item.experiences || null,
       totalAmount: guests * unitPrice + children * Math.round(unitPrice * pass.childPricePercent / 100),
-      currency: pass.currency,
+      currency: item.currencyOverride ?? pass.currency,
     };
   }
 

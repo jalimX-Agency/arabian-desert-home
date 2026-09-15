@@ -16,10 +16,12 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const {
-    firstName, lastName, email, phone, specialReqs, channel, status, notifyClient, items,
+    firstName, lastName, email, phone, specialReqs, channel, status, notifyClient,
+    currency: requestedCurrency, items,
   } = body as {
     firstName?: string; lastName?: string; email?: string; phone?: string;
     specialReqs?: string; channel?: string; status?: string; notifyClient?: boolean;
+    currency?: string;
     items?: CartItemInput[];
   };
 
@@ -36,8 +38,11 @@ export async function POST(req: NextRequest) {
   let priced;
   try {
     // Admin-recorded bookings (phone/WhatsApp/OTA) are allowed through a closed
-    // period — the admin already knows what they're doing when entering one manually.
-    priced = await Promise.all(items.map((item) => priceCartItem({ ...item, allowClosedPeriod: true })));
+    // period — the admin already knows what they're doing when entering one manually —
+    // and can be recorded in a currency other than the catalog item's own.
+    priced = await Promise.all(
+      items.map((item) => priceCartItem({ ...item, allowClosedPeriod: true, currencyOverride: requestedCurrency }))
+    );
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "Invalid item" }, { status: 400 });
   }

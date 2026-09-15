@@ -45,6 +45,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
   const [contact, setContact] = useState({ firstName: "", lastName: "", email: "", phone: "", specialReqs: "" });
   const [channel, setChannel] = useState("");
   const [status, setStatus] = useState("pending");
+  const [currency, setCurrency] = useState("MAD");
   const [notifyClient, setNotifyClient] = useState(true);
   const [items, setItems] = useState<EditableItem[]>([emptyItem()]);
   const [saving, setSaving] = useState(false);
@@ -61,12 +62,16 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [suites, activities, dayPasses, JSON.stringify(items.map((i) => [i.serviceType, i.suiteId, i.activityId, i.dayPassId, i.checkIn, i.checkOut, i.date, i.guests, i.children, i.quantity]))]);
 
+  // Keep every item's displayed currency in sync with the chosen reservation currency.
+  useEffect(() => {
+    setItems((prev) => prev.map((it) => (it.currency === currency ? it : { ...it, currency })));
+  }, [currency]);
+
   function updateItem(key: string, patch: Partial<EditableItem>) {
     setItems((prev) => prev.map((it) => (it.key === key ? { ...it, ...patch } : it)));
   }
 
   const grandTotal = items.reduce((sum, it) => sum + it.totalAmount, 0);
-  const currency = items[0]?.currency ?? "MAD";
 
   const isValid =
     contact.firstName.trim() !== "" &&
@@ -81,6 +86,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
     setContact({ firstName: "", lastName: "", email: "", phone: "", specialReqs: "" });
     setChannel("");
     setStatus("pending");
+    setCurrency("MAD");
     setItems([emptyItem()]);
   }
 
@@ -96,6 +102,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
           specialReqs: contact.specialReqs || undefined,
           channel,
           status,
+          currency,
           notifyClient,
           items: items.map(itemToPayload),
         }),
@@ -153,7 +160,22 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
                   </SelectContent>
                 </Select>
               </div>
+              <div>
+                <Label className="text-xs text-gray-400 mb-1 block">Devise</Label>
+                <Select value={currency} onValueChange={setCurrency}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MAD">MAD — Dirham marocain</SelectItem>
+                    <SelectItem value="EUR">EUR — Euro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+            {currency !== "MAD" && (
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                Les prix des prestations sont calculés dans la devise du catalogue (généralement MAD) — vérifiez et ajustez-les si besoin pour cette devise.
+              </p>
+            )}
             <div>
               <Label className="text-xs text-gray-400 mb-1 block">Demandes spéciales</Label>
               <Textarea value={contact.specialReqs} onChange={(e) => setContact((c) => ({ ...c, specialReqs: e.target.value }))} rows={2} />
