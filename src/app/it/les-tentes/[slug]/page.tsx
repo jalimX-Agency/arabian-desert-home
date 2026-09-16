@@ -6,6 +6,8 @@ import { TenteDetailContent } from "@/app/(fr)/les-tentes/[slug]/TenteDetailCont
 import { itAlternates } from "@/lib/seo/hreflang";
 import { padDescription } from "@/lib/seo/description";
 
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
   const suites = await db.suite.findMany({ select: { slug: true } });
   return suites.map((s) => ({ slug: s.slug }));

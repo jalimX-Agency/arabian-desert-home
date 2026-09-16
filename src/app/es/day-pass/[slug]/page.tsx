@@ -6,6 +6,8 @@ import { DayPassDetailContent } from "@/app/(fr)/day-pass/[slug]/DayPassDetailCo
 import { esAlternates } from "@/lib/seo/hreflang";
 import { padDescription } from "@/lib/seo/description";
 
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
   const passes = await db.dayPass.findMany({ select: { slug: true } });
   return passes.map((p) => ({ slug: p.slug }));

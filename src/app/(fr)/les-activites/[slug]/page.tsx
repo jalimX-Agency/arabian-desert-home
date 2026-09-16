@@ -6,6 +6,8 @@ import { ActiviteDetailContent } from "./ActiviteDetailContent";
 import { frAlternates } from "@/lib/seo/hreflang";
 import { padDescription } from "@/lib/seo/description";
 
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
   const activities = await db.activity.findMany({ select: { slug: true } });
   return activities.map((a) => ({ slug: a.slug }));

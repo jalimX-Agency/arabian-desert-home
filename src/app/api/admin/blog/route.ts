@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { notifyIndexNow, localizedUrls } from "@/lib/indexnow";
+import { revalidateLocalized } from "@/lib/revalidate";
 
 function toSlug(title: string): string {
   return title
@@ -37,5 +38,8 @@ export async function POST(req: NextRequest) {
   data.slug = await uniqueSlug(toSlug(data.title ?? "article"));
   const post = await db.blogPost.create({ data });
   notifyIndexNow(localizedUrls(`/blog/${post.slug}`));
+  revalidateLocalized("/blog");
+  revalidateLocalized(`/blog/${post.slug}`);
+  revalidateLocalized("/");
   return NextResponse.json(post, { status: 201 });
 }

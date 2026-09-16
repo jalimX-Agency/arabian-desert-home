@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { deleteR2Urls } from "@/lib/r2";
 import { notifyIndexNow, localizedUrls } from "@/lib/indexnow";
+import { revalidateLocalized } from "@/lib/revalidate";
 
 function toSlug(title: string): string {
   return title
@@ -29,7 +30,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (deny) return deny;
   const { id } = await params;
   const data = await req.json();
-  const existing = await db.blogPost.findUnique({ where: { id }, select: { image: true, title: true } });
+  const existing = await db.blogPost.findUnique({ where: { id }, select: { image: true, title: true, slug: true } });
   if (existing?.image && data.image !== undefined && data.image !== existing.image) {
     await deleteR2Urls(existing.image).catch(() => {});
   }
@@ -38,6 +39,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   }
   const post = await db.blogPost.update({ where: { id }, data });
   notifyIndexNow(localizedUrls(`/blog/${post.slug}`));
+  revalidateLocalized("/blog");
+  revalidateLocalized(`/blog/${post.slug}`);
+  revalidateLocalized("/");
+  if (existing && existing.slug !== post.slug) revalidateLocalized(`/blog/${existing.slug}`);
   return NextResponse.json(post);
 }
 
@@ -48,5 +53,10 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const post = await db.blogPost.findUnique({ where: { id } });
   if (post?.image) await deleteR2Urls(post.image).catch(() => {});
   await db.blogPost.delete({ where: { id } });
+  if (post) {
+    revalidateLocalized("/blog");
+    revalidateLocalized(`/blog/${post.slug}`);
+    revalidateLocalized("/");
+  }
   return NextResponse.json({ success: true });
 }

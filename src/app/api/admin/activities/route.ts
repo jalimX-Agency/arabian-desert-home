@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { notifyIndexNow, localizedUrls } from "@/lib/indexnow";
+import { revalidateLocalized } from "@/lib/revalidate";
 
 export async function GET() {
   const deny = await requireAdmin();
@@ -16,5 +17,7 @@ export async function POST(req: NextRequest) {
   const data = await req.json();
   const activity = await db.activity.create({ data });
   notifyIndexNow(localizedUrls(`/les-activites/${activity.slug}`));
+  revalidateLocalized("/les-activites");
+  revalidateLocalized(`/les-activites/${activity.slug}`);
   return NextResponse.json(activity, { status: 201 });
 }
