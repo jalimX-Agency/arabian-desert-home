@@ -15,6 +15,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   notifyIndexNow(localizedUrls(`/les-activites/${activity.slug}`));
   revalidateLocalized("/les-activites");
   revalidateLocalized(`/les-activites/${activity.slug}`);
+  revalidateLocalized("/les-experiences");
   if (before && before.slug !== activity.slug) revalidateLocalized(`/les-activites/${before.slug}`);
   return NextResponse.json(activity);
 }
@@ -32,6 +33,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (activity) {
     revalidateLocalized("/les-activites");
     revalidateLocalized(`/les-activites/${activity.slug}`);
+    revalidateLocalized("/les-experiences");
   }
   return NextResponse.json({ success: true });
 }

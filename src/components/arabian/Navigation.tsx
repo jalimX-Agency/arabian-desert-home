@@ -18,7 +18,7 @@ import {
 // Route prefixes that have real, server-rendered translations in every non-French locale.
 // Extend this list as more locale routes ship.
 const LOCALE_READY_PREFIXES = [
-  "/les-tentes", "/les-activites", "/day-pass", "/blog", "/desert-agafay",
+  "/les-tentes", "/les-activites", "/les-experiences", "/day-pass", "/blog", "/desert-agafay",
   "/restaurant", "/contact", "/apropo", "/les-evenements", "/reservez-votre-sejour",
 ];
 const NON_FR_LOCALES: Language[] = ["en", "es", "it"];
@@ -56,6 +56,7 @@ const navLinkKeys = [
   { labelKey: "nav.tents", href: "/les-tentes", localized: true },
   { labelKey: "nav.restaurant", href: "/restaurant", localized: true },
   { labelKey: "nav.activities", href: "/les-activites", localized: true },
+  { labelKey: "nav.experiences", href: "/les-experiences", localized: true },
   { labelKey: "nav.dayPass", href: "/day-pass", localized: true },
   { labelKey: "nav.events", href: "/les-evenements", localized: true },
   { labelKey: "nav.blog", href: "/blog", localized: true },

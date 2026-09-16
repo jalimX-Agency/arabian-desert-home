@@ -5,6 +5,7 @@ export const fr: Record<string, unknown> = {
     tents: "Tentes",
     restaurant: "Restaurant",
     activities: "Activités",
+    experiences: "Expériences",
     dayPass: "Day Pass",
     events: "Événement",
     spa: "Spa",
@@ -500,6 +501,23 @@ export const fr: Record<string, unknown> = {
     perPerson: "/ personne",
     ctaLabel: "Réservez Votre Aventure",
     ctaTitle: "Prêt pour le désert ?",
+    ctaButton: "Réserver Maintenant",
+  },
+
+  // Experiences Page
+  experiencesPage: {
+    heroLabel: "Journées Complètes",
+    heroTitle: "Expériences",
+    heroSubtitle: "Vivez le désert d'Agafay dans son intégralité",
+    introLabel: "Expériences Complètes",
+    introTitle1: "Vivez le désert",
+    introTitle2: "en entier",
+    introText: "Nos expériences complètes combinent activités, gastronomie et transport pour une journée inoubliable dans le désert d'Agafay. Tout est organisé, il ne vous reste qu'à profiter.",
+    includes: "Inclus",
+    transportIncluded: "Transport inclus",
+    perPerson: "/ personne",
+    ctaLabel: "Réservez Votre Expérience",
+    ctaTitle: "Prêt pour l'aventure ?",
     ctaButton: "Réserver Maintenant",
   },
 

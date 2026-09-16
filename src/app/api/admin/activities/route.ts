@@ -19,5 +19,6 @@ export async function POST(req: NextRequest) {
   notifyIndexNow(localizedUrls(`/les-activites/${activity.slug}`));
   revalidateLocalized("/les-activites");
   revalidateLocalized(`/les-activites/${activity.slug}`);
+  revalidateLocalized("/les-experiences");
   return NextResponse.json(activity, { status: 201 });
 }
