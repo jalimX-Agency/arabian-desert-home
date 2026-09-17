@@ -14,6 +14,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 // Route prefixes that have real, server-rendered translations in every non-French locale.
 // Extend this list as more locale routes ship.
@@ -51,21 +59,39 @@ function toLocalePath(pathname: string, target: Language): string {
   return frPath === "/" ? `/${target}` : `/${target}${frPath}`;
 }
 
-const navLinkKeys = [
-  { labelKey: "nav.home", href: "/", localized: true },
-  { labelKey: "nav.tents", href: "/les-tentes", localized: true },
-  { labelKey: "nav.restaurant", href: "/restaurant", localized: true },
-  { labelKey: "nav.activities", href: "/les-activites", localized: true },
-  { labelKey: "nav.experiences", href: "/les-experiences", localized: true },
-  { labelKey: "nav.dayPass", href: "/day-pass", localized: true },
-  { labelKey: "nav.events", href: "/les-evenements", localized: true },
-  { labelKey: "nav.blog", href: "/blog", localized: true },
-  { labelKey: "nav.contact", href: "/contact", localized: true },
+interface NavLeaf {
+  labelKey: string;
+  href: string;
+  descKey?: string;
+}
+
+type NavEntry =
+  | ({ kind: "link" } & NavLeaf)
+  | { kind: "group"; labelKey: string; items: NavLeaf[] };
+
+// The five bookable offers live behind one "Découvrir" menu so the header stays
+// readable — a flat list of nine was burying Day Pass and Restaurant.
+const navEntries: NavEntry[] = [
+  { kind: "link", labelKey: "nav.home", href: "/" },
+  { kind: "link", labelKey: "nav.tents", href: "/les-tentes" },
+  {
+    kind: "group",
+    labelKey: "nav.discover",
+    items: [
+      { labelKey: "nav.activities", href: "/les-activites", descKey: "navMenu.activitiesDesc" },
+      { labelKey: "nav.experiences", href: "/les-experiences", descKey: "navMenu.experiencesDesc" },
+      { labelKey: "nav.dayPass", href: "/day-pass", descKey: "navMenu.dayPassDesc" },
+      { labelKey: "nav.restaurant", href: "/restaurant", descKey: "navMenu.restaurantDesc" },
+      { labelKey: "nav.events", href: "/les-evenements", descKey: "navMenu.eventsDesc" },
+    ],
+  },
+  { kind: "link", labelKey: "nav.blog", href: "/blog" },
+  { kind: "link", labelKey: "nav.contact", href: "/contact" },
 ];
 
-function localizedHref(link: { href: string; localized: boolean }, language: Language): string {
-  if (language === "fr" || !link.localized) return link.href;
-  return link.href === "/" ? `/${language}` : `/${language}${link.href}`;
+function localizedHref(href: string, language: Language): string {
+  if (language === "fr") return href;
+  return href === "/" ? `/${language}` : `/${language}${href}`;
 }
 
 export function Navigation() {
@@ -150,32 +176,85 @@ export function Navigation() {
             />
           </Link>
 
-          {/* ── Desktop Nav Links — Smooth Underline ── */}
-          <div className="hidden lg:flex items-center gap-7">
-            {navLinkKeys.map((link) => {
-              const href = localizedHref(link, language);
-              const isActive = pathname === href;
-              return (
-                <Link
-                  key={link.href}
-                  href={href}
-                  className={`luxury-label relative group cursor-pointer transition-colors duration-300 ${isActive
-                    ? "text-amber"
-                    : scrolled
-                      ? "text-muted-foreground hover:text-foreground"
-                      : "text-white/85 hover:text-white"
-                    }`}
-                >
-                  {t(link.labelKey)}
-                  {/* Underline indicator — smooth amber slide */}
-                  <span
-                    className={`absolute -bottom-1.5 left-0 h-[1.5px] rounded-full bg-gradient-to-r from-amber to-amber-light transition-all duration-300 ease-out ${isActive ? "w-full" : "w-0 group-hover:w-full"
-                      }`}
-                  />
-                </Link>
-              );
-            })}
-          </div>
+          {/* ── Desktop Nav — Smooth Underline + "Découvrir" menu ── */}
+          <NavigationMenu viewport={false} className="hidden lg:flex">
+            <NavigationMenuList className="gap-7">
+              {navEntries.map((entry) => {
+                const idleColor = scrolled
+                  ? "text-muted-foreground hover:text-foreground"
+                  : "text-white/85 hover:text-white";
+
+                if (entry.kind === "link") {
+                  const href = localizedHref(entry.href, language);
+                  const isActive = pathname === href;
+                  return (
+                    <NavigationMenuItem key={entry.href}>
+                      <Link
+                        href={href}
+                        className={`luxury-label relative group/navlink cursor-pointer transition-colors duration-300 ${isActive ? "text-amber" : idleColor
+                          }`}
+                      >
+                        {t(entry.labelKey)}
+                        <span
+                          className={`absolute -bottom-1.5 left-0 h-[1.5px] rounded-full bg-gradient-to-r from-amber to-amber-light transition-all duration-300 ease-out ${isActive ? "w-full" : "w-0 group-hover/navlink:w-full"
+                            }`}
+                        />
+                      </Link>
+                    </NavigationMenuItem>
+                  );
+                }
+
+                const groupActive = entry.items.some(
+                  (item) => pathname === localizedHref(item.href, language)
+                );
+                return (
+                  <NavigationMenuItem key={entry.labelKey}>
+                    <NavigationMenuTrigger
+                      className={`group/navlink luxury-label relative h-auto w-auto rounded-none bg-transparent px-0 py-0 font-[inherit] tracking-[inherit] hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent data-[state=open]:hover:bg-transparent data-[state=open]:focus:bg-transparent cursor-pointer transition-colors duration-300 ${groupActive ? "text-amber" : idleColor
+                        }`}
+                    >
+                      {t(entry.labelKey)}
+                      <span
+                        className={`absolute -bottom-1.5 left-0 h-[1.5px] rounded-full bg-gradient-to-r from-amber to-amber-light transition-all duration-300 ease-out ${groupActive ? "w-full" : "w-0 group-hover/navlink:w-full group-data-[state=open]/navlink:w-full"
+                          }`}
+                      />
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent className="!rounded-2xl !border-amber/15 glass-premium p-2 shadow-xl shadow-black/10">
+                      <ul className="w-[19rem]">
+                        {entry.items.map((item) => {
+                          const href = localizedHref(item.href, language);
+                          const isActive = pathname === href;
+                          return (
+                            <li key={item.href}>
+                              <NavigationMenuLink asChild>
+                                <Link
+                                  href={href}
+                                  className={`block rounded-xl px-4 py-3 transition-colors duration-300 cursor-pointer hover:bg-amber/[0.07] focus-visible:bg-amber/[0.07] ${isActive ? "bg-amber/[0.07]" : ""
+                                    }`}
+                                >
+                                  <span
+                                    className={`luxury-label block mb-1 ${isActive ? "text-amber" : "text-foreground"
+                                      }`}
+                                  >
+                                    {t(item.labelKey)}
+                                  </span>
+                                  {item.descKey && (
+                                    <span className="body-editorial block text-xs leading-snug text-muted-foreground">
+                                      {t(item.descKey)}
+                                    </span>
+                                  )}
+                                </Link>
+                              </NavigationMenuLink>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                );
+              })}
+            </NavigationMenuList>
+          </NavigationMenu>
 
           {/* ── Right Controls: Language · Book · Mobile Toggle ── */}
           <div className="flex items-center gap-3">
@@ -312,20 +391,49 @@ export function Navigation() {
           >
             <div className="h-full flex flex-col pt-24 pb-8 px-8">
               {/* Nav Links — Large serif, staggered entrance */}
-              <div className="flex-1 flex flex-col justify-center gap-1">
-                {navLinkKeys.map((link, i) => {
-                  const href = localizedHref(link, language);
+              <div className="flex-1 flex flex-col justify-center gap-1 overflow-y-auto">
+                {navEntries.map((entry, i) => {
+                  const transition = { delay: 0.08 + i * 0.05, duration: 0.5, ease: flowingEase };
+
+                  if (entry.kind === "group") {
+                    return (
+                      <motion.div
+                        key={entry.labelKey}
+                        initial={{ opacity: 0, x: -40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={transition}
+                        className="py-2 pl-6"
+                      >
+                        <span className="mono-meta text-amber/70 block mb-2">{t(entry.labelKey)}</span>
+                        <div className="flex flex-col border-l border-amber/15 pl-4">
+                          {entry.items.map((item) => {
+                            const href = localizedHref(item.href, language);
+                            const isActive = pathname === href;
+                            return (
+                              <Link
+                                key={item.href}
+                                href={href}
+                                onClick={closeMobile}
+                                className={`font-serif text-xl sm:text-2xl py-1.5 cursor-pointer transition-colors duration-300 ${isActive ? "text-amber" : "text-foreground/70 hover:text-amber"
+                                  }`}
+                              >
+                                {t(item.labelKey)}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    );
+                  }
+
+                  const href = localizedHref(entry.href, language);
                   const isActive = pathname === href;
                   return (
                     <motion.div
-                      key={link.href}
+                      key={entry.href}
                       initial={{ opacity: 0, x: -40 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        delay: 0.08 + i * 0.05,
-                        duration: 0.5,
-                        ease: flowingEase,
-                      }}
+                      transition={transition}
                     >
                       <Link
                         href={href}
@@ -335,14 +443,13 @@ export function Navigation() {
                           : "text-foreground/80 hover:text-amber"
                           }`}
                       >
-                        {/* Active indicator dot */}
                         <span
                           className={`w-2 h-2 rounded-full bg-amber transition-all duration-300 ${isActive
                             ? "opacity-100 scale-100"
                             : "opacity-0 scale-0 group-hover:opacity-60 group-hover:scale-100"
                             }`}
                         />
-                        {t(link.labelKey)}
+                        {t(entry.labelKey)}
                       </Link>
                     </motion.div>
                   );

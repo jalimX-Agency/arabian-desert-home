@@ -34,7 +34,7 @@
   /* Font Families */
   --font-serif: var(--font-cinzel);
   --font-sans: var(--font-josefin);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-plex-mono);
 
   /* Component Colors */
   --color-card: var(--card);
@@ -271,6 +271,25 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   font-size: 0.68rem;
+}
+
+/* Meta voice: IBM Plex Mono — eyebrows, coordinates, counters */
+.mono-meta {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hero display: Cinzel pushed to poster scale with tightened tracking */
+.heading-hero {
+  font-family: var(--font-cinzel), serif;
+  font-weight: 400;
+  font-size: clamp(2.75rem, 7.4vw, 8.75rem);
+  letter-spacing: -0.015em;
+  line-height: 0.92;
 }
 
 /* Mono number: for prices and stats */

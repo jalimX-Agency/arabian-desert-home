@@ -1,5 +1,5 @@
 ﻿import type { Metadata } from "next";
-import { Cinzel, Josefin_Sans } from "next/font/google";
+import { Cinzel, Josefin_Sans, IBM_Plex_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AdminSessionProvider } from "@/components/admin/SessionProvider";
 import { LanguageProvider } from "@/lib/i18n/context";
@@ -18,6 +18,13 @@ const josefin = Josefin_Sans({
   variable: "--font-josefin",
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -109,7 +116,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${cinzel.variable} ${josefin.variable} antialiased bg-background text-foreground`}>
+      <body className={`${cinzel.variable} ${josefin.variable} ${plexMono.variable} antialiased bg-background text-foreground`}>
         <AdminSessionProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
             <LanguageProvider initialLanguage="fr" locked syncHtmlLang={false}>

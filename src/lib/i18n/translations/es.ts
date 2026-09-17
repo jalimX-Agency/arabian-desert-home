@@ -6,6 +6,7 @@ export const es: Record<string, unknown> = {
     restaurant: "Restaurante",
     activities: "Actividades",
     experiences: "Experiencias",
+    discover: "Descubrir",
     dayPass: "Day Pass",
     events: "Eventos",
     spa: "Spa",
@@ -14,6 +15,15 @@ export const es: Record<string, unknown> = {
     contact: "Contacto",
     bookNow: "Reservar",
     bookYourStay: "Reserve Su Estancia",
+  },
+
+  // Navigation — "Descubrir" dropdown descriptions
+  navMenu: {
+    activitiesDesc: "Dromedario, quad, equitación",
+    experiencesDesc: "Días y noches todo incluido",
+    dayPassDesc: "Piscina, almuerzo y cena",
+    restaurantDesc: "Cocina marroquí bajo las estrellas",
+    eventsDesc: "Bodas y privatizaciones",
   },
 
   // Hero Section

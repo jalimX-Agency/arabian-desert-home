@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useInView, useScroll, useTransform, useReducedMotion, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import {
@@ -83,112 +83,153 @@ const fadeIn = {
 };
 
 // ============================================
-// 1. HERO SECTION — Full Viewport + Parallax + Warm Aurora
+// 1. HERO SECTION — "Khaïma"
+// Full-bleed footage that contracts into a framed plate on scroll,
+// poster-scale type arriving line by line through masks, mono meta rail.
 // ============================================
+const maskEase = [0.16, 1, 0.3, 1] as const;
+
+/** One headline line rising into view from behind its own mask. */
+function MaskLine({
+  children,
+  delay,
+  className,
+  still,
+}: {
+  children: React.ReactNode;
+  delay: number;
+  className?: string;
+  still: boolean;
+}) {
+  return (
+    <span className="block overflow-hidden pb-[0.12em]">
+      <motion.span
+        className={`block ${className ?? ""}`}
+        initial={still ? false : { y: "115%" }}
+        animate={{ y: "0%" }}
+        transition={{ duration: 1.2, delay, ease: maskEase }}
+      >
+        {children}
+      </motion.span>
+    </span>
+  );
+}
+
 function HeroSection() {
   const { t, language } = useLanguage();
+  const reduceMotion = useReducedMotion();
+  const still = Boolean(reduceMotion);
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
-  const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
+
+  // Signature move: the plate releases its full-bleed hold and settles into a frame.
+  const plateScale = useTransform(scrollYProgress, [0, 1], [1, 0.87]);
+  const plateRadius = useTransform(scrollYProgress, [0, 1], ["0px", "32px"]);
+  const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "14%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const railFill = useTransform(scrollYProgress, [0, 1], [0.08, 1]);
 
   return (
     <section ref={sectionRef} className="relative h-screen min-h-[600px] w-full overflow-hidden">
-      {/* Background Video with Parallax — falls back to poster image while buffering */}
-      <motion.div className="absolute inset-0" style={{ y: imgY }}>
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png"
-          className="w-full h-full object-cover scale-[1.18]"
-        >
-          <source
-            src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero-video.webm"
-            type="video/webm"
-          />
-        </video>
-        {/* Warm Cinematic Gradients — always dark regardless of theme */}
+      {/* ── The plate ── */}
+      <motion.div
+        style={still ? undefined : { scale: plateScale, borderRadius: plateRadius }}
+        className="absolute inset-0 overflow-hidden will-change-transform grain-overlay"
+      >
+        <motion.div className="absolute inset-0" style={still ? undefined : { y: imgY }}>
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png"
+            className="w-full h-full object-cover scale-[1.18]"
+          >
+            <source
+              src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero-video.webm"
+              type="video/webm"
+            />
+          </video>
+        </motion.div>
+        {/* Warm cinematic grade — always dark regardless of theme */}
         <div className="absolute inset-0 gradient-warm" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, oklch(0.08 0.008 55 / 80%) 0%, oklch(0.08 0.008 55 / 25%) 45%, transparent 100%)" }} />
-        <div className="absolute inset-0 gradient-amber" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, oklch(0.08 0.008 55 / 82%) 0%, oklch(0.08 0.008 55 / 28%) 50%, transparent 100%)" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, oklch(0.08 0.008 55 / 88%) 0%, transparent 55%)" }} />
         {/* Watermark cover — bottom-right corner dark radial */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 35% 25% at 100% 100%, oklch(0.08 0.008 55 / 95%) 0%, transparent 100%)" }} />
       </motion.div>
 
-      {/* Organic Decorative Blob */}
+      {/* ── Mono meta rail — left edge ── */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 2, delay: 0.5, ease: smoothEase }}
-        className="absolute top-[15%] right-[5%] w-[500px] h-[500px] md:w-[700px] md:h-[700px] bg-amber/[0.04] blob-1 pointer-events-none"
-      />
-
-      {/* Large Decorative "01" */}
-      <motion.div
-        initial={{ opacity: 0 }}
+        initial={still ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1.8, delay: 0.3 }}
-        className="absolute top-28 right-6 md:top-32 md:right-10 font-serif text-[160px] md:text-[260px] leading-none text-amber/[0.04] select-none pointer-events-none"
+        transition={{ duration: 1, delay: 1.6 }}
+        className="absolute left-6 md:left-10 top-0 bottom-0 z-10 hidden lg:flex flex-col items-center justify-center gap-6 pointer-events-none"
       >
-        01
+        <span className="mono-meta text-white/35 [writing-mode:vertical-rl] rotate-180">
+          31.4°N — 8.2°W
+        </span>
+        <div className="relative w-px h-32 bg-white/12 overflow-hidden">
+          <motion.div
+            style={still ? { scaleY: 0.08 } : { scaleY: railFill }}
+            className="absolute inset-0 origin-top bg-amber/70"
+          />
+        </div>
+        <span className="mono-meta text-white/35 [writing-mode:vertical-rl] rotate-180">
+          EST. AGAFAY
+        </span>
       </motion.div>
 
-      {/* Content — Left Aligned */}
+      {/* ── Content ── */}
       <motion.div
-        style={{ y: textY, opacity }}
-        className="relative z-10 h-full flex flex-col justify-end pb-20 md:pb-24 lg:pb-20 xl:pb-32 px-6 md:px-10 max-w-7xl mx-auto"
+        style={still ? undefined : { y: textY, opacity }}
+        className="relative z-10 h-full flex flex-col justify-end pb-24 md:pb-28 xl:pb-32 px-6 md:px-10 lg:pl-24 max-w-7xl mx-auto"
       >
-        {/* Location Tag */}
+        {/* Eyebrow — mono third voice */}
         <motion.div
-          initial={{ opacity: 0, x: -24 }}
+          initial={still ? false : { opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.5, ease: smoothEase }}
-          className="mb-6 flex items-center gap-4"
+          transition={{ duration: 0.8, delay: 0.4, ease: smoothEase }}
+          className="mb-8 flex items-center gap-4"
         >
           <div className="w-10 h-px bg-gradient-to-r from-amber to-amber-light" />
-          <span className="luxury-label text-amber/80">
-            {t("hero.location")}
-          </span>
+          <span className="mono-meta text-amber/80">{t("hero.location")}</span>
         </motion.div>
 
-        {/* Main Heading — "Arabian" in heading-display + "Desert Home" in luxury-label accent */}
-        <motion.h1
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.7, ease: smoothEase }}
-          className="heading-display text-white text-5xl sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-[7.5rem] max-w-7xl text-balance"
-        >
+        {/* Headline — masked line reveal, second line pushed off the grid */}
+        <h1 className="heading-hero text-white">
           <span className="sr-only">Bivouac de Luxe dans le Désert d&apos;Agafay — 30 min de Marrakech</span>
           <span aria-hidden="true">
-            {t("hero.heading1")}
-            <br />
-            <span className="text-amber">{t("hero.heading2")}</span>
+            <MaskLine delay={0.55} still={still}>
+              {t("hero.heading1")}
+            </MaskLine>
+            <MaskLine delay={0.7} still={still} className="text-amber md:pl-[0.5em]">
+              {t("hero.heading2")}
+            </MaskLine>
           </span>
-        </motion.h1>
+        </h1>
 
         {/* Subtitle */}
         <motion.p
-          initial={{ opacity: 0, y: 30 }}
+          initial={still ? false : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 1.1, ease: smoothEase }}
-          className="body-editorial text-muted-foreground text-base md:text-lg max-w-lg mt-8"
+          transition={{ duration: 1, delay: 1.05, ease: smoothEase }}
+          className="body-editorial text-white/60 text-base md:text-lg max-w-lg mt-8"
         >
           {t("hero.subtitle")}
         </motion.p>
 
-        {/* CTA Row — Rounded Pill Buttons */}
+        {/* CTA row */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={still ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.5, ease: smoothEase }}
-          className="mt-10 flex items-center gap-6"
+          transition={{ duration: 0.8, delay: 1.3, ease: smoothEase }}
+          className="mt-10 flex items-center gap-8"
         >
           <Link href={withLocale(language, "/reservez-votre-sejour")}>
             <span className="btn-primary inline-block cursor-pointer hover:no-underline">
@@ -197,7 +238,7 @@ function HeroSection() {
           </Link>
           <Link
             href={withLocale(language, "/les-tentes")}
-            className="hidden md:flex items-center gap-3 luxury-label text-amber/60 hover:text-amber transition-colors duration-400 group cursor-pointer"
+            className="hidden md:flex items-center gap-3 mono-meta text-white/50 hover:text-amber transition-colors duration-400 group cursor-pointer"
           >
             {t("suites.title")}
             <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -205,27 +246,21 @@ function HeroSection() {
         </motion.div>
       </motion.div>
 
-      {/* Scroll Indicator — Animated Amber Line */}
+      {/* ── Scroll cue — mono label on a drawn hairline ── */}
       <motion.div
-        initial={{ opacity: 0 }}
+        initial={still ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2.5, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
+        transition={{ delay: 2, duration: 1 }}
+        className="absolute bottom-10 right-6 md:right-10 z-10 flex items-center gap-4 pointer-events-none"
       >
-        <span className="luxury-label text-muted-foreground/50 text-[9px]">
-          {t("hero.discover")}
-        </span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-          className="w-5 h-8 rounded-full border border-amber/30 flex items-start justify-center pt-1.5"
-        >
+        <span className="mono-meta text-white/40">{t("hero.discover")}</span>
+        <div className="relative w-16 h-px bg-white/15 overflow-hidden">
           <motion.div
-            animate={{ opacity: [0.3, 1, 0.3], y: [0, 6, 0] }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-            className="w-1 h-1.5 rounded-full bg-amber"
+            animate={still ? undefined : { x: ["-100%", "100%"] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-0 bg-amber"
           />
-        </motion.div>
+        </div>
       </motion.div>
     </section>
   );
