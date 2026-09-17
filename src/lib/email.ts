@@ -3,6 +3,21 @@ import { db } from "@/lib/db";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = "Arabian Desert Home <noreply@arabiandeserthome.ma>";
+const SITE_URL = "https://www.arabiandeserthome.ma";
+
+/** The guest's private "manage my reservation" link — the token in it is the only auth. */
+export function reservationManageUrl(accessToken: string): string {
+  return `${SITE_URL}/mes-reservations/${accessToken}`;
+}
+
+function manageButton(manageUrl: string, color: string): string {
+  return `
+    <p style="text-align:center;margin:0 0 12px">
+      <a href="${manageUrl}" style="display:inline-block;background:${color};color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:600">Gérer ma réservation</a>
+    </p>
+    <p style="text-align:center;color:#999;font-size:12px;line-height:1.6;margin:0 0 32px">Modifier vos dates ou annuler — ce lien est personnel, ne le partagez pas.</p>
+  `;
+}
 
 async function getAdminEmail(): Promise<string> {
   const admin = await db.user.findFirst({ where: { role: "admin" } });
@@ -177,9 +192,7 @@ export async function sendReservationConfirmation(
               <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">Total estimé</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#c8922a;text-align:right">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
             </table>
           </div>
-          <p style="text-align:center;margin:0 0 32px">
-            <a href="${manageUrl}" style="display:inline-block;background:#c8922a;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:600">Gérer ma réservation</a>
-          </p>
+          ${manageButton(manageUrl, "#c8922a")}
           <p style="color:#555;line-height:1.7;margin:0 0 8px">Des questions ? Contactez-nous :</p>
           <p style="margin:0;color:#333;font-size:14px">📞 +212 667-370-206 &nbsp;·&nbsp; 📧 info@arabiandeserthome.ma</p>
         </div>
@@ -198,6 +211,7 @@ export async function sendReservationConfirmedEmail(
   totalAmount: number,
   currency: string,
   pdfBuffer: Buffer,
+  manageUrl: string | null,
 ) {
   await resend.emails.send({
     from: FROM,
@@ -222,6 +236,7 @@ export async function sendReservationConfirmedEmail(
               <tr style="border-top:1px solid #cde8d6"><td style="padding:12px 0 0;color:#888;font-weight:600">Tarif total</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#1e6b3f;text-align:right">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
             </table>
           </div>
+          ${manageUrl ? manageButton(manageUrl, "#1e6b3f") : ""}
           <p style="color:#555;line-height:1.7;margin:0 0 8px">Des questions ? Contactez-nous :</p>
           <p style="margin:0;color:#333;font-size:14px">📞 +212 667-370-206 &nbsp;·&nbsp; 📧 info@arabiandeserthome.ma</p>
         </div>
@@ -305,6 +320,91 @@ export async function sendClientCancellationNotification(
           </p>
           ${cancelledItems.map((item, i) => buildItemBlock(item, i)).join("")}
           ${!allCancelled ? `<p style="color:#888;font-size:12px;margin:16px 0 0">Le reste de la réservation n'est pas affecté. Ouvrez la fiche dans le panneau d'administration pour retirer la prestation annulée si besoin.</p>` : ""}
+        </div>
+      </div>
+    `,
+  });
+}
+
+function buildDateChangeRow(before: { checkIn?: Date | null; checkOut?: Date | null; date?: Date | null }, after: BookingWithRelations): string {
+  const fmt = (b: { checkIn?: Date | null; checkOut?: Date | null; date?: Date | null }) =>
+    b.checkIn && b.checkOut ? `${formatDate(b.checkIn)} → ${formatDate(b.checkOut)}` : b.date ? formatDate(b.date) : "—";
+  return `
+    <p style="font-weight:600;margin:0 0 6px">${getServiceName(after)}</p>
+    <table style="width:100%;border-collapse:collapse;font-size:14px">
+      <tr><td style="padding:4px 0;color:#888;width:120px">Anciennes dates</td><td style="padding:4px 0;text-decoration:line-through;color:#999">${fmt(before)}</td></tr>
+      <tr><td style="padding:4px 0;color:#888">Nouvelles dates</td><td style="padding:4px 0;font-weight:600">${fmt(after)}</td></tr>
+      <tr><td style="padding:4px 0;color:#888">Sous-total</td><td style="padding:4px 0">${after.totalAmount.toLocaleString("fr-FR")} ${after.currency}</td></tr>
+    </table>
+  `;
+}
+
+/** To the guest, after they change their dates from the manage page. */
+export async function sendReservationModifiedEmail(
+  to: string,
+  firstName: string,
+  before: { checkIn?: Date | null; checkOut?: Date | null; date?: Date | null },
+  modified: BookingWithRelations,
+  totalAmount: number,
+  currency: string,
+  manageUrl: string,
+) {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: "Modification de votre réservation reçue — Arabian Desert Home",
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#0f0f0f;padding:32px;text-align:center">
+          <p style="color:#c8922a;letter-spacing:4px;font-size:11px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
+        </div>
+        <div style="padding:40px 32px">
+          <h1 style="font-size:24px;font-weight:400;margin:0 0 8px">Bonjour ${firstName},</h1>
+          <p style="color:#555;line-height:1.7;margin:0 0 24px">Nous avons bien reçu la modification de votre réservation. Elle est maintenant <strong>en attente de confirmation</strong> : notre équipe vérifie les nouvelles dates et vous enverra une confirmation très vite.</p>
+          <div style="background:#faf8f5;border:1px solid #e8dfc8;border-radius:8px;padding:24px;margin:0 0 24px">
+            <p style="color:#c8922a;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 16px">Modification</p>
+            ${buildDateChangeRow(before, modified)}
+            <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:12px">
+              <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">Nouveau total estimé</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#c8922a;text-align:right">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
+            </table>
+          </div>
+          ${manageButton(manageUrl, "#c8922a")}
+          <p style="color:#555;line-height:1.7;margin:0 0 8px">Des questions ? Contactez-nous :</p>
+          <p style="margin:0;color:#333;font-size:14px">📞 +212 667-370-206 &nbsp;·&nbsp; 📧 info@arabiandeserthome.ma</p>
+        </div>
+        <div style="background:#f5f0e8;padding:20px 32px;text-align:center">
+          <p style="color:#999;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0">Agafay · Marrakech · Maroc</p>
+        </div>
+      </div>
+    `,
+  });
+}
+
+/** To the admin: a guest changed dates, so the reservation is back to pending review. */
+export async function sendClientModificationNotification(
+  contact: { firstName: string; lastName: string; email: string; phone?: string | null },
+  before: { checkIn?: Date | null; checkOut?: Date | null; date?: Date | null },
+  modified: BookingWithRelations,
+) {
+  const adminEmail = await getAdminEmail();
+  await resend.emails.send({
+    from: FROM,
+    to: adminEmail,
+    subject: `[Modification] ${contact.firstName} ${contact.lastName} a changé ses dates — à reconfirmer`,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#8a6414;padding:24px 32px">
+          <p style="color:#fff;letter-spacing:2px;font-size:12px;text-transform:uppercase;margin:0">Modification par le client — réservation en attente</p>
+        </div>
+        <div style="padding:32px">
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <tr><td style="padding:7px 0;color:#888;width:120px">Client</td><td style="padding:7px 0;font-weight:600">${contact.firstName} ${contact.lastName}</td></tr>
+            <tr><td style="padding:7px 0;color:#888">Email</td><td style="padding:7px 0"><a href="mailto:${contact.email}" style="color:#c8922a">${contact.email}</a></td></tr>
+            ${contact.phone ? `<tr><td style="padding:7px 0;color:#888">Téléphone</td><td style="padding:7px 0">${contact.phone}</td></tr>` : ""}
+          </table>
+          <hr style="border:none;border-top:1px solid #eee;margin:16px 0"/>
+          ${buildDateChangeRow(before, modified)}
+          <p style="color:#888;font-size:12px;margin:16px 0 0">La réservation est repassée en « pending ». Vérifiez les nouvelles dates puis confirmez-la depuis le panneau d'administration.</p>
         </div>
       </div>
     `,

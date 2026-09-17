@@ -28,6 +28,7 @@ export interface Booking {
   createdAt: string;
   reservation?: {
     id: string;
+    accessToken: string;
     totalAmount: number;
     currency: string;
     channel: string;

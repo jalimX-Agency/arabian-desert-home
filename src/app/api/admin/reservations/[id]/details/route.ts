@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
-import { sendReservationConfirmedEmail } from "@/lib/email";
+import { sendReservationConfirmedEmail, reservationManageUrl } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 
 export const maxDuration = 60;
@@ -123,7 +123,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
       const html = buildFicheHtml({ reservationRef, items: freshItems, totalAmount, currency });
       const pdf = await generateFichePdf(html);
-      await sendReservationConfirmedEmail(contact.email, contact.firstName, freshItems, totalAmount, currency, pdf);
+      const reservation = await db.reservation.findUnique({ where: { id }, select: { accessToken: true } });
+      const manageUrl = reservation ? reservationManageUrl(reservation.accessToken) : null;
+      await sendReservationConfirmedEmail(contact.email, contact.firstName, freshItems, totalAmount, currency, pdf, manageUrl);
     } catch (err) {
       console.error("Failed to send reservation-updated confirmation email:", err);
     }

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { sendReservationConfirmation, sendReservationNotification } from "@/lib/email";
+import { sendReservationConfirmation, sendReservationNotification, reservationManageUrl } from "@/lib/email";
 import { priceCartItem, type CartItemInput } from "@/lib/reservation-item";
 
 export async function POST(request: Request) {
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       },
     });
 
-    const manageUrl = `https://www.arabiandeserthome.ma/mes-reservations/${reservation.accessToken}`;
+    const manageUrl = reservationManageUrl(reservation.accessToken);
 
     Promise.allSettled([
       sendReservationConfirmation(email, firstName, reservation.items, totalAmount, currency, manageUrl),

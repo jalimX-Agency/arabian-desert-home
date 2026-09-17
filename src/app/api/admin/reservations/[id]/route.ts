@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
-import { sendReservationConfirmedEmail, sendReservationCancelledByAdminEmail } from "@/lib/email";
+import { sendReservationConfirmedEmail, sendReservationCancelledByAdminEmail, reservationManageUrl } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 
 export const maxDuration = 60;
@@ -40,7 +40,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
         const html = buildFicheHtml({ reservationRef, items, totalAmount, currency });
         const pdf = await generateFichePdf(html);
-        await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf);
+        // Legacy single bookings predate Reservation, so they have no manage link.
+        const reservation = await db.reservation.findUnique({ where: { id }, select: { accessToken: true } });
+        const manageUrl = reservation ? reservationManageUrl(reservation.accessToken) : null;
+        await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf, manageUrl);
       } catch (err) {
         console.error("Failed to send reservation-confirmed email:", err);
       }

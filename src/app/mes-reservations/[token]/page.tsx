@@ -4,16 +4,24 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Tent, Bike, Sun, Users, Baby, CalendarDays, Loader2, CheckCircle2, XCircle, Clock } from "lucide-react";
+import type { DateRange } from "react-day-picker";
+import { Tent, Bike, Sun, Users, Baby, CalendarDays, Loader2, CheckCircle2, XCircle, Clock, Info } from "lucide-react";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
+import { rangeOverlapsClosure } from "@/lib/availability";
+
+interface ClosureWindow {
+  startDate: string;
+  endDate: string;
+}
 
 interface ReservationItem {
   id: string;
   serviceType: string;
-  suite?: { name: string } | null;
+  suite?: { name: string; closures?: ClosureWindow[] } | null;
   activity?: { name: string } | null;
   dayPass?: { name: string } | null;
   checkIn?: string | null;
@@ -60,6 +68,150 @@ function itemDates(item: ReservationItem): string {
   return "—";
 }
 
+function startOfToday(): Date {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function itemHasStarted(item: ReservationItem): boolean {
+  const start = item.checkIn ?? item.date;
+  return start ? new Date(start) < startOfToday() : false;
+}
+
+function ModifyDatesPanel({
+  item,
+  saving,
+  error,
+  onSubmit,
+  onClose,
+}: {
+  item: ReservationItem;
+  saving: boolean;
+  error: string | null;
+  onSubmit: (dates: { checkIn?: string; checkOut?: string; date?: string }) => void;
+  onClose: () => void;
+}) {
+  const isSuite = item.serviceType === "suite";
+  const closures = (item.suite?.closures ?? []).map((c) => ({
+    startDate: new Date(c.startDate),
+    endDate: new Date(c.endDate),
+  }));
+  const [range, setRange] = useState<DateRange | undefined>(
+    isSuite && item.checkIn && item.checkOut
+      ? { from: new Date(item.checkIn), to: new Date(item.checkOut) }
+      : undefined
+  );
+  const [single, setSingle] = useState<Date | undefined>(item.date ? new Date(item.date) : undefined);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const today = startOfToday();
+  const isClosed = (d: Date) => closures.some((w) => d >= w.startDate && d <= w.endDate);
+
+  function submit() {
+    setLocalError(null);
+    if (isSuite) {
+      if (!range?.from || !range?.to || range.to <= range.from) {
+        setLocalError("Choisissez une date d'arrivée puis une date de départ.");
+        return;
+      }
+      if (rangeOverlapsClosure(range.from, range.to, closures)) {
+        setLocalError("Cette tente n'est pas disponible sur une partie de ces dates.");
+        return;
+      }
+      onSubmit({ checkIn: range.from.toISOString(), checkOut: range.to.toISOString() });
+    } else {
+      if (!single) {
+        setLocalError("Choisissez une nouvelle date.");
+        return;
+      }
+      onSubmit({ date: single.toISOString() });
+    }
+  }
+
+  const nights = range?.from && range?.to
+    ? Math.round((range.to.getTime() - range.from.getTime()) / 86_400_000)
+    : 0;
+  const summary = isSuite
+    ? range?.from && range?.to
+      ? `${format(range.from, "d MMM yyyy", { locale: fr })} → ${format(range.to, "d MMM yyyy", { locale: fr })} · ${nights} nuit${nights > 1 ? "s" : ""}`
+      : range?.from
+        ? `Arrivée le ${format(range.from, "d MMM yyyy", { locale: fr })} — choisissez le départ`
+        : "Choisissez vos nouvelles dates"
+    : single
+      ? format(single, "EEEE d MMMM yyyy", { locale: fr })
+      : "Choisissez une nouvelle date";
+
+  const shownError = localError ?? error;
+
+  return (
+    <div className="mt-5 pt-5 border-t border-amber/10">
+      <p className="luxury-label text-amber/80 text-[10px] mb-3">Modifier les dates</p>
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="rounded-2xl border border-border/50 bg-background/60 self-start">
+          {isSuite ? (
+            <Calendar
+              mode="range"
+              locale={fr}
+              selected={range}
+              onSelect={setRange}
+              startMonth={today}
+              defaultMonth={range?.from && range.from >= today ? range.from : today}
+              disabled={(d) => d < today || isClosed(d)}
+              className="rounded-2xl"
+            />
+          ) : (
+            <Calendar
+              mode="single"
+              locale={fr}
+              selected={single}
+              onSelect={setSingle}
+              startMonth={today}
+              defaultMonth={single && single >= today ? single : today}
+              disabled={(d) => d < today}
+              className="rounded-2xl"
+            />
+          )}
+        </div>
+        <div className="flex-1 flex flex-col gap-4">
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Nouvelles dates</p>
+            <p className="font-serif text-base">{summary}</p>
+          </div>
+          <div className="flex gap-2 rounded-2xl bg-amber/5 border border-amber/15 p-3 text-xs text-muted-foreground leading-relaxed">
+            <Info className="w-4 h-4 text-amber shrink-0 mt-0.5" />
+            <span>
+              Après modification, votre réservation repasse <strong>en attente de confirmation</strong> : notre équipe
+              vérifie la disponibilité puis vous confirme par email. Le tarif peut varier selon la période choisie.
+            </span>
+          </div>
+          {isSuite && closures.length > 0 && (
+            <p className="text-xs text-muted-foreground">Les jours grisés ne sont pas disponibles pour cette tente.</p>
+          )}
+          {shownError && <p className="text-sm text-red-500">{shownError}</p>}
+          <div className="flex flex-wrap items-center gap-4 mt-auto">
+            <button
+              onClick={submit}
+              disabled={saving}
+              className="btn-primary text-sm disabled:opacity-50 cursor-pointer inline-flex items-center gap-2"
+            >
+              {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {saving ? "Enregistrement…" : "Confirmer la modification"}
+            </button>
+            <button
+              onClick={onClose}
+              disabled={saving}
+              className="text-sm text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MyReservationPage() {
   const { token } = useParams<{ token: string }>();
   const { toast } = useToast();
@@ -70,6 +222,9 @@ export default function MyReservationPage() {
   const [savingNotes, setSavingNotes] = useState(false);
   const [busyItemId, setBusyItemId] = useState<string | null>(null);
   const [cancellingAll, setCancellingAll] = useState(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [modifying, setModifying] = useState(false);
+  const [modifyError, setModifyError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/reservations/${token}`);
@@ -106,6 +261,28 @@ export default function MyReservationPage() {
       ? { title: "Prestation annulée" }
       : { title: "Une erreur est survenue", variant: "destructive" });
     setBusyItemId(null);
+  }
+
+  async function handleModifyItem(itemId: string, dates: { checkIn?: string; checkOut?: string; date?: string }) {
+    setModifying(true);
+    setModifyError(null);
+    const res = await fetch(`/api/reservations/${token}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "modifyItem", itemId, ...dates }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      setReservation(data);
+      setEditingItemId(null);
+      toast({
+        title: "Modification envoyée",
+        description: "Votre réservation est en attente de confirmation. Vous recevrez un email dès qu'elle sera validée.",
+      });
+    } else {
+      setModifyError(data.error ?? "Une erreur est survenue");
+    }
+    setModifying(false);
   }
 
   async function handleCancelAll() {
@@ -168,8 +345,11 @@ export default function MyReservationPage() {
                   const Icon = SERVICE_ICON[item.serviceType] ?? Tent;
                   const status = STATUS_STYLE[item.status] ?? STATUS_STYLE.pending;
                   const StatusIcon = status.icon;
+                  const canModify = item.status !== "cancelled" && !itemHasStarted(item);
+                  const isEditing = editingItemId === item.id;
                   return (
-                    <div key={item.id} className="glass-card card-warm p-6 flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div key={item.id} className="glass-card card-warm p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                       <div className="w-11 h-11 rounded-xl bg-amber/10 border border-amber/15 flex items-center justify-center shrink-0">
                         <Icon className="w-5 h-5 text-amber" />
                       </div>
@@ -187,16 +367,37 @@ export default function MyReservationPage() {
                         <span className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border ${status.className}`}>
                           <StatusIcon className="w-3 h-3" />{status.label}
                         </span>
-                        {item.status !== "cancelled" && (
-                          <button
-                            onClick={() => handleCancelItem(item.id)}
-                            disabled={busyItemId === item.id}
-                            className="text-xs text-red-500 hover:underline disabled:opacity-40 cursor-pointer"
-                          >
-                            {busyItemId === item.id ? "Annulation…" : "Annuler"}
-                          </button>
-                        )}
+                        <div className="flex items-center gap-4">
+                          {canModify && !isEditing && (
+                            <button
+                              onClick={() => { setEditingItemId(item.id); setModifyError(null); }}
+                              className="text-xs text-amber hover:underline cursor-pointer"
+                            >
+                              Modifier les dates
+                            </button>
+                          )}
+                          {item.status !== "cancelled" && (
+                            <button
+                              onClick={() => handleCancelItem(item.id)}
+                              disabled={busyItemId === item.id}
+                              className="text-xs text-red-500 hover:underline disabled:opacity-40 cursor-pointer"
+                            >
+                              {busyItemId === item.id ? "Annulation…" : "Annuler"}
+                            </button>
+                          )}
+                        </div>
                       </div>
+                    </div>
+                    {isEditing && (
+                      <ModifyDatesPanel
+                        key={item.id}
+                        item={item}
+                        saving={modifying}
+                        error={modifyError}
+                        onSubmit={(dates) => handleModifyItem(item.id, dates)}
+                        onClose={() => { setEditingItemId(null); setModifyError(null); }}
+                      />
+                    )}
                     </div>
                   );
                 })}
@@ -210,8 +411,8 @@ export default function MyReservationPage() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Pour modifier des dates ou le nombre de voyageurs, contactez-nous directement — vous pouvez annuler
-                  une prestation ci-dessus et effectuer une nouvelle réservation si besoin.
+                  Vous pouvez modifier les dates de chaque prestation ci-dessus. Pour changer le nombre de voyageurs,
+                  contactez-nous directement.
                 </p>
               </div>
 

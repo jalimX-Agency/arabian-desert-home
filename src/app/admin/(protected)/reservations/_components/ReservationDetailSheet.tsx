@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus, Loader2, FileText, ChevronDown } from "lucide-react";
+import { Plus, Loader2, FileText, ChevronDown, Copy, Check, ExternalLink, KeyRound } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -43,6 +43,40 @@ import {
 } from "../_lib/item-types";
 import { ItemCard } from "./ItemCard";
 import { ConfirmDialog } from "./ConfirmDialog";
+
+// Public site origin — the link is meant to be sent to the guest, so never the admin's localhost.
+const SITE_URL = "https://www.arabiandeserthome.ma";
+
+function ClientLinkRow({ accessToken }: { accessToken: string }) {
+  const [copied, setCopied] = useState(false);
+  const url = `${SITE_URL}/mes-reservations/${accessToken}`;
+
+  async function copy() {
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  }
+
+  return (
+    <div>
+      <Label className="text-xs text-gray-400 mb-1 flex items-center gap-1.5">
+        <KeyRound className="w-3 h-3" /> Lien client (privé)
+      </Label>
+      <div className="flex items-center gap-2">
+        <Input value={url} readOnly onFocus={(e) => e.currentTarget.select()} className="font-mono text-xs" />
+        <Button type="button" variant="outline" size="icon" onClick={copy} className="cursor-pointer shrink-0" aria-label="Copier le lien">
+          {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+        </Button>
+        <Button type="button" variant="outline" size="icon" asChild className="shrink-0">
+          <a href={url} target="_blank" rel="noopener noreferrer" aria-label="Ouvrir la page client">
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </Button>
+      </div>
+      <p className="text-[11px] text-gray-400 mt-1">Permet au client de modifier ses dates ou d&apos;annuler. Ne le partagez qu&apos;avec lui.</p>
+    </div>
+  );
+}
 
 interface ReservationDetailSheetProps {
   group: ReservationGroup | null;
@@ -256,6 +290,7 @@ export function ReservationDetailSheet({
               <Label className="text-xs text-gray-400 mb-1 block">Demandes spéciales</Label>
               <Textarea value={contact.specialReqs} onChange={(e) => setContact((c) => ({ ...c, specialReqs: e.target.value }))} rows={2} />
             </div>
+            {primary.reservation?.accessToken && <ClientLinkRow accessToken={primary.reservation.accessToken} />}
           </div>
 
           {/* Items */}

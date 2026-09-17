@@ -2,7 +2,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { priceCartItem, type CartItemInput } from "@/lib/reservation-item";
-import { sendReservationConfirmation, sendReservationConfirmedEmail } from "@/lib/email";
+import { sendReservationConfirmation, sendReservationConfirmedEmail, reservationManageUrl } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 
 export const maxDuration = 60;
@@ -93,10 +93,9 @@ export async function POST(req: NextRequest) {
           const reservationRef = `ADH-${reservation.id.slice(-8).toUpperCase()}`;
           const html = buildFicheHtml({ reservationRef, items: reservation.items, totalAmount, currency });
           const pdf = await generateFichePdf(html);
-          await sendReservationConfirmedEmail(email, firstName, reservation.items, totalAmount, currency, pdf);
+          await sendReservationConfirmedEmail(email, firstName, reservation.items, totalAmount, currency, pdf, reservationManageUrl(reservation.accessToken));
         } else {
-          const manageUrl = `https://www.arabiandeserthome.ma/mes-reservations/${reservation.accessToken}`;
-          await sendReservationConfirmation(email, firstName, reservation.items, totalAmount, currency, manageUrl);
+          await sendReservationConfirmation(email, firstName, reservation.items, totalAmount, currency, reservationManageUrl(reservation.accessToken));
         }
       } catch (err) {
         console.error("Failed to notify client for manual reservation:", err);
