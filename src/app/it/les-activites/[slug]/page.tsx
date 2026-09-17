@@ -79,7 +79,7 @@ export default async function ItalianActiviteDetailPage({ params }: { params: Pr
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <Navigation />
-      <main className="flex-1 pt-20">
+      <main className="flex-1">
         <ActiviteDetailContent activity={activity} />
       </main>
       <Footer />

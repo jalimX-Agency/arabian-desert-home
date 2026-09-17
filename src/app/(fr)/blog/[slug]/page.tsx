@@ -86,7 +86,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: articleSchema }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbSchema }} />
       <Navigation />
-      <main className="flex-1 pt-20">
+      <main className="flex-1">
         <BlogDetailContent post={post} relatedPosts={relatedPosts} />
       </main>
       <Footer />

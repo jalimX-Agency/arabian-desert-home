@@ -153,7 +153,7 @@ export function LesTentesContent({ suites }: { suites: Suite[] }) {
   return (
     <>
       {/* ── Hero Section ── */}
-      <section className="relative flex flex-col md:flex-row min-h-[55vh] md:min-h-[65vh] overflow-hidden">
+      <section className="relative flex flex-col md:flex-row min-h-[55vh] md:min-h-[calc(65vh+5rem)] overflow-hidden">
         <div className="relative w-full h-[30vh] md:hidden overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center"
@@ -162,7 +162,7 @@ export function LesTentesContent({ suites }: { suites: Suite[] }) {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-warm-black/90" />
         </div>
 
-        <div className="relative w-full md:w-[55%] bg-warm-black flex items-center px-6 md:px-12 lg:px-20 py-12 md:py-0">
+        <div className="relative w-full md:w-[55%] bg-warm-black flex items-center px-6 md:px-12 lg:px-20 py-12 md:pt-24 md:pb-8">
           <div className="absolute inset-0 grain-overlay pointer-events-none" />
           <div className="absolute top-10 right-10 w-64 h-64 bg-amber/[0.03] blob-1 blur-3xl" />
           <div className="absolute bottom-10 left-10 w-48 h-48 bg-amber/[0.02] blob-2 blur-3xl" />

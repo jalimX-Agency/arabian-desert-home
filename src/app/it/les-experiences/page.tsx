@@ -40,7 +40,7 @@ export default async function ItalianLesExperiencesPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
-      <main className="flex-1 pt-20">
+      <main className="flex-1">
         <LesExperiencesContent experiences={experiences} />
       </main>
       <Footer />

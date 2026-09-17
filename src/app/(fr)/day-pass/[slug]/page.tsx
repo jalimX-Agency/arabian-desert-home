@@ -73,7 +73,7 @@ export default async function DayPassDetailPage({ params }: { params: Promise<{ 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <Navigation />
-      <main className="flex-1 pt-20">
+      <main className="flex-1">
         <DayPassDetailContent pass={pass} />
       </main>
       <Footer />

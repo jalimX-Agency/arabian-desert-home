@@ -109,7 +109,7 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: smoothEase }}
-          className="absolute top-8 left-6 md:left-12"
+          className="absolute top-24 md:top-28 left-6 md:left-12 z-10"
         >
           <Link href={withLocale(language, "/blog")} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
             <ArrowLeft className="w-4 h-4" />

@@ -194,7 +194,7 @@ export function DayPassContent({ passes }: { passes: DayPass[] }) {
       {/* ── Hero — Split layout ── */}
       <section
         ref={heroRef}
-        className="relative flex flex-col md:flex-row min-h-[55vh] md:min-h-[60vh] overflow-hidden"
+        className="relative flex flex-col md:flex-row min-h-[55vh] md:min-h-[calc(60vh+5rem)] overflow-hidden"
       >
         {/* Mobile image strip */}
         <div className="relative w-full h-[28vh] md:hidden overflow-hidden">
@@ -208,7 +208,7 @@ export function DayPassContent({ passes }: { passes: DayPass[] }) {
         </div>
 
         {/* Left: text */}
-        <div className="relative w-full md:w-[55%] bg-warm-black flex items-center px-6 md:px-12 lg:px-20 py-12 md:py-0">
+        <div className="relative w-full md:w-[55%] bg-warm-black flex items-center px-6 md:px-12 lg:px-20 py-12 md:pt-24 md:pb-8">
           <div className="absolute inset-0 grain-overlay pointer-events-none" />
           <div className="absolute top-10 right-10 w-64 h-64 bg-amber/[0.03] blob-1 blur-3xl" />
 

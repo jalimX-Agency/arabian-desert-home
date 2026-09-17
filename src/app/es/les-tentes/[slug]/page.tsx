@@ -79,7 +79,7 @@ export default async function SpanishTenteDetailPage({ params }: { params: Promi
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <Navigation />
-      <main className="flex-1 pt-20">
+      <main className="flex-1">
         <TenteDetailContent suite={suite} />
       </main>
       <Footer />

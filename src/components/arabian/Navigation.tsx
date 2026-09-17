@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, Moon, Globe, ChevronDown, Check } from "lucide-react";
+import { Menu, X, Sun, Moon, Globe, ChevronDown, Check, ArrowUpRight } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useLanguage, withLocale, type Language } from "@/lib/i18n/context";
 import {
@@ -151,38 +151,42 @@ export function Navigation() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.9, ease: flowingEase }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
-          ? "glass-premium shadow-lg shadow-amber/[0.03]"
-          : "bg-transparent"
-          }`}
+        className="fixed top-3 inset-x-0 z-50 px-3 md:px-6"
       >
-        {/* Scrim — guarantees contrast for the white logo/text before scroll, even on
-            pages whose hero doesn't sit flush under the header (unlike the homepage). */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-b from-black/45 to-transparent pointer-events-none transition-opacity duration-500 ${scrolled ? "opacity-0" : "opacity-100"
+        {/* Floating capsule — carries its own dark surface so the header reads the same over
+            a video hero, a cream page band, or either theme. */}
+        <nav
+          className={`nav-capsule relative max-w-6xl mx-auto h-16 pl-5 pr-2 md:pl-7 flex items-center justify-between rounded-full transition-[background-color,box-shadow] duration-500 ${scrolled ? "nav-capsule--scrolled" : ""
             }`}
-        />
-        <nav className="relative max-w-7xl mx-auto px-5 sm:px-8 md:px-10 h-24 flex items-center justify-between">
+        >
           {/* ── Logo ── */}
-          <Link href={language === "fr" ? "/" : `/${language}`} className="flex items-center group cursor-pointer">
+          {/* The source PNG is square with the artwork in its middle band — crop to it. */}
+          <Link
+            href={language === "fr" ? "/" : `/${language}`}
+            className="relative block h-11 w-[96px] shrink-0 overflow-hidden group cursor-pointer"
+          >
             <Image
               src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/logo/logoWithNoBg.png"
               alt="Arabian Desert Home — Agafay, Marrakech"
-              width={500}
-              height={200}
+              width={498}
+              height={501}
               priority
-              className={`h-50 w-auto object-contain transition-all duration-300 group-hover:opacity-80 ${scrolled ? "" : "brightness-0 invert"
-                }`}
+              className="absolute left-[-16px] top-[-42px] h-[128px] w-[128px] max-w-none brightness-0 invert transition-opacity duration-300 group-hover:opacity-75"
             />
           </Link>
 
-          {/* ── Desktop Nav — Smooth Underline + "Découvrir" menu ── */}
+          {/* ── Desktop Nav — mono labels, amber dot marks the current page ── */}
           <NavigationMenu viewport={false} className="hidden lg:flex">
-            <NavigationMenuList className="gap-7">
+            <NavigationMenuList className="gap-8">
               {navEntries.map((entry) => {
-                const idleColor = scrolled
-                  ? "text-muted-foreground hover:text-foreground"
-                  : "text-white/85 hover:text-white";
+                const idleColor = "text-white/60 hover:text-white";
+                const dot = (on: boolean) => (
+                  <span
+                    aria-hidden="true"
+                    className={`absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber transition-all duration-300 ${on ? "opacity-100 scale-100" : "opacity-0 scale-0 group-hover/navlink:opacity-50 group-hover/navlink:scale-100"
+                      }`}
+                  />
+                );
 
                 if (entry.kind === "link") {
                   const href = localizedHref(entry.href, language);
@@ -191,14 +195,12 @@ export function Navigation() {
                     <NavigationMenuItem key={entry.href}>
                       <Link
                         href={href}
-                        className={`luxury-label relative group/navlink cursor-pointer transition-colors duration-300 ${isActive ? "text-amber" : idleColor
+                        aria-current={isActive ? "page" : undefined}
+                        className={`mono-meta relative group/navlink cursor-pointer transition-colors duration-300 ${isActive ? "text-amber" : idleColor
                           }`}
                       >
                         {t(entry.labelKey)}
-                        <span
-                          className={`absolute -bottom-1.5 left-0 h-[1.5px] rounded-full bg-gradient-to-r from-amber to-amber-light transition-all duration-300 ease-out ${isActive ? "w-full" : "w-0 group-hover/navlink:w-full"
-                            }`}
-                        />
+                        {dot(isActive)}
                       </Link>
                     </NavigationMenuItem>
                   );
@@ -210,17 +212,14 @@ export function Navigation() {
                 return (
                   <NavigationMenuItem key={entry.labelKey}>
                     <NavigationMenuTrigger
-                      className={`group/navlink luxury-label relative h-auto w-auto rounded-none bg-transparent px-0 py-0 font-[inherit] tracking-[inherit] hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent data-[state=open]:hover:bg-transparent data-[state=open]:focus:bg-transparent cursor-pointer transition-colors duration-300 ${groupActive ? "text-amber" : idleColor
+                      className={`group/navlink mono-meta relative h-auto w-auto rounded-none bg-transparent px-0 py-0 text-[0.6875rem] font-normal hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent data-[state=open]:hover:bg-transparent data-[state=open]:focus:bg-transparent data-[state=open]:text-white cursor-pointer transition-colors duration-300 ${groupActive ? "text-amber" : idleColor
                         }`}
                     >
                       {t(entry.labelKey)}
-                      <span
-                        className={`absolute -bottom-1.5 left-0 h-[1.5px] rounded-full bg-gradient-to-r from-amber to-amber-light transition-all duration-300 ease-out ${groupActive ? "w-full" : "w-0 group-hover/navlink:w-full group-data-[state=open]/navlink:w-full"
-                          }`}
-                      />
+                      {dot(groupActive)}
                     </NavigationMenuTrigger>
-                    <NavigationMenuContent className="!rounded-2xl !border-amber/15 glass-premium p-2 shadow-xl shadow-black/10">
-                      <ul className="w-[19rem]">
+                    <NavigationMenuContent className="nav-capsule !mt-5 !rounded-3xl !border-0 !bg-[oklch(0.13_0.01_55/0.94)] p-2 !shadow-2xl">
+                      <ul className="w-[20rem]">
                         {entry.items.map((item) => {
                           const href = localizedHref(item.href, language);
                           const isActive = pathname === href;
@@ -229,17 +228,19 @@ export function Navigation() {
                               <NavigationMenuLink asChild>
                                 <Link
                                   href={href}
-                                  className={`block rounded-xl px-4 py-3 transition-colors duration-300 cursor-pointer hover:bg-amber/[0.07] focus-visible:bg-amber/[0.07] ${isActive ? "bg-amber/[0.07]" : ""
+                                  aria-current={isActive ? "page" : undefined}
+                                  className={`group/item block rounded-2xl px-4 py-3 transition-colors duration-300 cursor-pointer hover:bg-white/[0.06] focus-visible:bg-white/[0.06] ${isActive ? "bg-white/[0.06]" : ""
                                     }`}
                                 >
                                   <span
-                                    className={`luxury-label block mb-1 ${isActive ? "text-amber" : "text-foreground"
+                                    className={`luxury-label flex items-center justify-between mb-1 ${isActive ? "text-amber" : "text-white"
                                       }`}
                                   >
                                     {t(item.labelKey)}
+                                    <ArrowUpRight className="w-3.5 h-3.5 text-amber opacity-0 -translate-x-1 transition-all duration-300 group-hover/item:opacity-100 group-hover/item:translate-x-0" />
                                   </span>
                                   {item.descKey && (
-                                    <span className="body-editorial block text-xs leading-snug text-muted-foreground">
+                                    <span className="body-editorial block text-xs leading-snug text-white/50">
                                       {t(item.descKey)}
                                     </span>
                                   )}
@@ -257,13 +258,12 @@ export function Navigation() {
           </NavigationMenu>
 
           {/* ── Right Controls: Language · Book · Mobile Toggle ── */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {/* Language Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className={`hidden md:flex items-center gap-1.5 luxury-label px-3.5 h-9 rounded-full border border-amber/15 bg-amber/[0.04] hover:text-amber hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 focus-visible:ring-offset-1 focus-visible:ring-offset-background ${scrolled ? "text-muted-foreground" : "text-white/85"
-                    }`}
+                  className="hidden md:flex items-center gap-1.5 mono-meta px-3 h-11 rounded-full text-white/60 hover:text-white hover:bg-white/[0.06] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/50"
                   aria-label="Select language"
                 >
                   <Globe className="w-3.5 h-3.5" />
@@ -317,7 +317,7 @@ export function Navigation() {
 
             {/* Book Now — Amber Gradient Pill */}
             <Link href={withLocale(language, "/reservez-votre-sejour")} className="hidden md:block">
-              <span className="btn-primary inline-block cursor-pointer hover:no-underline">
+              <span className="btn-primary inline-flex items-center h-12 !py-0 cursor-pointer hover:no-underline">
                 {t("nav.bookNow")}
               </span>
             </Link>
@@ -329,18 +329,18 @@ export function Navigation() {
                 const next = order[(order.indexOf(language) + 1) % order.length];
                 switchLanguage(next);
               }}
-              className="flex md:hidden items-center luxury-label px-2.5 h-8 rounded-full border border-amber/15 bg-amber/[0.04] text-amber text-xs cursor-pointer hover:border-amber/30 hover:bg-amber/[0.08] transition-all duration-300"
+              className="flex md:hidden items-center justify-center mono-meta w-11 h-11 rounded-full text-amber cursor-pointer hover:bg-white/[0.06] transition-all duration-300"
               aria-label="Toggle language"
             >
               {language.toUpperCase()}
             </button>
 
-            {/* Mobile Hamburger — Rounded */}
+            {/* Mobile Hamburger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className={`lg:hidden w-10 h-10 flex items-center justify-center rounded-full border border-amber/15 bg-amber/[0.04] hover:text-amber hover:border-amber/30 transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/40 ${scrolled ? "text-foreground" : "text-white"
-                }`}
+              className="lg:hidden w-12 h-12 flex items-center justify-center rounded-full bg-white/[0.08] text-white hover:bg-white/[0.14] transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber/50"
               aria-label="Toggle menu"
+              aria-expanded={mobileOpen}
             >
               <AnimatePresence mode="wait" initial={false}>
                 {mobileOpen ? (
@@ -368,15 +368,6 @@ export function Navigation() {
             </button>
           </div>
         </nav>
-
-        {/* Bottom amber line when scrolled — subtle divider */}
-        <div
-          className={`h-px transition-opacity duration-500 ${scrolled ? "opacity-100" : "opacity-0"
-            }`}
-          style={{
-            background: "linear-gradient(90deg, transparent, var(--amber), transparent)",
-          }}
-        />
       </motion.header>
 
       {/* ── Mobile Menu — Full-Screen Glass Overlay ── */}

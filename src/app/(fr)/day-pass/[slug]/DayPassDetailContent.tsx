@@ -48,7 +48,7 @@ export function DayPassDetailContent({ pass }: { pass: DayPass }) {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: smoothEase }}
-          className="absolute top-8 left-6 md:left-12"
+          className="absolute top-24 md:top-28 left-6 md:left-12 z-10"
         >
           <Link href={withLocale(language, "/day-pass")} className="flex items-center gap-2 text-white/70 hover:text-amber transition-colors text-sm luxury-label">
             <ArrowLeft className="w-4 h-4" />
@@ -60,7 +60,7 @@ export function DayPassDetailContent({ pass }: { pass: DayPass }) {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: smoothEase }}
-          className="absolute top-8 right-6 md:right-12 bg-black/50 backdrop-blur-md px-5 py-2.5 rounded-full"
+          className="absolute top-24 md:top-28 right-6 md:right-12 z-10 bg-black/50 backdrop-blur-md px-5 py-2.5 rounded-full"
         >
           <span className="text-amber mono-number text-xl">{pass.price} {pass.currency}</span>
           <span className="text-white/40 text-xs ml-1">{t("dayPassDetail.perPerson")}</span>
