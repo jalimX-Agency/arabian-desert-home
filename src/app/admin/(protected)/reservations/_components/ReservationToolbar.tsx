@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Table2, CalendarDays, Download, Plus, ChevronDown } from "lucide-react";
+import { Search, Table2, CalendarDays, Download, Plus, ChevronDown, Loader2, FileText, FileSpreadsheet } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,6 +52,9 @@ interface ReservationToolbarProps {
   selectedCount: number;
   onExportSelected: () => void;
   onExportAllFiltered: () => void;
+  onExportSelectedPdf: () => void;
+  onExportAllFilteredPdf: () => void;
+  exportingPdf: boolean;
   onNewReservation: () => void;
 }
 
@@ -73,6 +78,9 @@ export function ReservationToolbar({
   selectedCount,
   onExportSelected,
   onExportAllFiltered,
+  onExportSelectedPdf,
+  onExportAllFilteredPdf,
+  exportingPdf,
   onNewReservation,
 }: ReservationToolbarProps) {
   return (
@@ -109,22 +117,31 @@ export function ReservationToolbar({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="text-xs uppercase tracking-widest cursor-pointer">
-                <Download className="w-3.5 h-3.5" />
-                Exporter
+              <Button variant="outline" size="sm" disabled={exportingPdf} className="text-xs uppercase tracking-widest cursor-pointer">
+                {exportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                {exportingPdf ? "Génération du PDF…" : "Exporter"}
                 <ChevronDown className="w-3 h-3" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="min-w-[230px]">
+              <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-gray-400">CSV</DropdownMenuLabel>
               <DropdownMenuItem onClick={onExportAllFiltered} className="cursor-pointer">
-                Exporter tout (filtré)
+                <FileSpreadsheet className="w-3.5 h-3.5" />
+                Tout (filtré)
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={onExportSelected}
-                disabled={selectedCount === 0}
-                className="cursor-pointer"
-              >
-                Exporter la sélection{selectedCount > 0 ? ` (${selectedCount})` : ""}
+              <DropdownMenuItem onClick={onExportSelected} disabled={selectedCount === 0} className="cursor-pointer">
+                <FileSpreadsheet className="w-3.5 h-3.5" />
+                Sélection{selectedCount > 0 ? ` (${selectedCount})` : ""}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-gray-400">PDF (tableau paysage)</DropdownMenuLabel>
+              <DropdownMenuItem onClick={onExportAllFilteredPdf} disabled={exportingPdf} className="cursor-pointer">
+                <FileText className="w-3.5 h-3.5" />
+                Tout (filtré)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onExportSelectedPdf} disabled={selectedCount === 0 || exportingPdf} className="cursor-pointer">
+                <FileText className="w-3.5 h-3.5" />
+                Sélection{selectedCount > 0 ? ` (${selectedCount})` : ""}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

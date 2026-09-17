@@ -140,7 +140,7 @@ type FicheDict = Record<keyof (typeof FICHE_I18N)["fr"], string>;
 
 let cachedLogoDataUri: string | null = null;
 
-function getLogoDataUri(): string {
+export function getLogoDataUri(): string {
   if (cachedLogoDataUri) return cachedLogoDataUri;
   const logoPath = path.join(process.cwd(), "src", "lib", "pdf-assets", "logo.png");
   const b64 = readFileSync(logoPath).toString("base64");
@@ -177,7 +177,7 @@ function formatDateShort(d: Date, lang: FicheLang): string {
   return d.toLocaleDateString(DATE_LOCALE[lang], { day: "2-digit", month: "long" });
 }
 
-function escapeHtml(s: string): string {
+export function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 

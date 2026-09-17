@@ -21,6 +21,7 @@ import { ConfirmDialog } from "./_components/ConfirmDialog";
 export default function ReservationsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -131,6 +132,35 @@ export default function ReservationsPage() {
     URL.revokeObjectURL(url);
   }
 
+  async function downloadPdf(rows: Booking[], scope: "selection" | "filtered") {
+    if (rows.length === 0 || exportingPdf) return;
+    setExportingPdf(true);
+    try {
+      const res = await fetch("/api/admin/reservations/export-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingIds: rows.map((b) => b.id), scope }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error ?? "La génération du PDF a échoué.");
+        return;
+      }
+      const url = URL.createObjectURL(await res.blob());
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `reservations-${format(new Date(), "yyyy-MM-dd")}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setExportingPdf(false);
+    }
+  }
+
+  const selectedRows = () => bookings.filter((b) => selectedIds.has(b.reservation?.id ?? b.id));
+
   return (
     <div className="p-8 space-y-6">
       <ReservationToolbar
@@ -151,8 +181,11 @@ export default function ReservationsPage() {
         view={view}
         onViewChange={setView}
         selectedCount={selectedIds.size}
-        onExportSelected={() => downloadCsv(bookings.filter((b) => selectedIds.has(b.reservation?.id ?? b.id)))}
+        onExportSelected={() => downloadCsv(selectedRows())}
         onExportAllFiltered={() => downloadCsv(filtered)}
+        onExportSelectedPdf={() => downloadPdf(selectedRows(), "selection")}
+        onExportAllFilteredPdf={() => downloadPdf(filtered, "filtered")}
+        exportingPdf={exportingPdf}
         onNewReservation={() => setNewDialogOpen(true)}
       />
 
