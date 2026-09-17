@@ -287,7 +287,7 @@
 .heading-hero {
   font-family: var(--font-cinzel), serif;
   font-weight: 400;
-  font-size: clamp(2.75rem, 7.4vw, 8.75rem);
+  font-size: clamp(2.5rem, 5.8vw, 6.75rem);
   letter-spacing: -0.015em;
   line-height: 0.92;
 }
