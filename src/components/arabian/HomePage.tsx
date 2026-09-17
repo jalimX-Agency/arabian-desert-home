@@ -283,69 +283,69 @@ function FeaturesSection() {
   ];
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative py-28 md:py-40 px-6 md:px-10 bg-background pattern-dots"
-    >
+    <section ref={sectionRef} className="relative pt-16 pb-24 md:pt-20 md:pb-32 px-6 md:px-10 bg-background">
       <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-20 md:mb-28">
-          <div className="md:col-span-4">
-            <motion.span
-              variants={revealUp}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
-              custom={0}
-              className="luxury-label text-amber block mb-4"
-            >
-              {t("features.label")}
-            </motion.span>
-          </div>
-          <div className="md:col-span-8">
-            <motion.h2
-              variants={revealUp}
-              initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
-              custom={0.2}
-              className="heading-display text-4xl md:text-6xl lg:text-7xl"
-            >
-              {t("features.title1")}
-              <br />
-              <span className="text-amber">{t("features.title2")}</span>
-            </motion.h2>
-          </div>
+        {/* Header — same voices as the hero: mono eyebrow, Cinzel title, amber second line */}
+        <div className="flex flex-col items-center text-center mb-16 md:mb-20">
+          <motion.div
+            variants={fadeIn}
+            initial="hidden"
+            animate={isInView ? "visible" : "hidden"}
+            custom={0}
+            className="flex items-center gap-4 mb-6"
+          >
+            <span className="w-10 h-px bg-gradient-to-r from-transparent to-amber" />
+            <span className="mono-meta text-amber">{t("features.label")}</span>
+            <span className="w-10 h-px bg-gradient-to-l from-transparent to-amber" />
+          </motion.div>
+          <motion.h2
+            variants={revealUp}
+            initial="hidden"
+            animate={isInView ? "visible" : "hidden"}
+            custom={0.15}
+            className="heading-display text-foreground text-4xl md:text-5xl lg:text-6xl leading-[1.05]"
+          >
+            {t("features.title1")}
+            <br />
+            <span className="text-amber">{t("features.title2")}</span>
+          </motion.h2>
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={isInView ? { scaleX: 1 } : {}}
+            transition={{ duration: 0.9, delay: 0.35, ease: smoothEase }}
+            className="divider-accent w-[90px] mt-8"
+          />
         </div>
 
-        {/* Feature Cards — 2x2 Rounded Glass Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+        {/* Features — an open row with hairline dividers instead of cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-12 sm:gap-x-10 lg:gap-x-0">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <motion.div
                 key={index}
-                variants={revealScale}
+                variants={revealUp}
                 initial="hidden"
                 animate={isInView ? "visible" : "hidden"}
-                custom={0.4 + index * 0.12}
-                className="group glass-card card-warm p-8 md:p-10 cursor-pointer"
+                custom={0.3 + index * 0.1}
+                className="group relative lg:px-8 lg:first:pl-0 lg:last:pr-0 lg:border-l lg:first:border-l-0 border-border"
               >
-                {/* Icon — Rounded Circle */}
-                <div className="w-14 h-14 rounded-2xl bg-amber/10 border border-amber/15 flex items-center justify-center mb-6 group-hover:bg-amber/20 group-hover:border-amber/30 transition-all duration-400">
-                  <Icon className="w-6 h-6 text-amber" />
+                <div className="flex items-start justify-between mb-7">
+                  <div className="w-14 h-14 rounded-full border border-amber/35 flex items-center justify-center transition-colors duration-500 group-hover:bg-amber/10 group-hover:border-amber">
+                    <Icon className="w-6 h-6 text-amber" strokeWidth={1.25} />
+                  </div>
+                  <span className="mono-meta text-muted-foreground/60">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
                 </div>
 
-                {/* Title */}
-                <h3 className="heading-editorial text-2xl md:text-3xl mb-4">
+                <h3 className="heading-editorial text-foreground text-lg md:text-xl uppercase tracking-[0.06em] mb-3">
                   {feature.title}
                 </h3>
-
-                {/* Description */}
-                <p className="body-editorial text-sm text-muted-foreground leading-relaxed">
+                <div className="h-px w-8 bg-amber/60 mb-4 transition-all duration-500 group-hover:w-16" />
+                <p className="body-editorial text-sm text-muted-foreground leading-relaxed max-w-xs">
                   {feature.description}
                 </p>
-
-                {/* Amber Bottom Accent Line — Appears on Hover */}
-                <div className="mt-6 h-0.5 rounded-full w-0 group-hover:w-full bg-gradient-to-r from-amber to-amber-light transition-all duration-700 ease-out" />
               </motion.div>
             );
           })}
