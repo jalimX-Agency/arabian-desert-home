@@ -148,17 +148,26 @@ export function Navigation() {
     <>
       {/* ── Desktop & Mobile Header ── */}
       <motion.header
-        initial={{ y: -100 }}
+        initial={{ y: -130 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.9, ease: flowingEase }}
-        className="fixed top-3 inset-x-0 z-50 px-3 md:px-6"
+        className={`fixed top-0 inset-x-0 z-50 pointer-events-none transition-[filter] duration-500 ${scrolled ? "nav-tab--scrolled" : ""
+          }`}
       >
-        {/* Floating capsule — carries its own dark surface so the header reads the same over
-            a video hero, a cream page band, or either theme. */}
-        <nav
-          className={`nav-capsule relative max-w-6xl mx-auto h-16 pl-5 pr-2 md:pl-7 flex items-center justify-between rounded-full transition-[background-color,box-shadow] duration-500 ${scrolled ? "nav-capsule--scrolled" : ""
-            }`}
-        >
+        {/* Hanging tab — a thin ink strip along the top edge, a tab with curved shoulders
+            dropping from it, and a drop at its centre. Solid ink, so it reads on any page. */}
+        <div aria-hidden="true" className="nav-ink absolute inset-x-0 top-0 h-3 hidden lg:block" />
+        <nav className="nav-ink pointer-events-auto relative mx-auto w-full lg:w-[calc(100%-8rem)] max-w-[1200px] h-[76px] pl-5 pr-3 lg:pl-8 lg:pr-4 flex items-center justify-between rounded-b-[28px]">
+          <svg aria-hidden="true" viewBox="0 0 56 48" className="nav-ink-fill absolute top-0 -left-[55px] w-14 h-12 hidden lg:block">
+            <path d="M0,0 H56 V48 C56,24 38,12 0,12 Z" />
+          </svg>
+          <svg aria-hidden="true" viewBox="0 0 56 48" className="nav-ink-fill absolute top-0 -right-[55px] w-14 h-12 -scale-x-100 hidden lg:block">
+            <path d="M0,0 H56 V48 C56,24 38,12 0,12 Z" />
+          </svg>
+          <svg aria-hidden="true" viewBox="0 0 120 44" className="nav-ink-fill absolute left-1/2 -translate-x-1/2 top-[75px] w-[120px] h-11 hidden md:block">
+            <path d="M0,0 H120 C84,0 66,8 60,28 C54,8 36,0 0,0 Z" />
+            <circle cx="60" cy="37" r="5" />
+          </svg>
           {/* ── Logo ── */}
           {/* The source PNG is square with the artwork in its middle band — crop to it. */}
           <Link
@@ -218,7 +227,7 @@ export function Navigation() {
                       {t(entry.labelKey)}
                       {dot(groupActive)}
                     </NavigationMenuTrigger>
-                    <NavigationMenuContent className="nav-capsule !mt-5 !rounded-3xl !border-0 !bg-[oklch(0.13_0.01_55/0.94)] p-2 !shadow-2xl">
+                    <NavigationMenuContent className="nav-capsule !mt-[52px] !rounded-3xl !border-0 !bg-[oklch(0.13_0.01_55/0.94)] p-2 !shadow-2xl">
                       <ul className="w-[20rem]">
                         {entry.items.map((item) => {
                           const href = localizedHref(item.href, language);

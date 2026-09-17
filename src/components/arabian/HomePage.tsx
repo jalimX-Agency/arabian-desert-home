@@ -84,8 +84,8 @@ const fadeIn = {
 
 // ============================================
 // 1. HERO SECTION — "Khaïma"
-// Full-bleed footage that contracts into a framed plate on scroll,
-// poster-scale type arriving line by line through masks, mono meta rail.
+// Text on the light surface at left, footage dissolving into it from the right,
+// headline arriving line by line through masks.
 // ============================================
 const maskEase = [0.16, 1, 0.3, 1] as const;
 
@@ -131,12 +131,49 @@ function HeroSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[640px] h-[92vh] md:h-screen w-full overflow-hidden bg-background flex flex-col-reverse md:flex-row"
+      className="relative md:min-h-[640px] md:h-screen w-full overflow-hidden bg-background"
     >
-      {/* ── Left panel — content on the site's own light surface ── */}
+      {/* ── Footage — sits behind the content and dissolves into the cream on its left ── */}
+      <div className="hero-footage relative h-[46vh] md:absolute md:inset-y-0 md:right-0 md:h-auto md:w-[70%] overflow-hidden">
+        <motion.div className="absolute inset-0" style={still ? undefined : { y: imgY }}>
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png"
+            className="w-full h-full object-cover scale-[1.12]"
+          >
+            <source
+              src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero-video.webm"
+              type="video/webm"
+            />
+          </video>
+        </motion.div>
+
+        {/* ── Scroll cue — mono label on a drawn hairline ── */}
+        <motion.div
+          initial={still ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 1 }}
+          className="absolute bottom-24 right-6 md:right-10 z-10 hidden md:flex items-center gap-4 pointer-events-none"
+        >
+          <span className="mono-meta text-white/80">{t("hero.discover")}</span>
+          <div className="relative w-16 h-px bg-white/30 overflow-hidden">
+            <motion.div
+              animate={still ? undefined : { x: ["-100%", "100%"] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 bg-amber"
+            />
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ── Content — layered over the faded edge of the footage ── */}
       <motion.div
         style={still ? undefined : { opacity }}
-        className="relative z-10 w-full md:w-[46%] flex flex-col justify-center px-6 md:px-12 lg:pl-20 lg:pr-14 py-10 md:py-0 shrink-0"
+        className="relative z-10 w-full md:w-[56%] md:h-full flex flex-col justify-center px-6 md:px-12 lg:pl-20 lg:pr-10 -mt-10 pb-20 md:mt-0 md:pb-0 md:pt-24"
       >
         {/* Eyebrow — mono third voice */}
         <motion.div
@@ -201,60 +238,14 @@ function HeroSection() {
         </motion.div>
       </motion.div>
 
-      {/* ── Right panel — the footage, full-bleed to the edge ── */}
-      <div className="relative w-full md:w-[54%] h-[38vh] md:h-full overflow-hidden grain-overlay">
-        <motion.div className="absolute inset-0" style={still ? undefined : { y: imgY }}>
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png"
-            className="w-full h-full object-cover scale-[1.12]"
-          >
-            <source
-              src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero-video.webm"
-              type="video/webm"
-            />
-          </video>
-        </motion.div>
-        {/* Inner-edge grade — softens the seam against the light panel, mobile gets a top fade instead */}
-        <div
-          className="absolute inset-0 hidden md:block"
-          style={{ background: "linear-gradient(to right, oklch(0.08 0.008 55 / 30%) 0%, transparent 12%)" }}
-        />
-        <div
-          className="absolute inset-0 md:hidden"
-          style={{ background: "linear-gradient(to bottom, oklch(0.08 0.008 55 / 25%) 0%, transparent 18%)" }}
-        />
-
-        {/* ── Scroll cue — mono label on a drawn hairline ── */}
-        <motion.div
-          initial={still ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2, duration: 1 }}
-          className="absolute bottom-8 right-6 md:right-10 z-10 flex items-center gap-4 pointer-events-none"
-        >
-          <span className="mono-meta text-white/70">{t("hero.discover")}</span>
-          <div className="relative w-16 h-px bg-white/25 overflow-hidden">
-            <motion.div
-              animate={still ? undefined : { x: ["-100%", "100%"] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 bg-amber"
-            />
-          </div>
-        </motion.div>
-      </div>
-
-      {/* ── Curved seam into the next section ── */}
+      {/* ── Curved seam — the footage's lower edge sweeps up toward the right ── */}
       <svg
         aria-hidden="true"
-        viewBox="0 0 1440 80"
+        viewBox="0 0 1440 90"
         preserveAspectRatio="none"
-        className="absolute -bottom-px left-0 w-full h-10 md:h-16 text-background pointer-events-none"
+        className="absolute -bottom-px left-0 w-full h-12 md:h-[90px] text-background pointer-events-none hidden md:block"
       >
-        <path d="M0,80 C360,0 1080,0 1440,80 L1440,80 L0,80 Z" fill="currentColor" />
+        <path d="M0,90 V58 C520,92 1080,64 1440,6 V90 Z" fill="currentColor" />
       </svg>
     </section>
   );
