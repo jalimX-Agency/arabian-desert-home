@@ -125,101 +125,56 @@ function HeroSection() {
     offset: ["start start", "end start"],
   });
 
-  // Signature move: the plate releases its full-bleed hold and settles into a frame.
-  const plateScale = useTransform(scrollYProgress, [0, 1], [1, 0.87]);
-  const plateRadius = useTransform(scrollYProgress, [0, 1], ["0px", "32px"]);
-  const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "14%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-  const railFill = useTransform(scrollYProgress, [0, 1], [0.08, 1]);
+  const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
-    <section ref={sectionRef} className="relative h-screen min-h-[600px] w-full overflow-hidden">
-      {/* ── The plate ── */}
+    <section
+      ref={sectionRef}
+      className="relative min-h-[640px] h-[92vh] md:h-screen w-full overflow-hidden bg-background flex flex-col-reverse md:flex-row"
+    >
+      {/* ── Left panel — content on the site's own light surface ── */}
       <motion.div
-        style={still ? undefined : { scale: plateScale, borderRadius: plateRadius }}
-        className="absolute inset-0 overflow-hidden will-change-transform grain-overlay"
-      >
-        <motion.div className="absolute inset-0" style={still ? undefined : { y: imgY }}>
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png"
-            className="w-full h-full object-cover scale-[1.18]"
-          >
-            <source
-              src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero-video.webm"
-              type="video/webm"
-            />
-          </video>
-        </motion.div>
-        {/* Warm cinematic grade — always dark regardless of theme */}
-        <div className="absolute inset-0 gradient-warm" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, oklch(0.08 0.008 55 / 82%) 0%, oklch(0.08 0.008 55 / 28%) 50%, transparent 100%)" }} />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, oklch(0.08 0.008 55 / 88%) 0%, transparent 55%)" }} />
-        {/* Watermark cover — bottom-right corner dark radial */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 35% 25% at 100% 100%, oklch(0.08 0.008 55 / 95%) 0%, transparent 100%)" }} />
-      </motion.div>
-
-      {/* ── Mono meta rail — left edge ── */}
-      <motion.div
-        initial={still ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1.6 }}
-        className="absolute left-6 md:left-10 top-0 bottom-0 z-10 hidden lg:flex flex-col items-center justify-center gap-6 pointer-events-none"
-      >
-        <span className="mono-meta text-white/35 [writing-mode:vertical-rl] rotate-180">
-          31.4°N — 8.2°W
-        </span>
-        <div className="relative w-px h-32 bg-white/12 overflow-hidden">
-          <motion.div
-            style={still ? { scaleY: 0.08 } : { scaleY: railFill }}
-            className="absolute inset-0 origin-top bg-amber/70"
-          />
-        </div>
-        <span className="mono-meta text-white/35 [writing-mode:vertical-rl] rotate-180">
-          EST. AGAFAY
-        </span>
-      </motion.div>
-
-      {/* ── Content ── */}
-      <motion.div
-        style={still ? undefined : { y: textY, opacity }}
-        className="relative z-10 h-full flex flex-col justify-end pb-24 md:pb-28 xl:pb-32 px-6 md:px-10 lg:pl-24 max-w-7xl mx-auto"
+        style={still ? undefined : { opacity }}
+        className="relative z-10 w-full md:w-[46%] flex flex-col justify-center px-6 md:px-12 lg:pl-20 lg:pr-14 py-10 md:py-0 shrink-0"
       >
         {/* Eyebrow — mono third voice */}
         <motion.div
           initial={still ? false : { opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: smoothEase }}
-          className="mb-8 flex items-center gap-4"
+          className="mb-6 flex items-center gap-4"
         >
           <div className="w-10 h-px bg-gradient-to-r from-amber to-amber-light" />
-          <span className="mono-meta text-amber/80">{t("hero.location")}</span>
+          <span className="mono-meta text-amber">{t("hero.location")}</span>
         </motion.div>
 
-        {/* Headline — masked line reveal, second line pushed off the grid */}
-        <h1 className="heading-hero text-white">
+        {/* Headline — masked line reveal */}
+        <h1 className="heading-hero text-foreground">
           <span className="sr-only">Bivouac de Luxe dans le Désert d&apos;Agafay — 30 min de Marrakech</span>
           <span aria-hidden="true">
             <MaskLine delay={0.55} still={still}>
               {t("hero.heading1")}
             </MaskLine>
-            <MaskLine delay={0.7} still={still} className="text-amber md:pl-[0.5em]">
+            <MaskLine delay={0.7} still={still} className="text-amber">
               {t("hero.heading2")}
             </MaskLine>
           </span>
         </h1>
+
+        <motion.div
+          initial={still ? false : { scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.9, delay: 0.9, ease: smoothEase }}
+          className="divider-accent max-w-[90px] mt-6 mb-6 origin-left"
+        />
 
         {/* Subtitle */}
         <motion.p
           initial={still ? false : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 1.05, ease: smoothEase }}
-          className="body-editorial text-white/60 text-base md:text-lg max-w-lg mt-8"
+          className="body-editorial text-muted-foreground text-base md:text-lg max-w-md"
         >
           {t("hero.subtitle")}
         </motion.p>
@@ -238,7 +193,7 @@ function HeroSection() {
           </Link>
           <Link
             href={withLocale(language, "/les-tentes")}
-            className="hidden md:flex items-center gap-3 mono-meta text-white/50 hover:text-amber transition-colors duration-400 group cursor-pointer"
+            className="flex items-center gap-3 mono-meta text-muted-foreground hover:text-amber transition-colors duration-400 group cursor-pointer"
           >
             {t("suites.title")}
             <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -246,22 +201,61 @@ function HeroSection() {
         </motion.div>
       </motion.div>
 
-      {/* ── Scroll cue — mono label on a drawn hairline ── */}
-      <motion.div
-        initial={still ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-10 right-6 md:right-10 z-10 flex items-center gap-4 pointer-events-none"
+      {/* ── Right panel — the footage, full-bleed to the edge ── */}
+      <div className="relative w-full md:w-[54%] h-[38vh] md:h-full overflow-hidden grain-overlay">
+        <motion.div className="absolute inset-0" style={still ? undefined : { y: imgY }}>
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png"
+            className="w-full h-full object-cover scale-[1.12]"
+          >
+            <source
+              src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero-video.webm"
+              type="video/webm"
+            />
+          </video>
+        </motion.div>
+        {/* Inner-edge grade — softens the seam against the light panel, mobile gets a top fade instead */}
+        <div
+          className="absolute inset-0 hidden md:block"
+          style={{ background: "linear-gradient(to right, oklch(0.08 0.008 55 / 30%) 0%, transparent 12%)" }}
+        />
+        <div
+          className="absolute inset-0 md:hidden"
+          style={{ background: "linear-gradient(to bottom, oklch(0.08 0.008 55 / 25%) 0%, transparent 18%)" }}
+        />
+
+        {/* ── Scroll cue — mono label on a drawn hairline ── */}
+        <motion.div
+          initial={still ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 1 }}
+          className="absolute bottom-8 right-6 md:right-10 z-10 flex items-center gap-4 pointer-events-none"
+        >
+          <span className="mono-meta text-white/70">{t("hero.discover")}</span>
+          <div className="relative w-16 h-px bg-white/25 overflow-hidden">
+            <motion.div
+              animate={still ? undefined : { x: ["-100%", "100%"] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 bg-amber"
+            />
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ── Curved seam into the next section ── */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 1440 80"
+        preserveAspectRatio="none"
+        className="absolute -bottom-px left-0 w-full h-10 md:h-16 text-background pointer-events-none"
       >
-        <span className="mono-meta text-white/40">{t("hero.discover")}</span>
-        <div className="relative w-16 h-px bg-white/15 overflow-hidden">
-          <motion.div
-            animate={still ? undefined : { x: ["-100%", "100%"] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute inset-0 bg-amber"
-          />
-        </div>
-      </motion.div>
+        <path d="M0,80 C360,0 1080,0 1440,80 L1440,80 L0,80 Z" fill="currentColor" />
+      </svg>
     </section>
   );
 }
