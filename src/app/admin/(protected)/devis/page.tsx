@@ -83,7 +83,7 @@ export default function DevisPage() {
   ];
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <DevisToolbar
         search={search}
         onSearchChange={setSearch}

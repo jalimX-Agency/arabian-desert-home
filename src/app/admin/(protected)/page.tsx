@@ -38,7 +38,7 @@ export default function AdminDashboardPage() {
   }, []);
 
   if (!stats) return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       <div>
         <div className="h-7 bg-gray-200 dark:bg-white/10 rounded animate-pulse w-52 mb-2" />
         <div className="h-4 bg-gray-100 dark:bg-white/5 rounded animate-pulse w-72" />
@@ -86,7 +86,7 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       <div>
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-1">Tableau de bord</h1>
         <p className="text-sm text-gray-400">Bienvenue dans l&apos;espace administration</p>

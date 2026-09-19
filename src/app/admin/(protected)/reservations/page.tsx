@@ -162,7 +162,7 @@ export default function ReservationsPage() {
   const selectedRows = () => bookings.filter((b) => selectedIds.has(b.reservation?.id ?? b.id));
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <ReservationToolbar
         search={search}
         onSearchChange={setSearch}

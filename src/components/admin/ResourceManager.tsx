@@ -188,7 +188,7 @@ export function ResourceManager({ title, apiPath, fields, columns, tabs }: Resou
     : fields;
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{title}</h1>
         <button
@@ -200,8 +200,8 @@ export function ResourceManager({ title, apiPath, fields, columns, tabs }: Resou
         </button>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-x-auto">
+        <table className="w-full min-w-[46rem] text-sm">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
               {columns.map((col) => (

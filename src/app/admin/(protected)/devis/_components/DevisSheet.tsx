@@ -7,7 +7,7 @@ import {
   Plus, Loader2, Send, FileText, ArrowRightLeft, Copy, Check, ExternalLink, KeyRound, Trash2,
 } from "lucide-react";
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
+  Sheet, SheetContent, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -209,7 +209,42 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
           </div>
         </SheetHeader>
 
-        <div className="px-4 space-y-6 pb-4">
+        {/* Actions stay pinned under the header so they're reachable without scrolling
+            past a long list of lines. */}
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-gray-200 dark:border-white/10 px-4 py-3 flex flex-wrap items-center gap-2">
+          {!locked && (
+            <Button onClick={handleSave} disabled={!isValid || saving} size="sm" className="cursor-pointer text-xs">
+              {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {devis ? "Enregistrer" : "Créer le devis"}
+            </Button>
+          )}
+          {devis && (
+            <>
+              <Button variant="outline" size="sm" asChild className="cursor-pointer text-xs">
+                <a href={`/api/admin/devis/${devis.id}/pdf`} target="_blank" rel="noopener noreferrer">
+                  <FileText className="w-3.5 h-3.5" /> PDF
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" disabled={locked || busy !== null} onClick={() => setConfirm("send")} className="cursor-pointer text-xs">
+                {busy === "send" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                {devis.sentAt ? "Renvoyer" : "Envoyer"}
+              </Button>
+              {devis.status === "accepted" && (
+                <Button size="sm" disabled={busy !== null} onClick={() => setConfirm("convert")} className="cursor-pointer text-xs">
+                  {busy === "convert" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowRightLeft className="w-3.5 h-3.5" />}
+                  Convertir
+                </Button>
+              )}
+              {!locked && (
+                <Button variant="outline" size="sm" disabled={busy !== null} onClick={() => setConfirm("delete")} className="cursor-pointer text-xs text-red-600 ml-auto">
+                  <Trash2 className="w-3.5 h-3.5" /> Supprimer
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+
+        <div className="px-4 space-y-6 pb-8 pt-4">
           {locked && (
             <p className="text-xs rounded-lg border border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 p-3">
               Ce devis est converti en réservation — il n&apos;est plus modifiable.
@@ -219,7 +254,7 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
           {/* Client */}
           <div className="space-y-3">
             <p className="text-xs uppercase tracking-widest text-gray-400">Client</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs text-gray-400 mb-1 block">Prénom *</Label>
                 <Input value={form.firstName} disabled={locked} onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} />
@@ -264,7 +299,7 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
                 placeholder="Mariage 12 personnes — Agafay"
               />
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <Label className="text-xs text-gray-400 mb-1 block">Valable jusqu&apos;au</Label>
                 <Input type="date" value={form.validUntil} disabled={locked} onChange={(e) => setForm((f) => ({ ...f, validUntil: e.target.value }))} />
@@ -315,6 +350,7 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
                 computedPrice={(it) => computeDevisLineTotal(it, catalog)}
                 onChange={(patch) => updateItem(item.key, patch)}
                 onRemove={() => setItems((prev) => prev.filter((it) => it.key !== item.key))}
+                defaultOpen={!item.id}
               />
             ))}
           </div>
@@ -363,7 +399,7 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs text-gray-400 mb-1 block">Statut (réponse par téléphone)</Label>
                   <Select value={devis.status} onValueChange={changeStatus} disabled={locked || busy !== null}>
@@ -383,29 +419,6 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <Button variant="outline" size="sm" asChild className="cursor-pointer text-xs">
-                  <a href={`/api/admin/devis/${devis.id}/pdf`} target="_blank" rel="noopener noreferrer">
-                    <FileText className="w-3.5 h-3.5" /> Voir le PDF
-                  </a>
-                </Button>
-                <Button variant="outline" size="sm" disabled={locked || busy !== null} onClick={() => setConfirm("send")} className="cursor-pointer text-xs">
-                  {busy === "send" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                  {devis.sentAt ? "Renvoyer au client" : "Envoyer au client"}
-                </Button>
-                {devis.status === "accepted" && (
-                  <Button size="sm" disabled={busy !== null} onClick={() => setConfirm("convert")} className="cursor-pointer text-xs">
-                    {busy === "convert" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ArrowRightLeft className="w-3.5 h-3.5" />}
-                    Convertir en réservation
-                  </Button>
-                )}
-                {!locked && (
-                  <Button variant="outline" size="sm" disabled={busy !== null} onClick={() => setConfirm("delete")} className="cursor-pointer text-xs text-red-600">
-                    <Trash2 className="w-3.5 h-3.5" /> Supprimer
-                  </Button>
-                )}
-              </div>
-
               {devis.status === "accepted" && (
                 <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/60 cursor-pointer">
                   <Checkbox checked={notifyOnConvert} onCheckedChange={(v) => setNotifyOnConvert(v === true)} />
@@ -418,17 +431,9 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
           {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
 
-        <SheetFooter>
-          {!locked && (
-            <Button onClick={handleSave} disabled={!isValid || saving} className="cursor-pointer">
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {devis ? "Enregistrer les modifications" : "Créer le devis"}
-            </Button>
-          )}
-          <p className="text-[11px] text-gray-400 text-center">
-            Le devis n&apos;est visible par le client qu&apos;une fois envoyé.
-          </p>
-        </SheetFooter>
+        <p className="px-4 pb-6 text-[11px] text-gray-400 text-center">
+          Le devis n&apos;est visible par le client qu&apos;une fois envoyé.
+        </p>
       </SheetContent>
 
       <ConfirmDialog

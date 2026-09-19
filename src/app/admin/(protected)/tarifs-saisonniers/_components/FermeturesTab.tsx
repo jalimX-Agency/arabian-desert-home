@@ -129,8 +129,8 @@ export function FermeturesTab() {
         Ces dates deviennent indisponibles à la réservation sur le site — les demandes qui les chevauchent sont refusées automatiquement.
       </p>
 
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-x-auto">
+        <table className="w-full min-w-[46rem] text-sm">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
               <th className="text-left px-5 py-3.5 text-gray-400 dark:text-gray-500 font-medium text-xs uppercase tracking-widest">Motif</th>

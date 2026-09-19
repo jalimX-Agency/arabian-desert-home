@@ -245,7 +245,7 @@ export function ReservationDetailSheet({
           {/* Contact info */}
           <div className="space-y-3">
             <p className="text-xs uppercase tracking-widest text-gray-400">Client</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs text-gray-400 mb-1 block">Prénom</Label>
                 <Input value={contact.firstName} onChange={(e) => setContact((c) => ({ ...c, firstName: e.target.value }))} />

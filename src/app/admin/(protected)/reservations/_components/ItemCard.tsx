@@ -59,7 +59,7 @@ export function ItemCard({ item, catalog, computedPrice, onChange, onRemove }: I
               {catalog.suites.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
             </SelectContent>
           </Select>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             <div>
               <Label className="text-xs text-gray-400 mb-1 block">Arrivée</Label>
               <Input type="date" value={item.checkIn} onChange={(e) => onChange({ checkIn: e.target.value })} />

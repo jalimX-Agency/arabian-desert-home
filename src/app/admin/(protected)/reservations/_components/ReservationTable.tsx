@@ -83,8 +83,8 @@ export function ReservationTable({
   }, [someSelected, allSelected]);
 
   return (
-    <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden">
-      <table className="w-full text-sm">
+    <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-x-auto">
+      <table className="w-full min-w-[46rem] text-sm">
         <thead>
           <tr className="border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-transparent text-xs uppercase tracking-widest text-gray-400">
             <th className="px-5 py-3.5 w-10">

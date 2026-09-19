@@ -51,7 +51,7 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Messages</h1>
         <span className="text-sm text-gray-400">{messages.filter((m) => !m.read).length} non lus</span>

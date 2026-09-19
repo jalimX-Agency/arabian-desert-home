@@ -6,7 +6,7 @@ import { FermeturesTab } from "./_components/FermeturesTab";
 
 export default function TarifsSaisonniersPage() {
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Tarifs & Fermetures</h1>
 
       <Tabs defaultValue="tarifs">
