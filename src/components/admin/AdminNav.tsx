@@ -6,12 +6,13 @@ import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import {
   LayoutDashboard, BedDouble, Zap, Sun, UtensilsCrossed,
-  MessageSquareQuote, CalendarCheck, Mail, Settings, LogOut, Images, Moon, BookOpen, Tag,
+  MessageSquareQuote, CalendarCheck, Mail, Settings, LogOut, Images, Moon, BookOpen, Tag, FileText,
 } from "lucide-react";
 
 const links = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
   { href: "/admin/reservations", label: "Réservations", icon: CalendarCheck },
+  { href: "/admin/devis", label: "Devis", icon: FileText },
   { href: "/admin/hebergements", label: "Hébergements", icon: BedDouble },
   { href: "/admin/activites", label: "Activités", icon: Zap },
   { href: "/admin/day-pass", label: "Day Pass", icon: Sun },

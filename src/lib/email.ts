@@ -411,6 +411,151 @@ export async function sendClientModificationNotification(
   });
 }
 
+// ── Devis emails ────────────────────────────────────────────────────────────
+
+export type DevisEmailLang = "fr" | "en" | "es";
+
+/** The client's private link to read and answer a quote — the token in it is the only auth. */
+export function devisUrl(accessToken: string): string {
+  return `${SITE_URL}/devis/${accessToken}`;
+}
+
+const DEVIS_I18N: Record<DevisEmailLang, {
+  subject: (ref: string) => string;
+  hello: (name: string) => string;
+  intro: string;
+  totalLabel: string;
+  validLabel: string;
+  cta: string;
+  ctaHint: string;
+  questions: string;
+  dateLocale: string;
+}> = {
+  fr: {
+    subject: (ref) => `Votre devis ${ref} — Arabian Desert Home`,
+    hello: (name) => `Bonjour ${name},`,
+    intro: "Veuillez trouver ci-joint le devis que vous avez demandé. Vous pouvez l'accepter ou le refuser en un clic depuis le lien ci-dessous.",
+    totalLabel: "Montant total",
+    validLabel: "Valable jusqu'au",
+    cta: "Voir et répondre au devis",
+    ctaHint: "Ce lien vous est personnel, ne le partagez pas.",
+    questions: "Des questions ? Contactez-nous :",
+    dateLocale: "fr-FR",
+  },
+  en: {
+    subject: (ref) => `Your quotation ${ref} — Arabian Desert Home`,
+    hello: (name) => `Hello ${name},`,
+    intro: "Please find attached the quotation you requested. You can accept or decline it in one click from the link below.",
+    totalLabel: "Total amount",
+    validLabel: "Valid until",
+    cta: "View and answer the quotation",
+    ctaHint: "This link is personal to you, please do not share it.",
+    questions: "Any questions? Contact us:",
+    dateLocale: "en-US",
+  },
+  es: {
+    subject: (ref) => `Su presupuesto ${ref} — Arabian Desert Home`,
+    hello: (name) => `Hola ${name},`,
+    intro: "Adjuntamos el presupuesto que ha solicitado. Puede aceptarlo o rechazarlo con un clic desde el enlace siguiente.",
+    totalLabel: "Importe total",
+    validLabel: "Válido hasta",
+    cta: "Ver y responder al presupuesto",
+    ctaHint: "Este enlace es personal, no lo comparta.",
+    questions: "¿Preguntas? Contáctenos:",
+    dateLocale: "es-ES",
+  },
+};
+
+/** Sends the quote to the client with its PDF attached and the private answer link. */
+export async function sendDevisToClient(
+  to: string,
+  firstName: string,
+  reference: string,
+  totalAmount: number,
+  currency: string,
+  validUntil: Date,
+  link: string,
+  pdfBuffer: Buffer,
+  lang: DevisEmailLang = "fr",
+) {
+  const t = DEVIS_I18N[lang];
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: t.subject(reference),
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#0f0f0f;padding:32px;text-align:center">
+          <p style="color:#c8922a;letter-spacing:4px;font-size:11px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
+        </div>
+        <div style="padding:40px 32px">
+          <h1 style="font-size:24px;font-weight:400;margin:0 0 8px">${t.hello(firstName)}</h1>
+          <p style="color:#555;line-height:1.7;margin:0 0 28px">${t.intro}</p>
+          <div style="background:#faf8f5;border:1px solid #e8dfc8;border-radius:8px;padding:24px;margin:0 0 24px">
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              <tr><td style="padding:6px 0;color:#888;width:140px">${reference}</td><td style="padding:6px 0"></td></tr>
+              <tr><td style="padding:6px 0;color:#888">${t.validLabel}</td><td style="padding:6px 0;font-weight:600">${validUntil.toLocaleDateString(t.dateLocale, { day: "2-digit", month: "long", year: "numeric" })}</td></tr>
+              <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">${t.totalLabel}</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#c8922a;text-align:right">${totalAmount.toLocaleString(t.dateLocale)} ${currency}</td></tr>
+            </table>
+          </div>
+          <p style="text-align:center;margin:0 0 12px">
+            <a href="${link}" style="display:inline-block;background:#c8922a;color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:600">${t.cta}</a>
+          </p>
+          <p style="text-align:center;color:#999;font-size:12px;line-height:1.6;margin:0 0 32px">${t.ctaHint}</p>
+          <p style="color:#555;line-height:1.7;margin:0 0 8px">${t.questions}</p>
+          <p style="margin:0;color:#333;font-size:14px">📞 +212 667-370-206 &nbsp;·&nbsp; 📧 info@arabiandeserthome.ma</p>
+        </div>
+        <div style="background:#f5f0e8;padding:20px 32px;text-align:center">
+          <p style="color:#999;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0">Agafay · Marrakech · Maroc</p>
+        </div>
+      </div>
+    `,
+    attachments: [{ filename: `${reference}.pdf`, content: pdfBuffer }],
+  });
+}
+
+/** Tells the admin that the client accepted or refused a quote from their private link. */
+export async function sendDevisAnsweredNotification(
+  reference: string,
+  clientName: string,
+  answer: "accepted" | "refused",
+  totalAmount: number,
+  currency: string,
+  clientMessage?: string | null,
+) {
+  const adminEmail = await getAdminEmail();
+  const accepted = answer === "accepted";
+  await resend.emails.send({
+    from: FROM,
+    to: adminEmail,
+    subject: accepted
+      ? `[Devis accepté] ${reference} — ${clientName}`
+      : `[Devis refusé] ${reference} — ${clientName}`,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:${accepted ? "#1e6b3f" : "#7a3b3b"};padding:24px 32px">
+          <p style="color:#fff;letter-spacing:2px;font-size:12px;text-transform:uppercase;margin:0">
+            ${accepted ? "Devis accepté par le client" : "Devis refusé par le client"}
+          </p>
+        </div>
+        <div style="padding:32px">
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <tr><td style="padding:7px 0;color:#888;width:120px">Référence</td><td style="padding:7px 0;font-weight:600">${reference}</td></tr>
+            <tr><td style="padding:7px 0;color:#888">Client</td><td style="padding:7px 0;font-weight:600">${clientName}</td></tr>
+            <tr><td style="padding:7px 0;color:#888">Montant</td><td style="padding:7px 0;font-weight:700;color:#c8922a">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
+          </table>
+          ${clientMessage ? `<p style="color:#888;font-size:12px;margin:16px 0 4px">Message du client</p><p style="font-size:14px;margin:0;white-space:pre-wrap">${clientMessage}</p>` : ""}
+          <p style="color:#888;font-size:12px;margin:20px 0 0">
+            ${accepted
+              ? "Ouvrez le devis dans le panneau d'administration puis cliquez sur « Convertir en réservation »."
+              : "Le devis reste dans la liste avec le statut « Refusé »."}
+          </p>
+        </div>
+      </div>
+    `,
+  });
+}
+
 export async function sendReservationNotification(
   items: BookingWithRelations[],
   totalAmount: number,

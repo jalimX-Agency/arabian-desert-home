@@ -53,6 +53,7 @@ model Suite {
   bookings          Booking[]
   seasonalPrices    SeasonalPrice[]
   closures          TentClosure[]
+  devisItems        DevisItem[]
 }
 
 model Activity {
@@ -90,6 +91,7 @@ model Activity {
   updatedAt         DateTime  @updatedAt
   bookings          Booking[]
   seasonalPrices    SeasonalPrice[]
+  devisItems        DevisItem[]
 }
 
 model DayPass {
@@ -117,6 +119,7 @@ model DayPass {
   updatedAt         DateTime  @updatedAt
   bookings          Booking[]
   seasonalPrices    SeasonalPrice[]
+  devisItems        DevisItem[]
 }
 
 model DiningVenue {
@@ -171,6 +174,7 @@ model Reservation {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   items       Booking[]
+  devis       Devis?
 }
 
 model Booking {
@@ -304,4 +308,66 @@ model User {
   role      String   @default("admin")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// A quote sent to a client before it becomes a Reservation. Carries its own access
+// token so the client can accept or refuse it from a private link, and keeps the
+// quoted amounts frozen — converting never re-prices what was promised.
+model Devis {
+  id            String      @id @default(cuid())
+  reference     String      @unique
+  accessToken   String      @unique @default(cuid())
+  status        String      @default("draft") // draft|sent|accepted|refused|expired|converted|cancelled
+  firstName     String
+  lastName      String
+  email         String
+  phone         String
+  company       String?
+  channel       String      @default("email")
+  title         String?
+  notes         String?     // internal only, never printed on the PDF
+  conditions    String?     // free text printed under the total
+  lang          String      @default("fr") // fr|en|es
+  validUntil    DateTime
+  totalAmount   Int         @default(0)
+  currency      String      @default("MAD")
+  sentAt        DateTime?
+  answeredAt    DateTime?
+  answeredBy    String?     // client|admin
+  clientMessage String?
+  reservationId String?      @unique
+  reservation   Reservation? @relation(fields: [reservationId], references: [id])
+  convertedAt   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  items         DevisItem[]
+}
+
+// One quote line: either a catalogue item (priced by the same engine as bookings)
+// or a free line typed by the admin (transport, wedding setup, a discount…).
+model DevisItem {
+  id          String    @id @default(cuid())
+  devisId     String
+  devis       Devis     @relation(fields: [devisId], references: [id], onDelete: Cascade)
+  kind        String    @default("catalog") // catalog|custom
+  serviceType String    @default("suite")
+  suiteId     String?
+  suite       Suite?    @relation(fields: [suiteId], references: [id])
+  activityId  String?
+  activity    Activity? @relation(fields: [activityId], references: [id])
+  dayPassId   String?
+  dayPass     DayPass?  @relation(fields: [dayPassId], references: [id])
+  label       String    @default("")
+  description String?
+  checkIn     DateTime?
+  checkOut    DateTime?
+  date        DateTime?
+  quantity    Int       @default(1)
+  guests      Int       @default(2)
+  children    Int       @default(0)
+  unitPrice   Int       @default(0) // custom lines; negative means a discount
+  totalAmount Int       @default(0)
+  currency    String    @default("MAD")
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
 }
