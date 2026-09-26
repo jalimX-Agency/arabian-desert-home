@@ -132,6 +132,19 @@ export function groupReservationDate(g: ReservationGroup): Date {
   return new Date(g.items[0].createdAt);
 }
 
+export const timeFilterOptions = ["all", "upcoming", "past"] as const;
+export type TimeFilter = (typeof timeFilterOptions)[number];
+
+/** True once the reservation's nearest relevant date is strictly before today.
+ *  A reservation with no date at all (shouldn't normally happen) is never "past". */
+export function isGroupPast(g: ReservationGroup): boolean {
+  const nearest = groupNearestDate(g);
+  if (!nearest) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return nearest.getTime() < today.getTime();
+}
+
 export const sortModeOptions = ["reservationDate", "checkin", "range"] as const;
 export type SortMode = (typeof sortModeOptions)[number];
 

@@ -9,7 +9,9 @@ import {
   earliestDate,
   bookingsToCsv,
   sortGroups,
+  isGroupPast,
   type SortMode,
+  type TimeFilter,
 } from "./_lib/reservation-utils";
 import { ReservationToolbar } from "./_components/ReservationToolbar";
 import { ReservationTable } from "./_components/ReservationTable";
@@ -27,6 +29,7 @@ export default function ReservationsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [serviceFilter, setServiceFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [sortMode, setSortMode] = useState<SortMode>("reservationDate");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -95,7 +98,13 @@ export default function ReservationsPage() {
     return true;
   });
 
-  const groups = sortGroups(groupBookings(filtered), sortMode);
+  const groupsAllTime = groupBookings(filtered);
+  const groups = sortGroups(
+    timeFilter === "all"
+      ? groupsAllTime
+      : groupsAllTime.filter((g) => (timeFilter === "past" ? isGroupPast(g) : !isGroupPast(g))),
+    sortMode
+  );
 
   const allFilteredSelected = groups.length > 0 && groups.every((g) => selectedIds.has(g.id));
   const someFilteredSelected = groups.some((g) => selectedIds.has(g.id));
@@ -172,6 +181,8 @@ export default function ReservationsPage() {
         onServiceFilterChange={setServiceFilter}
         channelFilter={channelFilter}
         onChannelFilterChange={setChannelFilter}
+        timeFilter={timeFilter}
+        onTimeFilterChange={setTimeFilter}
         sortMode={sortMode}
         onSortModeChange={setSortMode}
         dateFrom={dateFrom}

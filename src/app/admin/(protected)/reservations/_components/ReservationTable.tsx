@@ -20,6 +20,7 @@ import {
   groupTotalAmount,
   groupChannel,
   groupNearestDate,
+  isGroupPast,
 } from "../_lib/reservation-utils";
 import { ChannelBadge } from "./ChannelBadge";
 import { format } from "date-fns";
@@ -119,11 +120,14 @@ export function ReservationTable({
               const nearestDate = groupNearestDate(g);
               const extraCount = g.items.length - 1;
               const isSaving = savingIds.has(g.id);
+              const isPast = isGroupPast(g);
               return (
                 <tr
                   key={g.id}
                   onClick={() => onRowClick(g)}
-                  className="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
+                  className={`border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer ${
+                    isPast ? "opacity-60" : ""
+                  }`}
                 >
                   <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                     <input
@@ -158,8 +162,13 @@ export function ReservationTable({
                       {extraCount > 0 && <span className="text-gray-400"> +{extraCount} autre{extraCount > 1 ? "s" : ""}</span>}
                     </p>
                   </td>
-                  <td className="px-5 py-4 text-gray-600 dark:text-white/70 text-xs">
-                    {nearestDate ? format(nearestDate, "d MMM yyyy", { locale: fr }) : formatDateCellText(primary)}
+                  <td className="px-5 py-4 text-xs">
+                    <span className={isPast ? "text-gray-400 dark:text-white/40" : "text-gray-900 dark:text-white font-medium"}>
+                      {nearestDate ? format(nearestDate, "d MMM yyyy", { locale: fr }) : formatDateCellText(primary)}
+                    </span>
+                    {isPast && (
+                      <span className="block text-[10px] text-gray-400 dark:text-white/30 uppercase tracking-wide">Passée</span>
+                    )}
                   </td>
                   <td className="px-5 py-4 text-gray-600 dark:text-white/70">
                     <span>{primary.guests} adulte{primary.guests > 1 ? "s" : ""}</span>

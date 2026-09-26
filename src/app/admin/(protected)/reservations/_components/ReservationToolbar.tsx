@@ -24,12 +24,20 @@ import {
   CHANNELS,
   channelLabel,
   type SortMode,
+  type TimeFilter,
+  timeFilterOptions,
 } from "../_lib/reservation-utils";
 
 const SORT_MODE_LABEL: Record<SortMode, string> = {
   checkin: "Date d'arrivée",
   reservationDate: "Date de réservation",
   range: "Plage de dates",
+};
+
+const TIME_FILTER_LABEL: Record<TimeFilter, string> = {
+  all: "Toutes les dates",
+  upcoming: "À venir",
+  past: "Passées",
 };
 
 interface ReservationToolbarProps {
@@ -41,6 +49,8 @@ interface ReservationToolbarProps {
   onServiceFilterChange: (v: string) => void;
   channelFilter: string;
   onChannelFilterChange: (v: string) => void;
+  timeFilter: TimeFilter;
+  onTimeFilterChange: (v: TimeFilter) => void;
   sortMode: SortMode;
   onSortModeChange: (v: SortMode) => void;
   dateFrom: string;
@@ -67,6 +77,8 @@ export function ReservationToolbar({
   onServiceFilterChange,
   channelFilter,
   onChannelFilterChange,
+  timeFilter,
+  onTimeFilterChange,
   sortMode,
   onSortModeChange,
   dateFrom,
@@ -197,6 +209,17 @@ export function ReservationToolbar({
             <SelectItem value="all">Tous les canaux</SelectItem>
             {CHANNELS.map((c) => (
               <SelectItem key={c} value={c}>{channelLabel[c]}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={timeFilter} onValueChange={(v) => onTimeFilterChange(v as TimeFilter)}>
+          <SelectTrigger size="sm" className="text-xs w-36 bg-white dark:bg-white/5">
+            <SelectValue placeholder="Échéance" />
+          </SelectTrigger>
+          <SelectContent>
+            {timeFilterOptions.map((f) => (
+              <SelectItem key={f} value={f}>{TIME_FILTER_LABEL[f]}</SelectItem>
             ))}
           </SelectContent>
         </Select>
