@@ -47,7 +47,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
   const [status, setStatus] = useState("pending");
   const [currency, setCurrency] = useState("EUR");
   const [notifyClient, setNotifyClient] = useState(true);
-  const [items, setItems] = useState<EditableItem[]>([emptyItem()]);
+  const [items, setItems] = useState<EditableItem[]>([emptyItem("EUR")]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => { if (open) fetchCatalog(setSuites, setActivities, setDayPasses); }, [open]);
@@ -87,7 +87,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
     setChannel("");
     setStatus("pending");
     setCurrency("EUR");
-    setItems([emptyItem()]);
+    setItems([emptyItem("EUR")]);
   }
 
   async function handleCreate() {
@@ -189,7 +189,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-widest text-gray-400">Prestations ({items.length})</p>
-              <Button variant="outline" size="sm" onClick={() => setItems((prev) => [...prev, emptyItem()])} className="cursor-pointer text-xs">
+              <Button variant="outline" size="sm" onClick={() => setItems((prev) => [...prev, emptyItem(currency)])} className="cursor-pointer text-xs">
                 <Plus className="w-3.5 h-3.5" /> Ajouter
               </Button>
             </div>

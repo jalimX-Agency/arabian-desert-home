@@ -61,14 +61,17 @@ export function bookingToEditable(b: Booking): EditableItem {
   };
 }
 
-export function emptyItem(): EditableItem {
+/** A blank line item for the editor. `currency` should be the reservation's own
+ *  currency — a new line must never silently default to MAD when the reservation
+ *  is billed in EUR (or vice versa). */
+export function emptyItem(currency: string = "MAD"): EditableItem {
   return {
     key: `new-${Date.now()}-${Math.random()}`,
     serviceType: "suite",
     suiteId: "", activityId: "", dayPassId: "",
     checkIn: "", checkOut: "", date: "",
     quantity: 1, guests: 2, children: 0,
-    totalAmount: 0, currency: "MAD",
+    totalAmount: 0, currency,
     customPrice: false,
   };
 }

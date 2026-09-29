@@ -297,7 +297,7 @@ export function ReservationDetailSheet({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-widest text-gray-400">Prestations ({items.length})</p>
-              <Button variant="outline" size="sm" onClick={() => setItems((prev) => [...prev, emptyItem()])} className="cursor-pointer text-xs">
+              <Button variant="outline" size="sm" onClick={() => setItems((prev) => [...prev, emptyItem(currency)])} className="cursor-pointer text-xs">
                 <Plus className="w-3.5 h-3.5" /> Ajouter
               </Button>
             </div>
