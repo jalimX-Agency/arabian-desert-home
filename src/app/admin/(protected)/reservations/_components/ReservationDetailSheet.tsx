@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus, Loader2, FileText, ChevronDown, Copy, Check, ExternalLink, KeyRound } from "lucide-react";
+import { Plus, Loader2, FileText, ChevronDown, Copy, Check, ExternalLink, KeyRound, Star, Send } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -74,6 +74,113 @@ function ClientLinkRow({ accessToken }: { accessToken: string }) {
         </Button>
       </div>
       <p className="text-[11px] text-gray-400 mt-1">Permet au client de modifier ses dates ou d&apos;annuler. Ne le partagez qu&apos;avec lui.</p>
+    </div>
+  );
+}
+
+const REVIEW_LANGS = [
+  { value: "fr", label: "Français" },
+  { value: "en", label: "English" },
+  { value: "es", label: "Español" },
+  { value: "it", label: "Italiano" },
+] as const;
+const OTA_CHANNELS = ["booking.com", "expedia", "trip.com"];
+
+/** Manual post-stay thank-you + Google review request, in a language the admin picks. */
+function ReviewRequestRow({ group, onSent }: { group: ReservationGroup; onSent: () => void }) {
+  const primary = group.items[0];
+  const [lang, setLang] = useState<string>("fr");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sentAt, setSentAt] = useState<string | null>(primary.reservation?.reviewRequestSentAt ?? null);
+  const [confirmResend, setConfirmResend] = useState(false);
+
+  useEffect(() => {
+    setSentAt(primary.reservation?.reviewRequestSentAt ?? null);
+    setError(null);
+  }, [group.id, primary.reservation?.reviewRequestSentAt]);
+
+  // The stay is over once its last item is (checkout, or the activity/day-pass date).
+  const active = group.items.filter((b) => b.status !== "cancelled");
+  const lastDay = active.reduce<Date | null>((max, b) => {
+    const d = b.checkOut ?? b.date ?? b.checkIn;
+    if (!d) return max;
+    const t = new Date(d);
+    return !max || t > max ? t : max;
+  }, null);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const stayOver = lastDay !== null && lastDay < today;
+  const channel = groupChannel(group);
+
+  async function send() {
+    setSending(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/reservations/${group.id}/review-request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lang }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error ?? "L'envoi a échoué.");
+        return;
+      }
+      setSentAt(data.sentAt);
+      onSent();
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-amber-200/60 dark:border-amber-500/20 bg-amber-50/40 dark:bg-amber-500/5 p-3 space-y-2">
+      <Label className="text-xs text-gray-500 dark:text-white/60 flex items-center gap-1.5">
+        <Star className="w-3 h-3 text-amber-500" /> Remerciement &amp; avis Google
+      </Label>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <Select value={lang} onValueChange={setLang}>
+          <SelectTrigger className="w-full sm:w-36" aria-label="Langue de l'email"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {REVIEW_LANGS.map((l) => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Button
+          type="button"
+          onClick={() => (sentAt ? setConfirmResend(true) : send())}
+          disabled={sending}
+          className="cursor-pointer flex-1 sm:flex-none"
+        >
+          {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          {sentAt ? "Renvoyer" : "Envoyer au client"}
+        </Button>
+      </div>
+      {error && <p className="text-[11px] text-red-500">{error}</p>}
+      {sentAt ? (
+        <p className="text-[11px] text-green-700 dark:text-green-400">
+          Envoyé le {format(new Date(sentAt), "d MMM yyyy 'à' HH:mm", { locale: fr })}
+        </p>
+      ) : !stayOver && lastDay ? (
+        <p className="text-[11px] text-amber-700 dark:text-amber-400">
+          Le séjour n&apos;est pas encore terminé (fin le {format(lastDay, "d MMM yyyy", { locale: fr })}).
+        </p>
+      ) : (
+        <p className="text-[11px] text-gray-400">Email de remerciement avec un bouton vers votre fiche Google, à {primary.email}.</p>
+      )}
+      {OTA_CHANNELS.includes(channel) && (
+        <p className="text-[11px] text-amber-700 dark:text-amber-400">
+          Réservation {channelLabel[channel] ?? channel} : l&apos;email est souvent une adresse relais de la plateforme, qui interdit de rediriger ses clients vers d&apos;autres avis.
+        </p>
+      )}
+      <ConfirmDialog
+        open={confirmResend}
+        onOpenChange={setConfirmResend}
+        title="Renvoyer la demande d'avis ?"
+        description="Ce client a déjà reçu cet email. Le renvoyer peut sembler insistant."
+        confirmLabel="Renvoyer"
+        onConfirm={send}
+      />
     </div>
   );
 }
@@ -291,6 +398,7 @@ export function ReservationDetailSheet({
               <Textarea value={contact.specialReqs} onChange={(e) => setContact((c) => ({ ...c, specialReqs: e.target.value }))} rows={2} />
             </div>
             {primary.reservation?.accessToken && <ClientLinkRow accessToken={primary.reservation.accessToken} />}
+            <ReviewRequestRow group={group} onSent={onSaved} />
           </div>
 
           {/* Items */}

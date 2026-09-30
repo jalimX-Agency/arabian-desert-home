@@ -22,47 +22,70 @@ function manageButton(manageUrl: string, color: string): string {
 /** Opens the "write a review" box of the Google Business Profile directly. */
 export const GOOGLE_REVIEW_URL = "https://g.page/r/CXpKFCoECsr4EBM/review";
 
-/**
- * Post-stay thank-you with a one-click Google review button. Reservations carry
- * no language, so the email is bilingual (FR first, then EN).
- */
-export async function sendReviewRequestEmail(to: string, firstName: string) {
-  const button = (label: string) => `
-    <p style="text-align:center;margin:0 0 8px">
-      <a href="${GOOGLE_REVIEW_URL}" style="display:inline-block;background:#c8922a;color:#fff;text-decoration:none;padding:14px 32px;border-radius:6px;font-size:15px;font-weight:600">${label}</a>
-    </p>
-    <p style="text-align:center;color:#c8922a;font-size:20px;letter-spacing:4px;margin:0 0 28px">★★★★★</p>`;
+export type ReviewLang = "fr" | "en" | "es" | "it";
 
+const REVIEW_I18N: Record<ReviewLang, {
+  subject: string; hello: string; thanks: string; ask: string; button: string; signoff: string; team: string;
+}> = {
+  fr: {
+    subject: "Merci pour votre séjour — Arabian Desert Home",
+    hello: "Bonjour",
+    thanks: "Merci d'avoir choisi Arabian Desert Home. Nous espérons que le désert d'Agafay vous a offert de beaux souvenirs.",
+    ask: "Votre avis compte énormément pour notre petite équipe et aide d'autres voyageurs à nous découvrir. Auriez-vous une minute pour partager votre expérience sur Google ?",
+    button: "Laisser un avis Google",
+    signoff: "À très bientôt,",
+    team: "L'équipe Arabian Desert Home",
+  },
+  en: {
+    subject: "Thank you for your stay — Arabian Desert Home",
+    hello: "Hello",
+    thanks: "Thank you for choosing Arabian Desert Home. We hope the Agafay desert gave you wonderful memories.",
+    ask: "Your review means a lot to our small team and helps other travellers find us. Could you spare a minute to share your experience on Google?",
+    button: "Leave a Google review",
+    signoff: "See you soon,",
+    team: "The Arabian Desert Home team",
+  },
+  es: {
+    subject: "Gracias por su estancia — Arabian Desert Home",
+    hello: "Hola",
+    thanks: "Gracias por elegir Arabian Desert Home. Esperamos que el desierto de Agafay le haya regalado bonitos recuerdos.",
+    ask: "Su opinión es muy importante para nuestro pequeño equipo y ayuda a otros viajeros a descubrirnos. ¿Tendría un minuto para compartir su experiencia en Google?",
+    button: "Dejar una reseña en Google",
+    signoff: "¡Hasta pronto!",
+    team: "El equipo de Arabian Desert Home",
+  },
+  it: {
+    subject: "Grazie per il vostro soggiorno — Arabian Desert Home",
+    hello: "Buongiorno",
+    thanks: "Grazie per aver scelto Arabian Desert Home. Speriamo che il deserto di Agafay vi abbia regalato bei ricordi.",
+    ask: "La vostra opinione conta moltissimo per il nostro piccolo team e aiuta altri viaggiatori a scoprirci. Avreste un minuto per condividere la vostra esperienza su Google?",
+    button: "Lascia una recensione su Google",
+    signoff: "A presto,",
+    team: "Il team di Arabian Desert Home",
+  },
+};
+
+/** Post-stay thank-you with a one-click Google review button, sent by the admin. */
+export async function sendReviewRequestEmail(to: string, firstName: string, lang: ReviewLang) {
+  const t = REVIEW_I18N[lang];
   await resend.emails.send({
     from: FROM,
     to,
-    subject: "Merci pour votre séjour ! · Thank you for staying with us — Arabian Desert Home",
+    subject: t.subject,
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
         <div style="background:#0f0f0f;padding:32px;text-align:center">
           <p style="color:#c8922a;letter-spacing:4px;font-size:11px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
         </div>
-        <div style="padding:40px 32px 8px">
-          <h1 style="font-size:24px;font-weight:400;margin:0 0 16px">Bonjour ${firstName},</h1>
-          <p style="color:#555;line-height:1.7;margin:0 0 16px">
-            Merci d'avoir choisi Arabian Desert Home. Nous espérons que le désert d'Agafay vous a offert de beaux souvenirs.
+        <div style="padding:40px 32px">
+          <h1 style="font-size:24px;font-weight:400;margin:0 0 16px">${t.hello} ${firstName},</h1>
+          <p style="color:#555;line-height:1.7;margin:0 0 16px">${t.thanks}</p>
+          <p style="color:#555;line-height:1.7;margin:0 0 28px">${t.ask}</p>
+          <p style="text-align:center;margin:0 0 8px">
+            <a href="${GOOGLE_REVIEW_URL}" style="display:inline-block;background:#c8922a;color:#fff;text-decoration:none;padding:14px 32px;border-radius:6px;font-size:15px;font-weight:600">${t.button}</a>
           </p>
-          <p style="color:#555;line-height:1.7;margin:0 0 24px">
-            Votre avis compte énormément pour notre petite équipe et aide d'autres voyageurs à nous découvrir. Auriez-vous une minute pour partager votre expérience sur Google ?
-          </p>
-          ${button("Laisser un avis Google")}
-        </div>
-        <div style="padding:8px 32px 40px;border-top:1px solid #eee">
-          <p style="color:#999;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:24px 0 16px">English</p>
-          <h2 style="font-size:20px;font-weight:400;margin:0 0 16px">Hello ${firstName},</h2>
-          <p style="color:#555;line-height:1.7;margin:0 0 16px">
-            Thank you for choosing Arabian Desert Home — we hope the Agafay desert gave you wonderful memories.
-          </p>
-          <p style="color:#555;line-height:1.7;margin:0 0 24px">
-            Your review means a lot to our small team and helps other travellers find us. Could you spare a minute to share your experience on Google?
-          </p>
-          ${button("Leave a Google review")}
-          <p style="color:#555;line-height:1.7;margin:0">À très bientôt · See you soon,<br/><strong>L'équipe Arabian Desert Home</strong></p>
+          <p style="text-align:center;color:#c8922a;font-size:20px;letter-spacing:4px;margin:0 0 32px">★★★★★</p>
+          <p style="color:#555;line-height:1.7;margin:0">${t.signoff}<br/><strong>${t.team}</strong></p>
         </div>
         <div style="background:#f5f0e8;padding:20px 32px;text-align:center">
           <p style="color:#999;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin:0">Agafay · Marrakech · Maroc</p>
