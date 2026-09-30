@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus, Loader2, FileText, ChevronDown, Copy, Check, ExternalLink, KeyRound, Star, Send } from "lucide-react";
+import { Plus, Loader2, FileText, ChevronDown, Copy, Check, ExternalLink, KeyRound, Star, Send, CheckCircle2, XCircle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -24,6 +24,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -86,19 +94,53 @@ const REVIEW_LANGS = [
 ] as const;
 const OTA_CHANNELS = ["booking.com", "expedia", "trip.com"];
 
-/** Manual post-stay thank-you + Google review request, in a language the admin picks. */
+type EmailCheck = { ok: boolean; message: string };
+
+/** Manual post-stay thank-you + Google review request, in a language the admin picks.
+ *  Sending goes through a verify step: the admin sees (and can fix) the exact
+ *  address, and the server checks it before the send button unlocks. */
 function ReviewRequestRow({ group, onSent }: { group: ReservationGroup; onSent: () => void }) {
   const primary = group.items[0];
   const [lang, setLang] = useState<string>("fr");
+  const [sentAt, setSentAt] = useState<string | null>(primary.reservation?.reviewRequestSentAt ?? null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [to, setTo] = useState(primary.email);
+  const [check, setCheck] = useState<{ for: string; result: EmailCheck } | null>(null);
+  const [checking, setChecking] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sentAt, setSentAt] = useState<string | null>(primary.reservation?.reviewRequestSentAt ?? null);
-  const [confirmResend, setConfirmResend] = useState(false);
 
   useEffect(() => {
     setSentAt(primary.reservation?.reviewRequestSentAt ?? null);
+    setTo(primary.email);
+    setCheck(null);
     setError(null);
-  }, [group.id, primary.reservation?.reviewRequestSentAt]);
+  }, [group.id, primary.email, primary.reservation?.reviewRequestSentAt]);
+
+  // Verify the address whenever the dialog is open and the address settles.
+  useEffect(() => {
+    if (!dialogOpen) return;
+    const address = to.trim();
+    if (!address) return;
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setChecking(true);
+      try {
+        const res = await fetch(`/api/admin/reservations/${group.id}/review-request`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lang, to: address, checkOnly: true }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!cancelled) {
+          setCheck({ for: address, result: data.check ?? { ok: false, message: data.error ?? "Vérification impossible." } });
+        }
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
+    }, 500);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [dialogOpen, to, group.id, lang]);
 
   // The stay is over once its last item is (checkout, or the activity/day-pass date).
   const active = group.items.filter((b) => b.status !== "cancelled");
@@ -112,6 +154,9 @@ function ReviewRequestRow({ group, onSent }: { group: ReservationGroup; onSent: 
   today.setHours(0, 0, 0, 0);
   const stayOver = lastDay !== null && lastDay < today;
   const channel = groupChannel(group);
+  const langLabel = REVIEW_LANGS.find((l) => l.value === lang)?.label ?? lang;
+  const pending = checking || !check || check.for !== to.trim();
+  const verified = !pending && check!.result.ok;
 
   async function send() {
     setSending(true);
@@ -120,7 +165,7 @@ function ReviewRequestRow({ group, onSent }: { group: ReservationGroup; onSent: 
       const res = await fetch(`/api/admin/reservations/${group.id}/review-request`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lang }),
+        body: JSON.stringify({ lang, to: to.trim() }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -128,6 +173,7 @@ function ReviewRequestRow({ group, onSent }: { group: ReservationGroup; onSent: 
         return;
       }
       setSentAt(data.sentAt);
+      setDialogOpen(false);
       onSent();
     } finally {
       setSending(false);
@@ -146,17 +192,11 @@ function ReviewRequestRow({ group, onSent }: { group: ReservationGroup; onSent: 
             {REVIEW_LANGS.map((l) => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Button
-          type="button"
-          onClick={() => (sentAt ? setConfirmResend(true) : send())}
-          disabled={sending}
-          className="cursor-pointer flex-1 sm:flex-none"
-        >
-          {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+        <Button type="button" onClick={() => { setError(null); setDialogOpen(true); }} className="cursor-pointer flex-1 sm:flex-none">
+          <Send className="w-4 h-4" />
           {sentAt ? "Renvoyer" : "Envoyer au client"}
         </Button>
       </div>
-      {error && <p className="text-[11px] text-red-500">{error}</p>}
       {sentAt ? (
         <p className="text-[11px] text-green-700 dark:text-green-400">
           Envoyé le {format(new Date(sentAt), "d MMM yyyy 'à' HH:mm", { locale: fr })}
@@ -166,21 +206,71 @@ function ReviewRequestRow({ group, onSent }: { group: ReservationGroup; onSent: 
           Le séjour n&apos;est pas encore terminé (fin le {format(lastDay, "d MMM yyyy", { locale: fr })}).
         </p>
       ) : (
-        <p className="text-[11px] text-gray-400">Email de remerciement avec un bouton vers votre fiche Google, à {primary.email}.</p>
+        <p className="text-[11px] text-gray-400">Email de remerciement avec un bouton vers votre fiche Google.</p>
       )}
       {OTA_CHANNELS.includes(channel) && (
         <p className="text-[11px] text-amber-700 dark:text-amber-400">
           Réservation {channelLabel[channel] ?? channel} : l&apos;email est souvent une adresse relais de la plateforme, qui interdit de rediriger ses clients vers d&apos;autres avis.
         </p>
       )}
-      <ConfirmDialog
-        open={confirmResend}
-        onOpenChange={setConfirmResend}
-        title="Renvoyer la demande d'avis ?"
-        description="Ce client a déjà reçu cet email. Le renvoyer peut sembler insistant."
-        confirmLabel="Renvoyer"
-        onConfirm={send}
-      />
+
+      <Dialog open={dialogOpen} onOpenChange={(o) => !sending && setDialogOpen(o)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Vérifier avant l&apos;envoi</DialogTitle>
+            <DialogDescription>
+              Remerciement et demande d&apos;avis Google à {primary.firstName} {primary.lastName}, en {langLabel}.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="review-to" className="text-xs text-gray-400 mb-1 block">Destinataire</Label>
+              <Input id="review-to" type="email" value={to} onChange={(e) => setTo(e.target.value)} autoComplete="off" />
+              {to.trim() !== primary.email && (
+                <p className="text-[11px] text-gray-400 mt-1">Adresse de la réservation : {primary.email} (non modifiée).</p>
+              )}
+            </div>
+
+            <div
+              role="status"
+              aria-live="polite"
+              className={`flex items-start gap-2 rounded-lg px-3 py-2 text-xs ${
+                pending
+                  ? "bg-gray-50 dark:bg-white/5 text-gray-500"
+                  : verified
+                  ? "bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400"
+                  : "bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400"
+              }`}
+            >
+              {pending ? (
+                <><Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 mt-0.5" /> Vérification de l&apos;adresse…</>
+              ) : verified ? (
+                <><CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5" /> {check!.result.message}</>
+              ) : (
+                <><XCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" /> {check!.result.message}</>
+              )}
+            </div>
+
+            {sentAt && (
+              <p className="text-xs text-amber-700 dark:text-amber-400">
+                Déjà envoyé le {format(new Date(sentAt), "d MMM yyyy 'à' HH:mm", { locale: fr })} — un renvoi peut sembler insistant.
+              </p>
+            )}
+            {error && <p className="text-xs text-red-500">{error}</p>}
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={sending} className="cursor-pointer">
+              Annuler
+            </Button>
+            <Button onClick={send} disabled={!verified || sending} className="cursor-pointer">
+              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              Envoyer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
