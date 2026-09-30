@@ -9,8 +9,8 @@ export const revalidate = 3600;
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
 export const metadata = {
-  title: "Restaurante & Gastronomía | Arabian Desert Home — Desierto de Agafay",
-  description: "Saborea la gastronomía marroquí en el corazón del desierto de Agafay. Cena bajo las estrellas, fogata y música gnawa. Menús desde 200 DH.",
+  title: "Restaurante en Agafay: almuerzo y cena en el desierto",
+  description: "Restaurante en el desierto de Agafay, a 30 min de Marrakech: almuerzo frente al Atlas o cena bajo las estrellas con música gnawa. Menús marroquíes de 200 a 250 DH.",
   keywords: [
     "restaurante desierto agafay", "cocina marroquí bivouac", "cena desierto marrakech",
     "gastronomía agafay", "restaurante bajo las estrellas marruecos",
@@ -33,6 +33,7 @@ export const metadata = {
 };
 
 const faqItems = [
+  { q: "¿Se puede almorzar en el desierto de Agafay sin pasar la noche?", a: "Sí. El restaurante recibe a visitantes de día para almorzar, solo o incluido en un Day Pass con acceso a la piscina. Cuente entre 200 y 250 DH por adulto según el menú, a 30 minutos de Marrakech. Se recomienda reservar con 24 horas de antelación." },
   { q: "¿Hay que reservar para cenar en el restaurante del desierto de Agafay?", a: "Sí, la reserva es muy recomendable, especialmente para la cena bajo las estrellas. Reserve con al menos 24 horas de antelación, en particular para grupos y en temporada alta (primavera y otoño)." },
   { q: "¿Se puede cenar sin reservar una jaima?", a: "Sí. El almuerzo y la cena están incluidos en nuestras opciones de Day Pass, y el restaurante también recibe a visitantes externos que no se alojan en nuestras jaimas de lujo." },
   { q: "¿Ofrecen menús vegetarianos o adaptados a alergias?", a: "Sí, hay un menú vegetariano completo disponible, y nuestro equipo adapta los platos a alergias e intolerancias si se indica al reservar." },

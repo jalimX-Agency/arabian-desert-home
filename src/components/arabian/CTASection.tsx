@@ -22,6 +22,8 @@ interface CTASectionProps {
     href: string;
   };
   backgroundImage?: string;
+  /** Alt text for the background photo — it shows on image search, so keep it descriptive. */
+  backgroundAlt?: string;
   alignment?: "center" | "left";
 }
 
@@ -54,6 +56,7 @@ export function CTASection({
   buttonIcon,
   secondaryButton,
   backgroundImage = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/night.png",
+  backgroundAlt = "Nuit étoilée au-dessus du camp Arabian Desert Home, désert d'Agafay",
   alignment = "center",
 }: CTASectionProps) {
   const sectionRef = useRef(null);
@@ -70,7 +73,7 @@ export function CTASection({
       <div className="absolute inset-0">
         <img
           src={backgroundImage}
-          alt=""
+          alt={backgroundAlt}
           className="w-full h-full object-cover"
         />
         {/* Cinematic warm overlay */}

@@ -9,8 +9,8 @@ export const revalidate = 3600;
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
 export const metadata = {
-  title: "Ristorante & Gastronomia | Arabian Desert Home — Deserto di Agafay",
-  description: "Gustate la gastronomia marocchina nel cuore del deserto di Agafay. Cena sotto le stelle, falò e musica gnawa. Menu a partire da 200 DH.",
+  title: "Ristorante ad Agafay: pranzo e cena nel deserto",
+  description: "Ristorante nel deserto di Agafay, a 30 min da Marrakech: pranzo con vista sull'Atlante o cena sotto le stelle con musica gnawa. Menu marocchini da 200 a 250 DH.",
   keywords: [
     "ristorante deserto agafay", "cucina marocchina bivacco", "cena deserto marrakech",
     "gastronomia agafay", "ristorante sotto le stelle marocco",
@@ -33,6 +33,7 @@ export const metadata = {
 };
 
 const faqItems = [
+  { q: "Si può pranzare nel deserto di Agafay senza pernottare?", a: "Sì. Il ristorante accoglie i visitatori in giornata per il pranzo, da solo o incluso in un Day Pass con accesso alla piscina. Calcolate tra 200 e 250 DH per adulto a seconda del menu, a 30 minuti da Marrakech. Si consiglia di prenotare 24 ore prima." },
   { q: "Bisogna prenotare per cenare al ristorante nel deserto di Agafay?", a: "Sì, la prenotazione è fortemente consigliata, soprattutto per la cena sotto le stelle. Prenotate almeno 24 ore prima, in particolare per i gruppi e nell'alta stagione (primavera e autunno)." },
   { q: "Si può cenare senza prenotare una tenda?", a: "Sì. Il pranzo e la cena sono inclusi nelle formule Day Pass, e il ristorante accoglie anche visitatori esterni che non soggiornano nelle nostre tende di lusso." },
   { q: "Offrite menu vegetariani o adatti alle allergie?", a: "Sì, è disponibile un menu vegetariano completo, e il nostro team adatta i piatti ad allergie e intolleranze su richiesta al momento della prenotazione." },

@@ -9,8 +9,8 @@ import { frAlternates } from "@/lib/seo/hreflang";
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
 export const metadata = {
-  title: "Restaurant & Gastronomie | Arabian Desert Home — Désert d'Agafay",
-  description: "Savourez la gastronomie marocaine au cœur du désert d'Agafay. Dîner sous les étoiles, feu de camp et musique gnawa. Menus à partir de 200 DH.",
+  title: "Restaurant Agafay : déjeuner et dîner dans le désert",
+  description: "Restaurant au désert d'Agafay, à 30 min de Marrakech : déjeuner face à l'Atlas ou dîner sous les étoiles avec musique gnawa. Menus marocains de 200 à 250 DH.",
   keywords: [
     "restaurant désert agafay", "cuisine marocaine bivouac", "dîner désert marrakech",
     "gastronomie agafay", "restaurant sous les étoiles maroc",
@@ -33,6 +33,7 @@ export const metadata = {
 };
 
 const faqItems = [
+  { q: "Peut-on déjeuner au désert d'Agafay sans passer la nuit ?", a: "Oui. Le restaurant accueille les visiteurs à la journée pour le déjeuner, seul ou inclus dans un Day Pass avec accès à la piscine. Comptez 200 à 250 DH par adulte selon le menu, à 30 minutes de Marrakech. Réservation conseillée 24 heures à l'avance." },
   { q: "Faut-il réserver pour dîner au restaurant du désert d'Agafay ?", a: "Oui, la réservation est fortement recommandée, surtout pour le dîner sous les étoiles. Réservez au moins 24 heures à l'avance, en particulier pour les groupes et pendant la haute saison (printemps et automne)." },
   { q: "Le restaurant est-il accessible sans réserver une tente ?", a: "Oui. Le déjeuner et le dîner sont inclus dans les formules Day Pass, et le restaurant accueille aussi les visiteurs extérieurs qui ne séjournent pas dans nos tentes-suites." },
   { q: "Proposez-vous des menus végétariens ou adaptés aux allergies ?", a: "Oui, un menu végétarien complet est disponible, et nos équipes adaptent les plats aux allergies et intolérances sur simple demande lors de la réservation." },

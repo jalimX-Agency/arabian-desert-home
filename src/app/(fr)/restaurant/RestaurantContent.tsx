@@ -85,6 +85,7 @@ const COPY: Record<Language, {
     faqTitle1: "Tout savoir sur le",
     faqTitle2: "restaurant",
     faq: [
+      { q: "Peut-on déjeuner au désert d'Agafay sans passer la nuit ?", a: "Oui. Le restaurant accueille les visiteurs à la journée pour le déjeuner, seul ou inclus dans un Day Pass avec accès à la piscine. Comptez 200 à 250 DH par adulte selon le menu, à 30 minutes de Marrakech. Réservation conseillée 24 heures à l'avance." },
       { q: "Faut-il réserver pour dîner au restaurant du désert d'Agafay ?", a: "Oui, la réservation est fortement recommandée, surtout pour le dîner sous les étoiles. Réservez au moins 24 heures à l'avance, en particulier pour les groupes et pendant la haute saison (printemps et automne)." },
       { q: "Le restaurant est-il accessible sans réserver une tente ?", a: "Oui. Le déjeuner et le dîner sont inclus dans les formules Day Pass, et le restaurant accueille aussi les visiteurs extérieurs qui ne séjournent pas dans nos tentes-suites." },
       { q: "Proposez-vous des menus végétariens ou adaptés aux allergies ?", a: "Oui, un menu végétarien complet est disponible, et nos équipes adaptent les plats aux allergies et intolérances sur simple demande lors de la réservation." },
@@ -109,6 +110,7 @@ const COPY: Record<Language, {
     faqTitle1: "Everything about the",
     faqTitle2: "restaurant",
     faq: [
+      { q: "Can I have lunch in the Agafay desert without staying overnight?", a: "Yes. The restaurant welcomes day visitors for lunch, on its own or included in a Day Pass with pool access. Allow 200 to 250 DH per adult depending on the menu, 30 minutes from Marrakech. Booking 24 hours ahead is recommended." },
       { q: "Do I need to book a table at the Agafay desert restaurant?", a: "Yes, booking is strongly recommended, especially for the dinner under the stars. Reserve at least 24 hours ahead, particularly for groups and during high season (spring and autumn)." },
       { q: "Can I dine here without booking a tent?", a: "Yes. Lunch and dinner are included in our Day Pass packages, and the restaurant also welcomes outside visitors who aren't staying in our tents-suites." },
       { q: "Do you offer vegetarian menus or cater to allergies?", a: "Yes, a full vegetarian menu is available, and our team can adapt dishes to allergies and intolerances on request when you book." },
@@ -133,6 +135,7 @@ const COPY: Record<Language, {
     faqTitle1: "Todo sobre el",
     faqTitle2: "restaurante",
     faq: [
+      { q: "¿Se puede almorzar en el desierto de Agafay sin pasar la noche?", a: "Sí. El restaurante recibe a visitantes de día para almorzar, solo o incluido en un Day Pass con acceso a la piscina. Cuente entre 200 y 250 DH por adulto según el menú, a 30 minutos de Marrakech. Se recomienda reservar con 24 horas de antelación." },
       { q: "¿Hay que reservar para cenar en el restaurante del desierto de Agafay?", a: "Sí, la reserva es muy recomendable, especialmente para la cena bajo las estrellas. Reserve con al menos 24 horas de antelación, en particular para grupos y en temporada alta (primavera y otoño)." },
       { q: "¿Se puede cenar sin reservar una jaima?", a: "Sí. El almuerzo y la cena están incluidos en nuestras opciones de Day Pass, y el restaurante también recibe a visitantes externos que no se alojan en nuestras jaimas de lujo." },
       { q: "¿Ofrecen menús vegetarianos o adaptados a alergias?", a: "Sí, hay un menú vegetariano completo disponible, y nuestro equipo adapta los platos a alergias e intolerancias si se indica al reservar." },
@@ -157,6 +160,7 @@ const COPY: Record<Language, {
     faqTitle1: "Tutto sul",
     faqTitle2: "ristorante",
     faq: [
+      { q: "Si può pranzare nel deserto di Agafay senza pernottare?", a: "Sì. Il ristorante accoglie i visitatori in giornata per il pranzo, da solo o incluso in un Day Pass con accesso alla piscina. Calcolate tra 200 e 250 DH per adulto a seconda del menu, a 30 minuti da Marrakech. Si consiglia di prenotare 24 ore prima." },
       { q: "Bisogna prenotare per cenare al ristorante nel deserto di Agafay?", a: "Sì, la prenotazione è fortemente consigliata, soprattutto per la cena sotto le stelle. Prenotate almeno 24 ore prima, in particolare per i gruppi e nell'alta stagione (primavera e autunno)." },
       { q: "Si può cenare senza prenotare una tenda?", a: "Sì. Il pranzo e la cena sono inclusi nelle formule Day Pass, e il ristorante accoglie anche visitatori esterni che non soggiornano nelle nostre tende di lusso." },
       { q: "Offrite menu vegetariani o adatti alle allergie?", a: "Sì, è disponibile un menu vegetariano completo, e il nostro team adatta i piatti ad allergie e intolleranze su richiesta al momento della prenotazione." },

@@ -39,7 +39,7 @@ const contactCards = [
 
 const socialLinks = [
   { icon: Instagram, href: "https://instagram.com/arabian_desert_home", label: "Instagram" },
-  { icon: Facebook, href: "https://facebook.com/arabian_desert_home", label: "Facebook" },
+  { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61590265905925", label: "Facebook" },
   { icon: Compass, href: "https://wa.me/212667370206", label: "WhatsApp" },
 ];
 

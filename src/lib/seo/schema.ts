@@ -49,7 +49,7 @@ export const lodgingSchemaFr = {
   aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "5", bestRating: "5", worstRating: "1" },
   priceRange: "$$$$",
   starRating: { "@type": "Rating", ratingValue: "5" },
-  sameAs: ["https://www.instagram.com/arabian_desert_home", "https://www.facebook.com/arabian_desert_home"],
+  sameAs: ["https://www.instagram.com/arabian_desert_home", "https://www.facebook.com/profile.php?id=61590265905925"],
   amenityFeature: [
     { "@type": "LocationFeatureSpecification", name: "Piscine" },
     { "@type": "LocationFeatureSpecification", name: "Suites-tentes de luxe" },

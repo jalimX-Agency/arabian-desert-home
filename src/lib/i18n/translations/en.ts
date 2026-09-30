@@ -465,9 +465,9 @@ export const en: Record<string, unknown> = {
   // Restaurant Page
   restaurant: {
     heroLabel: "Gastronomy",
-    heroTitle: "Restaurant",
+    heroTitle: "Restaurant in the Agafay Desert",
     heroSubtitle: "Let your senses escape",
-    introText: "Our chef offers refined cuisine, crafted from fresh, local ingredients. Each dish is an invitation to travel, a tribute to the flavors of Morocco and Berber culinary traditions.",
+    introText: "In the heart of the Agafay desert, 30 minutes from Marrakech, our restaurant welcomes you for lunch and dinner, whether you are staying at the camp or visiting for the day. The chef serves refined Moroccan cuisine made with fresh, local produce: tagines, Moroccan salads and pastries, served facing the Atlas or under the stars.",
     venuesSectionNumber: "01",
     venuesLabel: "Our Spaces",
     venuesTitle1: "Three places,",

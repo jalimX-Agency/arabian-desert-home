@@ -32,7 +32,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 const socialLinks = [
-  { icon: Facebook, label: "Facebook", href: "https://facebook.com/arabian_desert_home", isCustom: false },
+  { icon: Facebook, label: "Facebook", href: "https://www.facebook.com/profile.php?id=61590265905925", isCustom: false },
   { icon: Instagram, label: "Instagram", href: "https://instagram.com/arabian_desert_home", isCustom: false },
   { icon: WhatsAppIcon, label: "WhatsApp", href: "https://wa.me/212667370206", isCustom: true },
 ];

@@ -465,9 +465,9 @@ export const fr: Record<string, unknown> = {
   // Restaurant Page
   restaurant: {
     heroLabel: "Gastronomie",
-    heroTitle: "Restaurant",
+    heroTitle: "Restaurant au désert d'Agafay",
     heroSubtitle: "Laissez vos sens s'évader",
-    introText: "Le chef propose une cuisine raffinée, élaborée à partir de produits frais et locaux. Chaque plat est une invitation au voyage, un hommage aux saveurs du Maroc et aux traditions culinaires berbères.",
+    introText: "Au cœur du désert d'Agafay, à 30 minutes de Marrakech, notre restaurant vous accueille pour le déjeuner comme pour le dîner, que vous séjourniez au camp ou veniez pour la journée. Le chef y signe une cuisine marocaine raffinée, élaborée à partir de produits frais et locaux : tajines, salades marocaines et pâtisseries, servis face à l'Atlas ou sous les étoiles.",
     venuesSectionNumber: "01",
     venuesLabel: "Nos Espaces",
     venuesTitle1: "Trois lieux,",

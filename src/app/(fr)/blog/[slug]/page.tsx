@@ -4,6 +4,7 @@ import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { BlogDetailContent } from "./BlogDetailContent";
 import { frAlternates } from "@/lib/seo/hreflang";
+import { blogMetaOverride } from "@/lib/seo/meta-overrides";
 
 export const revalidate = 60;
 
@@ -20,9 +21,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // Long editorial headlines are left bare so the <title> stays under ~60 chars;
   // only short ones get the brand suffix appended.
   const metaTitle = post.title.length <= 38 ? `${post.title} | Arabian Desert Home` : post.title;
+  const override = blogMetaOverride(slug, "fr");
   return {
-    title: metaTitle,
-    description: post.excerpt || post.title,
+    title: override?.title ?? metaTitle,
+    description: override?.description ?? (post.excerpt || post.title),
     openGraph: {
     locale: "fr_FR",
       title: post.title,

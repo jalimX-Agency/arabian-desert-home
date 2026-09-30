@@ -9,8 +9,8 @@ export const revalidate = 3600;
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
 export const metadata = {
-  title: "Restaurant & Gastronomy | Arabian Desert Home — Agafay Desert",
-  description: "Savor Moroccan gastronomy in the heart of the Agafay desert. Dinner under the stars, campfire and gnawa music. Menus from 200 DH.",
+  title: "Agafay Restaurant: Lunch & Dinner in the Desert",
+  description: "Restaurant in the Agafay desert, 30 min from Marrakech: lunch facing the Atlas or dinner under the stars with live gnawa music. Moroccan menus from 200–250 DH.",
   keywords: [
     "agafay desert restaurant", "moroccan cuisine bivouac", "desert dinner marrakech",
     "agafay gastronomy", "restaurant under the stars morocco",
@@ -33,6 +33,7 @@ export const metadata = {
 };
 
 const faqItems = [
+  { q: "Can I have lunch in the Agafay desert without staying overnight?", a: "Yes. The restaurant welcomes day visitors for lunch, on its own or included in a Day Pass with pool access. Allow 200 to 250 DH per adult depending on the menu, 30 minutes from Marrakech. Booking 24 hours ahead is recommended." },
   { q: "Do I need to book a table at the Agafay desert restaurant?", a: "Yes, booking is strongly recommended, especially for the dinner under the stars. Reserve at least 24 hours ahead, particularly for groups and during high season (spring and autumn)." },
   { q: "Can I dine here without booking a tent?", a: "Yes. Lunch and dinner are included in our Day Pass packages, and the restaurant also welcomes outside visitors who aren't staying in our tents-suites." },
   { q: "Do you offer vegetarian menus or cater to allergies?", a: "Yes, a full vegetarian menu is available, and our team can adapt dishes to allergies and intolerances on request when you book." },

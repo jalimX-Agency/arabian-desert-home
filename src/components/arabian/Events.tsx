@@ -38,7 +38,7 @@ export function Events() {
       <div className="absolute inset-0">
         <img
           src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/events/events.png"
-          alt=""
+          alt="Événement privé sous les étoiles dans le désert d'Agafay"
           className="w-full h-full object-cover opacity-20 dark:opacity-10"
           aria-hidden="true"
         />
