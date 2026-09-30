@@ -1,35 +1,28 @@
 import type { NextConfig } from "next";
 
 /**
- * Blog posts merged into a stronger post on the same topic (Sep 2026 audit).
- * The auto-publisher had produced near-duplicates that split Google's signals
- * between them — e.g. three separate "Marrakech → Agafay" transport guides.
- * Each old slug now 301s to the post that had the most search impressions.
- * The removed rows are archived in prisma/archive/blog-merged-2026-09.json.
+ * Blog posts merged into a stronger post targeting the exact same query
+ * (Sep 2026 audit) — e.g. three separate "Marrakech -> Agafay" transport guides
+ * were splitting Google's signals. Each old slug 301s to the post that had the
+ * most search impressions. The removed rows are archived in
+ * prisma/archive/blog-merged-2026-09.json. Posts on a related but distinct
+ * angle were kept and given their own snippet in src/lib/seo/meta-overrides.ts.
  */
 const MERGED_BLOG_POSTS: Record<string, string> = {
   // Transport
   "aller-au-desert-dagafay-depuis-marrakech-guide-transport": "comment-aller-desert-agafay-depuis-marrakech",
   "comment-aller-au-desert-dagafay-depuis-marrakech": "comment-aller-desert-agafay-depuis-marrakech",
-  // Activities
-  "guide-des-meilleures-activites-a-vivre-dans-le-desert-dagafay": "6-activites-inoubliables-a-vivre-au-desert-dagafay-marrakech",
-  "guide-des-meilleures-activites-a-vivre-dans-le-desert-dagafay-1": "6-activites-inoubliables-a-vivre-au-desert-dagafay-marrakech",
-  "activites-a-agafay-le-guide-complet-pour-votre-sejour-glamping": "6-activites-inoubliables-a-vivre-au-desert-dagafay-marrakech",
-  "5-experiences-inoubliables-en-glamping-de-luxe-a-agafay": "6-activites-inoubliables-a-vivre-au-desert-dagafay-marrakech",
   // Dinner
   "diner-sous-les-etoiles-a-agafay-la-gastronomie-du-glamping-de-luxe": "diner-sous-les-etoiles-la-gastronomie-du-desert-dagafay",
-  // Wellness (incl. the "-1/-2/-3" copies Google still crawls)
-  "une-retraite-bien-etre-au-cur-du-desert-dagafay-marrakech": "cure-de-bien-etre-dans-le-desert-dagafay-pres-de-marrakech",
-  "une-retraite-bien-etre-au-cur-du-desert-dagafay-marrakech-1": "cure-de-bien-etre-dans-le-desert-dagafay-pres-de-marrakech",
-  "une-retraite-bien-etre-au-cur-du-desert-dagafay-marrakech-2": "cure-de-bien-etre-dans-le-desert-dagafay-pres-de-marrakech",
-  "une-retraite-bien-etre-au-cur-du-desert-dagafay-marrakech-3": "cure-de-bien-etre-dans-le-desert-dagafay-pres-de-marrakech",
-  "bien-etre-dans-le-desert-dagafay-rituels-de-serenite-au-camp": "cure-de-bien-etre-dans-le-desert-dagafay-pres-de-marrakech",
   // Glamping tips
   "7-conseils-essentiels-pour-un-sejour-glamping-reussi-a-agafay": "desert-dagafay-7-conseils-pour-un-sejour-glamping-reussi",
-  // Events
-  "evenements-prives-a-agafay-celebrer-dans-le-desert-marocain": "organiser-un-evenement-prive-au-desert-dagafay-pres-de-marrakech",
   // Budget
   "desert-dagafay-budget-et-conseils-pour-preparer-son-sejour": "prix-sejour-desert-agafay-guide-complet-budgets",
+  // Copies the publisher minted and later deleted — Google still requests them (404s)
+  "guide-des-meilleures-activites-a-vivre-dans-le-desert-dagafay-1": "guide-des-meilleures-activites-a-vivre-dans-le-desert-dagafay",
+  "une-retraite-bien-etre-au-cur-du-desert-dagafay-marrakech": "une-retraite-bien-etre-au-cur-du-desert-dagafay-marrakech-3",
+  "une-retraite-bien-etre-au-cur-du-desert-dagafay-marrakech-1": "une-retraite-bien-etre-au-cur-du-desert-dagafay-marrakech-3",
+  "une-retraite-bien-etre-au-cur-du-desert-dagafay-marrakech-2": "une-retraite-bien-etre-au-cur-du-desert-dagafay-marrakech-3",
 };
 
 /** Test posts the publisher created and deleted; Google still requests them. */

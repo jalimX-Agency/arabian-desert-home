@@ -39,6 +39,113 @@ const BLOG_META: Record<string, Partial<Record<Language, MetaSnippet>>> = {
     },
   },
 
+  // ── Posts on a related topic that stay live: each gets its own angle so it
+  // stops competing with the stronger post above for the same query. ──
+
+  // Angle: a day planned hour by hour (the article is built as a timeline)
+  "activites-a-agafay-le-guide-complet-pour-votre-sejour-glamping": {
+    fr: {
+      title: "Une journée au désert d'Agafay : programme du matin au soir",
+      description:
+        "Matinée au calme, piscine et déjeuner, chameau au coucher du soleil puis dîner sous les étoiles : le programme idéal d'une journée à Agafay, près de Marrakech.",
+    },
+    en: {
+      title: "A Day in the Agafay Desert: Itinerary From Dawn to Dusk",
+      description:
+        "Quiet morning, pool and lunch, a sunset camel ride, then dinner under the stars: the ideal one-day itinerary in the Agafay desert, 30 min from Marrakech.",
+    },
+    es: {
+      title: "Un día en el desierto de Agafay: plan de la mañana a la noche",
+      description:
+        "Mañana tranquila, piscina y almuerzo, camello al atardecer y cena bajo las estrellas: el plan ideal para un día en el desierto de Agafay, cerca de Marrakech.",
+    },
+    it: {
+      title: "Una giornata ad Agafay: programma dall'alba alla sera",
+      description:
+        "Mattina tranquilla, piscina e pranzo, cammello al tramonto e cena sotto le stelle: il programma ideale per una giornata nel deserto di Agafay, vicino a Marrakech.",
+    },
+  },
+
+  // Angle: horse riding + activity prices and bundles
+  "guide-des-meilleures-activites-a-vivre-dans-le-desert-dagafay": {
+    fr: {
+      title: "Cheval, dromadaire et quad à Agafay : prix et formules",
+      description:
+        "Dromadaire dès 15 €, balade à cheval de 45 min, quad d'une heure et formules tout compris : les prix des activités du désert d'Agafay, à 30 min de Marrakech.",
+    },
+    en: {
+      title: "Horse Riding, Camel & Quad in Agafay: Prices and Packages",
+      description:
+        "Camel rides from €15, a 45-minute horse ride, a one-hour quad trip and all-inclusive packages: activity prices in the Agafay desert, 30 min from Marrakech.",
+    },
+  },
+
+  // Angle: an overnight stay at the camp
+  "5-experiences-inoubliables-en-glamping-de-luxe-a-agafay": {
+    fr: {
+      title: "Nuit en glamping à Agafay : 5 expériences à vivre au camp",
+      description:
+        "Ciel étoilé, chameau au coucher du soleil, dîner gastronomique, hammam et lever du soleil : les 5 moments forts d'une nuit en glamping de luxe à Agafay.",
+    },
+    en: {
+      title: "A Night of Glamping in Agafay: 5 Experiences at the Camp",
+      description:
+        "Starry skies, a sunset camel ride, a gourmet dinner, hammam and sunrise: the 5 highlights of a night of luxury glamping in the Agafay desert near Marrakech.",
+    },
+  },
+
+  // Angle: a retreat — silence, mindful walking, digital detox
+  "une-retraite-bien-etre-au-cur-du-desert-dagafay-marrakech-3": {
+    fr: {
+      title: "Retraite bien-être à Agafay : silence, yoga et détox digitale",
+      description:
+        "Marche consciente, yoga face aux dunes, cuisine saine et déconnexion digitale : comment vivre une vraie retraite bien-être au désert d'Agafay, près de Marrakech.",
+    },
+    en: {
+      title: "Wellness Retreat in Agafay: Silence, Yoga & Digital Detox",
+      description:
+        "Mindful walks, yoga facing the dunes, healthy food and a digital detox: how to enjoy a genuine wellness retreat in the Agafay desert, near Marrakech.",
+    },
+  },
+
+  // Angle: hammam and in-tent massage treatments
+  "bien-etre-dans-le-desert-dagafay-rituels-de-serenite-au-camp": {
+    fr: {
+      title: "Hammam et massage au désert d'Agafay : rituels de détente",
+      description:
+        "Hammam traditionnel, massage à l'huile d'argan sous la tente, méditation face aux dunes : les rituels bien-être du camp Arabian Desert Home, près de Marrakech.",
+    },
+    en: {
+      title: "Hammam and Massage in the Agafay Desert: Relaxation Rituals",
+      description:
+        "Traditional hammam, argan-oil massage in your tent and meditation facing the dunes: the wellness rituals of the Arabian Desert Home camp, near Marrakech.",
+    },
+  },
+
+  // Angle: weddings and corporate seminars (vs. the general private-event post)
+  "evenements-prives-a-agafay-celebrer-dans-le-desert-marocain": {
+    fr: {
+      title: "Mariage et séminaire au désert d'Agafay, près de Marrakech",
+      description:
+        "Mariage sous les étoiles, anniversaire ou séminaire d'entreprise : décor, gastronomie, décoration sur mesure et logistique pour votre événement à Agafay.",
+    },
+    en: {
+      title: "Weddings and Corporate Retreats in the Agafay Desert",
+      description:
+        "A wedding under the stars, a birthday or a company seminar: setting, catering, bespoke decoration and logistics for your private event in Agafay.",
+    },
+    es: {
+      title: "Bodas y seminarios en el desierto de Agafay (Marrakech)",
+      description:
+        "Boda bajo las estrellas, cumpleaños o seminario de empresa: entorno, gastronomía, decoración a medida y logística para su evento privado en Agafay.",
+    },
+    it: {
+      title: "Matrimoni e seminari nel deserto di Agafay, vicino a Marrakech",
+      description:
+        "Matrimonio sotto le stelle, compleanno o seminario aziendale: location, gastronomia, allestimento su misura e logistica per il vostro evento ad Agafay.",
+    },
+  },
+
   // Queries: agafay prix (141 impressions, 0 clicks), agafay marrakech prix
   "prix-sejour-desert-agafay-guide-complet-budgets": {
     fr: {
