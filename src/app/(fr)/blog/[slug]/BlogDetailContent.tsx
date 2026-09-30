@@ -206,7 +206,7 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
 
           {/* Camp services this article mentions */}
           {campLinks.length > 0 && (
-            <nav aria-label={c.atTheCamp} className="mt-12">
+            <aside aria-label={c.atTheCamp} className="mt-12">
               <p className="luxury-label text-amber text-xs mb-4">{c.atTheCamp}</p>
               <ul className="flex flex-wrap gap-2">
                 {campLinks.map((l) => (
@@ -221,7 +221,7 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
                   </li>
                 ))}
               </ul>
-            </nav>
+            </aside>
           )}
 
           {/* Author bio */}
