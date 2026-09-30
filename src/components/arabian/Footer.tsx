@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Instagram, Mail, MapPin, Phone, Facebook, ArrowRight, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage, withLocale, type Language } from "@/lib/i18n/context";
+import { GOOGLE_MAPS_URL, TRIPADVISOR_URL } from "@/lib/seo/schema";
 
 const footerNavLinks = [
   { labelKey: "footer.navHome", href: "/", localized: true },
@@ -217,7 +218,7 @@ export function Footer() {
                 {/* Trust links */}
                 <div className="pt-2 flex flex-col gap-2">
                   <a
-                    href="https://maps.google.com/?q=Arabian+Desert+Home+Agafay+Marrakech"
+                    href={GOOGLE_MAPS_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 group cursor-pointer"
@@ -230,7 +231,7 @@ export function Footer() {
                     </span>
                   </a>
                   <a
-                    href="https://www.tripadvisor.com/Search?q=Arabian+Desert+Home+Agafay"
+                    href={TRIPADVISOR_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 group cursor-pointer"

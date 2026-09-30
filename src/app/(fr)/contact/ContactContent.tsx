@@ -333,7 +333,7 @@ export function ContactContent() {
                 className="glass-card card-warm overflow-hidden flex-1 min-h-[220px] md:min-h-[300px] relative"
               >
                 <iframe
-                  src="https://maps.google.com/maps?q=Arabian+Desert+Home+Agafay+Marrakech&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                  src="https://maps.google.com/maps?cid=17927152279703800442&output=embed"
                   title="Arabian Desert Home — Agafay, Marrakech"
                   className="absolute inset-0 w-full h-full border-0"
                   allowFullScreen

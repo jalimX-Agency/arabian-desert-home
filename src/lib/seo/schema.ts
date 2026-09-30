@@ -1,5 +1,10 @@
 const HERO_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 
+/** Google Business Profile listing (Maps CID) — the exact place, not a text search. */
+export const GOOGLE_MAPS_URL = "https://www.google.com/maps?cid=17927152279703800442";
+export const TRIPADVISOR_URL =
+  "https://www.tripadvisor.com/Hotel_Review-g15276171-d33883358-Reviews-Arabian_Desert_Home-Agafay_Marrakech_Safi.html";
+
 export const faqSchemaFr = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -46,10 +51,20 @@ export const lodgingSchemaFr = {
     opens: "00:00",
     closes: "23:59",
   },
-  aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "5", bestRating: "5", worstRating: "1" },
   priceRange: "$$$$",
   starRating: { "@type": "Rating", ratingValue: "5" },
-  sameAs: ["https://www.instagram.com/arabian_desert_home", "https://www.facebook.com/profile.php?id=61590265905925"],
+  // No aggregateRating here on purpose: a rating the business writes about
+  // itself on its own site is a "self-serving review" for Google and can get
+  // the markup ignored or penalised. Real stars come from the Google Business
+  // Profile and TripAdvisor listings linked below.
+  hasMap: GOOGLE_MAPS_URL,
+  sameAs: [
+    GOOGLE_MAPS_URL,
+    TRIPADVISOR_URL,
+    "https://www.booking.com/hotel/ma/arabian-desert-home.html",
+    "https://www.instagram.com/arabian_desert_home",
+    "https://www.facebook.com/profile.php?id=61590265905925",
+  ],
   amenityFeature: [
     { "@type": "LocationFeatureSpecification", name: "Piscine" },
     { "@type": "LocationFeatureSpecification", name: "Suites-tentes de luxe" },
