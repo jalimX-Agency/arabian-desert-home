@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Calendar, User } from "lucide-react";
 import { useLanguage, withLocale, pickLocalized, type Language } from "@/lib/i18n/context";
 import { CTASection } from "@/components/arabian/CTASection";
+import { serviceLinksFor } from "@/lib/blog-links";
 import { format } from "date-fns";
 import { fr as frLocale } from "date-fns/locale";
 
@@ -46,6 +47,7 @@ const COPY: Record<Language, {
   backToBlog: string; agafayDeserExperts: string; authorBio: string;
   agafayDesertGuide: string; ourLuxuryTents: string; allArticles: string;
   relatedArticles: string; experienceDesert: string; bookYourStay: string;
+  atTheCamp: string; aboutUs: string;
 }> = {
   fr: {
     backToBlog: "Retour au Blog", agafayDeserExperts: "Experts du Désert d'Agafay",
@@ -53,6 +55,7 @@ const COPY: Record<Language, {
     agafayDesertGuide: "Guide du Désert d'Agafay", ourLuxuryTents: "Nos Tentes de Luxe",
     allArticles: "Tous les articles", relatedArticles: "Articles similaires",
     experienceDesert: "Vivez le Désert", bookYourStay: "Réserver",
+    atTheCamp: "À découvrir au camp", aboutUs: "Qui sommes-nous",
   },
   en: {
     backToBlog: "Back to Blog", agafayDeserExperts: "Agafay Desert Experts",
@@ -60,6 +63,7 @@ const COPY: Record<Language, {
     agafayDesertGuide: "Agafay Desert Guide", ourLuxuryTents: "Our Luxury Tents",
     allArticles: "All articles", relatedArticles: "Related Articles",
     experienceDesert: "Experience the Desert", bookYourStay: "Book Your Stay",
+    atTheCamp: "At the camp", aboutUs: "About us",
   },
   es: {
     backToBlog: "Volver al Blog", agafayDeserExperts: "Expertos del Desierto de Agafay",
@@ -67,6 +71,7 @@ const COPY: Record<Language, {
     agafayDesertGuide: "Guía del Desierto de Agafay", ourLuxuryTents: "Nuestras Tiendas de Lujo",
     allArticles: "Todos los artículos", relatedArticles: "Artículos relacionados",
     experienceDesert: "Vive el Desierto", bookYourStay: "Reserva tu Estancia",
+    atTheCamp: "Descubra en el campamento", aboutUs: "Quiénes somos",
   },
   it: {
     backToBlog: "Torna al Blog", agafayDeserExperts: "Esperti del Deserto di Agafay",
@@ -74,6 +79,7 @@ const COPY: Record<Language, {
     agafayDesertGuide: "Guida del Deserto di Agafay", ourLuxuryTents: "Le Nostre Tende di Lusso",
     allArticles: "Tutti gli articoli", relatedArticles: "Articoli correlati",
     experienceDesert: "Vivi il Deserto", bookYourStay: "Prenota il Tuo Soggiorno",
+    atTheCamp: "Da scoprire al campo", aboutUs: "Chi siamo",
   },
 };
 
@@ -92,6 +98,7 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
   const excerpt = pickLocalized(language, post.excerpt, post.excerptEn, post.excerptEs, post.excerptIt);
   const rawContent = pickLocalized(language, post.content, post.contentEn, post.contentEs, post.contentIt);
   const content = ensureImgAlt(rawContent, title);
+  const campLinks = serviceLinksFor(`${post.title} ${post.content}`, language, post.slug);
 
   return (
     <>
@@ -197,6 +204,26 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
             />
           )}
 
+          {/* Camp services this article mentions */}
+          {campLinks.length > 0 && (
+            <nav aria-label={c.atTheCamp} className="mt-12">
+              <p className="luxury-label text-amber text-xs mb-4">{c.atTheCamp}</p>
+              <ul className="flex flex-wrap gap-2">
+                {campLinks.map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      href={withLocale(language, l.href)}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-amber/20 text-sm text-foreground hover:border-amber hover:text-amber transition-colors cursor-pointer"
+                    >
+                      {l.label}
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+
           {/* Author bio */}
           <div className="mt-12 p-6 border border-amber/10 rounded-2xl bg-amber/[0.02]">
             <div className="flex items-center gap-3 mb-3">
@@ -220,6 +247,9 @@ export function BlogDetailContent({ post, relatedPosts = [] }: { post: BlogPost;
               </Link>
               <Link href={withLocale(language, "/day-pass")} className="text-amber hover:underline cursor-pointer">
                 Day Pass
+              </Link>
+              <Link href={withLocale(language, "/apropo")} className="text-amber hover:underline cursor-pointer">
+                {c.aboutUs}
               </Link>
             </div>
           </div>

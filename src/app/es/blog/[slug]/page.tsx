@@ -5,6 +5,7 @@ import { Footer } from "@/components/arabian/Footer";
 import { BlogDetailContent } from "@/app/(fr)/blog/[slug]/BlogDetailContent";
 import { esAlternates } from "@/lib/seo/hreflang";
 import { blogMetaOverride } from "@/lib/seo/meta-overrides";
+import { pickRelatedPosts } from "@/lib/blog-links";
 
 export const revalidate = 60;
 
@@ -47,23 +48,12 @@ export default async function SpanishBlogDetailPage({ params }: { params: Promis
   const post = await db.blogPost.findUnique({ where: { slug } });
   if (!post) notFound();
 
-  // Related articles: same category first, then most recent others
-  const relatedSelect = { id: true, title: true, titleEn: true, titleEs: true, slug: true, image: true, category: true } as const;
-  const sameCategory = await db.blogPost.findMany({
-    where: { category: post.category, id: { not: post.id } },
-    orderBy: { createdAt: "desc" },
-    take: 3,
-    select: relatedSelect,
+  // Related articles: a ring through the post's category (see pickRelatedPosts)
+  // so older posts get linked too, not only the three newest.
+  const allPosts = await db.blogPost.findMany({
+    select: { id: true, title: true, titleEn: true, titleEs: true, titleIt: true, slug: true, image: true, category: true, createdAt: true },
   });
-  const fill = sameCategory.length < 3
-    ? await db.blogPost.findMany({
-        where: { id: { notIn: [post.id, ...sameCategory.map((p) => p.id)] } },
-        orderBy: { createdAt: "desc" },
-        take: 3 - sameCategory.length,
-        select: relatedSelect,
-      })
-    : [];
-  const relatedPosts = [...sameCategory, ...fill];
+  const relatedPosts = pickRelatedPosts(allPosts, post);
 
   const title = post.titleEs || post.title;
   const excerpt = post.excerptEs || post.excerpt;
