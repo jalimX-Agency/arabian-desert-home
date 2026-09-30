@@ -171,6 +171,8 @@ model Reservation {
   channel     String    @default("website")
   totalAmount Int
   currency    String    @default("MAD")
+  /// Set when the post-stay Google review request email went out (see /api/cron/review-requests).
+  reviewRequestSentAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   items       Booking[]
