@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { db } from "@/lib/db";
 import { uploadToR2 } from "@/lib/r2";
+import { notifyIndexNow, localizedUrls } from "@/lib/indexnow";
 
 function toSlug(title: string): string {
   return title
@@ -65,5 +66,8 @@ export async function POST(req: NextRequest) {
   if (typeof data.order === "string") data.order = parseInt(data.order, 10) || 0;
 
   const post = await db.blogPost.create({ data });
+  // The weekly publisher posts here, not through the admin routes, so it has to
+  // ping IndexNow itself — otherwise Bing only finds new posts on its own crawl.
+  after(() => notifyIndexNow([...localizedUrls(`/blog/${post.slug}`), ...localizedUrls("/blog")]));
   return NextResponse.json(post, { status: 201 });
 }
