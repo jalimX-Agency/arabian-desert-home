@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { priceCartItem, type CartItemInput } from "@/lib/reservation-item";
 import { sendReservationConfirmation, sendReservationConfirmedEmail, reservationManageUrl } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
+import { parseReservationLang } from "@/lib/reservation-lang";
 
 export const maxDuration = 60;
 
@@ -17,13 +18,16 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
     firstName, lastName, email, phone, specialReqs, channel, status, notifyClient,
-    currency: requestedCurrency, items,
+    currency: requestedCurrency, items, lang: rawLang,
   } = body as {
     firstName?: string; lastName?: string; email?: string; phone?: string;
     specialReqs?: string; channel?: string; status?: string; notifyClient?: boolean;
     currency?: string;
     items?: CartItemInput[];
+    /** Language of the guest's emails and fiche (fr | en | es | it). */
+    lang?: string;
   };
+  const lang = parseReservationLang(rawLang);
 
   if (!firstName || !lastName || !email || !phone) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -58,6 +62,7 @@ export async function POST(req: NextRequest) {
       channel,
       totalAmount,
       currency,
+      lang,
       items: {
         create: priced.map((p) => ({
           firstName, lastName, email, phone,
@@ -91,11 +96,11 @@ export async function POST(req: NextRequest) {
       try {
         if (bookingStatus === "confirmed") {
           const reservationRef = `ADH-${reservation.id.slice(-8).toUpperCase()}`;
-          const html = buildFicheHtml({ reservationRef, items: reservation.items, totalAmount, currency });
+          const html = buildFicheHtml({ reservationRef, items: reservation.items, totalAmount, currency, lang });
           const pdf = await generateFichePdf(html);
-          await sendReservationConfirmedEmail(email, firstName, reservation.items, totalAmount, currency, pdf, reservationManageUrl(reservation.accessToken));
+          await sendReservationConfirmedEmail(email, firstName, reservation.items, totalAmount, currency, pdf, reservationManageUrl(reservation.accessToken), lang);
         } else {
-          await sendReservationConfirmation(email, firstName, reservation.items, totalAmount, currency, reservationManageUrl(reservation.accessToken));
+          await sendReservationConfirmation(email, firstName, reservation.items, totalAmount, currency, reservationManageUrl(reservation.accessToken), lang);
         }
       } catch (err) {
         console.error("Failed to notify client for manual reservation:", err);

@@ -50,6 +50,7 @@ import {
   fetchCatalog, isItemValid, itemToPayload,
 } from "../_lib/item-types";
 import { ItemCard } from "./ItemCard";
+import { RESERVATION_LANGS, RESERVATION_LANG_LABEL, parseReservationLang } from "@/lib/reservation-lang";
 import { ConfirmDialog } from "./ConfirmDialog";
 
 // Public site origin — the link is meant to be sent to the guest, so never the admin's localhost.
@@ -101,7 +102,8 @@ type EmailCheck = { ok: boolean; message: string };
  *  address, and the server checks it before the send button unlocks. */
 function ReviewRequestRow({ group, onSent }: { group: ReservationGroup; onSent: () => void }) {
   const primary = group.items[0];
-  const [lang, setLang] = useState<string>("fr");
+  // Starts on the language the guest booked in; the admin can still pick another.
+  const [lang, setLang] = useState<string>(parseReservationLang(primary.reservation?.lang));
   const [sentAt, setSentAt] = useState<string | null>(primary.reservation?.reviewRequestSentAt ?? null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [to, setTo] = useState(primary.email);
@@ -112,10 +114,11 @@ function ReviewRequestRow({ group, onSent }: { group: ReservationGroup; onSent: 
 
   useEffect(() => {
     setSentAt(primary.reservation?.reviewRequestSentAt ?? null);
+    setLang(parseReservationLang(primary.reservation?.lang));
     setTo(primary.email);
     setCheck(null);
     setError(null);
-  }, [group.id, primary.email, primary.reservation?.reviewRequestSentAt]);
+  }, [group.id, primary.email, primary.reservation?.reviewRequestSentAt, primary.reservation?.lang]);
 
   // Verify the address whenever the dialog is open and the address settles.
   useEffect(() => {
@@ -295,7 +298,7 @@ export function ReservationDetailSheet({
   const [dayPasses, setDayPasses] = useState<CatalogDayPass[]>([]);
   const catalog: Catalog = { suites, activities, dayPasses };
 
-  const [contact, setContact] = useState({ firstName: "", lastName: "", email: "", phone: "", specialReqs: "", channel: "website" });
+  const [contact, setContact] = useState({ firstName: "", lastName: "", email: "", phone: "", specialReqs: "", channel: "website", lang: "fr" as string });
   const [currency, setCurrency] = useState("EUR");
   const [items, setItems] = useState<EditableItem[]>([]);
   const [saving, setSaving] = useState(false);
@@ -313,6 +316,7 @@ export function ReservationDetailSheet({
       phone: primary.phone ?? "",
       specialReqs: primary.specialReqs ?? "",
       channel: groupChannel(group),
+      lang: parseReservationLang(primary.reservation?.lang),
     });
     setCurrency(primary.currency ?? "EUR");
     setItems(group.items.map(bookingToEditable));
@@ -363,6 +367,7 @@ export function ReservationDetailSheet({
           phone: contact.phone,
           specialReqs: contact.specialReqs || undefined,
           channel: contact.channel,
+          lang: contact.lang,
         },
         items: [...items.map(itemToPayload), ...deletedItems],
       };
@@ -477,6 +482,16 @@ export function ReservationDetailSheet({
                     <SelectItem value="EUR">EUR — Euro</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <Label className="text-xs text-gray-400 mb-1 block">Langue du client</Label>
+                <Select value={contact.lang} onValueChange={(v) => setContact((c) => ({ ...c, lang: v }))}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {RESERVATION_LANGS.map((l) => <SelectItem key={l} value={l}>{RESERVATION_LANG_LABEL[l]}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-gray-400 mt-1">Langue des emails et de la fiche envoyés au client.</p>
               </div>
               <div>
                 <Label className="text-xs text-gray-400 mb-1 block">Reçue le</Label>

@@ -7,6 +7,7 @@ import {
   reservationManageUrl,
 } from "@/lib/email";
 import { priceCartItem } from "@/lib/reservation-item";
+import { parseReservationLang } from "@/lib/reservation-lang";
 
 // Token-gated, not admin-gated: the access token in the URL IS the auth —
 // this is the guest's own "manage my reservation" link from their
@@ -169,7 +170,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ to
       const results = await Promise.allSettled([
         sendReservationModifiedEmail(
           reservation.email, reservation.firstName, before, modified, newTotal, reservation.currency,
-          reservationManageUrl(reservation.accessToken),
+          reservationManageUrl(reservation.accessToken), parseReservationLang(reservation.lang),
         ),
         sendClientModificationNotification({ ...contact }, before, modified),
       ]);

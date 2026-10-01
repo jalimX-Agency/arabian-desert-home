@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CHANNELS, channelLabel, statusOptions } from "../_lib/reservation-utils";
+import { RESERVATION_LANGS, RESERVATION_LANG_LABEL, type ReservationLang } from "@/lib/reservation-lang";
 import {
   Catalog, CatalogSuite, CatalogActivity, CatalogDayPass,
   EditableItem, emptyItem, computeItemPrice, fetchCatalog, isItemValid, itemToPayload,
@@ -46,6 +47,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
   const [channel, setChannel] = useState("");
   const [status, setStatus] = useState("pending");
   const [currency, setCurrency] = useState("EUR");
+  const [lang, setLang] = useState<ReservationLang>("fr");
   const [notifyClient, setNotifyClient] = useState(true);
   const [items, setItems] = useState<EditableItem[]>([emptyItem("EUR")]);
   const [saving, setSaving] = useState(false);
@@ -87,6 +89,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
     setChannel("");
     setStatus("pending");
     setCurrency("EUR");
+    setLang("fr");
     setItems([emptyItem("EUR")]);
   }
 
@@ -103,6 +106,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
           channel,
           status,
           currency,
+          lang,
           notifyClient,
           items: items.map(itemToPayload),
         }),
@@ -169,6 +173,16 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
                     <SelectItem value="EUR">EUR — Euro</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <Label className="text-xs text-gray-400 mb-1 block">Langue du client</Label>
+                <Select value={lang} onValueChange={(v) => setLang(v as ReservationLang)}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {RESERVATION_LANGS.map((l) => <SelectItem key={l} value={l}>{RESERVATION_LANG_LABEL[l]}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-gray-400 mt-1">Langue des emails et de la fiche envoyés au client.</p>
               </div>
             </div>
             {currency !== "EUR" && (

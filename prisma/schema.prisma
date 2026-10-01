@@ -171,7 +171,10 @@ model Reservation {
   channel     String    @default("website")
   totalAmount Int
   currency    String    @default("MAD")
-  /// Set when the post-stay Google review request email went out (see /api/cron/review-requests).
+  /// Language the guest booked in (fr | en | es | it): picks the language of every
+  /// email and of the fiche PDF sent to them. Existing rows default to French.
+  lang        String    @default("fr")
+  /// Set when the admin sent the post-stay Google review request email.
   reviewRequestSentAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

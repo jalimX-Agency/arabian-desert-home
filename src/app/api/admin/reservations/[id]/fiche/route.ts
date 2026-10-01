@@ -2,21 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { buildFicheHtml, generateFichePdf, type FicheLang } from "@/lib/fiche-pdf";
+import { parseReservationLang } from "@/lib/reservation-lang";
 
 export const maxDuration = 60;
 
 const include = { suite: true, activity: true, dayPass: true } as const;
-const VALID_LANGS: FicheLang[] = ["fr", "en", "es"];
+const VALID_LANGS: FicheLang[] = ["fr", "en", "es", "it"];
 
 /** Generates the fiche PDF on demand so the admin can preview or download it
  *  without waiting for a status change / confirmation email to trigger it.
- *  Pass ?lang=en|es to export in another language — defaults to French. */
+ *  Pass ?lang=en|es|it to export in another language — defaults to the reservation's own. */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const deny = await requireAdmin();
   if (deny) return deny;
   const { id } = await params;
   const langParam = req.nextUrl.searchParams.get("lang");
-  const lang: FicheLang = VALID_LANGS.includes(langParam as FicheLang) ? (langParam as FicheLang) : "fr";
+  // No explicit ?lang= → the language the guest booked in (legacy single bookings: French).
+  const stored = await db.reservation.findUnique({ where: { id }, select: { lang: true } });
+  const lang: FicheLang = VALID_LANGS.includes(langParam as FicheLang) ? (langParam as FicheLang) : parseReservationLang(stored?.lang);
 
   const byReservation = await db.booking.findMany({
     where: { reservationId: id },

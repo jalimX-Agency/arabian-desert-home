@@ -1,18 +1,22 @@
 import { db } from "@/lib/db";
 import { sendReservationConfirmation, sendReservationNotification, reservationManageUrl } from "@/lib/email";
 import { priceCartItem, type CartItemInput } from "@/lib/reservation-item";
+import { parseReservationLang } from "@/lib/reservation-lang";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { firstName, lastName, email, phone, specialReqs, items } = body as {
+    const { firstName, lastName, email, phone, specialReqs, items, lang: rawLang } = body as {
       firstName?: string;
       lastName?: string;
       email?: string;
       phone?: string;
       specialReqs?: string;
       items?: CartItemInput[];
+      /** The site language the guest booked in — decides the language of their emails and fiche. */
+      lang?: string;
     };
+    const lang = parseReservationLang(rawLang);
 
     if (!firstName || !lastName || !email || !phone) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
@@ -37,6 +41,7 @@ export async function POST(request: Request) {
         specialReqs: specialReqs || null,
         totalAmount,
         currency,
+        lang,
         items: {
           create: priced.map((p) => ({
             firstName, lastName, email, phone,
@@ -66,8 +71,8 @@ export async function POST(request: Request) {
     const manageUrl = reservationManageUrl(reservation.accessToken);
 
     Promise.allSettled([
-      sendReservationConfirmation(email, firstName, reservation.items, totalAmount, currency, manageUrl),
-      sendReservationNotification(reservation.items, totalAmount, currency, specialReqs),
+      sendReservationConfirmation(email, firstName, reservation.items, totalAmount, currency, manageUrl, lang),
+      sendReservationNotification(reservation.items, totalAmount, currency, specialReqs, lang),
     ]);
 
     return Response.json({ success: true, reservation, manageUrl }, { status: 201 });

@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { sendReservationConfirmedEmail, sendReservationCancelledByAdminEmail, reservationManageUrl } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
+import { parseReservationLang } from "@/lib/reservation-lang";
 
 export const maxDuration = 60;
 
@@ -38,12 +39,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         const currency = first.currency;
         const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
 
-        const html = buildFicheHtml({ reservationRef, items, totalAmount, currency });
+        // Legacy single bookings predate Reservation: no manage link, and French by default.
+        const reservation = await db.reservation.findUnique({ where: { id }, select: { accessToken: true, lang: true } });
+        const lang = parseReservationLang(reservation?.lang);
+        const html = buildFicheHtml({ reservationRef, items, totalAmount, currency, lang });
         const pdf = await generateFichePdf(html);
-        // Legacy single bookings predate Reservation, so they have no manage link.
-        const reservation = await db.reservation.findUnique({ where: { id }, select: { accessToken: true } });
         const manageUrl = reservation ? reservationManageUrl(reservation.accessToken) : null;
-        await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf, manageUrl);
+        await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf, manageUrl, lang);
       } catch (err) {
         console.error("Failed to send reservation-confirmed email:", err);
       }
@@ -53,7 +55,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       try {
         const first = items[0];
         const currency = first.currency;
-        await sendReservationCancelledByAdminEmail(first.email, first.firstName, items, currency);
+        const reservation = await db.reservation.findUnique({ where: { id }, select: { lang: true } });
+        await sendReservationCancelledByAdminEmail(first.email, first.firstName, items, currency, parseReservationLang(reservation?.lang));
       } catch (err) {
         console.error("Failed to send reservation-cancelled email:", err);
       }

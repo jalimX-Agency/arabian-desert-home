@@ -638,6 +638,8 @@ export function ReservationContent() {
     try {
       const payload = {
         ...personal,
+        // The language of the page they booked on: their emails and fiche follow it.
+        lang: language,
         specialReqs: specialReqs || undefined,
         items: allItems.map((item) => ({
           serviceType: item.serviceType,
@@ -672,7 +674,7 @@ export function ReservationContent() {
       setIsSubmitting(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [personal, specialReqs, allItems]);
+  }, [personal, specialReqs, allItems, language]);
 
   const stepLabels = [
     t("booking2.stepService"),

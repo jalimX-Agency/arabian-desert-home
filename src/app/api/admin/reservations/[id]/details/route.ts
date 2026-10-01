@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { sendReservationConfirmedEmail, reservationManageUrl } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
+import { parseReservationLang } from "@/lib/reservation-lang";
 
 export const maxDuration = 60;
 
@@ -33,6 +34,8 @@ interface EditBody {
     phone: string;
     specialReqs?: string | null;
     channel: string;
+    /** Language of the guest's emails and fiche (fr | en | es | it). */
+    lang?: string;
   };
   items: EditItem[];
 }
@@ -55,6 +58,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "At least one item is required" }, { status: 400 });
   }
 
+  const lang = parseReservationLang(contact.lang);
   const currency = items.find((i) => !i._delete)?.currency ?? "MAD";
   const totalAmount = items.filter((i) => !i._delete).reduce((sum, i) => sum + i.totalAmount, 0);
 
@@ -68,6 +72,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         phone: contact.phone,
         specialReqs: contact.specialReqs || null,
         channel: contact.channel,
+        lang,
         totalAmount,
         currency,
       },
@@ -121,11 +126,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   after(async () => {
     try {
       const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
-      const html = buildFicheHtml({ reservationRef, items: freshItems, totalAmount, currency });
+      const html = buildFicheHtml({ reservationRef, items: freshItems, totalAmount, currency, lang });
       const pdf = await generateFichePdf(html);
       const reservation = await db.reservation.findUnique({ where: { id }, select: { accessToken: true } });
       const manageUrl = reservation ? reservationManageUrl(reservation.accessToken) : null;
-      await sendReservationConfirmedEmail(contact.email, contact.firstName, freshItems, totalAmount, currency, pdf, manageUrl);
+      await sendReservationConfirmedEmail(contact.email, contact.firstName, freshItems, totalAmount, currency, pdf, manageUrl, lang);
     } catch (err) {
       console.error("Failed to send reservation-updated confirmation email:", err);
     }

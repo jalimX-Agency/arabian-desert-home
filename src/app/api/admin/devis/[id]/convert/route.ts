@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { DEVIS_INCLUDE } from "@/lib/devis";
 import { priceCartItem } from "@/lib/reservation-item";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
+import { parseReservationLang } from "@/lib/reservation-lang";
 import { reservationManageUrl, sendReservationConfirmedEmail } from "@/lib/email";
 
 export const maxDuration = 60;
@@ -77,6 +78,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         channel: channel || devis.channel || "email",
         totalAmount: devis.totalAmount,
         currency: devis.currency,
+        // The quote was written in the client's language — their emails and fiche follow it.
+        lang: parseReservationLang(devis.lang),
         items: {
           create: catalogItems.map((item) => ({
             firstName: devis.firstName,
@@ -120,11 +123,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           items: reservation.items,
           totalAmount: reservation.totalAmount,
           currency: reservation.currency,
+          lang: parseReservationLang(reservation.lang),
         });
         const pdf = await generateFichePdf(html);
         await sendReservationConfirmedEmail(
           devis.email, devis.firstName, reservation.items, reservation.totalAmount,
           reservation.currency, pdf, reservationManageUrl(reservation.accessToken),
+          parseReservationLang(reservation.lang),
         );
       } catch (err) {
         console.error("Failed to send confirmation for converted devis:", err);

@@ -32,6 +32,7 @@ export interface Booking {
     totalAmount: number;
     currency: string;
     channel: string;
+    lang?: string;
     reviewRequestSentAt?: string | null;
     _count: { items: number };
   } | null;

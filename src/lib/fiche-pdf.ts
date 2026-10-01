@@ -2,16 +2,16 @@ import { readFileSync, existsSync } from "fs";
 import path from "path";
 import type { Booking, Suite, Activity, DayPass } from "@prisma/client";
 
-export type FicheLang = "fr" | "en" | "es";
+export type FicheLang = "fr" | "en" | "es" | "it";
 
 export type FicheBooking = Booking & {
-  suite?: Pick<Suite, "name" | "nameEn" | "nameEs"> | null;
-  activity?: Pick<Activity, "name" | "nameEn" | "nameEs"> | null;
-  dayPass?: Pick<DayPass, "name" | "nameEn" | "nameEs"> | null;
+  suite?: Pick<Suite, "name" | "nameEn" | "nameEs" | "nameIt"> | null;
+  activity?: Pick<Activity, "name" | "nameEn" | "nameEs" | "nameIt"> | null;
+  dayPass?: Pick<DayPass, "name" | "nameEn" | "nameEs" | "nameIt"> | null;
 };
 
-const DATE_LOCALE: Record<FicheLang, string> = { fr: "fr-FR", en: "en-US", es: "es-ES" };
-const NUMBER_LOCALE: Record<FicheLang, string> = { fr: "fr-FR", en: "en-US", es: "es-ES" };
+const DATE_LOCALE: Record<FicheLang, string> = { fr: "fr-FR", en: "en-US", es: "es-ES", it: "it-IT" };
+const NUMBER_LOCALE: Record<FicheLang, string> = { fr: "fr-FR", en: "en-US", es: "es-ES", it: "it-IT" };
 
 const FICHE_I18N = {
   fr: {
@@ -134,6 +134,46 @@ const FICHE_I18N = {
     tents: "tiendas",
     none: "—",
   },
+  it: {
+    docSubtitle: "Documento di soggiorno",
+    docTitle: "Scheda di Prenotazione",
+    ref: "Rif.",
+    issuedOn: "Emessa il",
+    client: "Cliente",
+    clientName: "Nome del cliente",
+    phone: "Telefono",
+    email: "Email",
+    stay: "Soggiorno",
+    arrival: "Arrivo",
+    departure: "Partenza",
+    duration: "Durata",
+    night: "notte",
+    nights: "notti",
+    travelers: "Viaggiatori",
+    adult: "adulto",
+    adults: "adulti",
+    date: "Data",
+    prestations: "Servizi prenotati",
+    prestation: "Servizio",
+    dates: "Date",
+    pers: "Pers.",
+    amount: "Importo",
+    total: "Prezzo totale",
+    paymentMethod: "Metodo di pagamento",
+    paymentGeneric: "Pagamento in loco",
+    remarks: "Note",
+    confirmedTitle: "Prenotazione confermata.",
+    confirmedBody: "Vi preghiamo di presentare questa scheda al vostro arrivo al campo.",
+    stamp: "Confermata",
+    location: "Agafay, Marrakech",
+    finePrint: "Questo documento attesta una prenotazione confermata presso Arabian Desert Home.",
+    accommodation: "Alloggio",
+    activityLabel: "Attività",
+    dayPassLabel: "Day Pass",
+    tent: "tenda",
+    tents: "tende",
+    none: "—",
+  },
 } as const satisfies Record<FicheLang, Record<string, string>>;
 
 type FicheDict = Record<keyof (typeof FICHE_I18N)["fr"], string>;
@@ -148,9 +188,10 @@ export function getLogoDataUri(): string {
   return cachedLogoDataUri;
 }
 
-function pickName(lang: FicheLang, base: string, en?: string | null, es?: string | null): string {
+function pickName(lang: FicheLang, base: string, en?: string | null, es?: string | null, it?: string | null): string {
   if (lang === "en" && en) return en;
   if (lang === "es" && es) return es;
+  if (lang === "it" && it) return it;
   return base;
 }
 
@@ -163,9 +204,9 @@ function getServiceTypeLabel(t: FicheDict, serviceType: string): string {
 
 function getServiceName(t: FicheDict, lang: FicheLang, b: FicheBooking): string {
   const base =
-    b.serviceType === "suite" ? pickName(lang, b.suite?.name ?? t.none, b.suite?.nameEn, b.suite?.nameEs) :
-    b.serviceType === "activity" ? pickName(lang, b.activity?.name ?? t.none, b.activity?.nameEn, b.activity?.nameEs) :
-    b.serviceType === "daypass" ? pickName(lang, b.dayPass?.name ?? t.none, b.dayPass?.nameEn, b.dayPass?.nameEs) : t.none;
+    b.serviceType === "suite" ? pickName(lang, b.suite?.name ?? t.none, b.suite?.nameEn, b.suite?.nameEs, b.suite?.nameIt) :
+    b.serviceType === "activity" ? pickName(lang, b.activity?.name ?? t.none, b.activity?.nameEn, b.activity?.nameEs, b.activity?.nameIt) :
+    b.serviceType === "daypass" ? pickName(lang, b.dayPass?.name ?? t.none, b.dayPass?.nameEn, b.dayPass?.nameEs, b.dayPass?.nameIt) : t.none;
   return b.quantity > 1 ? `${base} × ${b.quantity}` : base;
 }
 
@@ -442,7 +483,7 @@ export function buildFicheHtml({ reservationRef, items, totalAmount, currency, l
     <div class="letterhead">
       <img class="brand-logo" src="${getLogoDataUri()}" alt="Arabian Desert Home">
       <div class="letterhead-contact">
-        <span>Tél.</span> +212 667-370-206<br>
+        <span>${t.phone}</span> +212 667-370-206<br>
         <span>Email</span> info@arabiandeserthome.ma
       </div>
     </div>
