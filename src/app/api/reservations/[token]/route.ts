@@ -31,6 +31,12 @@ async function loadReservation(token: string) {
   });
 }
 
+/** A guest-facing error: `error` is the French message (fallback), `code` lets the page
+ *  show it in the guest's own language. */
+function fail(code: string, message: string, status = 400) {
+  return NextResponse.json({ error: message, code }, { status });
+}
+
 // Dates arrive as the guest's local midnight in ISO form, which can be the previous
 // day in UTC — allow a day and a half of slack so "today" is never rejected.
 function isInPast(d: Date): boolean {
@@ -96,34 +102,34 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ to
       itemId?: string; checkIn?: string; checkOut?: string; date?: string;
     };
     const item = reservation.items.find((i) => i.id === itemId);
-    if (!item) return NextResponse.json({ error: "Prestation introuvable" }, { status: 404 });
+    if (!item) return fail("item_not_found", "Prestation introuvable", 404);
     if (item.status === "cancelled") {
-      return NextResponse.json({ error: "Cette prestation est annulée et ne peut plus être modifiée" }, { status: 400 });
+      return fail("item_cancelled", "Cette prestation est annulée et ne peut plus être modifiée");
     }
     const originalStart = item.checkIn ?? item.date;
     if (originalStart && isInPast(originalStart)) {
-      return NextResponse.json({ error: "Cette prestation a déjà commencé et ne peut plus être modifiée" }, { status: 400 });
+      return fail("item_started", "Cette prestation a déjà commencé et ne peut plus être modifiée");
     }
 
     if (item.serviceType === "suite") {
-      if (!checkIn || !checkOut) return NextResponse.json({ error: "Dates d'arrivée et de départ requises" }, { status: 400 });
+      if (!checkIn || !checkOut) return fail("dates_required", "Dates d'arrivée et de départ requises");
       const inDate = new Date(checkIn);
       const outDate = new Date(checkOut);
       if (Number.isNaN(inDate.getTime()) || Number.isNaN(outDate.getTime())) {
-        return NextResponse.json({ error: "Dates invalides" }, { status: 400 });
+        return fail("invalid_date", "Dates invalides");
       }
-      if (outDate <= inDate) return NextResponse.json({ error: "La date de départ doit être après la date d'arrivée" }, { status: 400 });
-      if (isInPast(inDate)) return NextResponse.json({ error: "La date d'arrivée ne peut pas être dans le passé" }, { status: 400 });
+      if (outDate <= inDate) return fail("checkout_before_checkin", "La date de départ doit être après la date d'arrivée");
+      if (isInPast(inDate)) return fail("date_in_past", "La date d'arrivée ne peut pas être dans le passé");
       if (item.checkIn?.getTime() === inDate.getTime() && item.checkOut?.getTime() === outDate.getTime()) {
-        return NextResponse.json({ error: "Les nouvelles dates sont identiques aux dates actuelles" }, { status: 400 });
+        return fail("same_dates", "Les nouvelles dates sont identiques aux dates actuelles");
       }
     } else {
-      if (!date) return NextResponse.json({ error: "Date requise" }, { status: 400 });
+      if (!date) return fail("date_required", "Date requise");
       const newDate = new Date(date);
-      if (Number.isNaN(newDate.getTime())) return NextResponse.json({ error: "Date invalide" }, { status: 400 });
-      if (isInPast(newDate)) return NextResponse.json({ error: "La date ne peut pas être dans le passé" }, { status: 400 });
+      if (Number.isNaN(newDate.getTime())) return fail("invalid_date", "Date invalide");
+      if (isInPast(newDate)) return fail("date_in_past", "La date ne peut pas être dans le passé");
       if (item.date?.getTime() === newDate.getTime()) {
-        return NextResponse.json({ error: "La nouvelle date est identique à la date actuelle" }, { status: 400 });
+        return fail("same_dates", "La nouvelle date est identique à la date actuelle");
       }
     }
 
@@ -145,7 +151,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ to
         currencyOverride: item.currency,
       });
     } catch (e) {
-      return NextResponse.json({ error: e instanceof Error ? e.message : "Ces dates ne sont pas disponibles" }, { status: 400 });
+      return fail("unavailable", e instanceof Error ? e.message : "Ces dates ne sont pas disponibles");
     }
 
     const before = { checkIn: item.checkIn, checkOut: item.checkOut, date: item.date };

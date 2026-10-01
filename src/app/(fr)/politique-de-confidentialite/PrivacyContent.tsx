@@ -1,21 +1,10 @@
 "use client";
 
 import { useLanguage, type Language } from "@/lib/i18n/context";
+import { LegalDocument, type LegalCopy } from "@/components/arabian/LegalDocument";
+import { companyFacts } from "@/lib/company";
 
-interface Section {
-  title: string;
-  paragraphs?: string[];
-  list?: string[];
-}
-
-interface PolicyCopy {
-  title: string;
-  intro: string;
-  sections: Section[];
-  updated: string;
-}
-
-const COPY: Record<Language, PolicyCopy> = {
+const COPY: Record<Language, LegalCopy> = {
   fr: {
     title: "Politique de confidentialité",
     intro:
@@ -24,7 +13,7 @@ const COPY: Record<Language, PolicyCopy> = {
       {
         title: "Qui est responsable de vos données ?",
         paragraphs: [
-          "Arabian Desert Home, Douar Ait Said Lchou, Agafay, Marrakech (Maroc). Contact : info@arabiandeserthome.ma · +212 667-370-206.",
+          "Les données personnelles collectées sur ce site sont traitées par la société suivante :",
         ],
       },
       {
@@ -80,7 +69,7 @@ const COPY: Record<Language, PolicyCopy> = {
       {
         title: "Who is responsible for your data?",
         paragraphs: [
-          "Arabian Desert Home, Douar Ait Said Lchou, Agafay, Marrakech (Morocco). Contact: info@arabiandeserthome.ma · +212 667-370-206.",
+          "Personal data collected on this website is processed by the following company:",
         ],
       },
       {
@@ -136,7 +125,7 @@ const COPY: Record<Language, PolicyCopy> = {
       {
         title: "¿Quién es el responsable de sus datos?",
         paragraphs: [
-          "Arabian Desert Home, Douar Ait Said Lchou, Agafay, Marrakech (Marruecos). Contacto: info@arabiandeserthome.ma · +212 667-370-206.",
+          "Los datos personales recogidos en este sitio web son tratados por la siguiente empresa:",
         ],
       },
       {
@@ -192,7 +181,7 @@ const COPY: Record<Language, PolicyCopy> = {
       {
         title: "Chi è responsabile dei vostri dati?",
         paragraphs: [
-          "Arabian Desert Home, Douar Ait Said Lchou, Agafay, Marrakech (Marocco). Contatti: info@arabiandeserthome.ma · +212 667-370-206.",
+          "I dati personali raccolti su questo sito sono trattati dalla seguente società:",
         ],
       },
       {
@@ -244,40 +233,8 @@ const COPY: Record<Language, PolicyCopy> = {
 
 export function PrivacyContent() {
   const { language } = useLanguage();
-  const c = COPY[language];
-
-  return (
-    <article className="px-6 md:px-10 pt-36 md:pt-44 pb-20 md:pb-28">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="heading-display text-3xl md:text-5xl mb-6">{c.title}</h1>
-        <div className="divider-accent max-w-[80px] mb-8" />
-        <p className="body-editorial text-lg text-muted-foreground leading-relaxed mb-12">{c.intro}</p>
-
-        <div className="space-y-10">
-          {c.sections.map((s) => (
-            <section key={s.title}>
-              <h2 className="heading-editorial text-xl md:text-2xl mb-4">{s.title}</h2>
-              {s.paragraphs?.map((p) => (
-                <p key={p} className="body-editorial text-muted-foreground leading-relaxed mb-4">
-                  {p}
-                </p>
-              ))}
-              {s.list && (
-                <ul className="space-y-3">
-                  {s.list.map((item) => (
-                    <li key={item} className="flex gap-3 body-editorial text-muted-foreground leading-relaxed">
-                      <span aria-hidden className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-amber" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          ))}
-        </div>
-
-        <p className="mt-14 text-xs text-muted-foreground/60">{c.updated}</p>
-      </div>
-    </article>
-  );
+  const copy = COPY[language];
+  // The first section is the controller's identification: show the company's registry details.
+  const sections = copy.sections.map((section, i) => (i === 0 ? { ...section, facts: companyFacts(language) } : section));
+  return <LegalDocument copy={{ ...copy, sections }} />;
 }

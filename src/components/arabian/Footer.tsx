@@ -337,12 +337,12 @@ export function Footer() {
             </button>
             {/* Subtle amber dot separator */}
             <span className="w-1 h-1 rounded-full bg-amber/20" />
-            <a
-              href="#"
+            <Link
+              href={withLocale(language, "/conditions-generales")}
               className="text-xs text-muted-foreground/40 hover:text-amber/60 transition-colors duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber/30 rounded"
             >
               {t("footer.terms")}
-            </a>
+            </Link>
           </div>
         </div>
       </div>

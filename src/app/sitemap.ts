@@ -25,6 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/apropo", priority: 0.6 },
     { path: "/contact", priority: 0.6 },
     { path: "/politique-de-confidentialite", priority: 0.3 },
+    { path: "/conditions-generales", priority: 0.3 },
   ].map(({ path, priority }) => ({
     url: `${base}${path}`,
     lastModified: new Date(),
@@ -35,7 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static routes that currently exist in each non-French locale — extend as more phases ship.
   const LOCALE_READY_PATHS = [
     "/", "/desert-agafay", "/les-tentes", "/les-activites", "/les-experiences", "/day-pass", "/blog",
-    "/reservez-votre-sejour", "/les-evenements", "/restaurant", "/apropo", "/contact", "/politique-de-confidentialite",
+    "/reservez-votre-sejour", "/les-evenements", "/restaurant", "/apropo", "/contact", "/politique-de-confidentialite", "/conditions-generales",
   ];
   const NON_FR_LOCALES = ["en", "es", "it"];
 
