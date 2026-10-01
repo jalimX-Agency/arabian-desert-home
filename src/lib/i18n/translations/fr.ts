@@ -458,6 +458,7 @@ export const fr: Record<string, unknown> = {
     emailPlaceholder: "votre@email.com",
     copyright: "Arabian Desert Home. Tous droits réservés.",
     privacy: "Politique de confidentialité",
+    cookies: "Cookies",
     terms: "Conditions générales",
     brandDesc: "Bivouac de luxe dans le désert d'Agafay, à 30 minutes de Marrakech. Six hectares de pure splendeur pour une expérience inoubliable.",
   },

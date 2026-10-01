@@ -6,6 +6,8 @@ import { LanguageProvider } from "@/lib/i18n/context";
 import { frAlternates } from "@/lib/seo/hreflang";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { CookieBanner } from "@/components/analytics/CookieBanner";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -122,6 +124,8 @@ export default function RootLayout({
             <LanguageProvider initialLanguage="fr" locked syncHtmlLang={false}>
               {children}
               <Toaster />
+              <CookieBanner />
+              <GoogleAnalytics />
             </LanguageProvider>
           </ThemeProvider>
         </AdminSessionProvider>

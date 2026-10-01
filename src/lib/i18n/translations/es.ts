@@ -458,6 +458,7 @@ export const es: Record<string, unknown> = {
     emailPlaceholder: "su@email.com",
     copyright: "Arabian Desert Home. Todos los derechos reservados.",
     privacy: "Política de privacidad",
+    cookies: "Cookies",
     terms: "Términos y condiciones",
     brandDesc: "Vivac de lujo en el desierto de Agafay, a 30 minutos de Marrakech. Seis hectáreas de pura esplendor para una experiencia inolvidable.",
   },

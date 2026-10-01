@@ -458,6 +458,7 @@ export const it: Record<string, unknown> = {
     emailPlaceholder: "vostra@email.com",
     copyright: "Arabian Desert Home. Tutti i diritti riservati.",
     privacy: "Informativa sulla privacy",
+    cookies: "Cookie",
     terms: "Termini e condizioni",
     brandDesc: "Bivacco di lusso nel deserto di Agafay, a 30 minuti da Marrakech. Sei ettari di puro splendore per un'esperienza indimenticabile.",
   },

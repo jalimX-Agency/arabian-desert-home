@@ -6,6 +6,7 @@ import { Instagram, Mail, MapPin, Phone, Facebook, ArrowRight, Star } from "luci
 import { motion } from "framer-motion";
 import { useLanguage, withLocale, type Language } from "@/lib/i18n/context";
 import { GOOGLE_MAPS_URL, TRIPADVISOR_URL } from "@/lib/seo/schema";
+import { OPEN_SETTINGS_EVENT } from "@/lib/analytics";
 
 const footerNavLinks = [
   { labelKey: "footer.navHome", href: "/", localized: true },
@@ -319,12 +320,21 @@ export function Footer() {
 
           {/* Legal Links */}
           <div className="flex items-center gap-6">
-            <a
-              href="#"
+            <Link
+              href={withLocale(language, "/politique-de-confidentialite")}
               className="text-xs text-muted-foreground/40 hover:text-amber/60 transition-colors duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber/30 rounded"
             >
               {t("footer.privacy")}
-            </a>
+            </Link>
+            <span className="w-1 h-1 rounded-full bg-amber/20" />
+            {/* Re-opens the cookie banner so the visitor can change their choice. */}
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event(OPEN_SETTINGS_EVENT))}
+              className="text-xs text-muted-foreground/40 hover:text-amber/60 transition-colors duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber/30 rounded"
+            >
+              {t("footer.cookies")}
+            </button>
             {/* Subtle amber dot separator */}
             <span className="w-1 h-1 rounded-full bg-amber/20" />
             <a

@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage, pickLocalized } from "@/lib/i18n/context";
+import { trackEvent } from "@/lib/analytics";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
 
 const DATE_LOCALES = { fr: frLocale, en: enUS, es: esLocale, it: itLocale };
@@ -664,6 +665,13 @@ export function ReservationContent() {
       if (res.ok) {
         const data = await res.json();
         setManageUrl(data.manageUrl ?? "");
+        // Conversion: a reservation request reached the server (no-op without cookie consent).
+        trackEvent("booking_form_submit", {
+          value: data.reservation?.totalAmount,
+          currency: data.reservation?.currency,
+          items_count: allItems.length,
+          service_types: [...new Set(allItems.map((i) => i.serviceType))].join(","),
+        });
         setStep(5);
       } else {
         toast({ title: t("booking2.errorTitle"), description: t("booking2.errorDesc"), variant: "destructive" });
