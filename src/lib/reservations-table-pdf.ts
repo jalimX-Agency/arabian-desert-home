@@ -1,5 +1,6 @@
 import type { Booking, Reservation } from "@prisma/client";
 import { escapeHtml, getLogoDataUri } from "@/lib/fiche-pdf";
+import { formatMoney } from "@/lib/money";
 
 export type TableBooking = Booking & {
   suite?: { name: string } | null;
@@ -28,7 +29,7 @@ function fmtDate(d: Date): string {
 }
 
 function fmtMoney(amount: number, currency: string): string {
-  return `${amount.toLocaleString("fr-FR")} ${currency}`;
+  return `${formatMoney(amount)} ${currency}`;
 }
 
 function serviceName(b: TableBooking): string {

@@ -50,6 +50,7 @@ import {
   fetchCatalog, isItemValid, itemToPayload,
 } from "../_lib/item-types";
 import { ItemCard } from "./ItemCard";
+import { formatMoney, sumMoney } from "@/lib/money";
 import { RESERVATION_LANGS, RESERVATION_LANG_LABEL, parseReservationLang } from "@/lib/reservation-lang";
 import { ConfirmDialog } from "./ConfirmDialog";
 
@@ -335,7 +336,7 @@ export function ReservationDetailSheet({
     setItems((prev) => prev.map((it) => (it.currency === currency ? it : { ...it, currency })));
   }, [currency]);
 
-  const grandTotal = useMemo(() => items.reduce((sum, it) => sum + it.totalAmount, 0), [items]);
+  const grandTotal = useMemo(() => sumMoney(items.map((it) => it.totalAmount)), [items]);
 
   function updateItem(key: string, patch: Partial<EditableItem>) {
     setItems((prev) => prev.map((it) => (it.key === key ? { ...it, ...patch } : it)));
@@ -529,7 +530,7 @@ export function ReservationDetailSheet({
 
           <div className="flex items-center justify-between pt-2">
             <span className="text-sm text-gray-500 dark:text-white/60">Montant total</span>
-            <span className="text-lg font-semibold text-amber-600 dark:text-amber-400">{grandTotal.toLocaleString("fr-FR")} {currency}</span>
+            <span className="text-lg font-semibold text-amber-600 dark:text-amber-400">{formatMoney(grandTotal)} {currency}</span>
           </div>
         </div>
 

@@ -169,7 +169,7 @@ model Reservation {
   phone       String
   specialReqs String?
   channel     String    @default("website")
-  totalAmount Int
+  totalAmount Float
   currency    String    @default("MAD")
   /// Language the guest booked in (fr | en | es | it): picks the language of every
   /// email and of the fiche PDF sent to them. Existing rows default to French.
@@ -206,7 +206,7 @@ model Booking {
   experiences String?
   specialReqs String?
   status      String    @default("pending")
-  totalAmount Int
+  totalAmount Float
   currency    String    @default("MAD")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

@@ -129,6 +129,8 @@ export function itemToPayload(it: EditableItem) {
     guests: it.guests,
     children: it.children,
     totalAmount: it.totalAmount,
+    // The admin typed this price by hand: the server must keep it instead of recomputing.
+    customPrice: it.customPrice,
     currency: it.currency,
   };
 }

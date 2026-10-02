@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { rangeOverlapsClosure } from "@/lib/availability";
 import { useLanguage, type Language } from "@/lib/i18n/context";
 import { LANG_LOCALE } from "@/lib/reservation-lang";
+import { formatMoney } from "@/lib/money";
 
 /** A catalogue name with the camp's own translations. */
 interface LocalizedName {
@@ -669,7 +670,7 @@ export function ManageReservation() {
                         </div>
                       </div>
                       <div className="flex flex-col items-start sm:items-end gap-2 shrink-0">
-                        <span className="mono-number text-amber text-base">{item.totalAmount.toLocaleString(numberLocale)} {item.currency}</span>
+                        <span className="mono-number text-amber text-base">{formatMoney(item.totalAmount, numberLocale)} {item.currency}</span>
                         <span className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border ${status.className}`}>
                           <StatusIcon className="w-3 h-3" />{c.status[statusKey]}
                         </span>
@@ -713,7 +714,7 @@ export function ManageReservation() {
                 <div className="flex items-center justify-between mb-1">
                   <span className="luxury-label text-amber/70">{c.total}</span>
                   <span className="mono-number text-2xl text-amber">
-                    {reservation.totalAmount.toLocaleString(numberLocale)} {reservation.currency}
+                    {formatMoney(reservation.totalAmount, numberLocale)} {reservation.currency}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">

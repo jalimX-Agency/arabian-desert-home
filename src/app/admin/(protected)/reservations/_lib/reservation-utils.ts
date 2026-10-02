@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { sumMoney } from "@/lib/money";
 import { fr } from "date-fns/locale";
 
 export interface Booking {
@@ -117,7 +118,7 @@ export function groupBookings(bookings: Booking[]): ReservationGroup[] {
 }
 
 export function groupTotalAmount(g: ReservationGroup): number {
-  return g.items[0]?.reservation?.totalAmount ?? g.items.reduce((sum, b) => sum + b.totalAmount, 0);
+  return g.items[0]?.reservation?.totalAmount ?? sumMoney(g.items.map((b) => b.totalAmount));
 }
 
 export function groupChannel(g: ReservationGroup): string {

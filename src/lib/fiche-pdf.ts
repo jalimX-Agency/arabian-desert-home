@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "fs";
 import path from "path";
 import type { Booking, Suite, Activity, DayPass } from "@prisma/client";
+import { formatMoney } from "@/lib/money";
 
 export type FicheLang = "fr" | "en" | "es" | "it";
 
@@ -265,7 +266,7 @@ function buildPrestationRows(t: FicheDict, lang: FicheLang, items: FicheBooking[
           </td>
           <td>${dates}</td>
           <td>${pax}</td>
-          <td class="amount">${b.totalAmount.toLocaleString(NUMBER_LOCALE[lang])} ${b.currency}</td>
+          <td class="amount">${formatMoney(b.totalAmount, NUMBER_LOCALE[lang])} ${b.currency}</td>
         </tr>`;
     })
     .join("");
@@ -538,7 +539,7 @@ export function buildFicheHtml({ reservationRef, items, totalAmount, currency, l
     </table>
     <div class="total-row">
       <span class="lbl">${t.total}</span>
-      <span class="val">${totalAmount.toLocaleString(NUMBER_LOCALE[lang])} ${currency}</span>
+      <span class="val">${formatMoney(totalAmount, NUMBER_LOCALE[lang])} ${currency}</span>
     </div>
 
     <div class="two-col">

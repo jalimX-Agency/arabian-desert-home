@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { serviceTypeOptions, serviceTypeLabel } from "../_lib/reservation-utils";
 import type { EditableItem, ServiceType, Catalog } from "../_lib/item-types";
+import { MoneyInput } from "@/components/admin/MoneyInput";
+import { formatMoney } from "@/lib/money";
 
 interface ItemCardProps {
   item: EditableItem;
@@ -125,15 +127,14 @@ export function ItemCard({ item, catalog, computedPrice, onChange, onRemove }: I
         </label>
         <div className="flex items-center gap-2">
           {item.customPrice ? (
-            <Input
-              type="number"
-              min={0}
+            <MoneyInput
+              aria-label="Prix de la prestation"
               value={item.totalAmount}
-              onChange={(e) => onChange({ totalAmount: Number(e.target.value) })}
-              className="w-28 text-right"
+              onChange={(totalAmount) => onChange({ totalAmount })}
+              className="w-32 text-right"
             />
           ) : (
-            <span className="text-amber-600 dark:text-amber-400 font-medium">{item.totalAmount.toLocaleString("fr-FR")}</span>
+            <span className="text-amber-600 dark:text-amber-400 font-medium">{formatMoney(item.totalAmount)}</span>
           )}
           <span className="text-xs text-gray-400">{item.currency}</span>
         </div>

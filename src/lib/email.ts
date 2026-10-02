@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { db } from "@/lib/db";
+import { formatMoney as formatAmount } from "@/lib/money";
 import { LANG_LOCALE, RESERVATION_LANG_LABEL, type ReservationLang } from "@/lib/reservation-lang";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -402,7 +403,7 @@ function formatDate(d: Date, lang: ReservationLang = "fr"): string {
 }
 
 function formatMoney(amount: number, lang: ReservationLang = "fr"): string {
-  return amount.toLocaleString(LANG_LOCALE[lang]);
+  return formatAmount(amount, LANG_LOCALE[lang]);
 }
 
 /** Footer line shared by the client-facing booking emails. */
@@ -828,7 +829,7 @@ export async function sendDevisAnsweredNotification(
           <table style="width:100%;border-collapse:collapse;font-size:14px">
             <tr><td style="padding:7px 0;color:#888;width:120px">Référence</td><td style="padding:7px 0;font-weight:600">${reference}</td></tr>
             <tr><td style="padding:7px 0;color:#888">Client</td><td style="padding:7px 0;font-weight:600">${clientName}</td></tr>
-            <tr><td style="padding:7px 0;color:#888">Montant</td><td style="padding:7px 0;font-weight:700;color:#c8922a">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
+            <tr><td style="padding:7px 0;color:#888">Montant</td><td style="padding:7px 0;font-weight:700;color:#c8922a">${formatMoney(totalAmount)} ${currency}</td></tr>
           </table>
           ${clientMessage ? `<p style="color:#888;font-size:12px;margin:16px 0 4px">Message du client</p><p style="font-size:14px;margin:0;white-space:pre-wrap">${clientMessage}</p>` : ""}
           <p style="color:#888;font-size:12px;margin:20px 0 0">
@@ -871,7 +872,7 @@ export async function sendReservationNotification(
           <hr style="border:none;border-top:1px solid #eee;margin:16px 0"/>
           ${items.map((item, i) => buildItemBlock(item, i)).join("")}
           <table style="width:100%;border-collapse:collapse;font-size:14px">
-            <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">Total</td><td style="padding:12px 0 0;font-weight:700;color:#c8922a;text-align:right">${totalAmount.toLocaleString("fr-FR")} ${currency}</td></tr>
+            <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">Total</td><td style="padding:12px 0 0;font-weight:700;color:#c8922a;text-align:right">${formatMoney(totalAmount)} ${currency}</td></tr>
           </table>
           ${specialReqs ? `<p style="color:#888;font-size:12px;margin:16px 0 4px">Demandes spéciales</p><p style="font-size:14px;margin:0">${specialReqs}</p>` : ""}
         </div>
