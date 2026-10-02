@@ -5,6 +5,7 @@ import { priceCartItem, type CartItemInput } from "@/lib/reservation-item";
 import { sendReservationConfirmation, sendReservationConfirmedEmail, reservationManageUrl } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 import { parseReservationLang } from "@/lib/reservation-lang";
+import { roundMoney, sumMoney } from "@/lib/money";
 
 export const maxDuration = 60;
 
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
     firstName?: string; lastName?: string; email?: string; phone?: string;
     specialReqs?: string; channel?: string; status?: string; notifyClient?: boolean;
     currency?: string;
-    items?: CartItemInput[];
+    items?: (CartItemInput & { customPrice?: boolean; totalAmount?: number })[];
     /** Language of the guest's emails and fiche (fr | en | es | it). */
     lang?: string;
   };
@@ -51,7 +52,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "Invalid item" }, { status: 400 });
   }
 
-  const totalAmount = priced.reduce((sum, p) => sum + p.totalAmount, 0);
+  // A price typed by the admin wins over the catalogue price: this route is admin-only,
+  // and a negotiated or phone-quoted amount (often with cents, "1250,50") is the whole
+  // point of recording a booking by hand. It used to be ignored and silently recomputed.
+  priced.forEach((p, i) => {
+    const manual = items[i];
+    if (manual.customPrice && Number.isFinite(manual.totalAmount) && (manual.totalAmount as number) >= 0) {
+      p.totalAmount = roundMoney(manual.totalAmount as number);
+    }
+  });
+
+  const totalAmount = sumMoney(priced.map((p) => p.totalAmount));
   const currency = priced[0].currency;
   const bookingStatus = status === "confirmed" ? "confirmed" : "pending";
 

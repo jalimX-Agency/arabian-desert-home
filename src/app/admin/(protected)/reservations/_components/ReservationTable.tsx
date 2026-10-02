@@ -23,6 +23,7 @@ import {
   isGroupPast,
 } from "../_lib/reservation-utils";
 import { ChannelBadge } from "./ChannelBadge";
+import { formatMoney } from "@/lib/money";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -143,7 +144,7 @@ export function ReservationTable({
                       <p className="text-gray-900 dark:text-white truncate">{primary.firstName} {primary.lastName}</p>
                       {g.items.length > 1 && (
                         <span
-                          title={`Réservation de ${g.items.length} prestations — total ${groupTotalAmount(g).toLocaleString("fr-FR")} ${primary.currency}`}
+                          title={`Réservation de ${g.items.length} prestations — total ${formatMoney(groupTotalAmount(g))} ${primary.currency}`}
                           className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium shrink-0"
                         >
                           {g.items.length} prestations
@@ -176,7 +177,7 @@ export function ReservationTable({
                       <span className="block text-xs text-gray-400">{primary.children} enfant{primary.children > 1 ? "s" : ""}</span>
                     )}
                   </td>
-                  <td className="px-5 py-4 text-amber-600 dark:text-amber-400">{groupTotalAmount(g).toLocaleString("fr-FR")} {primary.currency ?? "MAD"}</td>
+                  <td className="px-5 py-4 text-amber-600 dark:text-amber-400">{formatMoney(groupTotalAmount(g))} {primary.currency ?? "MAD"}</td>
                   <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                     <Select
                       value={allSameStatus ? primary.status : "mixed"}

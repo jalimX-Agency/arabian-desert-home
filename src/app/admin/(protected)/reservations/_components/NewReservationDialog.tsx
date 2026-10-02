@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CHANNELS, channelLabel, statusOptions } from "../_lib/reservation-utils";
+import { formatMoney, sumMoney } from "@/lib/money";
 import { RESERVATION_LANGS, RESERVATION_LANG_LABEL, type ReservationLang } from "@/lib/reservation-lang";
 import {
   Catalog, CatalogSuite, CatalogActivity, CatalogDayPass,
@@ -73,7 +74,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
     setItems((prev) => prev.map((it) => (it.key === key ? { ...it, ...patch } : it)));
   }
 
-  const grandTotal = items.reduce((sum, it) => sum + it.totalAmount, 0);
+  const grandTotal = sumMoney(items.map((it) => it.totalAmount));
 
   const isValid =
     contact.firstName.trim() !== "" &&
@@ -221,7 +222,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
 
           <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-white/5">
             <span className="text-sm text-gray-500 dark:text-white/60">Montant total</span>
-            <span className="text-lg font-semibold text-amber-600 dark:text-amber-400">{grandTotal.toLocaleString("fr-FR")} {currency}</span>
+            <span className="text-lg font-semibold text-amber-600 dark:text-amber-400">{formatMoney(grandTotal)} {currency}</span>
           </div>
         </div>
 

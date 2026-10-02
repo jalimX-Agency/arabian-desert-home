@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { sendReservationConfirmedEmail, reservationManageUrl } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 import { parseReservationLang } from "@/lib/reservation-lang";
+import { roundMoney, sumMoney } from "@/lib/money";
 
 export const maxDuration = 60;
 
@@ -60,7 +61,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const lang = parseReservationLang(contact.lang);
   const currency = items.find((i) => !i._delete)?.currency ?? "MAD";
-  const totalAmount = items.filter((i) => !i._delete).reduce((sum, i) => sum + i.totalAmount, 0);
+  const totalAmount = sumMoney(items.filter((i) => !i._delete).map((i) => i.totalAmount));
 
   await db.$transaction(async (tx) => {
     await tx.reservation.update({
@@ -100,7 +101,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         quantity: Math.max(1, item.quantity ?? 1),
         guests: item.guests,
         children: item.children,
-        totalAmount: item.totalAmount,
+        totalAmount: roundMoney(item.totalAmount),
         currency: item.currency ?? "MAD",
         // Editing details finalizes the reservation — auto-confirm rather than
         // leaving it in whatever mixed state it was in before the edit.
