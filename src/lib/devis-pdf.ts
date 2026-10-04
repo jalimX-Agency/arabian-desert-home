@@ -1,4 +1,5 @@
 import { escapeHtml, getLogoDataUri } from "@/lib/fiche-pdf";
+import { formatMoney } from "@/lib/money";
 
 export type DevisLang = "fr" | "en" | "es";
 
@@ -154,7 +155,7 @@ function fmtDate(d: Date, lang: DevisLang): string {
 }
 
 function fmtMoney(amount: number, currency: string, lang: DevisLang): string {
-  return `${amount.toLocaleString(DATE_LOCALE[lang])} ${currency}`;
+  return `${formatMoney(amount, DATE_LOCALE[lang])} ${currency}`;
 }
 
 function datesCell(item: DevisPdfItem, lang: DevisLang, t: (typeof I18N)["fr"]): string {
@@ -166,8 +167,9 @@ function datesCell(item: DevisPdfItem, lang: DevisLang, t: (typeof I18N)["fr"]):
 }
 
 function peopleCell(item: DevisPdfItem, t: (typeof I18N)["fr"]): string {
-  if (item.kind === "custom") return "—";
-  const parts = [`${item.guests} ${t.adults}`];
+  if (item.kind === "custom" && item.guests === 0 && item.children === 0) return "—";
+  const parts: string[] = [];
+  if (item.kind !== "custom" || item.guests > 0) parts.push(`${item.guests} ${t.adults}`);
   if (item.children > 0) parts.push(`${item.children} ${t.children}`);
   return parts.join("<br>");
 }

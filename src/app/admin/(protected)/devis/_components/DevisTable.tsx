@@ -1,6 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
+import { formatMoney } from "@/lib/money";
 import { fr } from "date-fns/locale";
 import { Loader2, FileText } from "lucide-react";
 import { ChannelBadge } from "../../reservations/_components/ChannelBadge";
@@ -75,7 +76,7 @@ export function DevisTable({ rows, loading, onRowClick }: DevisTableProps) {
                   </td>
                   <td className="px-4 py-3 text-center text-gray-500 dark:text-white/60">{d.items.length}</td>
                   <td className="px-4 py-3 text-right font-medium whitespace-nowrap">
-                    {d.totalAmount.toLocaleString("fr-FR")} {d.currency}
+                    {formatMoney(d.totalAmount)} {d.currency}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`inline-block text-[11px] px-2.5 py-1 rounded-full border uppercase tracking-widest ${devisStatusColors[status]}`}>
