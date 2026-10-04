@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { DEVIS_INCLUDE } from "@/lib/devis";
 import { priceCartItem } from "@/lib/reservation-item";
+import { formatMoney } from "@/lib/money";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 import { parseReservationLang } from "@/lib/reservation-lang";
 import { reservationManageUrl, sendReservationConfirmedEmail } from "@/lib/email";
@@ -35,6 +36,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // Re-price only to warn the admin: the reservation still carries the quoted amounts.
   const priceDrift: { label: string; quoted: number; current: number }[] = [];
   for (const item of catalogItems) {
+    // A price typed per person / per night was never a catalogue price: nothing to compare.
+    if (item.unitPrice > 0) continue;
     try {
       const fresh = await priceCartItem({
         serviceType: item.serviceType as "suite" | "activity" | "daypass",
@@ -48,9 +51,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         guests: item.guests,
         children: item.children,
         allowClosedPeriod: true,
-        currencyOverride: devis.currency,
       });
-      if (fresh.totalAmount !== item.totalAmount) {
+      // Rates in another currency than the quote can't be compared.
+      if (fresh.currency === devis.currency && fresh.totalAmount !== item.totalAmount) {
         priceDrift.push({ label: item.label, quoted: item.totalAmount, current: fresh.totalAmount });
       }
     } catch {
@@ -62,7 +65,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // are written into the reservation notes so nothing quoted gets lost.
   const customRecap = customItems.length
     ? `Devis ${devis.reference} — ${customItems
-        .map((i) => `${i.label} × ${i.quantity} : ${i.totalAmount.toLocaleString("fr-FR")} ${devis.currency}`)
+        .map((i) => `${i.label} × ${i.quantity} : ${formatMoney(i.totalAmount)} ${devis.currency}`)
         .join("; ")}`
     : null;
   const specialReqs = [devis.title, customRecap].filter(Boolean).join(" · ") || null;

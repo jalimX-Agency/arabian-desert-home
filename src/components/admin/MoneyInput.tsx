@@ -9,6 +9,17 @@ interface MoneyInputProps {
   onChange: (value: number) => void;
   className?: string;
   "aria-label"?: string;
+  /** Accept a leading minus (a discount line). */
+  allowNegative?: boolean;
+}
+
+function parseSigned(text: string, allowNegative: boolean): number | null {
+  const trimmed = text.trim();
+  if (allowNegative && trimmed.startsWith("-")) {
+    const parsed = parseMoney(trimmed.slice(1));
+    return parsed === null ? null : -parsed;
+  }
+  return parseMoney(trimmed);
 }
 
 /**
@@ -17,7 +28,7 @@ interface MoneyInputProps {
  * browser's language. It keeps what the person typed while they type, only
  * reports valid amounts upward, and tidies the text on blur ("1250,5" → "1250,50").
  */
-export function MoneyInput({ value, onChange, className, "aria-label": ariaLabel }: MoneyInputProps) {
+export function MoneyInput({ value, onChange, className, "aria-label": ariaLabel, allowNegative = false }: MoneyInputProps) {
   const [text, setText] = useState(() => moneyToInputText(value));
   const [invalid, setInvalid] = useState(false);
   const lastEmitted = useRef(value);
@@ -44,7 +55,7 @@ export function MoneyInput({ value, onChange, className, "aria-label": ariaLabel
       onChange={(e) => {
         const next = e.target.value;
         setText(next);
-        const parsed = parseMoney(next);
+        const parsed = next.trim() === "-" ? null : parseSigned(next, allowNegative);
         if (parsed === null) {
           setInvalid(true);
           return;

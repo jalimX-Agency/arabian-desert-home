@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { formatMoney, sumMoney } from "@/lib/money";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
@@ -22,7 +23,7 @@ import {
   fetchCatalog, type Catalog, type CatalogSuite, type CatalogActivity, type CatalogDayPass,
 } from "../../reservations/_lib/item-types";
 import {
-  computeDevisLineTotal, devisItemToEditable, devisItemToPayload, emptyDevisItem,
+  applyDevisItemPatch, computeDevisLineTotal, devisItemToEditable, normaliseDevisItem, devisItemToPayload, emptyDevisItem,
   isDevisItemValid, type EditableDevisItem,
 } from "../_lib/devis-item-types";
 import {
@@ -94,17 +95,23 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
     }
   }, [devis, creating]);
 
-  // Catalogue lines re-price as the admin edits them, unless the price was overridden.
+  // Lines re-price as the admin edits them, except a fixed total («Forfait»). A catalogue line
+  // whose rates are in another currency than the quote switches to a price per person / night.
   useEffect(() => {
-    setItems((prev) => prev.map((it) => (it.customPrice ? it : { ...it, totalAmount: computeDevisLineTotal(it, catalog) })));
+    setItems((prev) => prev.map((raw) => {
+      const it = normaliseDevisItem(raw, catalog);
+      if (it.kind === "catalog" && it.priceMode === "total") return it;
+      const totalAmount = computeDevisLineTotal(it, catalog);
+      return it === raw && totalAmount === raw.totalAmount ? raw : { ...it, totalAmount };
+    }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [suites, activities, dayPasses, JSON.stringify(items.map((i) => [i.kind, i.serviceType, i.suiteId, i.activityId, i.dayPassId, i.checkIn, i.checkOut, i.date, i.guests, i.children, i.quantity, i.unitPrice]))]);
+  }, [suites, activities, dayPasses, JSON.stringify(items.map((i) => [i.kind, i.priceMode, i.currency, i.serviceType, i.suiteId, i.activityId, i.dayPassId, i.checkIn, i.checkOut, i.date, i.guests, i.children, i.quantity, i.unitPrice]))]);
 
   useEffect(() => {
     setItems((prev) => prev.map((it) => (it.currency === form.currency ? it : { ...it, currency: form.currency })));
   }, [form.currency]);
 
-  const grandTotal = items.reduce((sum, it) => sum + it.totalAmount, 0);
+  const grandTotal = sumMoney(items.map((it) => it.totalAmount));
   const isValid =
     form.firstName.trim() !== "" && form.lastName.trim() !== "" &&
     form.email.trim() !== "" && form.phone.trim() !== "" &&
@@ -114,7 +121,7 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
   const locked = devis?.status === "converted";
 
   function updateItem(key: string, patch: Partial<EditableDevisItem>) {
-    setItems((prev) => prev.map((it) => (it.key === key ? { ...it, ...patch } : it)));
+    setItems((prev) => prev.map((it) => (it.key === key ? applyDevisItemPatch(it, patch) : it)));
   }
 
   async function handleSave() {
@@ -358,7 +365,7 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
           <div className="flex items-center justify-between pt-2">
             <span className="text-sm text-gray-500 dark:text-white/60">Montant total</span>
             <span className="text-lg font-semibold text-amber-600 dark:text-amber-400">
-              {grandTotal.toLocaleString("fr-FR")} {form.currency}
+              {formatMoney(grandTotal)} {form.currency}
             </span>
           </div>
 

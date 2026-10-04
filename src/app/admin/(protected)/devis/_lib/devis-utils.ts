@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { roundMoney } from "@/lib/money";
 
 export interface DevisItem {
   id: string;
@@ -115,7 +116,7 @@ export function summarizeDevis(rows: Devis[]): DevisSummary {
     // the best outcome there is, so it must not drop out of the counts.
     if (status === "accepted" || status === "converted") {
       accepted++;
-      acceptedAmounts[d.currency] = (acceptedAmounts[d.currency] ?? 0) + d.totalAmount;
+      acceptedAmounts[d.currency] = roundMoney((acceptedAmounts[d.currency] ?? 0) + d.totalAmount);
     } else if (status === "refused") {
       refused++;
     } else if (status === "sent") {

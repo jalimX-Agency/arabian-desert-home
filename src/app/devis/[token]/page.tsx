@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { formatMoney } from "@/lib/money";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { fr, enUS, es } from "date-fns/locale";
@@ -235,13 +236,13 @@ export default function DevisPage() {
                         {item.description && <p className="text-sm text-muted-foreground mb-1 body-editorial">{item.description}</p>}
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                           {dates && <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" />{dates}</span>}
-                          {item.kind !== "custom" && <span className="flex items-center gap-1"><Users className="w-3 h-3" />{item.guests}</span>}
-                          {item.kind !== "custom" && item.children > 0 && <span className="flex items-center gap-1"><Baby className="w-3 h-3" />{item.children}</span>}
+                          {(item.kind !== "custom" || item.guests > 0) && <span className="flex items-center gap-1"><Users className="w-3 h-3" />{item.guests}</span>}
+                          {item.children > 0 && <span className="flex items-center gap-1"><Baby className="w-3 h-3" />{item.children}</span>}
                           {item.quantity > 1 && <span>{t.qty} {item.quantity}</span>}
                         </div>
                       </div>
                       <span className={`mono-number text-base shrink-0 ${item.totalAmount < 0 ? "text-red-500" : "text-amber"}`}>
-                        {item.totalAmount.toLocaleString("fr-FR")} {item.currency}
+                        {formatMoney(item.totalAmount)} {item.currency}
                       </span>
                     </div>
                   );
@@ -252,7 +253,7 @@ export default function DevisPage() {
                 <div className="flex items-center justify-between">
                   <span className="luxury-label text-amber/70">{t.total}</span>
                   <span className="mono-number text-2xl text-amber">
-                    {devis.totalAmount.toLocaleString("fr-FR")} {devis.currency}
+                    {formatMoney(devis.totalAmount)} {devis.currency}
                   </span>
                 </div>
               </div>

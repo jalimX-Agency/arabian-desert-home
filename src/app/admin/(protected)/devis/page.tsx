@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { formatMoney } from "@/lib/money";
 import { format } from "date-fns";
 import { DevisToolbar } from "./_components/DevisToolbar";
 import { DevisTable } from "./_components/DevisTable";
@@ -76,7 +77,7 @@ export default function DevisPage() {
       label: "Montant accepté",
       value: Object.keys(summary.acceptedAmounts).length
         ? Object.entries(summary.acceptedAmounts)
-            .map(([cur, amount]) => `${amount.toLocaleString("fr-FR")} ${cur}`)
+            .map(([cur, amount]) => `${formatMoney(amount)} ${cur}`)
             .join(" · ")
         : "—",
     },

@@ -334,7 +334,7 @@ model Devis {
   conditions    String?     // free text printed under the total
   lang          String      @default("fr") // fr|en|es
   validUntil    DateTime
-  totalAmount   Int         @default(0)
+  totalAmount   Float       @default(0)
   currency      String      @default("MAD")
   sentAt        DateTime?
   answeredAt    DateTime?
@@ -370,8 +370,8 @@ model DevisItem {
   quantity    Int       @default(1)
   guests      Int       @default(2)
   children    Int       @default(0)
-  unitPrice   Int       @default(0) // custom lines; negative means a discount
-  totalAmount Int       @default(0)
+  unitPrice   Float     @default(0) // free lines: unit price (negative = discount); catalogue lines: price per person / per night when set
+  totalAmount Float     @default(0)
   currency    String    @default("MAD")
   order       Int       @default(0)
   createdAt   DateTime  @default(now())

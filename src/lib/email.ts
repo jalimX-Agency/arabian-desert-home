@@ -782,7 +782,7 @@ export async function sendDevisToClient(
             <table style="width:100%;border-collapse:collapse;font-size:14px">
               <tr><td style="padding:6px 0;color:#888;width:140px">${reference}</td><td style="padding:6px 0"></td></tr>
               <tr><td style="padding:6px 0;color:#888">${t.validLabel}</td><td style="padding:6px 0;font-weight:600">${validUntil.toLocaleDateString(t.dateLocale, { day: "2-digit", month: "long", year: "numeric" })}</td></tr>
-              <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">${t.totalLabel}</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#c8922a;text-align:right">${totalAmount.toLocaleString(t.dateLocale)} ${currency}</td></tr>
+              <tr style="border-top:1px solid #e8dfc8"><td style="padding:12px 0 0;color:#888;font-weight:600">${t.totalLabel}</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#c8922a;text-align:right">${formatAmount(totalAmount, t.dateLocale)} ${currency}</td></tr>
             </table>
           </div>
           <p style="text-align:center;margin:0 0 12px">
