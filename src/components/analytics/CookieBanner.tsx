@@ -15,28 +15,28 @@ import {
 const COPY: Record<SiteLanguage, { title: string; body: string; accept: string; refuse: string; more: string }> = {
   fr: {
     title: "Votre vie privée",
-    body: "Nous utilisons Google Analytics pour mesurer l'audience du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord, et vous pouvez changer d'avis à tout moment.",
+    body: "Nous utilisons des cookies Google pour mesurer l'audience du site (Google Analytics) et l'efficacité de nos publicités, et pour vous proposer des annonces personnalisées (Google Ads). Ils ne sont déposés qu'avec votre accord, et vous pouvez changer d'avis à tout moment.",
     accept: "Accepter",
     refuse: "Refuser",
     more: "En savoir plus",
   },
   en: {
     title: "Your privacy",
-    body: "We use Google Analytics to measure site traffic and improve the site. These cookies are only set with your consent, and you can change your mind at any time.",
+    body: "We use Google cookies to measure site traffic (Google Analytics) and how well our ads perform, and to show you personalised ads (Google Ads). They are only set with your consent, and you can change your mind at any time.",
     accept: "Accept",
     refuse: "Decline",
     more: "Learn more",
   },
   es: {
     title: "Su privacidad",
-    body: "Utilizamos Google Analytics para medir la audiencia del sitio y mejorarlo. Estas cookies solo se instalan con su consentimiento y puede cambiar de opinión en cualquier momento.",
+    body: "Utilizamos cookies de Google para medir la audiencia del sitio (Google Analytics) y la eficacia de nuestros anuncios, y para mostrarle anuncios personalizados (Google Ads). Solo se instalan con su consentimiento y puede cambiar de opinión en cualquier momento.",
     accept: "Aceptar",
     refuse: "Rechazar",
     more: "Más información",
   },
   it: {
     title: "La vostra privacy",
-    body: "Utilizziamo Google Analytics per misurare il traffico del sito e migliorarlo. Questi cookie vengono installati solo con il vostro consenso e potete cambiare idea in qualsiasi momento.",
+    body: "Utilizziamo cookie di Google per misurare il traffico del sito (Google Analytics) e l'efficacia dei nostri annunci, e per mostrarvi annunci personalizzati (Google Ads). Vengono installati solo con il vostro consenso e potete cambiare idea in qualsiasi momento.",
     accept: "Accetta",
     refuse: "Rifiuta",
     more: "Maggiori informazioni",

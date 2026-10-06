@@ -22,7 +22,7 @@ const COPY: Record<Language, LegalCopy> = {
           "Demande de réservation ou de devis : nom, prénom, email, téléphone, détails du séjour, demandes particulières et langue du site utilisée.",
           "Formulaire de contact : votre nom, votre email et votre message.",
           "Après votre séjour : votre adresse email peut servir à vous remercier et à vous inviter à laisser un avis Google.",
-          "Mesure d'audience (uniquement avec votre accord) : pages consultées, clics sur le téléphone et WhatsApp, envois du formulaire de réservation, type d'appareil et pays approximatif.",
+          "Mesure d'audience (uniquement avec votre accord) : pages consultées, clics sur le téléphone et WhatsApp, envois du formulaire de réservation, type d'appareil et pays approximatif ; si vous arrivez par une annonce Google, l'identifiant de ce clic.",
         ],
       },
       {
@@ -30,20 +30,20 @@ const COPY: Record<Language, LegalCopy> = {
         list: [
           "Traiter votre réservation ou votre devis et vous envoyer confirmations, modifications et fiche de réservation : exécution d'un contrat ou de mesures précontractuelles.",
           "Répondre à vos messages et vous écrire après votre séjour : notre intérêt légitime à assurer le service client.",
-          "Mesurer l'audience du site : votre consentement.",
+          "Mesurer l'audience du site et l'efficacité de nos publicités, et personnaliser les annonces : votre consentement.",
         ],
       },
       {
-        title: "Cookies et mesure d'audience",
+        title: "Cookies, mesure d'audience et publicité",
         paragraphs: [
-          "Nous utilisons Google Analytics 4 pour comprendre comment le site est utilisé. Il n'est chargé qu'après votre accord via la bannière cookies : sans accord, aucun cookie de mesure n'est déposé et aucune donnée n'est envoyée à Google. Les cookies concernés (_ga, _ga_*) ont une durée maximale de 2 ans. Nous n'utilisons ni publicité ni personnalisation publicitaire. Votre choix est redemandé tous les 6 mois et vous pouvez le modifier à tout moment via le lien « Cookies » en bas de chaque page.",
+          "Nous utilisons Google Analytics 4 pour comprendre comment le site est utilisé. Il n'est chargé qu'après votre accord via la bannière cookies : sans accord, aucun cookie de mesure n'est déposé et aucune donnée n'est envoyée à Google. Les cookies concernés (_ga, _ga_*) ont une durée maximale de 2 ans. Avec le même accord, nous utilisons aussi Google Ads pour savoir quelles annonces mènent à une demande (clic WhatsApp ou téléphone, formulaire de réservation) et pour vous proposer nos annonces sur les services de Google (publicité personnalisée) ; ses cookies (_gcl_*) durent au maximum 90 jours. Votre choix est redemandé tous les 6 mois et vous pouvez le modifier à tout moment via le lien « Cookies » en bas de chaque page.",
           "D'autres informations sont enregistrées dans votre navigateur uniquement pour faire fonctionner le site (langue choisie, thème, mémorisation de votre choix de cookies) ; elles ne nécessitent pas de consentement.",
         ],
       },
       {
         title: "Qui reçoit vos données ?",
         paragraphs: [
-          "Nous ne vendons pas vos données. Nos prestataires techniques les traitent pour notre compte : hébergement (Vercel), base de données (Neon), envoi d'emails (Resend) et, avec votre accord, mesure d'audience (Google). Certains sont situés hors de l'Union européenne ou du Maroc ; les transferts sont encadrés par des garanties appropriées.",
+          "Nous ne vendons pas vos données. Nos prestataires techniques les traitent pour notre compte : hébergement (Vercel), base de données (Neon), envoi d'emails (Resend) et, avec votre accord, mesure d'audience et publicité (Google). Certains sont situés hors de l'Union européenne ou du Maroc ; les transferts sont encadrés par des garanties appropriées.",
         ],
       },
       {
@@ -78,7 +78,7 @@ const COPY: Record<Language, LegalCopy> = {
           "Reservation or quote request: first and last name, email, phone number, stay details, special requests and the site language you used.",
           "Contact form: your name, email and message.",
           "After your stay: we may use your email address to thank you and invite you to leave a Google review.",
-          "Audience measurement (only with your consent): pages viewed, clicks on phone and WhatsApp links, reservation form submissions, device type and approximate country.",
+          "Audience measurement (only with your consent): pages viewed, clicks on phone and WhatsApp links, reservation form submissions, device type and approximate country; if you arrive from a Google ad, the identifier of that click.",
         ],
       },
       {
@@ -86,20 +86,20 @@ const COPY: Record<Language, LegalCopy> = {
         list: [
           "Processing your reservation or quote and sending you confirmations, changes and your reservation voucher: performance of a contract or pre-contractual steps.",
           "Answering your messages and writing to you after your stay: our legitimate interest in providing customer service.",
-          "Measuring site audience: your consent.",
+          "Measuring site audience and how well our ads perform, and personalising ads: your consent.",
         ],
       },
       {
-        title: "Cookies and audience measurement",
+        title: "Cookies, audience measurement and advertising",
         paragraphs: [
-          "We use Google Analytics 4 to understand how the site is used. It is loaded only after you accept through the cookie banner: without your consent no measurement cookie is set and no data is sent to Google. The cookies involved (_ga, _ga_*) last up to 2 years. We run no advertising and no ad personalisation. Your choice is asked again every 6 months and you can change it at any time with the “Cookies” link at the bottom of any page.",
+          "We use Google Analytics 4 to understand how the site is used. It is loaded only after you accept through the cookie banner: without your consent no measurement cookie is set and no data is sent to Google. The cookies involved (_ga, _ga_*) last up to 2 years. With the same consent we also use Google Ads, to know which ads lead to an enquiry (WhatsApp or phone click, booking form) and to show you our ads on Google services (personalised advertising); its cookies (_gcl_*) last up to 90 days. Your choice is asked again every 6 months and you can change it at any time with the “Cookies” link at the bottom of any page.",
           "Other information is stored in your browser only to make the site work (chosen language, theme, remembering your cookie choice); it does not require consent.",
         ],
       },
       {
         title: "Who receives your data?",
         paragraphs: [
-          "We do not sell your data. Our technical providers process it on our behalf: hosting (Vercel), database (Neon), email delivery (Resend) and, with your consent, audience measurement (Google). Some are located outside the European Union or Morocco; transfers are covered by appropriate safeguards.",
+          "We do not sell your data. Our technical providers process it on our behalf: hosting (Vercel), database (Neon), email delivery (Resend) and, with your consent, audience measurement and advertising (Google). Some are located outside the European Union or Morocco; transfers are covered by appropriate safeguards.",
         ],
       },
       {
@@ -134,7 +134,7 @@ const COPY: Record<Language, LegalCopy> = {
           "Solicitud de reserva o de presupuesto: nombre y apellidos, correo electrónico, teléfono, detalles de la estancia, peticiones especiales y el idioma del sitio utilizado.",
           "Formulario de contacto: su nombre, correo electrónico y mensaje.",
           "Después de su estancia: podemos usar su correo electrónico para darle las gracias e invitarle a dejar una reseña en Google.",
-          "Medición de audiencia (solo con su consentimiento): páginas consultadas, clics en el teléfono y WhatsApp, envíos del formulario de reserva, tipo de dispositivo y país aproximado.",
+          "Medición de audiencia (solo con su consentimiento): páginas consultadas, clics en el teléfono y WhatsApp, envíos del formulario de reserva, tipo de dispositivo y país aproximado; si llega desde un anuncio de Google, el identificador de ese clic.",
         ],
       },
       {
@@ -142,20 +142,20 @@ const COPY: Record<Language, LegalCopy> = {
         list: [
           "Tramitar su reserva o presupuesto y enviarle confirmaciones, modificaciones y la ficha de reserva: ejecución de un contrato o medidas precontractuales.",
           "Responder a sus mensajes y escribirle después de su estancia: nuestro interés legítimo en atender a los clientes.",
-          "Medir la audiencia del sitio: su consentimiento.",
+          "Medir la audiencia del sitio y la eficacia de nuestros anuncios, y personalizar los anuncios: su consentimiento.",
         ],
       },
       {
-        title: "Cookies y medición de audiencia",
+        title: "Cookies, medición de audiencia y publicidad",
         paragraphs: [
-          "Utilizamos Google Analytics 4 para entender cómo se usa el sitio. Solo se carga después de que usted acepte en el banner de cookies: sin su consentimiento no se instala ninguna cookie de medición ni se envían datos a Google. Las cookies implicadas (_ga, _ga_*) duran hasta 2 años. No usamos publicidad ni personalización publicitaria. Su elección se vuelve a solicitar cada 6 meses y puede cambiarla en cualquier momento con el enlace «Cookies» al pie de cualquier página.",
+          "Utilizamos Google Analytics 4 para entender cómo se usa el sitio. Solo se carga después de que usted acepte en el banner de cookies: sin su consentimiento no se instala ninguna cookie de medición ni se envían datos a Google. Las cookies implicadas (_ga, _ga_*) duran hasta 2 años. Con el mismo consentimiento usamos también Google Ads, para saber qué anuncios generan una solicitud (clic en WhatsApp o teléfono, formulario de reserva) y para mostrarle nuestros anuncios en los servicios de Google (publicidad personalizada); sus cookies (_gcl_*) duran como máximo 90 días. Su elección se vuelve a solicitar cada 6 meses y puede cambiarla en cualquier momento con el enlace «Cookies» al pie de cualquier página.",
           "Otra información se guarda en su navegador solo para que el sitio funcione (idioma elegido, tema, recordar su elección sobre cookies); no requiere consentimiento.",
         ],
       },
       {
         title: "¿Quién recibe sus datos?",
         paragraphs: [
-          "No vendemos sus datos. Nuestros proveedores técnicos los tratan por cuenta nuestra: alojamiento (Vercel), base de datos (Neon), envío de correos (Resend) y, con su consentimiento, medición de audiencia (Google). Algunos se encuentran fuera de la Unión Europea o de Marruecos; las transferencias cuentan con garantías adecuadas.",
+          "No vendemos sus datos. Nuestros proveedores técnicos los tratan por cuenta nuestra: alojamiento (Vercel), base de datos (Neon), envío de correos (Resend) y, con su consentimiento, medición de audiencia y publicidad (Google). Algunos se encuentran fuera de la Unión Europea o de Marruecos; las transferencias cuentan con garantías adecuadas.",
         ],
       },
       {
@@ -190,7 +190,7 @@ const COPY: Record<Language, LegalCopy> = {
           "Richiesta di prenotazione o di preventivo: nome e cognome, email, telefono, dettagli del soggiorno, richieste particolari e lingua del sito utilizzata.",
           "Modulo di contatto: nome, email e messaggio.",
           "Dopo il soggiorno: potremmo usare il vostro indirizzo email per ringraziarvi e invitarvi a lasciare una recensione su Google.",
-          "Misurazione del pubblico (solo con il vostro consenso): pagine visualizzate, clic su telefono e WhatsApp, invii del modulo di prenotazione, tipo di dispositivo e paese approssimativo.",
+          "Misurazione del pubblico (solo con il vostro consenso): pagine visualizzate, clic su telefono e WhatsApp, invii del modulo di prenotazione, tipo di dispositivo e paese approssimativo; se arrivate da un annuncio Google, l'identificativo di quel clic.",
         ],
       },
       {
@@ -198,20 +198,20 @@ const COPY: Record<Language, LegalCopy> = {
         list: [
           "Gestire la prenotazione o il preventivo e inviarvi conferme, modifiche e la scheda di prenotazione: esecuzione di un contratto o misure precontrattuali.",
           "Rispondere ai vostri messaggi e scrivervi dopo il soggiorno: il nostro legittimo interesse a garantire l'assistenza clienti.",
-          "Misurare il pubblico del sito: il vostro consenso.",
+          "Misurare il pubblico del sito e l'efficacia dei nostri annunci, e personalizzare gli annunci: il vostro consenso.",
         ],
       },
       {
-        title: "Cookie e misurazione del pubblico",
+        title: "Cookie, misurazione del pubblico e pubblicità",
         paragraphs: [
-          "Utilizziamo Google Analytics 4 per capire come viene usato il sito. Viene caricato solo dopo la vostra accettazione tramite il banner dei cookie: senza il vostro consenso non viene installato alcun cookie di misurazione né inviato alcun dato a Google. I cookie interessati (_ga, _ga_*) durano fino a 2 anni. Non utilizziamo pubblicità né personalizzazione pubblicitaria. La vostra scelta viene richiesta di nuovo ogni 6 mesi e potete modificarla in qualsiasi momento con il link «Cookie» in fondo a ogni pagina.",
+          "Utilizziamo Google Analytics 4 per capire come viene usato il sito. Viene caricato solo dopo la vostra accettazione tramite il banner dei cookie: senza il vostro consenso non viene installato alcun cookie di misurazione né inviato alcun dato a Google. I cookie interessati (_ga, _ga_*) durano fino a 2 anni. Con lo stesso consenso utilizziamo anche Google Ads, per sapere quali annunci portano a una richiesta (clic su WhatsApp o telefono, modulo di prenotazione) e per mostrarvi i nostri annunci sui servizi di Google (pubblicità personalizzata); i suoi cookie (_gcl_*) durano al massimo 90 giorni. La vostra scelta viene richiesta di nuovo ogni 6 mesi e potete modificarla in qualsiasi momento con il link «Cookie» in fondo a ogni pagina.",
           "Altre informazioni vengono memorizzate nel vostro browser solo per far funzionare il sito (lingua scelta, tema, memorizzazione della scelta sui cookie); non richiedono consenso.",
         ],
       },
       {
         title: "Chi riceve i vostri dati?",
         paragraphs: [
-          "Non vendiamo i vostri dati. I nostri fornitori tecnici li trattano per nostro conto: hosting (Vercel), database (Neon), invio delle email (Resend) e, con il vostro consenso, misurazione del pubblico (Google). Alcuni si trovano fuori dall'Unione Europea o dal Marocco; i trasferimenti sono coperti da garanzie adeguate.",
+          "Non vendiamo i vostri dati. I nostri fornitori tecnici li trattano per nostro conto: hosting (Vercel), database (Neon), invio delle email (Resend) e, con il vostro consenso, misurazione del pubblico e pubblicità (Google). Alcuni si trovano fuori dall'Unione Europea o dal Marocco; i trasferimenti sono coperti da garanzie adeguate.",
         ],
       },
       {
