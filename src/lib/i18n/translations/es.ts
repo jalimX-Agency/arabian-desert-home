@@ -457,6 +457,7 @@ export const es: Record<string, unknown> = {
     stayInformed: "Manténgase informado de nuestras ofertas",
     emailPlaceholder: "su@email.com",
     copyright: "Arabian Desert Home. Todos los derechos reservados.",
+    credit: "Sitio web por",
     privacy: "Política de privacidad",
     cookies: "Cookies",
     terms: "Términos y condiciones",
