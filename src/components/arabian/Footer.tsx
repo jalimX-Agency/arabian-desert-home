@@ -313,10 +313,23 @@ export function Footer() {
         <div className="divider-accent" />
 
         <div className="max-w-7xl mx-auto px-6 md:px-10 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-          {/* Copyright */}
-          <p className="text-xs text-muted-foreground/50">
-            &copy; {new Date().getFullYear()} {t("footer.copyright")}
-          </p>
+          {/* Copyright + site credit */}
+          <div className="flex flex-col sm:flex-row items-center gap-x-4 gap-y-1 text-center sm:text-start">
+            <p className="text-xs text-muted-foreground/50">
+              &copy; {new Date().getFullYear()} {t("footer.copyright")}
+            </p>
+            <p className="text-xs text-muted-foreground/50">
+              {t("footer.credit")}{" "}
+              <a
+                href={language === "fr" ? "https://www.jalimx.com/fr" : "https://www.jalimx.com"}
+                target="_blank"
+                rel="noopener"
+                className="underline underline-offset-2 hover:text-amber/80 transition-colors duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber/40 rounded"
+              >
+                JalimX
+              </a>
+            </p>
+          </div>
 
           {/* Legal Links */}
           <div className="flex items-center gap-6">
