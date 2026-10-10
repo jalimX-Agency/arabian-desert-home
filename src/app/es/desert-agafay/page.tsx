@@ -207,7 +207,7 @@ export default function SpanishDesertAgafayPage() {
             <h2>Precios: ¿qué presupuesto para Agafay?</h2>
             <ul>
               <li><strong>Day Pass</strong> (día con piscina + almuerzo + actividades): desde 35€ por persona</li>
-              <li><strong>Noche en un bivouac de lujo</strong>: desde 170€ (Junior Tent) hasta 300€ (Suite) por jaima entera, desayuno incluido</li>
+              <li><strong>Noche en un bivouac de lujo</strong>: desde 170€ (Tienda Doble) hasta 220€ (Tienda Familiar) por jaima entera, desayuno incluido</li>
               <li><strong>Actividades</strong>: paseo en camello, quad o equitación como extras según el paquete</li>
               <li><strong>Eventos privados</strong>: <Link href="/es/les-evenements">bodas y seminarios</Link> bajo petición</li>
             </ul>

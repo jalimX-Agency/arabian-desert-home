@@ -208,7 +208,7 @@ export default function DesertAgafayPage() {
             <h2>Prix : quel budget pour Agafay ?</h2>
             <ul>
               <li><strong>Day Pass</strong> (journée piscine + déjeuner + activités) : à partir de 35 € par personne</li>
-              <li><strong>Nuit en bivouac de luxe</strong> : de 170 € (Tente Junior) à 300 € (Suite) la tente entière, petit-déjeuner inclus</li>
+              <li><strong>Nuit en bivouac de luxe</strong> : de 170 € (Tente Double) à 220 € (Tente Familiale) la tente entière, petit-déjeuner inclus</li>
               <li><strong>Activités</strong> : dromadaire, quad ou randonnée équestre en supplément selon la formule</li>
               <li><strong>Événements privés</strong> : <Link href="/les-evenements">mariages et séminaires</Link> sur devis</li>
             </ul>

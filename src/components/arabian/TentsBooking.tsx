@@ -445,7 +445,7 @@ export function TentsBooking({ suites }: { suites: TentSuite[] }) {
                   </ul>
 
                   <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-1 text-sm mb-4">
-                    {[...features, ...amenities].slice(0, 8).map((f) => (
+                    {Array.from(new Map([...features, ...amenities].map((f) => [f.toLowerCase(), f])).values()).slice(0, 8).map((f) => (
                       <li key={f} className="flex items-start gap-2 text-foreground/75">
                         <Check className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
                         <span>{f}</span>
