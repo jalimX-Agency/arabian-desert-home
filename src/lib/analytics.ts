@@ -85,10 +85,32 @@ export function isAnalyticsActive(): boolean {
   return Boolean(w.__adhGaLoaded && w.gtag && !w[disableKey()]);
 }
 
-/** Sends a GA4 event — a silent no-op unless the visitor consented and GA is loaded. */
+/**
+ * Google Ads conversion actions, by site event. The labels come from the account's
+ * conversion settings and are public (they ship in the page source of any site that
+ * uses them). Each is sent next to the GA4 event, under the same consent.
+ */
+const ADS_CONVERSION_LABELS: Record<string, string> = {
+  booking_form_submit: "5RGZCNvHgpgdEI668YdE",
+  whatsapp_click: "jr_3CN7HgpgdEI668YdE",
+  phone_click: "DfpaCOHHgpgdEI668YdE",
+};
+
+/** Sends a GA4 event (and the matching Google Ads conversion) — a silent no-op unless the
+ *  visitor consented and GA is loaded. */
 export function trackEvent(name: string, params: Record<string, unknown> = {}): void {
   if (typeof window === "undefined" || !isAnalyticsActive()) return;
   ga().gtag!("event", name, { language: languageFromPath(window.location.pathname), ...params });
+
+  const label = ADS_CONVERSION_LABELS[name];
+  if (label) {
+    const value = typeof params.value === "number" && Number.isFinite(params.value) && params.value > 0 ? params.value : undefined;
+    ga().gtag!("event", "conversion", {
+      send_to: `${GOOGLE_ADS_ID}/${label}`,
+      // Only the booking carries an amount; the account's default value applies otherwise.
+      ...(value !== undefined ? { value, currency: typeof params.currency === "string" ? params.currency : "MAD" } : {}),
+    });
+  }
 }
 
 /** Hard switch: while true, gtag.js sends nothing (Google's documented opt-out flag),
