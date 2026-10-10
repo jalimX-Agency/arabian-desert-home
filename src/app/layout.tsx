@@ -8,6 +8,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { CookieBanner } from "@/components/analytics/CookieBanner";
+import { WhatsAppButton } from "@/components/analytics/WhatsAppButton";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -124,6 +125,7 @@ export default function RootLayout({
             <LanguageProvider initialLanguage="fr" locked syncHtmlLang={false}>
               {children}
               <Toaster />
+              <WhatsAppButton />
               <CookieBanner />
               <GoogleAnalytics />
             </LanguageProvider>
