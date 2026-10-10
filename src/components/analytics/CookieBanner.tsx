@@ -15,28 +15,28 @@ import {
 const COPY: Record<SiteLanguage, { title: string; body: string; accept: string; refuse: string; more: string }> = {
   fr: {
     title: "Votre vie privée",
-    body: "Nous utilisons des cookies Google pour mesurer l'audience du site (Google Analytics) et l'efficacité de nos publicités, et pour vous proposer des annonces personnalisées (Google Ads). Ils ne sont déposés qu'avec votre accord, et vous pouvez changer d'avis à tout moment.",
+    body: "Avec votre accord, Google mesure l'audience du site (Analytics) et l'efficacité de nos annonces, et personnalise leur affichage (Ads). Modifiable à tout moment.",
     accept: "Accepter",
     refuse: "Refuser",
     more: "En savoir plus",
   },
   en: {
     title: "Your privacy",
-    body: "We use Google cookies to measure site traffic (Google Analytics) and how well our ads perform, and to show you personalised ads (Google Ads). They are only set with your consent, and you can change your mind at any time.",
+    body: "With your consent, Google measures site traffic (Analytics) and how well our ads perform, and personalises how they are shown (Ads). You can change this at any time.",
     accept: "Accept",
     refuse: "Decline",
     more: "Learn more",
   },
   es: {
     title: "Su privacidad",
-    body: "Utilizamos cookies de Google para medir la audiencia del sitio (Google Analytics) y la eficacia de nuestros anuncios, y para mostrarle anuncios personalizados (Google Ads). Solo se instalan con su consentimiento y puede cambiar de opinión en cualquier momento.",
+    body: "Con su consentimiento, Google mide la audiencia del sitio (Analytics) y la eficacia de nuestros anuncios, y personaliza su visualización (Ads). Puede cambiarlo en cualquier momento.",
     accept: "Aceptar",
     refuse: "Rechazar",
     more: "Más información",
   },
   it: {
     title: "La vostra privacy",
-    body: "Utilizziamo cookie di Google per misurare il traffico del sito (Google Analytics) e l'efficacia dei nostri annunci, e per mostrarvi annunci personalizzati (Google Ads). Vengono installati solo con il vostro consenso e potete cambiare idea in qualsiasi momento.",
+    body: "Con il vostro consenso, Google misura il traffico del sito (Analytics) e l'efficacia dei nostri annunci, e ne personalizza la visualizzazione (Ads). Potete cambiarlo in qualsiasi momento.",
     accept: "Accetta",
     refuse: "Rifiuta",
     more: "Maggiori informazioni",
@@ -44,14 +44,16 @@ const COPY: Record<SiteLanguage, { title: string; body: string; accept: string; 
 };
 
 /**
- * Cookie consent banner. Nothing is loaded or stored for analytics until the
- * visitor clicks Accept, and Decline is exactly as easy as Accept. Not shown on
- * private pages, which run no analytics at all. The footer "Cookies" link
+ * Cookie consent banner. Nothing is loaded or stored for analytics or advertising
+ * until the visitor clicks Accept, and Decline is exactly as easy as Accept. Kept
+ * to a few lines so it never hides the page's call to action on a phone. Not shown
+ * on private pages, which run no analytics at all. The footer "Cookies" link
  * re-opens it so the choice can be changed.
  */
 export function CookieBanner() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const visible = open && !isPrivatePath(pathname);
 
   useEffect(() => {
     setOpen(readConsent() === null);
@@ -60,7 +62,17 @@ export function CookieBanner() {
     return () => window.removeEventListener(OPEN_SETTINGS_EVENT, reopen);
   }, []);
 
-  if (!open || isPrivatePath(pathname)) return null;
+  // Lets other fixed elements (the WhatsApp button) make room while the banner is up.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (visible) root.dataset.cookieBanner = "open";
+    else delete root.dataset.cookieBanner;
+    return () => {
+      delete root.dataset.cookieBanner;
+    };
+  }, [visible]);
+
+  if (!visible) return null;
 
   const lang = languageFromPath(pathname);
   const c = COPY[lang];
@@ -74,10 +86,9 @@ export function CookieBanner() {
   return (
     <section
       aria-label={c.title}
-      className="fixed inset-x-3 bottom-3 z-[60] sm:inset-x-auto sm:left-6 sm:bottom-6 sm:max-w-sm rounded-2xl border border-amber/25 bg-background/95 backdrop-blur-md shadow-2xl p-5"
+      className="fixed inset-x-3 bottom-3 z-[60] sm:inset-x-auto sm:left-6 sm:bottom-6 sm:max-w-sm rounded-2xl border border-amber/25 bg-background/95 backdrop-blur-md shadow-2xl p-3.5 sm:p-4"
     >
-      <p className="luxury-label text-amber text-[11px] mb-2">{c.title}</p>
-      <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+      <p className="text-xs leading-relaxed text-muted-foreground mb-3">
         {c.body}{" "}
         <Link href={privacyHref} className="text-amber underline underline-offset-2 hover:text-amber/80">
           {c.more}
@@ -87,14 +98,14 @@ export function CookieBanner() {
         <button
           type="button"
           onClick={() => choose(false)}
-          className="cursor-pointer rounded-full border border-foreground/30 px-4 py-2.5 text-xs uppercase tracking-widest text-foreground hover:border-foreground transition-colors"
+          className="cursor-pointer rounded-full border border-foreground/30 px-4 py-2 text-xs uppercase tracking-widest text-foreground hover:border-foreground transition-colors"
         >
           {c.refuse}
         </button>
         <button
           type="button"
           onClick={() => choose(true)}
-          className="cursor-pointer rounded-full border border-amber bg-amber px-4 py-2.5 text-xs uppercase tracking-widest text-black hover:bg-amber/90 transition-colors"
+          className="cursor-pointer rounded-full border border-amber bg-amber px-4 py-2 text-xs uppercase tracking-widest text-black hover:bg-amber/90 transition-colors"
         >
           {c.accept}
         </button>
