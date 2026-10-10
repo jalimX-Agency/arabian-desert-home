@@ -149,6 +149,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ to
         guests: item.guests,
         children: item.children,
         currencyOverride: item.currency,
+        excludeBookingId: item.id,
       });
     } catch (e) {
       return fail("unavailable", e instanceof Error ? e.message : "Ces dates ne sont pas disponibles");

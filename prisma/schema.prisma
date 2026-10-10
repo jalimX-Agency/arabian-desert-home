@@ -24,6 +24,10 @@ model Suite {
   images            String
   maxGuests         Int       @default(2)
   maxChildren       Int       @default(2)
+  // How many tents of this type the camp has: the site refuses a booking once they are all taken.
+  units             Int       @default(2)
+  // Free cancellation up to this many days before arrival (shown like on Booking.com).
+  freeCancellationDays Int    @default(3)
   bedType           String
   size              String
   hasAC             Boolean   @default(false)

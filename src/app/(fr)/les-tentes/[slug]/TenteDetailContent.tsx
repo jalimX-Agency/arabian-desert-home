@@ -14,6 +14,7 @@ interface Suite {
   longDescription: string;
   price: number;
   currency: string;
+  freeCancellationDays?: number;
   features: string;
   amenities: string;
   image: string;
@@ -46,8 +47,18 @@ interface Suite {
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
+/** The price is not shown here: it depends on the dates, which are chosen when booking. */
+const HINT: Record<string, { price: string; cancel: (n: number) => string }> = {
+  fr: { price: "Prix selon vos dates", cancel: (n) => `Annulation gratuite jusqu'à ${n} jour${n > 1 ? "s" : ""} avant l'arrivée` },
+  en: { price: "Price depends on your dates", cancel: (n) => `Free cancellation up to ${n} day${n > 1 ? "s" : ""} before arrival` },
+  es: { price: "Precio según sus fechas", cancel: (n) => `Cancelación gratuita hasta ${n} día${n > 1 ? "s" : ""} antes de la llegada` },
+  it: { price: "Prezzo in base alle date", cancel: (n) => `Cancellazione gratuita fino a ${n} giorn${n > 1 ? "i" : "o"} prima dell'arrivo` },
+};
+
 export function TenteDetailContent({ suite }: { suite: Suite }) {
   const { language, t } = useLanguage();
+  const hint = HINT[language] ?? HINT.fr;
+  const bookHref = `${withLocale(language, "/reservez-votre-sejour")}?tents=${suite.slug}:1`;
 
   const name        = pickLocalized(language, suite.name, suite.nameEn, suite.nameEs, suite.nameIt);
   const tagline     = pickLocalized(language, suite.tagline, suite.taglineEn, suite.taglineEs, suite.taglineIt);
@@ -86,8 +97,7 @@ export function TenteDetailContent({ suite }: { suite: Suite }) {
           transition={{ duration: 0.6, ease: smoothEase }}
           className="absolute top-24 md:top-28 right-6 md:right-12 z-10 bg-black/50 backdrop-blur-md px-5 py-2.5 rounded-full"
         >
-          <span className="text-amber mono-number text-xl">{suite.price} {suite.currency === "EUR" ? "€" : suite.currency}</span>
-          <span className="text-white/40 text-xs ml-1">{t("suiteDetail.perNight")}</span>
+          <span className="text-amber text-sm luxury-label">{hint.price}</span>
         </motion.div>
 
         <div className="absolute bottom-0 left-0 right-0 px-6 md:px-12 pb-10">
@@ -222,7 +232,7 @@ export function TenteDetailContent({ suite }: { suite: Suite }) {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href={`${withLocale(language, "/reservez-votre-sejour")}?type=tente&slug=${suite.slug}`}
+                href={bookHref}
                 className="btn-primary flex items-center justify-center gap-2 text-sm"
               >
                 {t("suiteDetail.bookThisSuite")}
@@ -261,7 +271,7 @@ export function TenteDetailContent({ suite }: { suite: Suite }) {
             transition={{ duration: 0.8, delay: 0.2, ease: smoothEase }}
             className="body-editorial text-muted-foreground mb-8"
           >
-            {t("suiteDetail.startingFrom")} {suite.price} {suite.currency === "EUR" ? "€" : suite.currency} {t("suiteDetail.perNight2")}
+            {hint.price} · {hint.cancel(suite.freeCancellationDays ?? 3)}
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -270,7 +280,7 @@ export function TenteDetailContent({ suite }: { suite: Suite }) {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Link
-              href={`${withLocale(language, "/reservez-votre-sejour")}?type=tente&slug=${suite.slug}`}
+              href={bookHref}
               className="btn-primary flex items-center justify-center gap-2"
             >
               {t("nav.bookNow")}

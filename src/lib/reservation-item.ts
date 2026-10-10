@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
-import { rangeOverlapsClosure } from "@/lib/availability";
+import { rangeOverlapsClosure, suitesAvailability } from "@/lib/availability";
 
 export interface CartItemInput {
   serviceType: "suite" | "activity" | "daypass";
@@ -14,8 +14,11 @@ export interface CartItemInput {
   guests?: number;
   children?: number;
   experiences?: string;
-  /** Admin-only escape hatch for manually recording a stay during a closed period. */
+  /** Admin-only escape hatch for manually recording a stay during a closed period
+   *  (it also lets the admin go past the tent count). */
   allowClosedPeriod?: boolean;
+  /** A guest moving one of their own stays: that booking must not count against itself. */
+  excludeBookingId?: string;
   /** Admin-only: record this item in a currency other than the catalog item's own
    *  (e.g. an OTA/phone booking quoted in EUR). The public site never sets this. */
   currencyOverride?: string;
@@ -53,6 +56,19 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
     const checkOut = new Date(item.checkOut);
     if (!item.allowClosedPeriod && rangeOverlapsClosure(checkIn, checkOut, suite.closures)) {
       throw new Error(`${suite.name} n'est pas disponible sur ces dates`);
+    }
+    if (!item.allowClosedPeriod) {
+      const [avail] = await suitesAvailability(db as never, checkIn, checkOut, {
+        suiteIds: [suite.id],
+        excludeBookingId: item.excludeBookingId,
+      });
+      if (avail && quantity > avail.left) {
+        throw new Error(
+          avail.left <= 0
+            ? `${suite.name} est complète sur ces dates`
+            : `${suite.name} : il ne reste que ${avail.left} tente${avail.left > 1 ? "s" : ""} sur ces dates`,
+        );
+      }
     }
     return {
       serviceType: "suite",
