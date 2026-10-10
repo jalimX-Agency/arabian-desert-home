@@ -49,10 +49,11 @@ export default async function TenteDetailPage({ params }: { params: Promise<{ sl
     image,
     brand: { "@type": "Brand", name: "Arabian Desert Home" },
     offers: {
-      "@type": "Offer",
+      "@type": "AggregateOffer",
       url: `https://www.arabiandeserthome.ma/les-tentes/${slug}`,
       priceCurrency: "EUR",
-      price: suite.price,
+      lowPrice: suite.price,
+      offerCount: 1,
       availability: "https://schema.org/InStock",
       seller: { "@type": "Organization", name: "Arabian Desert Home" },
     },

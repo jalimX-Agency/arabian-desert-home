@@ -10,7 +10,7 @@ const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/he
 
 export const metadata = {
   title: "Hotel y Jaimas de Lujo en el Desierto de Agafay | Arabian Desert Home",
-  description: "Hotel boutique bajo lona en el desierto de Agafay: Junior Tent desde 170€, Family Tent 220€, Suite 300€. Desayuno incluido, a 30 km de Marrakech.",
+  description: "Hotel boutique bajo lona en el desierto de Agafay: Tienda Doble desde 170€, Tienda Triple 190€, Tienda Familiar 220€. Desayuno incluido, a 30 km de Marrakech.",
   keywords: [
     "hotel agafay", "hotel desierto agafay", "bivouac de lujo agafay", "jaima glamping marrakech",
     "jaima de lujo desierto agafay", "bivouac de lujo agafay con piscina",
@@ -37,6 +37,33 @@ export default async function SpanishLesTentesPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            itemListElement: suites.map((s, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              url: `https://www.arabiandeserthome.ma/es/les-tentes/${s.slug}`,
+              item: {
+                "@type": "Product",
+                name: s.nameEs || s.name,
+                image: s.image,
+                brand: { "@type": "Brand", name: "Arabian Desert Home" },
+                offers: {
+                  "@type": "AggregateOffer",
+                  priceCurrency: s.currency,
+                  lowPrice: s.price,
+                  offerCount: 1,
+                  availability: "https://schema.org/InStock",
+                },
+              },
+            })),
+          }),
+        }}
+      />
       <Navigation />
       <main className="flex-1">
         <LesTentesContent suites={suites} />

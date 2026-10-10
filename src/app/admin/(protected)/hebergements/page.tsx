@@ -13,6 +13,7 @@ export default function HebergementsPage() {
         { key: "type", label: "Type" },
         { key: "price", label: "Prix", render: (v, row) => `${v} ${row.currency}` },
         { key: "maxGuests", label: "Pers." },
+        { key: "units", label: "Tentes" },
         { key: "featured", label: "Prestige", render: (v) => v ? "✓" : "—" },
       ]}
       fields={[
@@ -55,6 +56,8 @@ export default function HebergementsPage() {
         { key: "currency", label: "Devise", type: "select", options: ["MAD", "EUR"] },
         { key: "maxGuests", label: "Nb. adultes max", type: "number" },
         { key: "maxChildren", label: "Nb. enfants max", type: "number" },
+        { key: "units", label: "Nombre de tentes de ce type (stock)", type: "number" },
+        { key: "freeCancellationDays", label: "Annulation gratuite jusqu'à X jours avant l'arrivée", type: "number" },
         { key: "bedType", label: "Type de lit" },
         { key: "size", label: "Surface (ex: 45m²)" },
         { key: "hasAC", label: "Climatisation", type: "checkbox" },
@@ -66,7 +69,7 @@ export default function HebergementsPage() {
         { label: "Général", fieldKeys: ["name", "slug", "type", "tagline", "order", "featured"] },
         { label: "Contenu FR", fieldKeys: ["description", "longDescription", "features", "amenities"] },
         { label: "Contenu EN", fieldKeys: ["nameEn", "taglineEn", "descriptionEn", "longDescriptionEn", "featuresEn", "amenitiesEn"] },
-        { label: "Tarifs & Infos", fieldKeys: ["price", "originalPrice", "currency", "maxGuests", "maxChildren", "bedType", "size", "hasAC"] },
+        { label: "Tarifs & Infos", fieldKeys: ["price", "originalPrice", "currency", "maxGuests", "maxChildren", "units", "freeCancellationDays", "bedType", "size", "hasAC"] },
         { label: "Médias", fieldKeys: ["image", "images"] },
       ]}
     />

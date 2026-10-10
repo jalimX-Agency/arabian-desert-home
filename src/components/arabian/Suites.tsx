@@ -24,7 +24,8 @@ export function Suites() {
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [suites, setSuites] = useState<Suite[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const fromLabel = { fr: "À partir de", en: "From", es: "Desde", it: "Da" }[language];
 
   useEffect(() => {
     fetch("/api/suites")
@@ -185,8 +186,9 @@ export function Suites() {
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
+                          <span className="text-white/60 text-xs mr-1.5">{fromLabel}</span>
                           <span className="text-terracotta mono-number text-xl">
-                            ${suite.price}
+                            {suite.price} €
                           </span>
                           <span className="text-white/40 text-sm ml-1">
                             {t("suites.perNight")}

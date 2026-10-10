@@ -10,6 +10,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (deny) return deny;
   const { id } = await params;
   const data = await req.json();
+  // Stock is at least one tent; the free-cancellation window is 0–60 days.
+  if ("units" in data) data.units = Math.max(1, Math.floor(Number(data.units) || 1));
+  if ("freeCancellationDays" in data) {
+    data.freeCancellationDays = Math.min(60, Math.max(0, Math.floor(Number(data.freeCancellationDays) || 0)));
+  }
   const before = await db.suite.findUnique({ where: { id }, select: { slug: true } });
   const suite = await db.suite.update({ where: { id }, data });
   notifyIndexNow(localizedUrls(`/les-tentes/${suite.slug}`));

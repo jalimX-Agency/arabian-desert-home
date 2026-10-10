@@ -10,7 +10,7 @@ const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/he
 
 export const metadata = {
   title: "Hotel e Tende di Lusso nel Deserto di Agafay | Arabian Desert Home",
-  description: "Hotel boutique sotto tenda nel deserto di Agafay: Junior Tent da 170€, Family Tent 220€, Suite 300€. Colazione inclusa, a 30 km da Marrakech.",
+  description: "Hotel boutique sotto tenda nel deserto di Agafay: Tenda Doppia da 170€, Tenda Tripla 190€, Tenda Familiare 220€. Colazione inclusa, a 30 km da Marrakech.",
   keywords: [
     "hotel agafay", "hotel deserto agafay", "bivacco di lusso agafay", "tenda glamping marrakech",
     "tenda di lusso deserto agafay", "bivacco di lusso agafay con piscina",
@@ -37,6 +37,33 @@ export default async function ItalianLesTentesPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            itemListElement: suites.map((s, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              url: `https://www.arabiandeserthome.ma/it/les-tentes/${s.slug}`,
+              item: {
+                "@type": "Product",
+                name: s.nameIt || s.name,
+                image: s.image,
+                brand: { "@type": "Brand", name: "Arabian Desert Home" },
+                offers: {
+                  "@type": "AggregateOffer",
+                  priceCurrency: s.currency,
+                  lowPrice: s.price,
+                  offerCount: 1,
+                  availability: "https://schema.org/InStock",
+                },
+              },
+            })),
+          }),
+        }}
+      />
       <Navigation />
       <main className="flex-1">
         <LesTentesContent suites={suites} />

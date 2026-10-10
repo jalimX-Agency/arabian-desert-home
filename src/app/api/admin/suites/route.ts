@@ -15,6 +15,12 @@ export async function POST(req: NextRequest) {
   const deny = await requireAdmin();
   if (deny) return deny;
   const data = await req.json();
+  // The form sends 0 for number fields left untouched: a new tent type needs at least one
+  // tent in stock and the default cancellation window, or it would show up as sold out.
+  if (!(Number(data.units) >= 1)) data.units = 2;
+  data.units = Math.floor(Number(data.units));
+  if (!(Number(data.freeCancellationDays) >= 1)) data.freeCancellationDays = 3;
+  data.freeCancellationDays = Math.min(60, Math.floor(Number(data.freeCancellationDays)));
   const suite = await db.suite.create({ data });
   notifyIndexNow(localizedUrls(`/les-tentes/${suite.slug}`));
   revalidateLocalized("/les-tentes");

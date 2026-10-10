@@ -208,7 +208,7 @@ export default function EnglishDesertAgafayPage() {
             <h2>Prices: what budget for Agafay?</h2>
             <ul>
               <li><strong>Day Pass</strong> (day with pool + lunch + activities): from €35 per person</li>
-              <li><strong>Night in a luxury bivouac</strong>: from €170 (Junior Tent) to €300 (Suite) for the whole tent, breakfast included</li>
+              <li><strong>Night in a luxury bivouac</strong>: from €170 (Double Tent) to €220 (Family Tent) for the whole tent, breakfast included</li>
               <li><strong>Activities</strong>: camel ride, quad or horseback riding as extras depending on the package</li>
               <li><strong>Private events</strong>: <Link href="/en/les-evenements">weddings and seminars</Link> on request</li>
             </ul>

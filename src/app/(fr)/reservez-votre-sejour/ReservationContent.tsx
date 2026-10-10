@@ -34,6 +34,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage, pickLocalized } from "@/lib/i18n/context";
 import { trackEvent } from "@/lib/analytics";
+import { parseISODay, parseTentPicks, readStayFromQuery } from "@/lib/tent-stay";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
 
 const DATE_LOCALES = { fr: frLocale, en: enUS, es: esLocale, it: itLocale };
@@ -73,6 +74,7 @@ interface ClosureWindow {
 
 interface Suite {
   id: string;
+  slug?: string;
   name: string;
   nameEn?: string;
   nameEs?: string;
@@ -502,6 +504,34 @@ export function ReservationContent() {
     fetch("/api/activities").then((r) => r.json()).then(setActivities).catch(() => {});
     fetch("/api/day-passes").then((r) => r.json()).then(setDayPasses).catch(() => {});
   }, []);
+
+  // A stay chosen on the tents page arrives through the URL (dates, guests, tents):
+  // fill the form and open the details step so the visitor only has to confirm.
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (prefilled.current || suites.length === 0) return;
+    prefilled.current = true;
+    const query = new URLSearchParams(window.location.search);
+    const picks = parseTentPicks(query.get("tents"));
+    const stay = readStayFromQuery(query);
+    if (picks.length === 0 && !stay.checkIn) return;
+
+    const quantities: Record<string, number> = {};
+    for (const pick of picks) {
+      const suite = suites.find((s) => s.slug === pick.slug);
+      if (suite) quantities[suite.id] = pick.qty;
+    }
+    const inDate = parseISODay(stay.checkIn);
+    const outDate = parseISODay(stay.checkOut);
+
+    setPrimaryType("suite");
+    if (Object.keys(quantities).length > 0) setTentQuantities(quantities);
+    if (inDate) setCheckIn(inDate);
+    if (outDate) setCheckOut(outDate);
+    setPrimaryAdults(stay.adults);
+    setPrimaryChildren(stay.children);
+    setStep(2);
+  }, [suites]);
 
   // Changing the primary type starts a fresh selection — including add-ons,
   // since Day Pass add-ons are only meaningful attached to their own primary.
