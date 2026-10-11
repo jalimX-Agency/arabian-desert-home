@@ -18,6 +18,8 @@ export interface DevisItem {
   children: number;
   unitPrice: number;
   totalAmount: number;
+  /** How totalAmount is made up, stored when the line was saved (null on older quotes). */
+  breakdown?: unknown;
   currency: string;
   order: number;
 }

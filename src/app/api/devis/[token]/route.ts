@@ -43,6 +43,8 @@ function publicView(devis: NonNullable<Awaited<ReturnType<typeof loadDevis>>>) {
       quantity: i.quantity,
       guests: i.guests,
       children: i.children,
+      unitPrice: i.unitPrice,
+      breakdown: i.breakdown,
       totalAmount: i.totalAmount,
       currency: i.currency,
     })),

@@ -1,4 +1,6 @@
+import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
+import { buildLineBreakdown, customBreakdown } from "@/lib/devis-breakdown";
 import { priceCartItem } from "@/lib/reservation-item";
 import { roundMoney, sumMoney } from "@/lib/money";
 import { nightsBetween, parseDevisPriceMode, unitModeTotal, type DevisPriceMode } from "@/lib/devis-pricing";
@@ -73,6 +75,7 @@ export async function priceDevisItem(item: DevisItemInput, currency: string, ord
       children: Math.max(0, Math.round(item.children ?? 0)),
       unitPrice,
       totalAmount: roundMoney(quantity * unitPrice),
+      breakdown: customBreakdown(quantity, unitPrice) as unknown as Prisma.InputJsonValue,
       currency,
       order,
     };
@@ -126,6 +129,24 @@ export async function priceDevisItem(item: DevisItemInput, currency: string, ord
     quoted = sent !== null && sent !== priced.totalAmount ? sent : roundMoney(priced.totalAmount);
   }
 
+  // What the amount is made of, frozen with the line. An older client that sent a custom
+  // amount is, in effect, a fixed total.
+  const effectiveMode: DevisPriceMode = mode ?? (quoted !== roundMoney(priced.totalAmount) ? "total" : "catalog");
+  const breakdown = buildLineBreakdown({
+    serviceType: priced.serviceType,
+    mode: effectiveMode,
+    unitPrice,
+    guests: priced.guests,
+    children: priced.children,
+    quantity: priced.quantity,
+    checkIn: priced.checkIn,
+    checkOut: priced.checkOut,
+    date: priced.date,
+    basePrice: entry.price,
+    windows: entry.seasonalPrices,
+    childPricePercent: entry.childPricePercent,
+  });
+
   return {
     kind: "catalog",
     serviceType: priced.serviceType,
@@ -143,6 +164,7 @@ export async function priceDevisItem(item: DevisItemInput, currency: string, ord
     // Set only for a price per person / per night, so the editor can reopen the line in that mode.
     unitPrice,
     totalAmount: quoted,
+    breakdown: breakdown as unknown as Prisma.InputJsonValue,
     currency,
     order,
   };
@@ -151,13 +173,13 @@ export async function priceDevisItem(item: DevisItemInput, currency: string, ord
 /** The catalogue entry behind a line: its name (snapshotted, so a later rename doesn't rewrite
  *  an old quote), the currency its rates are in, and its child rate. */
 async function catalogEntry(priced: { suiteId: string | null; activityId: string | null; dayPassId: string | null }) {
-  const select = { name: true, currency: true, childPricePercent: true } as const;
+  const select = { name: true, currency: true, childPricePercent: true, price: true, seasonalPrices: true } as const;
   const row =
     priced.suiteId ? await db.suite.findUnique({ where: { id: priced.suiteId }, select })
     : priced.activityId ? await db.activity.findUnique({ where: { id: priced.activityId }, select })
     : priced.dayPassId ? await db.dayPass.findUnique({ where: { id: priced.dayPassId }, select })
     : null;
-  return row ?? { name: "—", currency: "", childPricePercent: 50 };
+  return row ?? { name: "—", currency: "", childPricePercent: 50, price: 0, seasonalPrices: [] };
 }
 
 export type PricedDevisItem = Awaited<ReturnType<typeof priceDevisItem>>;

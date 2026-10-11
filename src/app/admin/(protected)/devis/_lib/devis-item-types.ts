@@ -3,6 +3,9 @@ import { computeItemPrice, toWindows, type Catalog, type EditableItem, type Serv
 import { priceForDate } from "@/lib/seasonal-price";
 import { roundMoney } from "@/lib/money";
 import { nightsBetween, unitModeTotal, type DevisPriceMode } from "@/lib/devis-pricing";
+import {
+  buildLineBreakdown, customBreakdown, fallbackBreakdown, readBreakdown, type DevisBreakdown,
+} from "@/lib/devis-breakdown";
 import type { DevisItem } from "./devis-utils";
 
 export type DevisLineKind = "catalog" | "custom";
@@ -23,6 +26,8 @@ export type EditableDevisItem = EditableItem & {
    *  the admin changes what the price depends on (people, dates, item…), so the line
    *  re-prices instead of silently keeping the old amount. */
   lockedFromSave?: boolean;
+  /** How the saved amount was made up, as stored with the line (shown while it is frozen). */
+  storedBreakdown?: DevisBreakdown | null;
 };
 
 /** Fields a catalogue line's price depends on. */
@@ -73,6 +78,7 @@ export function devisItemToEditable(item: DevisItem): EditableDevisItem {
     customPrice: priceMode !== "catalog",
     priceMode,
     lockedFromSave: priceMode === "total",
+    storedBreakdown: readBreakdown(item.breakdown) ?? fallbackBreakdown(item),
     label: item.label,
     description: item.description ?? "",
     unitPrice: item.unitPrice,
@@ -124,6 +130,31 @@ export function applyDevisItemPatch(item: EditableDevisItem, patch: Partial<Edit
     next.lockedFromSave = false;
   }
   return next;
+}
+
+/** The breakdown of a line as the editor currently has it ("170 € × 3 nuits × 2 tentes"). A saved
+ *  line that is still frozen shows what was stored with it, not a fresh computation. */
+export function lineBreakdown(item: EditableDevisItem, catalog: Catalog): DevisBreakdown | null {
+  if (item.kind === "custom") return customBreakdown(item.quantity, item.unitPrice);
+  if (item.priceMode === "total") {
+    return item.lockedFromSave && item.storedBreakdown ? item.storedBreakdown : { v: 1, mode: "total", parts: [] };
+  }
+  const entry = catalogEntryFor(item, catalog);
+  if (!entry) return null;
+  return buildLineBreakdown({
+    serviceType: item.serviceType,
+    mode: item.priceMode,
+    unitPrice: item.unitPrice,
+    guests: item.guests,
+    children: item.children,
+    quantity: item.quantity,
+    checkIn: item.checkIn || null,
+    checkOut: item.checkOut || null,
+    date: item.date || null,
+    basePrice: entry.price,
+    windows: entry.seasonalPrices ?? [],
+    childPricePercent: "childPricePercent" in entry ? entry.childPricePercent : 50,
+  });
 }
 
 /** Free lines are quantity × unit price; catalogue lines follow their pricing mode. */

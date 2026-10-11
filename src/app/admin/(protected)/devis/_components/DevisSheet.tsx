@@ -112,6 +112,8 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
   }, [form.currency]);
 
   const grandTotal = sumMoney(items.map((it) => it.totalAmount));
+  const discountsTotal = sumMoney(items.filter((it) => it.totalAmount < 0).map((it) => it.totalAmount));
+  const subtotalAmount = sumMoney(items.filter((it) => it.totalAmount >= 0).map((it) => it.totalAmount));
   const isValid =
     form.firstName.trim() !== "" && form.lastName.trim() !== "" &&
     form.email.trim() !== "" && form.phone.trim() !== "" &&
@@ -362,6 +364,12 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
             ))}
           </div>
 
+          {discountsTotal < 0 && (
+            <div className="space-y-1 text-sm text-gray-500 dark:text-white/60 pt-2">
+              <div className="flex items-center justify-between"><span>Sous-total</span><span>{formatMoney(subtotalAmount)} {form.currency}</span></div>
+              <div className="flex items-center justify-between"><span>Remises</span><span className="text-red-500">{formatMoney(discountsTotal)} {form.currency}</span></div>
+            </div>
+          )}
           <div className="flex items-center justify-between pt-2">
             <span className="text-sm text-gray-500 dark:text-white/60">Montant total</span>
             <span className="text-lg font-semibold text-amber-600 dark:text-amber-400">

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { formatMoney } from "@/lib/money";
+import { formatMoney, sumMoney } from "@/lib/money";
+import { fallbackBreakdown, formatBreakdown, readBreakdown } from "@/lib/devis-breakdown";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { fr, enUS, es } from "date-fns/locale";
@@ -28,6 +29,8 @@ interface DevisItem {
   quantity: number;
   guests: number;
   children: number;
+  unitPrice?: number;
+  breakdown?: unknown;
   totalAmount: number;
   currency: string;
 }
@@ -74,7 +77,7 @@ const T = {
     loading: "Chargement de votre devis…",
     questions: "Des questions ? Contactez-nous au +212 667-370-206 ou info@arabiandeserthome.ma",
     nights: (n: number) => `${n} nuit${n > 1 ? "s" : ""}`,
-    qty: "Qté",
+    qty: "Qté", subtotal: "Sous-total", discounts: "Remises",
   },
   en: {
     eyebrow: "Your quotation", hello: (n: string) => `Hello ${n}`,
@@ -94,7 +97,7 @@ const T = {
     loading: "Loading your quotation…",
     questions: "Any questions? Call +212 667-370-206 or email info@arabiandeserthome.ma",
     nights: (n: number) => `${n} night${n > 1 ? "s" : ""}`,
-    qty: "Qty",
+    qty: "Qty", subtotal: "Subtotal", discounts: "Discounts",
   },
   es: {
     eyebrow: "Su presupuesto", hello: (n: string) => `Hola ${n}`,
@@ -114,7 +117,7 @@ const T = {
     loading: "Cargando su presupuesto…",
     questions: "¿Preguntas? Llame al +212 667-370-206 o escriba a info@arabiandeserthome.ma",
     nights: (n: number) => `${n} noche${n > 1 ? "s" : ""}`,
-    qty: "Cant.",
+    qty: "Cant.", subtotal: "Subtotal", discounts: "Descuentos",
   },
 };
 
@@ -159,6 +162,14 @@ export default function DevisPage() {
     setBusy(null);
   }
 
+  const moneyText = (n: number) => `${formatMoney(n)} ${devis?.currency ?? ""}`.trim();
+
+  /** "170 € × 3 nuits × 2 tentes" — where a line's amount comes from. */
+  function itemCalc(item: DevisItem): string {
+    const b = readBreakdown(item.breakdown) ?? fallbackBreakdown({ ...item, unitPrice: item.unitPrice ?? 0 });
+    return b ? formatBreakdown(b, lang, moneyText) : "";
+  }
+
   function itemDates(item: DevisItem): string | null {
     if (item.checkIn && item.checkOut) {
       const nights = Math.max(1, Math.round((new Date(item.checkOut).getTime() - new Date(item.checkIn).getTime()) / 86_400_000));
@@ -167,6 +178,9 @@ export default function DevisPage() {
     if (item.date) return format(new Date(item.date), "d MMM yyyy", { locale });
     return null;
   }
+
+  const discounts = sumMoney((devis?.items ?? []).filter((i) => i.totalAmount < 0).map((i) => i.totalAmount));
+  const subtotal = sumMoney((devis?.items ?? []).filter((i) => i.totalAmount >= 0).map((i) => i.totalAmount));
 
   const canAnswer = devis?.status === "sent" && !devis.expired && !devis.answeredAt;
 
@@ -226,6 +240,7 @@ export default function DevisPage() {
                 {devis.items.map((item) => {
                   const Icon = SERVICE_ICON[item.kind === "custom" ? "custom" : item.serviceType] ?? Sparkles;
                   const dates = itemDates(item);
+                  const calc = itemCalc(item);
                   return (
                     <div key={item.id} className="glass-card card-warm p-6 flex flex-col sm:flex-row sm:items-center gap-4">
                       <div className="w-11 h-11 rounded-xl bg-amber/10 border border-amber/15 flex items-center justify-center shrink-0">
@@ -238,8 +253,8 @@ export default function DevisPage() {
                           {dates && <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" />{dates}</span>}
                           {(item.kind !== "custom" || item.guests > 0) && <span className="flex items-center gap-1"><Users className="w-3 h-3" />{item.guests}</span>}
                           {item.children > 0 && <span className="flex items-center gap-1"><Baby className="w-3 h-3" />{item.children}</span>}
-                          {item.quantity > 1 && <span>{t.qty} {item.quantity}</span>}
                         </div>
+                        {calc && <p className="text-xs text-amber mt-1.5 font-medium">{calc}</p>}
                       </div>
                       <span className={`mono-number text-base shrink-0 ${item.totalAmount < 0 ? "text-red-500" : "text-amber"}`}>
                         {formatMoney(item.totalAmount)} {item.currency}
@@ -250,6 +265,12 @@ export default function DevisPage() {
               </div>
 
               <div className="glass-card card-warm p-6 mb-8">
+                {discounts < 0 && (
+                  <div className="mb-3 pb-3 border-b border-white/10 space-y-1 text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between"><span>{t.subtotal}</span><span className="mono-number">{moneyText(subtotal)}</span></div>
+                    <div className="flex items-center justify-between"><span>{t.discounts}</span><span className="mono-number text-red-500">{moneyText(discounts)}</span></div>
+                  </div>
+                )}
                 <div className="flex items-center justify-between">
                   <span className="luxury-label text-amber/70">{t.total}</span>
                   <span className="mono-number text-2xl text-amber">
