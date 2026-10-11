@@ -19,6 +19,7 @@ export default function DevisPage() {
   const [dateTo, setDateTo] = useState("");
   const [selected, setSelected] = useState<Devis | null>(null);
   const [creating, setCreating] = useState(false);
+  const [template, setTemplate] = useState<Devis | null>(null);
 
   async function load(): Promise<Devis[]> {
     const res = await fetch("/api/admin/devis");
@@ -62,11 +63,33 @@ export default function DevisPage() {
     URL.revokeObjectURL(url);
   }
 
-  async function handleSaved() {
+  async function handleSaved(openId?: string) {
     // Use the rows just returned, not `rows` — that state hasn't re-rendered yet here.
     const fresh = await load();
+    if (openId) {
+      // A quote just created stays open on its own record, ready to be sent.
+      const created = fresh.find((r) => r.id === openId);
+      if (created) {
+        setCreating(false);
+        setTemplate(null);
+        setSelected(created);
+        return;
+      }
+    }
     setSelected((current) => (current ? fresh.find((r) => r.id === current.id) ?? null : null));
   }
+
+  // A new quote starts from the last one: same language, currency and conditions.
+  const defaults = useMemo(() => {
+    const last = rows[0];
+    const withConditions = rows.find((r) => r.conditions);
+    return {
+      lang: last?.lang ?? "fr",
+      currency: last?.currency ?? "EUR",
+      channel: "email",
+      conditions: withConditions?.conditions ?? "",
+    };
+  }, [rows]);
 
   const cards = [
     { label: "En attente de réponse", value: String(summary.pending) },
@@ -95,7 +118,7 @@ export default function DevisPage() {
         dateTo={dateTo}
         onDateToChange={setDateTo}
         onExportCsv={exportCsv}
-        onNewDevis={() => setCreating(true)}
+        onNewDevis={() => { setTemplate(null); setCreating(true); }}
       />
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -112,10 +135,13 @@ export default function DevisPage() {
       <DevisSheet
         devis={selected}
         creating={creating}
+        template={template}
+        defaults={defaults}
         onOpenChange={(open) => {
-          if (!open) { setSelected(null); setCreating(false); }
+          if (!open) { setSelected(null); setCreating(false); setTemplate(null); }
         }}
         onSaved={handleSaved}
+        onDuplicate={(d) => { setSelected(null); setTemplate(d); setCreating(true); }}
       />
     </div>
   );
