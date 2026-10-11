@@ -55,8 +55,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     lang?: string; currency?: string; validUntil?: string; items?: DevisItemInput[];
   };
 
-  if (!firstName || !lastName || !email || !phone) {
-    return NextResponse.json({ error: "Nom, email et téléphone sont obligatoires" }, { status: 400 });
+  if (!firstName?.trim() || !(phone?.trim() || email?.trim())) {
+    return NextResponse.json({ error: "Le prénom et un téléphone (ou un email) sont obligatoires" }, { status: 400 });
   }
   if (!Array.isArray(items) || items.length === 0) {
     return NextResponse.json({ error: "Au moins une ligne est requise" }, { status: 400 });
@@ -78,7 +78,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     db.devis.update({
       where: { id },
       data: {
-        firstName, lastName, email, phone,
+        firstName: firstName.trim(),
+        lastName: lastName?.trim() ?? "",
+        email: email?.trim() ?? "",
+        phone: phone?.trim() ?? "",
         company: company || null,
         channel: channel || existing.channel,
         title: title || null,

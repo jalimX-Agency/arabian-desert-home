@@ -2,6 +2,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { DEVIS_INCLUDE } from "@/lib/devis";
+import { readBreakdown } from "@/lib/devis-breakdown";
 import { priceCartItem } from "@/lib/reservation-item";
 import { formatMoney } from "@/lib/money";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
@@ -36,8 +37,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // Re-price only to warn the admin: the reservation still carries the quoted amounts.
   const priceDrift: { label: string; quoted: number; current: number }[] = [];
   for (const item of catalogItems) {
-    // A price typed per person / per night was never a catalogue price: nothing to compare.
+    // A price typed per person / per night, or a fixed package, was never a catalogue price:
+    // nothing to compare.
     if (item.unitPrice > 0) continue;
+    const mode = readBreakdown(item.breakdown)?.mode;
+    if (mode === "total" || mode === "unit") continue;
     try {
       const fresh = await priceCartItem({
         serviceType: item.serviceType as "suite" | "activity" | "daypass",
@@ -117,7 +121,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return created;
   });
 
-  if (notifyClient && reservation.items.length > 0) {
+  if (notifyClient && devis.email && reservation.items.length > 0) {
     after(async () => {
       try {
         const reservationRef = `ADH-${reservation.id.slice(-8).toUpperCase()}`;

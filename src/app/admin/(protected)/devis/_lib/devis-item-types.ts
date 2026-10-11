@@ -36,11 +36,15 @@ export const PRICING_FIELDS = [
   "quantity", "guests", "children",
 ] as const satisfies readonly (keyof EditableDevisItem)[];
 
-export function emptyDevisItem(currency: string, kind: DevisLineKind = "catalog"): EditableDevisItem {
+export function emptyDevisItem(
+  currency: string,
+  kind: DevisLineKind = "catalog",
+  serviceType: ServiceType = "suite",
+): EditableDevisItem {
   return {
     key: `new-${Date.now()}-${Math.random()}`,
     kind,
-    serviceType: "suite",
+    serviceType,
     suiteId: "", activityId: "", dayPassId: "",
     checkIn: "", checkOut: "", date: "",
     // A free line (transport, discount…) has no people unless the admin sets them.

@@ -9,7 +9,9 @@ import { devisUrl, sendDevisToClient, type DevisEmailLang } from "@/lib/email";
 export const maxDuration = 60;
 
 /** Emails the quote to the client with its PDF attached and marks it as sent.
- *  Re-sending a quote the client already answered needs ?force=1. */
+ *  Re-sending a quote the client already answered needs ?force=1.
+ *  `?via=whatsapp` only marks the quote as sent (the admin shares the private link by
+ *  WhatsApp themselves): no PDF, no email. */
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const deny = await requireAdmin();
   if (deny) return deny;
@@ -35,7 +37,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   const link = devisUrl(devis.accessToken);
-  const pdf = await generateFichePdf(buildDevisHtml(devisRecordToPdfOptions(devis, link)));
+  const manual = req.nextUrl.searchParams.get("via") === "whatsapp";
+  if (!manual && !devis.email) {
+    return NextResponse.json(
+      { error: "Ce client n'a pas d'email : ajoutez-le, ou envoyez le devis par WhatsApp." },
+      { status: 400 }
+    );
+  }
+  const pdf = manual ? null : await generateFichePdf(buildDevisHtml(devisRecordToPdfOptions(devis, link)));
 
   const updated = await db.devis.update({
     where: { id },
@@ -48,6 +57,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   });
 
   const lang = (["fr", "en", "es"].includes(devis.lang) ? devis.lang : "fr") as DevisEmailLang;
+  if (manual || !pdf) return NextResponse.json({ success: true, devis: updated });
   after(async () => {
     try {
       await sendDevisToClient(

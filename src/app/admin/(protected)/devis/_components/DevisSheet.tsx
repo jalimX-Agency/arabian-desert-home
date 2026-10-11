@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatMoney, sumMoney } from "@/lib/money";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fr, enUS, es } from "date-fns/locale";
 import {
   Plus, Loader2, Send, FileText, ArrowRightLeft, Copy, Check, ExternalLink, KeyRound, Trash2,
+  MessageCircle, CopyPlus, ChevronDown, Percent,
 } from "lucide-react";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle,
@@ -20,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CHANNELS, channelLabel } from "../../reservations/_lib/reservation-utils";
 import {
-  fetchCatalog, type Catalog, type CatalogSuite, type CatalogActivity, type CatalogDayPass,
+  fetchCatalog, type Catalog, type CatalogSuite, type CatalogActivity, type CatalogDayPass, type ServiceType,
 } from "../../reservations/_lib/item-types";
 import {
   applyDevisItemPatch, computeDevisLineTotal, devisItemToEditable, normaliseDevisItem, devisItemToPayload, emptyDevisItem,
@@ -28,18 +29,49 @@ import {
 } from "../_lib/devis-item-types";
 import {
   DEVIS_LANGS, devisLangLabel, devisStatusColors, devisStatusLabel, devisStatusOptions,
-  effectiveStatus, type Devis,
+  effectiveStatus, type Devis, type DevisItem,
 } from "../_lib/devis-utils";
 import { DevisItemCard } from "./DevisItemCard";
+import { DevisPreview } from "./DevisPreview";
 import { ConfirmDialog } from "../../reservations/_components/ConfirmDialog";
 
 const SITE_URL = "https://www.arabiandeserthome.ma";
 
+/** What a new quote starts from: the last quote's language, currency and conditions. */
+export interface DevisDefaults {
+  lang: string;
+  currency: string;
+  channel: string;
+  conditions: string;
+}
+
 interface DevisSheetProps {
   devis: Devis | null;
   creating: boolean;
+  /** Quote being duplicated: a new quote opens pre-filled from it. */
+  template?: Devis | null;
+  defaults: DevisDefaults;
   onOpenChange: (open: boolean) => void;
-  onSaved: () => void;
+  /** `openId`: a quote just created, to keep open so it can be sent right away. */
+  onSaved: (openId?: string) => void;
+  onDuplicate: (devis: Devis) => void;
+}
+
+const WA_COPY = {
+  fr: (n: string, ref: string, total: string, until: string, link: string) =>
+    `Bonjour ${n},\nVoici votre devis ${ref} d'Arabian Desert Home : ${total}, valable jusqu'au ${until}.\nVous pouvez le consulter et l'accepter ici : ${link}`,
+  en: (n: string, ref: string, total: string, until: string, link: string) =>
+    `Hello ${n},\nHere is your quotation ${ref} from Arabian Desert Home: ${total}, valid until ${until}.\nYou can view and accept it here: ${link}`,
+  es: (n: string, ref: string, total: string, until: string, link: string) =>
+    `Hola ${n},\nAquí está su presupuesto ${ref} de Arabian Desert Home: ${total}, válido hasta el ${until}.\nPuede consultarlo y aceptarlo aquí: ${link}`,
+} as const;
+
+/** Digits only, international form. A Moroccan 0X… number becomes 212X… */
+function whatsappNumber(phone: string): string {
+  let digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  else if (digits.startsWith("0") && digits.length === 10) digits = `212${digits.slice(1)}`;
+  return digits;
 }
 
 function toDateInput(iso: string): string {
@@ -52,7 +84,29 @@ function defaultValidUntil(): string {
   return format(d, "yyyy-MM-dd");
 }
 
-export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisSheetProps) {
+/** A line of the quote being duplicated: re-priced like a new line, keeping a typed price. */
+function duplicateItem(item: DevisItem): EditableDevisItem {
+  const e = devisItemToEditable(item);
+  const stored = e.storedBreakdown?.mode;
+  const priceMode = e.kind === "custom" ? "catalog" : stored === "unit" || stored === "total" ? stored : "catalog";
+  return {
+    ...e,
+    key: `dup-${item.id}-${Math.random()}`,
+    id: undefined,
+    priceMode,
+    customPrice: priceMode !== "catalog",
+    lockedFromSave: false,
+    storedBreakdown: null,
+  };
+}
+
+const EMPTY_FORM = {
+  firstName: "", lastName: "", email: "", phone: "", company: "",
+  channel: "email", title: "", conditions: "", notes: "",
+  lang: "fr", currency: "EUR", validUntil: defaultValidUntil(),
+};
+
+export function DevisSheet({ devis, creating, template, defaults, onOpenChange, onSaved, onDuplicate }: DevisSheetProps) {
   const open = creating || devis !== null;
 
   const [suites, setSuites] = useState<CatalogSuite[]>([]);
@@ -60,18 +114,16 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
   const [dayPasses, setDayPasses] = useState<CatalogDayPass[]>([]);
   const catalog: Catalog = useMemo(() => ({ suites, activities, dayPasses }), [suites, activities, dayPasses]);
 
-  const [form, setForm] = useState({
-    firstName: "", lastName: "", email: "", phone: "", company: "",
-    channel: "email", title: "", conditions: "", notes: "",
-    lang: "fr", currency: "EUR", validUntil: defaultValidUntil(),
-  });
+  const [form, setForm] = useState(EMPTY_FORM);
   const [items, setItems] = useState<EditableDevisItem[]>([]);
   const [saving, setSaving] = useState(false);
-  const [busy, setBusy] = useState<null | "send" | "convert" | "status" | "delete">(null);
+  const [busy, setBusy] = useState<null | "send" | "convert" | "status" | "delete" | "pdf" | "whatsapp">(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [notifyOnConvert, setNotifyOnConvert] = useState(false);
   const [confirm, setConfirm] = useState<null | "send" | "convert" | "delete">(null);
+  const [showMore, setShowMore] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
 
   useEffect(() => { fetchCatalog(setSuites, setActivities, setDayPasses); }, []);
 
@@ -85,15 +137,32 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
         lang: devis.lang, currency: devis.currency, validUntil: toDateInput(devis.validUntil),
       });
       setItems(devis.items.map(devisItemToEditable));
+      setShowMore(Boolean(devis.company || devis.conditions || devis.notes));
     } else if (creating) {
-      setForm({
-        firstName: "", lastName: "", email: "", phone: "", company: "",
-        channel: "email", title: "", conditions: "", notes: "",
-        lang: "fr", currency: "EUR", validUntil: defaultValidUntil(),
-      });
-      setItems([emptyDevisItem("EUR")]);
+      if (template) {
+        setForm({
+          firstName: template.firstName, lastName: template.lastName, email: template.email, phone: template.phone,
+          company: template.company ?? "", channel: template.channel, title: template.title ?? "",
+          conditions: template.conditions ?? "", notes: "",
+          lang: template.lang, currency: template.currency, validUntil: defaultValidUntil(),
+        });
+        setItems(template.items.map(duplicateItem));
+      } else {
+        setForm({
+          ...EMPTY_FORM,
+          channel: defaults.channel,
+          conditions: defaults.conditions,
+          lang: defaults.lang,
+          currency: defaults.currency,
+          validUntil: defaultValidUntil(),
+        });
+        setItems([]);
+      }
+      setShowMore(false);
     }
-  }, [devis, creating]);
+    // `defaults` only seeds a brand-new quote; changing it must not wipe an edit in progress.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [devis, creating, template]);
 
   // Lines re-price as the admin edits them, except a fixed total («Forfait»). A catalogue line
   // whose rates are in another currency than the quote switches to a price per person / night.
@@ -114,20 +183,32 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
   const grandTotal = sumMoney(items.map((it) => it.totalAmount));
   const discountsTotal = sumMoney(items.filter((it) => it.totalAmount < 0).map((it) => it.totalAmount));
   const subtotalAmount = sumMoney(items.filter((it) => it.totalAmount >= 0).map((it) => it.totalAmount));
+  // A quick quote only needs a first name and one way to reach the client.
   const isValid =
-    form.firstName.trim() !== "" && form.lastName.trim() !== "" &&
-    form.email.trim() !== "" && form.phone.trim() !== "" &&
+    form.firstName.trim() !== "" &&
+    (form.phone.trim() !== "" || form.email.trim() !== "") &&
     items.length > 0 && items.every(isDevisItemValid);
 
   const status = devis ? effectiveStatus(devis) : "draft";
   const locked = devis?.status === "converted";
+  const missing = !isValid && !locked
+    ? form.firstName.trim() === "" ? "Indiquez le prénom du client."
+      : form.phone.trim() === "" && form.email.trim() === "" ? "Indiquez un téléphone ou un email."
+      : items.length === 0 ? "Ajoutez au moins une ligne."
+      : "Complétez les lignes (tente, dates, prix…)."
+    : null;
 
   function updateItem(key: string, patch: Partial<EditableDevisItem>) {
     setItems((prev) => prev.map((it) => (it.key === key ? applyDevisItemPatch(it, patch) : it)));
   }
 
-  async function handleSave() {
-    if (!isValid || locked) return;
+  function addItem(kind: "catalog" | "custom", serviceType: ServiceType = "suite", label = "") {
+    setItems((p) => [...p, { ...emptyDevisItem(form.currency, kind, serviceType), label }]);
+  }
+
+  /** Saves the editor. Returns the saved quote's id, or null when it failed. */
+  async function save(close: boolean): Promise<string | null> {
+    if (!isValid || locked) return devis?.id ?? null;
     setSaving(true);
     setError(null);
     const payload = {
@@ -144,19 +225,31 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
       body: JSON.stringify(payload),
     });
     const data = await res.json().catch(() => ({}));
-    if (res.ok) {
+    setSaving(false);
+    if (!res.ok) {
+      setError(data.error ?? "Une erreur est survenue");
+      return null;
+    }
+    const id: string = devis ? devis.id : data.devis?.id;
+    if (close && devis) {
       onSaved();
       onOpenChange(false);
     } else {
-      setError(data.error ?? "Une erreur est survenue");
+      // A new quote stays open on its own record so it can be sent straight away.
+      onSaved(id);
     }
-    setSaving(false);
+    return id;
   }
 
   async function runAction(kind: "send" | "convert" | "delete") {
     if (!devis) return;
     setBusy(kind);
     setError(null);
+    // Make sure what is sent is what is on screen.
+    if (kind === "send" && !locked && isValid) {
+      const id = await save(false);
+      if (!id) { setBusy(null); return; }
+    }
     const url =
       kind === "send" ? `/api/admin/devis/${devis.id}/send`
       : kind === "convert" ? `/api/admin/devis/${devis.id}/convert`
@@ -184,6 +277,70 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
     setBusy(null);
   }
 
+  /** PDF of what is on screen: saves first, so the file never shows an older version. */
+  async function openPdf() {
+    if (!devis) return;
+    const tab = window.open("", "_blank");
+    setBusy("pdf");
+    setError(null);
+    if (!locked && isValid) {
+      const id = await save(false);
+      if (!id) { tab?.close(); setBusy(null); return; }
+    }
+    try {
+      const res = await fetch(`/api/admin/devis/${devis.id}/pdf`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        tab?.close();
+        setError(data.error ?? `Le PDF n'a pas pu être généré (erreur ${res.status}).`);
+      } else {
+        const url = URL.createObjectURL(await res.blob());
+        if (tab) tab.location.href = url;
+        else window.open(url, "_blank");
+      }
+    } catch {
+      tab?.close();
+      setError("Le PDF n'a pas pu être généré. Vérifiez votre connexion et réessayez.");
+    }
+    setBusy(null);
+  }
+
+  /** Opens WhatsApp with the quote's private link; marks the quote as sent. */
+  async function shareWhatsApp() {
+    if (!devis) return;
+    const tab = window.open("", "_blank");
+    setBusy("whatsapp");
+    setError(null);
+    if (!locked && isValid) {
+      const id = await save(false);
+      if (!id) { tab?.close(); setBusy(null); return; }
+    }
+    if (devis.status === "draft") {
+      const res = await fetch(`/api/admin/devis/${devis.id}/send?via=whatsapp`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        tab?.close();
+        setError(data.error ?? "Une erreur est survenue");
+        setBusy(null);
+        return;
+      }
+      onSaved();
+    }
+    const lang = (["fr", "en", "es"].includes(form.lang) ? form.lang : "fr") as keyof typeof WA_COPY;
+    const locale = { fr, en: enUS, es }[lang];
+    const text = WA_COPY[lang](
+      form.firstName.trim(),
+      devis.reference,
+      `${formatMoney(grandTotal)} ${form.currency}`,
+      format(new Date(form.validUntil), "d MMMM yyyy", { locale }),
+      `${SITE_URL}/devis/${devis.accessToken}`,
+    );
+    const url = `https://wa.me/${whatsappNumber(form.phone)}?text=${encodeURIComponent(text)}`;
+    if (tab) tab.location.href = url;
+    else window.open(url, "_blank");
+    setBusy(null);
+  }
+
   async function changeStatus(next: string) {
     if (!devis) return;
     setBusy("status");
@@ -204,12 +361,14 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
     setTimeout(() => setCopied(false), 1800);
   }
 
+  const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
           <div className="flex items-center justify-between gap-3 pr-8">
-            <SheetTitle>{devis ? devis.reference : "Nouveau devis"}</SheetTitle>
+            <SheetTitle>{devis ? devis.reference : template ? "Nouveau devis (copie)" : "Nouveau devis"}</SheetTitle>
             {devis && (
               <span className={`text-[11px] px-2.5 py-1 rounded-full border uppercase tracking-widest ${devisStatusColors[status]}`}>
                 {devisStatusLabel[status]}
@@ -222,21 +381,33 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
             past a long list of lines. */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-gray-200 dark:border-white/10 px-4 py-3 flex flex-wrap items-center gap-2">
           {!locked && (
-            <Button onClick={handleSave} disabled={!isValid || saving} size="sm" className="cursor-pointer text-xs">
+            <Button onClick={() => save(true)} disabled={!isValid || saving || busy !== null} size="sm" className="cursor-pointer text-xs">
               {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               {devis ? "Enregistrer" : "Créer le devis"}
             </Button>
           )}
           {devis && (
             <>
-              <Button variant="outline" size="sm" asChild className="cursor-pointer text-xs">
-                <a href={`/api/admin/devis/${devis.id}/pdf`} target="_blank" rel="noopener noreferrer">
-                  <FileText className="w-3.5 h-3.5" /> PDF
-                </a>
+              <Button variant="outline" size="sm" disabled={busy !== null || (!locked && !isValid)} onClick={openPdf} className="cursor-pointer text-xs">
+                {busy === "pdf" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
+                PDF
               </Button>
-              <Button variant="outline" size="sm" disabled={locked || busy !== null} onClick={() => setConfirm("send")} className="cursor-pointer text-xs">
+              <Button
+                variant="outline" size="sm"
+                disabled={locked || busy !== null || !isValid || !form.email.trim()}
+                title={!form.email.trim() ? "Ajoutez l'email du client pour envoyer le devis par email" : undefined}
+                onClick={() => setConfirm("send")}
+                className="cursor-pointer text-xs"
+              >
                 {busy === "send" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                {devis.sentAt ? "Renvoyer" : "Envoyer"}
+                {devis.sentAt ? "Renvoyer par email" : "Envoyer par email"}
+              </Button>
+              <Button variant="outline" size="sm" disabled={locked || busy !== null || !isValid} onClick={shareWhatsApp} className="cursor-pointer text-xs">
+                {busy === "whatsapp" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MessageCircle className="w-3.5 h-3.5" />}
+                WhatsApp
+              </Button>
+              <Button variant="outline" size="sm" disabled={busy !== null} onClick={() => onDuplicate(devis)} className="cursor-pointer text-xs">
+                <CopyPlus className="w-3.5 h-3.5" /> Dupliquer
               </Button>
               {devis.status === "accepted" && (
                 <Button size="sm" disabled={busy !== null} onClick={() => setConfirm("convert")} className="cursor-pointer text-xs">
@@ -251,6 +422,7 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
               )}
             </>
           )}
+          {missing && <span className="text-xs text-amber-600 dark:text-amber-400 basis-full">{missing}</span>}
         </div>
 
         <div className="px-4 space-y-6 pb-8 pt-4">
@@ -266,90 +438,36 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs text-gray-400 mb-1 block">Prénom *</Label>
-                <Input value={form.firstName} disabled={locked} onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} />
+                <Input value={form.firstName} disabled={locked} onChange={(e) => set({ firstName: e.target.value })} />
               </div>
               <div>
-                <Label className="text-xs text-gray-400 mb-1 block">Nom *</Label>
-                <Input value={form.lastName} disabled={locked} onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))} />
+                <Label className="text-xs text-gray-400 mb-1 block">Nom</Label>
+                <Input value={form.lastName} disabled={locked} onChange={(e) => set({ lastName: e.target.value })} />
               </div>
               <div>
-                <Label className="text-xs text-gray-400 mb-1 block">Email *</Label>
-                <Input type="email" value={form.email} disabled={locked} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+                <Label className="text-xs text-gray-400 mb-1 block">Téléphone / WhatsApp</Label>
+                <Input value={form.phone} disabled={locked} onChange={(e) => set({ phone: e.target.value })} placeholder="+212 6…" />
               </div>
               <div>
-                <Label className="text-xs text-gray-400 mb-1 block">Téléphone *</Label>
-                <Input value={form.phone} disabled={locked} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
-              </div>
-              <div>
-                <Label className="text-xs text-gray-400 mb-1 block">Société</Label>
-                <Input value={form.company} disabled={locked} onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))} />
-              </div>
-              <div>
-                <Label className="text-xs text-gray-400 mb-1 block">Canal</Label>
-                <Select value={form.channel} onValueChange={(v) => setForm((f) => ({ ...f, channel: v }))} disabled={locked}>
-                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {CHANNELS.map((c) => <SelectItem key={c} value={c}>{channelLabel[c]}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Label className="text-xs text-gray-400 mb-1 block">Email</Label>
+                <Input type="email" value={form.email} disabled={locked} onChange={(e) => set({ email: e.target.value })} />
               </div>
             </div>
-          </div>
-
-          {/* Devis settings */}
-          <div className="space-y-3">
-            <p className="text-xs uppercase tracking-widest text-gray-400">Devis</p>
+            <p className="text-[11px] text-gray-400">Un téléphone <em>ou</em> un email suffit.</p>
             <div>
-              <Label className="text-xs text-gray-400 mb-1 block">Objet</Label>
+              <Label className="text-xs text-gray-400 mb-1 block">Objet du devis</Label>
               <Input
                 value={form.title}
                 disabled={locked}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                onChange={(e) => set({ title: e.target.value })}
                 placeholder="Mariage 12 personnes — Agafay"
               />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <Label className="text-xs text-gray-400 mb-1 block">Valable jusqu&apos;au</Label>
-                <Input type="date" value={form.validUntil} disabled={locked} onChange={(e) => setForm((f) => ({ ...f, validUntil: e.target.value }))} />
-              </div>
-              <div>
-                <Label className="text-xs text-gray-400 mb-1 block">Langue</Label>
-                <Select value={form.lang} onValueChange={(v) => setForm((f) => ({ ...f, lang: v }))} disabled={locked}>
-                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {DEVIS_LANGS.map((l) => <SelectItem key={l} value={l}>{devisLangLabel[l]}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-xs text-gray-400 mb-1 block">Devise</Label>
-                <Select value={form.currency} onValueChange={(v) => setForm((f) => ({ ...f, currency: v }))} disabled={locked}>
-                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="EUR">EUR — Euro</SelectItem>
-                    <SelectItem value="MAD">MAD — Dirham marocain</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </div>
 
           {/* Lines */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-widest text-gray-400">Lignes ({items.length})</p>
-              {!locked && (
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="cursor-pointer text-xs" onClick={() => setItems((p) => [...p, emptyDevisItem(form.currency)])}>
-                    <Plus className="w-3.5 h-3.5" /> Catalogue
-                  </Button>
-                  <Button variant="outline" size="sm" className="cursor-pointer text-xs" onClick={() => setItems((p) => [...p, emptyDevisItem(form.currency, "custom")])}>
-                    <Plus className="w-3.5 h-3.5" /> Ligne libre
-                  </Button>
-                </div>
-              )}
-            </div>
+            <p className="text-xs uppercase tracking-widest text-gray-400">Lignes ({items.length})</p>
 
             {items.map((item) => (
               <DevisItemCard
@@ -359,33 +477,141 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
                 computedPrice={(it) => computeDevisLineTotal(it, catalog)}
                 onChange={(patch) => updateItem(item.key, patch)}
                 onRemove={() => setItems((prev) => prev.filter((it) => it.key !== item.key))}
+                baseAmount={subtotalAmount}
                 defaultOpen={!item.id}
               />
             ))}
+
+            {items.length === 0 && (
+              <p className="text-sm text-gray-400 border border-dashed border-gray-200 dark:border-white/10 rounded-xl p-4 text-center">
+                Ajoutez la première ligne du devis ci-dessous.
+              </p>
+            )}
+
+            {!locked && (
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" className="cursor-pointer text-xs" onClick={() => addItem("catalog", "suite")}>
+                  <Plus className="w-3.5 h-3.5" /> Tente
+                </Button>
+                <Button variant="outline" size="sm" className="cursor-pointer text-xs" onClick={() => addItem("catalog", "activity")}>
+                  <Plus className="w-3.5 h-3.5" /> Activité
+                </Button>
+                <Button variant="outline" size="sm" className="cursor-pointer text-xs" onClick={() => addItem("catalog", "daypass")}>
+                  <Plus className="w-3.5 h-3.5" /> Day pass
+                </Button>
+                <Button variant="outline" size="sm" className="cursor-pointer text-xs" onClick={() => addItem("custom")}>
+                  <Plus className="w-3.5 h-3.5" /> Ligne libre
+                </Button>
+                <Button variant="outline" size="sm" className="cursor-pointer text-xs" onClick={() => addItem("custom", "suite", "Remise")}>
+                  <Percent className="w-3.5 h-3.5" /> Remise
+                </Button>
+              </div>
+            )}
           </div>
 
           {discountsTotal < 0 && (
-            <div className="space-y-1 text-sm text-gray-500 dark:text-white/60 pt-2">
+            <div className="space-y-1 text-sm text-gray-500 dark:text-white/60">
               <div className="flex items-center justify-between"><span>Sous-total</span><span>{formatMoney(subtotalAmount)} {form.currency}</span></div>
               <div className="flex items-center justify-between"><span>Remises</span><span className="text-red-500">{formatMoney(discountsTotal)} {form.currency}</span></div>
             </div>
           )}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500 dark:text-white/60">Montant total</span>
             <span className="text-lg font-semibold text-amber-600 dark:text-amber-400">
               {formatMoney(grandTotal)} {form.currency}
             </span>
           </div>
 
+          {/* Quote settings that rarely change: language, currency, validity */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <Label className="text-xs text-gray-400 mb-1 block">Valable jusqu&apos;au</Label>
+              <Input type="date" value={form.validUntil} disabled={locked} onChange={(e) => set({ validUntil: e.target.value })} />
+            </div>
+            <div>
+              <Label className="text-xs text-gray-400 mb-1 block">Langue du devis</Label>
+              <Select value={form.lang} onValueChange={(v) => set({ lang: v })} disabled={locked}>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {DEVIS_LANGS.map((l) => <SelectItem key={l} value={l}>{devisLangLabel[l]}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-gray-400 mb-1 block">Devise</Label>
+              <Select value={form.currency} onValueChange={(v) => set({ currency: v })} disabled={locked}>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="EUR">EUR — Euro</SelectItem>
+                  <SelectItem value="MAD">MAD — Dirham marocain</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Live preview of what the client will read */}
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setShowPreview((v) => !v)}
+              className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-gray-400 hover:text-gray-700 dark:hover:text-white cursor-pointer"
+              aria-expanded={showPreview}
+            >
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showPreview ? "" : "-rotate-90"}`} />
+              Aperçu pour le client
+            </button>
+            {showPreview && (
+              <DevisPreview
+                lang={form.lang}
+                currency={form.currency}
+                clientName={`${form.firstName} ${form.lastName}`}
+                title={form.title}
+                validUntil={form.validUntil}
+                conditions={form.conditions}
+                items={items}
+                catalog={catalog}
+              />
+            )}
+          </div>
+
+          {/* Less common fields */}
           <div className="space-y-3">
-            <div>
-              <Label className="text-xs text-gray-400 mb-1 block">Conditions (imprimées sur le devis)</Label>
-              <Textarea value={form.conditions} disabled={locked} rows={3} onChange={(e) => setForm((f) => ({ ...f, conditions: e.target.value }))} />
-            </div>
-            <div>
-              <Label className="text-xs text-gray-400 mb-1 block">Notes internes (jamais envoyées au client)</Label>
-              <Textarea value={form.notes} disabled={locked} rows={2} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowMore((v) => !v)}
+              className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-gray-400 hover:text-gray-700 dark:hover:text-white cursor-pointer"
+              aria-expanded={showMore}
+            >
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showMore ? "" : "-rotate-90"}`} />
+              Conditions, société, notes
+            </button>
+            {showMore && (
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-xs text-gray-400 mb-1 block">Conditions (imprimées sur le devis)</Label>
+                  <Textarea value={form.conditions} disabled={locked} rows={3} onChange={(e) => set({ conditions: e.target.value })} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-gray-400 mb-1 block">Société</Label>
+                    <Input value={form.company} disabled={locked} onChange={(e) => set({ company: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-gray-400 mb-1 block">Canal</Label>
+                    <Select value={form.channel} onValueChange={(v) => set({ channel: v })} disabled={locked}>
+                      <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {CHANNELS.map((c) => <SelectItem key={c} value={c}>{channelLabel[c]}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-gray-400 mb-1 block">Notes internes (jamais envoyées au client)</Label>
+                  <Textarea value={form.notes} disabled={locked} rows={2} onChange={(e) => set({ notes: e.target.value })} />
+                </div>
+              </div>
+            )}
           </div>
 
           {devis && (
@@ -447,7 +673,7 @@ export function DevisSheet({ devis, creating, onOpenChange, onSaved }: DevisShee
         </div>
 
         <p className="px-4 pb-6 text-[11px] text-gray-400 text-center">
-          Le devis n&apos;est visible par le client qu&apos;une fois envoyé.
+          Le devis n&apos;est visible par le client qu&apos;une fois envoyé (email ou WhatsApp).
         </p>
       </SheetContent>
 

@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { MoneyInput } from "@/components/admin/MoneyInput";
 import { formatMoney } from "@/lib/money";
 import { formatBreakdown } from "@/lib/devis-breakdown";
-import { serviceTypeOptions, serviceTypeLabel } from "../../reservations/_lib/reservation-utils";
+import { serviceTypeLabel } from "../../reservations/_lib/reservation-utils";
 import type { Catalog, ServiceType } from "../../reservations/_lib/item-types";
 import {
   catalogEntryFor, catalogUnitPrice, hasCurrencyMismatch, lineBreakdown, type DevisPriceMode, type EditableDevisItem,
@@ -24,6 +24,8 @@ interface DevisItemCardProps {
   computedPrice: (item: EditableDevisItem) => number;
   onChange: (patch: Partial<EditableDevisItem>) => void;
   onRemove: () => void;
+  /** Sum of the other (positive) lines, so a discount line can offer "−10 %" shortcuts. */
+  baseAmount?: number;
   /** New lines open ready to fill in; saved ones start folded to keep the list short. */
   defaultOpen?: boolean;
 }
@@ -90,9 +92,14 @@ function useTentsLeft(item: EditableDevisItem): number | null {
   return left;
 }
 
-export function DevisItemCard({ item, catalog, computedPrice, onChange, onRemove, defaultOpen = false }: DevisItemCardProps) {
+const DISCOUNT_LABEL = /remise|discount|descuento|réduction|reduction/i;
+const DISCOUNT_PERCENTS = [5, 10, 15, 20];
+
+export function DevisItemCard({ item, catalog, computedPrice, onChange, onRemove, baseAmount = 0, defaultOpen = false }: DevisItemCardProps) {
   const isCustom = item.kind === "custom";
   const [open, setOpen] = useState(defaultOpen);
+  // The catalogue price is the normal case: the price controls only show on request.
+  const [editPrice, setEditPrice] = useState(!isCustom && item.priceMode !== "catalog");
   const summary = summarise(item, catalog);
   const breakdown = priceBreakdown(item, catalog);
   const tentsLeft = useTentsLeft(item);
@@ -178,34 +185,9 @@ export function DevisItemCard({ item, catalog, computedPrice, onChange, onRemove
           >
             <ChevronDown className="w-4 h-4" />
           </button>
-          <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 dark:bg-white/5">
-            {(["catalog", "custom"] as const).map((k) => (
-              <button
-                key={k}
-                type="button"
-                onClick={() => onChange({ kind: k, customPrice: k === "custom" ? false : item.customPrice })}
-                aria-pressed={item.kind === k}
-                className={`px-3 py-1 rounded-md text-xs uppercase tracking-widest transition-colors cursor-pointer ${
-                  item.kind === k
-                    ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm"
-                    : "text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white"
-                }`}
-              >
-                {k === "catalog" ? "Catalogue" : "Libre"}
-              </button>
-            ))}
-          </div>
-          {!isCustom && (
-            <Select
-              value={item.serviceType}
-              onValueChange={(v) => onChange({ serviceType: v as ServiceType, suiteId: "", activityId: "", dayPassId: "" })}
-            >
-              <SelectTrigger size="sm" className="w-36"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {serviceTypeOptions.map((s) => <SelectItem key={s} value={s}>{serviceTypeLabel[s]}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          )}
+          <span className="text-xs uppercase tracking-widest text-gray-500 dark:text-white/50">
+            {isCustom ? (DISCOUNT_LABEL.test(item.label) ? "Remise" : "Ligne libre") : serviceTypeLabel[item.serviceType]}
+          </span>
         </div>
         <button
           onClick={onRemove}
@@ -234,6 +216,25 @@ export function DevisItemCard({ item, catalog, computedPrice, onChange, onRemove
               placeholder="Détail affiché sous la désignation"
             />
           </div>
+          {DISCOUNT_LABEL.test(item.label) && baseAmount > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs text-gray-400">Remise sur {formatMoney(baseAmount)} {item.currency} :</span>
+              {DISCOUNT_PERCENTS.map((pct) => (
+                <button
+                  key={pct}
+                  type="button"
+                  onClick={() => onChange({
+                    quantity: 1,
+                    unitPrice: -Math.round((baseAmount * pct) / 100),
+                    description: `${pct} % de remise`,
+                  })}
+                  className="px-2.5 py-1 rounded-md text-xs border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer"
+                >
+                  −{pct} %
+                </button>
+              ))}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label className="text-xs text-gray-400 mb-1 block">Quantité</Label>
@@ -357,32 +358,6 @@ export function DevisItemCard({ item, catalog, computedPrice, onChange, onRemove
         </div>
       ) : (
         <div className="pt-3 border-t border-gray-100 dark:border-white/5 space-y-2">
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <span className="text-xs text-gray-400">Prix</span>
-            <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 dark:bg-white/5" role="group" aria-label="Mode de prix">
-              {modes.map((m) => {
-                const disabled = m.value === "catalog" && mismatch;
-                return (
-                  <button
-                    key={m.value}
-                    type="button"
-                    disabled={disabled}
-                    onClick={() => chooseMode(m.value)}
-                    aria-pressed={item.priceMode === m.value}
-                    title={disabled ? `Le catalogue est en ${entry?.currency} : choisissez un prix en ${item.currency}` : undefined}
-                    className={`px-2.5 py-1 rounded-md text-xs transition-colors ${
-                      disabled ? "text-gray-300 dark:text-white/15 cursor-not-allowed"
-                      : item.priceMode === m.value ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm cursor-pointer"
-                      : "text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white cursor-pointer"
-                    }`}
-                  >
-                    {m.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {mismatch && entry && (
             <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 rounded-lg px-2.5 py-1.5">
               Tarif catalogue en {entry.currency}
@@ -391,30 +366,71 @@ export function DevisItemCard({ item, catalog, computedPrice, onChange, onRemove
             </p>
           )}
 
-          {item.priceMode === "unit" && (
-            <div className="flex items-center justify-between gap-2">
-              <Label className="text-xs text-gray-500 dark:text-white/60">
-                Prix par {unitWord}{item.serviceType !== "suite" ? " (adulte)" : ""} *
-              </Label>
-              <div className="flex items-center gap-2">
-                <MoneyInput value={item.unitPrice} onChange={(v) => onChange({ unitPrice: v })} className="w-28 text-right" aria-label={`Prix par ${unitWord}`} />
-                <span className="text-xs text-gray-400">{item.currency}</span>
+          {breakdown && <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">{breakdown}</p>}
+
+          {editPrice && (
+            <div className="rounded-lg bg-gray-50 dark:bg-white/[0.03] p-3 space-y-2">
+              <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 dark:bg-white/5 w-fit" role="group" aria-label="Mode de prix">
+                {modes.map((m) => {
+                  const disabled = m.value === "catalog" && mismatch;
+                  return (
+                    <button
+                      key={m.value}
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => chooseMode(m.value)}
+                      aria-pressed={item.priceMode === m.value}
+                      title={disabled ? `Le catalogue est en ${entry?.currency} : choisissez un prix en ${item.currency}` : undefined}
+                      className={`px-2.5 py-1 rounded-md text-xs transition-colors ${
+                        disabled ? "text-gray-300 dark:text-white/15 cursor-not-allowed"
+                        : item.priceMode === m.value ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm cursor-pointer"
+                        : "text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white cursor-pointer"
+                      }`}
+                    >
+                      {m.value === "catalog" ? "Tarif du catalogue" : m.label}
+                    </button>
+                  );
+                })}
               </div>
+              {item.priceMode === "unit" && (
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="text-xs text-gray-500 dark:text-white/60">
+                    Prix par {unitWord}{item.serviceType !== "suite" ? " (adulte)" : ""} *
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <MoneyInput value={item.unitPrice} onChange={(v) => onChange({ unitPrice: v })} className="w-28 text-right" aria-label={`Prix par ${unitWord}`} />
+                    <span className="text-xs text-gray-400">{item.currency}</span>
+                  </div>
+                </div>
+              )}
+              {item.priceMode === "total" && (
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="text-xs text-gray-500 dark:text-white/60">Montant du forfait *</Label>
+                  <div className="flex items-center gap-2">
+                    <MoneyInput value={item.totalAmount} onChange={(v) => onChange({ totalAmount: v })} className="w-28 text-right" aria-label="Montant du forfait" />
+                    <span className="text-xs text-gray-400">{item.currency}</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {breakdown && <p className="text-xs text-gray-400">{breakdown}</p>}
-
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-gray-400">
-              {item.priceMode === "total" ? "Montant du forfait *" : "Total de la ligne"}
-            </span>
+            {!mismatch ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (editPrice && item.priceMode !== "catalog") chooseMode("catalog");
+                  setEditPrice((v) => !v);
+                }}
+                className="text-xs text-gray-500 dark:text-white/50 underline underline-offset-2 hover:text-gray-900 dark:hover:text-white cursor-pointer"
+              >
+                {editPrice ? "Revenir au tarif du catalogue" : "Modifier le prix"}
+              </button>
+            ) : <span />}
             <div className="flex items-center gap-2">
-              {item.priceMode === "total" ? (
-                <MoneyInput value={item.totalAmount} onChange={(v) => onChange({ totalAmount: v })} className="w-28 text-right" aria-label="Montant du forfait" />
-              ) : (
-                <span className="font-medium text-amber-600 dark:text-amber-400">{formatMoney(item.totalAmount)}</span>
-              )}
+              <span className="text-xs text-gray-400">Total</span>
+              <span className="font-medium text-amber-600 dark:text-amber-400">{formatMoney(item.totalAmount)}</span>
               <span className="text-xs text-gray-400">{item.currency}</span>
             </div>
           </div>

@@ -24,8 +24,9 @@ export async function POST(req: NextRequest) {
     lang?: string; currency?: string; validUntil?: string; items?: DevisItemInput[];
   };
 
-  if (!firstName || !lastName || !email || !phone) {
-    return NextResponse.json({ error: "Nom, email et téléphone sont obligatoires" }, { status: 400 });
+  // A quick quote only needs a first name and one way to reach the client.
+  if (!firstName?.trim() || !(phone?.trim() || email?.trim())) {
+    return NextResponse.json({ error: "Le prénom et un téléphone (ou un email) sont obligatoires" }, { status: 400 });
   }
   if (!Array.isArray(items) || items.length === 0) {
     return NextResponse.json({ error: "Au moins une ligne est requise" }, { status: 400 });
@@ -42,7 +43,10 @@ export async function POST(req: NextRequest) {
   const devis = await db.devis.create({
     data: {
       reference: await nextDevisReference(),
-      firstName, lastName, email, phone,
+      firstName: firstName.trim(),
+      lastName: lastName?.trim() ?? "",
+      email: email?.trim() ?? "",
+      phone: phone?.trim() ?? "",
       company: company || null,
       channel: channel || "email",
       title: title || null,
