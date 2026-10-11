@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Trash2, ChevronDown } from "lucide-react";
@@ -11,11 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MoneyInput } from "@/components/admin/MoneyInput";
 import { formatMoney } from "@/lib/money";
-import { childUnitPrice, nightsBetween } from "@/lib/devis-pricing";
+import { formatBreakdown } from "@/lib/devis-breakdown";
 import { serviceTypeOptions, serviceTypeLabel } from "../../reservations/_lib/reservation-utils";
 import type { Catalog, ServiceType } from "../../reservations/_lib/item-types";
 import {
-  catalogEntryFor, catalogUnitPrice, hasCurrencyMismatch, type DevisPriceMode, type EditableDevisItem,
+  catalogEntryFor, catalogUnitPrice, hasCurrencyMismatch, lineBreakdown, type DevisPriceMode, type EditableDevisItem,
 } from "../_lib/devis-item-types";
 
 interface DevisItemCardProps {
@@ -57,34 +57,59 @@ function summarise(item: EditableDevisItem, catalog: Catalog): { title: string; 
   };
 }
 
-const plural = (n: number, word: string) => `${n} ${word}${n > 1 ? "s" : ""}`;
-
-/** How the line total is built ("4 adultes × 950 + 1 enfant × 475"), so the admin can check it. */
+/** Spells out how the line total is built ("170 € × 3 nuits × 2 tentes"), so it can be checked
+ *  at a glance — the same wording the client gets on the PDF. */
 function priceBreakdown(item: EditableDevisItem, catalog: Catalog): string | null {
-  if (item.priceMode === "total") return null;
-  const unit = item.priceMode === "unit" ? item.unitPrice : catalogUnitPrice(item, catalog);
-  if (unit === null || unit <= 0) return null;
-  const cur = item.currency;
-  if (item.serviceType === "suite") {
-    const nights = nightsBetween(item.checkIn, item.checkOut);
-    if (nights === 0) return null;
-    // Catalogue tents may mix seasonal rates across nights: only spell out a typed price.
-    if (item.priceMode !== "unit") return plural(nights, "nuit");
-    const tents = item.quantity > 1 ? ` × ${plural(item.quantity, "tente")}` : "";
-    return `${plural(nights, "nuit")} × ${formatMoney(unit)} ${cur}${tents}`;
-  }
-  const entry = catalogEntryFor(item, catalog);
-  const pct = entry && "childPricePercent" in entry ? entry.childPricePercent : 50;
-  const parts = [`${plural(item.guests, "adulte")} × ${formatMoney(unit)}`];
-  if (item.children > 0) parts.push(`${plural(item.children, "enfant")} × ${formatMoney(childUnitPrice(unit, pct))} (${pct} %)`);
-  return `${parts.join(" + ")} ${cur}`;
+  const b = lineBreakdown(item, catalog);
+  if (!b) return null;
+  const text = formatBreakdown(b, "fr", (n) => `${formatMoney(n)} ${item.currency}`);
+  if (!text) return null;
+  return item.priceMode === "total" && item.lockedFromSave && item.kind !== "custom" && b.mode !== "total"
+    ? `Montant figé du devis : ${text}`
+    : text;
+}
+
+/** Tents left on the chosen dates, so a quote can't silently promise more than exists. */
+function useTentsLeft(item: EditableDevisItem): number | null {
+  const [left, setLeft] = useState<number | null>(null);
+  const { serviceType, suiteId, checkIn, checkOut, kind } = item;
+  useEffect(() => {
+    if (kind !== "catalog" || serviceType !== "suite" || !suiteId || !checkIn || !checkOut || checkOut <= checkIn) {
+      setLeft(null);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/availability?checkIn=${checkIn}&checkOut=${checkOut}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows: { suiteId: string; left: number }[]) => {
+        if (!cancelled) setLeft(rows.find((r) => r.suiteId === suiteId)?.left ?? null);
+      })
+      .catch(() => { if (!cancelled) setLeft(null); });
+    return () => { cancelled = true; };
+  }, [kind, serviceType, suiteId, checkIn, checkOut]);
+  return left;
 }
 
 export function DevisItemCard({ item, catalog, computedPrice, onChange, onRemove, defaultOpen = false }: DevisItemCardProps) {
   const isCustom = item.kind === "custom";
   const [open, setOpen] = useState(defaultOpen);
   const summary = summarise(item, catalog);
-  const breakdown = isCustom ? null : priceBreakdown(item, catalog);
+  const breakdown = priceBreakdown(item, catalog);
+  const tentsLeft = useTentsLeft(item);
+  const suiteEntry = item.serviceType === "suite" && !isCustom ? catalog.suites.find((s) => s.id === item.suiteId) : undefined;
+  // Warnings, not blocks: a quote may deliberately go beyond (a tent being added, an extra bed).
+  const warnings: string[] = [];
+  if (!isCustom && item.serviceType === "suite") {
+    if (tentsLeft !== null && item.quantity > tentsLeft) {
+      warnings.push(tentsLeft <= 0 ? "Cette tente est complète sur ces dates." : `Il ne reste que ${tentsLeft} tente${tentsLeft > 1 ? "s" : ""} sur ces dates.`);
+    }
+    if (suiteEntry && item.guests > suiteEntry.maxGuests * item.quantity) {
+      warnings.push(`Capacité dépassée : ${suiteEntry.maxGuests} adulte${suiteEntry.maxGuests > 1 ? "s" : ""} max par tente.`);
+    }
+    if (suiteEntry && item.children > suiteEntry.maxChildren * item.quantity) {
+      warnings.push(`Capacité dépassée : ${suiteEntry.maxChildren} enfant${suiteEntry.maxChildren > 1 ? "s" : ""} max par tente.`);
+    }
+  }
   const mismatch = !isCustom && hasCurrencyMismatch(item, catalog);
   const entry = catalogEntryFor(item, catalog);
   const catalogUnit = catalogUnitPrice(item, catalog);
@@ -125,6 +150,7 @@ export function DevisItemCard({ item, catalog, computedPrice, onChange, onRemove
             </span>
           </span>
         </button>
+        {warnings.length > 0 && <span title={warnings.join(" ")} className="text-amber-500 text-sm shrink-0" aria-label="Avertissement">⚠</span>}
         <span className={`text-sm font-medium shrink-0 ${item.totalAmount < 0 ? "text-red-500" : "text-amber-600 dark:text-amber-400"}`}>
           {formatMoney(item.totalAmount)} {item.currency}
         </span>
@@ -313,9 +339,15 @@ export function DevisItemCard({ item, catalog, computedPrice, onChange, onRemove
         </>
       )}
 
+      {warnings.length > 0 && (
+        <ul className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 rounded-lg px-2.5 py-1.5 space-y-0.5">
+          {warnings.map((w) => <li key={w}>⚠ {w}</li>)}
+        </ul>
+      )}
+
       {isCustom ? (
         <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-white/5">
-          <span className="text-xs text-gray-400">Total de la ligne</span>
+          <span className="text-xs text-gray-400">{breakdown ? `Total de la ligne · ${breakdown}` : "Total de la ligne"}</span>
           <span className="flex items-center gap-2">
             <span className={`font-medium ${item.totalAmount < 0 ? "text-red-500" : "text-amber-600 dark:text-amber-400"}`}>
               {formatMoney(item.totalAmount)}

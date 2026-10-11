@@ -1,5 +1,6 @@
 import { escapeHtml, getLogoDataUri } from "@/lib/fiche-pdf";
-import { formatMoney } from "@/lib/money";
+import { formatMoney, sumMoney } from "@/lib/money";
+import { fallbackBreakdown, formatBreakdown, readBreakdown } from "@/lib/devis-breakdown";
 
 export type DevisLang = "fr" | "en" | "es";
 
@@ -14,7 +15,10 @@ export interface DevisPdfItem {
   quantity: number;
   guests: number;
   children: number;
+  unitPrice?: number;
   totalAmount: number;
+  /** Frozen "how this amount is made up" (see devis-breakdown.ts); older lines have none. */
+  breakdown?: unknown;
 }
 
 export interface DevisPdfOptions {
@@ -89,8 +93,9 @@ const I18N = {
     designation: "Désignation",
     dates: "Dates",
     people: "Pers.",
-    qty: "Qté",
     amount: "Montant",
+    subtotal: "Sous-total",
+    discounts: "Remises",
     total: "Total",
     nights: (n: number) => `${n} nuit${n > 1 ? "s" : ""}`,
     adults: "adultes",
@@ -113,8 +118,9 @@ const I18N = {
     designation: "Description",
     dates: "Dates",
     people: "Guests",
-    qty: "Qty",
     amount: "Amount",
+    subtotal: "Subtotal",
+    discounts: "Discounts",
     total: "Total",
     nights: (n: number) => `${n} night${n > 1 ? "s" : ""}`,
     adults: "adults",
@@ -137,8 +143,9 @@ const I18N = {
     designation: "Descripción",
     dates: "Fechas",
     people: "Pers.",
-    qty: "Cant.",
     amount: "Importe",
+    subtotal: "Subtotal",
+    discounts: "Descuentos",
     total: "Total",
     nights: (n: number) => `${n} noche${n > 1 ? "s" : ""}`,
     adults: "adultos",
@@ -178,24 +185,31 @@ export function buildDevisHtml(opts: DevisPdfOptions): string {
   const lang = opts.lang ?? "fr";
   const t = I18N[lang];
 
+  const money = (n: number) => fmtMoney(n, opts.currency, lang);
   const rows = opts.items
     .map((item) => {
       const kindLabel = item.kind === "custom" ? t.serviceLabel.custom : t.serviceLabel[item.serviceType] ?? item.serviceType;
       const negative = item.totalAmount < 0;
+      const breakdown = readBreakdown(item.breakdown) ?? fallbackBreakdown({ ...item, unitPrice: item.unitPrice ?? 0 });
+      const calc = breakdown ? formatBreakdown(breakdown, lang, money) : "";
       return `
         <tr>
           <td>
             <div class="kind">${escapeHtml(kindLabel)}</div>
             <div class="label">${escapeHtml(item.label)}</div>
             ${item.description ? `<div class="sub">${escapeHtml(item.description)}</div>` : ""}
+            ${calc ? `<div class="calc">${escapeHtml(calc)}</div>` : ""}
           </td>
           <td class="nowrap">${datesCell(item, lang, t)}</td>
           <td class="center">${peopleCell(item, t)}</td>
-          <td class="center">${item.quantity}</td>
-          <td class="amount${negative ? " negative" : ""}">${escapeHtml(fmtMoney(item.totalAmount, opts.currency, lang))}</td>
+          <td class="amount${negative ? " negative" : ""}">${escapeHtml(money(item.totalAmount))}</td>
         </tr>`;
     })
     .join("");
+
+  // Show the subtotal / discounts split only when there is a discount to explain.
+  const discounts = sumMoney(opts.items.filter((i) => i.totalAmount < 0).map((i) => i.totalAmount));
+  const subtotal = sumMoney(opts.items.filter((i) => i.totalAmount >= 0).map((i) => i.totalAmount));
 
   const clientName = `${opts.firstName} ${opts.lastName}`;
 
@@ -227,6 +241,10 @@ export function buildDevisHtml(opts: DevisPdfOptions): string {
   .kind { font-size:7pt; letter-spacing:.12em; text-transform:uppercase; color:var(--label); }
   .label { font-weight:600; }
   .sub { color:var(--soft); font-size:8.5pt; font-weight:300; }
+  .calc { margin-top:3px; color:var(--gold); font-size:8.5pt; font-weight:600; }
+  .sums { margin-top:14px; display:flex; flex-direction:column; align-items:flex-end; gap:3px; font-size:9.5pt; color:var(--soft); }
+  .sums .row { display:flex; gap:18px; }
+  .sums .row span:last-child { min-width:110px; text-align:right; }
   .nowrap { white-space:nowrap; }
   .center { text-align:center; }
   .amount { text-align:right; white-space:nowrap; font-weight:600; }
@@ -273,11 +291,15 @@ export function buildDevisHtml(opts: DevisPdfOptions): string {
       <th>${escapeHtml(t.designation)}</th>
       <th>${escapeHtml(t.dates)}</th>
       <th class="center">${escapeHtml(t.people)}</th>
-      <th class="center">${escapeHtml(t.qty)}</th>
       <th style="text-align:right">${escapeHtml(t.amount)}</th>
     </tr></thead>
     <tbody>${rows}</tbody>
   </table>
+
+  ${discounts < 0 ? `<div class="sums">
+    <div class="row"><span>${escapeHtml(t.subtotal)}</span><span>${escapeHtml(money(subtotal))}</span></div>
+    <div class="row"><span>${escapeHtml(t.discounts)}</span><span>${escapeHtml(money(discounts))}</span></div>
+  </div>` : ""}
 
   <div class="total">
     <span>${escapeHtml(t.total)}</span>

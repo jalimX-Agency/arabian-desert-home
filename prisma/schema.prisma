@@ -376,6 +376,7 @@ model DevisItem {
   children    Int       @default(0)
   unitPrice   Float     @default(0) // free lines: unit price (negative = discount); catalogue lines: price per person / per night when set
   totalAmount Float     @default(0)
+  breakdown   Json? // how totalAmount is made up (see src/lib/devis-breakdown.ts), frozen when the line is saved
   currency    String    @default("MAD")
   order       Int       @default(0)
   createdAt   DateTime  @default(now())
