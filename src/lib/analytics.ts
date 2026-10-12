@@ -79,7 +79,7 @@ const consentState = (value: "granted" | "denied") => ({
   ad_personalization: value,
 });
 
-/** True once gtag.js was loaded *with consent* on this page view. */
+/** True once gtag.js is loaded on this page view and not hard-disabled (private pages). */
 export function isAnalyticsActive(): boolean {
   const w = ga();
   return Boolean(w.__adhGaLoaded && w.gtag && !w[disableKey()]);
@@ -96,8 +96,8 @@ const ADS_CONVERSION_LABELS: Record<string, string> = {
   phone_click: "DfpaCOHHgpgdEI668YdE",
 };
 
-/** Sends a GA4 event (and the matching Google Ads conversion) — a silent no-op unless the
- *  visitor consented and GA is loaded. */
+/** Sends a GA4 event (and the matching Google Ads conversion). Without consent, gtag.js sends
+ *  it as a cookieless ping (Consent Mode); a silent no-op on private pages or before load. */
 export function trackEvent(name: string, params: Record<string, unknown> = {}): void {
   if (typeof window === "undefined" || !isAnalyticsActive()) return;
   ga().gtag!("event", name, { language: languageFromPath(window.location.pathname), ...params });
@@ -113,23 +113,25 @@ export function trackEvent(name: string, params: Record<string, unknown> = {}): 
   }
 }
 
-/** Hard switch: while true, gtag.js sends nothing (Google's documented opt-out flag),
- *  for analytics and for the Ads tag alike. */
+/** Hard switch: while true, gtag.js sends nothing at all (Google's documented opt-out flag),
+ *  for analytics and for the Ads tag alike. Used on private pages. */
 export function setAnalyticsDisabled(disabled: boolean): void {
   ga()[disableKey()] = disabled;
   ga()[`ga-disable-${GOOGLE_ADS_ID}`] = disabled;
 }
 
 /**
- * Loads gtag.js — only ever called after the visitor accepted. Consent Mode v2
- * defaults are declared first (everything denied), then updated to what the
- * banner asked for: audience measurement and advertising (Google Ads conversions
- * and remarketing). One gtag.js serves both GA4 and the Ads tag.
+ * Loads gtag.js in Consent Mode v2 "advanced": the tag is always present on public pages,
+ * starting with every signal denied. Until the visitor accepts, it stores and reads NO
+ * cookie and only sends anonymous, cookieless pings, which let Google Ads and GA4 model the
+ * visits and conversions of people who never answer the banner (about 4 in 10 here).
+ * Accepting switches the signals to granted: cookies, full measurement and remarketing.
+ * One gtag.js serves both GA4 and the Ads tag.
  */
-export function loadAnalytics(): void {
+export function loadAnalytics(choice: "granted" | "denied"): void {
   const w = ga();
   if (w.__adhGaLoaded) {
-    w.gtag?.("consent", "update", consentState("granted"));
+    w.gtag?.("consent", "update", consentState(choice));
     return;
   }
   w.dataLayer = w.dataLayer || [];
@@ -140,7 +142,11 @@ export function loadAnalytics(): void {
   } as Gtag;
 
   w.gtag("consent", "default", consentState("denied"));
-  w.gtag("consent", "update", consentState("granted"));
+  if (choice === "granted") w.gtag("consent", "update", consentState("granted"));
+  // While denied: no ad identifiers in requests, and the ad click id travels in the URL
+  // instead of a cookie so a later conversion can still be attributed.
+  w.gtag("set", "ads_data_redaction", true);
+  w.gtag("set", "url_passthrough", true);
   w.gtag("js", new Date());
   w.gtag("config", GA_MEASUREMENT_ID);
   w.gtag("config", GOOGLE_ADS_ID);
@@ -152,10 +158,10 @@ export function loadAnalytics(): void {
   w.__adhGaLoaded = true;
 }
 
-/** Withdrawal of consent: stop sending and remove the analytics and ads cookies. */
-export function unloadAnalytics(): void {
+/** Refusal or withdrawal of consent: signals back to denied and the analytics and ads
+ *  cookies removed. The tag keeps sending cookieless pings only. */
+export function withdrawConsent(): void {
   const w = ga();
-  setAnalyticsDisabled(true);
   w.gtag?.("consent", "update", consentState("denied"));
   const host = window.location.hostname;
   const domains = [host, `.${host}`, `.${host.replace(/^www\./, "")}`];
