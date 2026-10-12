@@ -44,8 +44,9 @@ const COPY: Record<SiteLanguage, { title: string; body: string; accept: string; 
 };
 
 /**
- * Cookie consent banner. Nothing is loaded or stored for analytics or advertising
- * until the visitor clicks Accept, and Decline is exactly as easy as Accept. Kept
+ * Cookie consent banner. No analytics or advertising cookie is stored or read until the
+ * visitor clicks Accept (the tags only send cookieless pings before that — Consent Mode
+ * advanced), and Decline is exactly as easy as Accept. Kept
  * to a few lines so it never hides the page's call to action on a phone. Not shown
  * on private pages, which run no analytics at all. The footer "Cookies" link
  * re-opens it so the choice can be changed.

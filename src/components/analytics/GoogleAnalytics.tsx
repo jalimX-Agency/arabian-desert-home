@@ -9,40 +9,41 @@ import {
   readConsent,
   setAnalyticsDisabled,
   trackEvent,
-  unloadAnalytics,
+  withdrawConsent,
+  type ConsentChoice,
 } from "@/lib/analytics";
 
 /**
- * Loads Google Analytics 4 — but only after the visitor accepted cookies, and
- * never on private pages (guest/quote links carry an access token; admin is the
- * owner). Also reports the phone and WhatsApp conversion clicks site-wide.
- * Renders nothing.
+ * Loads Google Analytics 4 and the Google Ads tag in Consent Mode "advanced": present on
+ * every public page, cookieless until the visitor accepts the banner. Never on private pages
+ * (guest/quote links carry an access token; admin is the owner). Also reports the phone and
+ * WhatsApp conversion clicks site-wide. Renders nothing.
  */
 export function GoogleAnalytics() {
   const pathname = usePathname();
-  const [consented, setConsented] = useState(false);
+  // `undefined` until the stored choice has been read, so the tag starts in the right state.
+  const [choice, setChoice] = useState<ConsentChoice | undefined>(undefined);
   const priv = isPrivatePath(pathname);
 
   // Follow the cookie banner's choice (and a later change of mind).
   useEffect(() => {
-    const sync = () => setConsented(readConsent() === "granted");
+    const sync = () => setChoice(readConsent());
     sync();
     window.addEventListener(CONSENT_EVENT, sync);
     return () => window.removeEventListener(CONSENT_EVENT, sync);
   }, []);
 
   useEffect(() => {
-    if (consented && !priv) {
-      setAnalyticsDisabled(false);
-      loadAnalytics();
-    } else {
-      // No consent, or a private page reached by client-side navigation: block every hit.
-      if ((window as { __adhGaLoaded?: boolean }).__adhGaLoaded) {
-        if (!consented) unloadAnalytics();
-        else setAnalyticsDisabled(true);
-      }
+    if (choice === undefined) return;
+    if (priv) {
+      // A private page (possibly reached by client-side navigation): block every hit.
+      setAnalyticsDisabled(true);
+      return;
     }
-  }, [consented, priv]);
+    setAnalyticsDisabled(false);
+    loadAnalytics(choice === "granted" ? "granted" : "denied");
+    if (choice === "denied") withdrawConsent();
+  }, [choice, priv]);
 
   // Conversion clicks. One delegated listener instead of editing every link on the site.
   useEffect(() => {
