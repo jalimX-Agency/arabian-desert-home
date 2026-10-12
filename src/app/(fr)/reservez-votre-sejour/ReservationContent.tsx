@@ -412,6 +412,15 @@ function CartList({
 
 type PrimaryType = "suite" | "activity" | "daypass";
 
+const BOOKING_WHATSAPP = "212667370206";
+
+const ASSIST_COPY = {
+  fr: { total: "Total estimé", noPayment: "Aucun paiement maintenant : vous envoyez une demande et notre équipe vous confirme la disponibilité.", whatsapp: "Vous préférez WhatsApp ? Envoyez cette demande en un clic", waIntro: "Bonjour, je souhaite réserver chez Arabian Desert Home :", adults: "adulte(s)", children: "enfant(s)" },
+  en: { total: "Estimated total", noPayment: "No payment now: you send a request and our team confirms availability.", whatsapp: "Prefer WhatsApp? Send this request in one tap", waIntro: "Hello, I would like to book at Arabian Desert Home:", adults: "adult(s)", children: "child(ren)" },
+  es: { total: "Total estimado", noPayment: "Sin pago ahora: envía una solicitud y nuestro equipo confirma la disponibilidad.", whatsapp: "¿Prefiere WhatsApp? Envíe esta solicitud con un toque", waIntro: "Hola, me gustaría reservar en Arabian Desert Home:", adults: "adulto(s)", children: "niño(s)" },
+  it: { total: "Totale stimato", noPayment: "Nessun pagamento ora: inviate una richiesta e il nostro team conferma la disponibilità.", whatsapp: "Preferite WhatsApp? Inviate questa richiesta con un tocco", waIntro: "Buongiorno, vorrei prenotare presso Arabian Desert Home:", adults: "adulto/i", children: "bambino/i" },
+} as const;
+
 export function ReservationContent() {
   const heroRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true });
@@ -735,6 +744,40 @@ export function ReservationContent() {
     setManageUrl("");
   }
 
+  // Reassurance under the step buttons: what it costs, that nothing is paid now, and a
+  // one-tap WhatsApp alternative carrying the same selection for visitors who won't fill a form.
+  const assistCopy = ASSIST_COPY[language];
+  const whatsappText = [
+    assistCopy.waIntro,
+    ...allItems.map((item) => {
+      const dates = item.checkIn && item.checkOut
+        ? `${format(item.checkIn, "d MMM yyyy", { locale: dateFnsLocale })} → ${format(item.checkOut, "d MMM yyyy", { locale: dateFnsLocale })}`
+        : item.date ? format(item.date, "d MMM yyyy", { locale: dateFnsLocale }) : "";
+      const people = `${item.guests} ${assistCopy.adults}${item.children > 0 ? ` + ${item.children} ${assistCopy.children}` : ""}`;
+      return `• ${item.name}${item.quantity && item.quantity > 1 ? ` × ${item.quantity}` : ""}${dates ? ` — ${dates}` : ""} — ${people}`;
+    }),
+    allItems.length > 0 ? `${assistCopy.total} : ${grandTotal.toLocaleString("fr-FR")} ${grandCurrency}` : "",
+  ].filter(Boolean).join("\n");
+  const assist = (
+    <div className="mt-6 pt-5 border-t border-border/40 space-y-3 text-center">
+      {allItems.length > 0 && (
+        <p className="text-sm">
+          <span className="text-muted-foreground">{assistCopy.total} : </span>
+          <span className="mono-number text-amber text-base">{grandTotal.toLocaleString("fr-FR")} {grandCurrency}</span>
+        </p>
+      )}
+      <p className="text-xs text-muted-foreground body-editorial">{assistCopy.noPayment}</p>
+      <a
+        href={`https://wa.me/${BOOKING_WHATSAPP}?text=${encodeURIComponent(whatsappText)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 text-sm text-[#128C7E] underline underline-offset-4 hover:opacity-80 cursor-pointer"
+      >
+        {assistCopy.whatsapp}
+      </a>
+    </div>
+  );
+
   const serviceTypeLabels: Record<PrimaryType, string> = {
     suite: t("booking2.serviceTypeSuiteLabel"),
     activity: t("booking2.serviceTypeActivityLabel"),
@@ -744,7 +787,8 @@ export function ReservationContent() {
   return (
     <>
       {/* Hero */}
-      <section ref={heroRef} className="relative h-[50vh] min-h-[380px] w-full overflow-hidden">
+      {/* Short on phones: the form must start within the first screen. */}
+      <section ref={heroRef} className="relative h-[28vh] min-h-[210px] md:h-[50vh] md:min-h-[380px] w-full overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/DJI_0020-scaled.webp"
@@ -755,7 +799,7 @@ export function ReservationContent() {
           <div className="absolute inset-0 bg-black/30" />
         </div>
         <div className="absolute inset-0 grain-overlay" />
-        <div className="relative z-10 h-full flex flex-col justify-end pb-14 md:pb-20 px-6 md:px-10 max-w-7xl mx-auto">
+        <div className="relative z-10 h-full flex flex-col justify-end pb-6 md:pb-20 px-6 md:px-10 max-w-7xl mx-auto">
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={heroInView ? { opacity: 1, y: 0 } : {}}
@@ -777,10 +821,10 @@ export function ReservationContent() {
       </section>
 
       {/* Form */}
-      <section ref={wizardRef} className="relative py-16 md:py-24 px-6 md:px-10 pattern-dots">
+      <section ref={wizardRef} className="relative py-8 md:py-24 px-4 md:px-10 pattern-dots scroll-mt-20">
         <div className="max-w-3xl mx-auto">
           {/* Step indicators */}
-          <div className="flex items-center justify-center gap-2 mb-12">
+          <div className="flex items-center justify-center gap-2 mb-6 md:mb-12">
             {stepLabels.map((label, i) => {
               const n = i + 1;
               return (
@@ -1303,6 +1347,7 @@ export function ReservationContent() {
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
+                {assist}
               </motion.div>
             )}
 
@@ -1331,6 +1376,7 @@ export function ReservationContent() {
                       </Label>
                       <Input
                         id="firstName"
+                        autoComplete="given-name"
                         value={personal.firstName}
                         onChange={(e) => setPersonal((p) => ({ ...p, firstName: e.target.value }))}
                         required
@@ -1344,6 +1390,7 @@ export function ReservationContent() {
                       </Label>
                       <Input
                         id="lastName"
+                        autoComplete="family-name"
                         value={personal.lastName}
                         onChange={(e) => setPersonal((p) => ({ ...p, lastName: e.target.value }))}
                         required
@@ -1357,6 +1404,7 @@ export function ReservationContent() {
                       <Label htmlFor="email" className="luxury-label text-xs">Email *</Label>
                       <Input
                         id="email"
+                        autoComplete="email"
                         type="email"
                         value={personal.email}
                         onChange={(e) => setPersonal((p) => ({ ...p, email: e.target.value }))}
@@ -1371,6 +1419,7 @@ export function ReservationContent() {
                       </Label>
                       <Input
                         id="phone"
+                        autoComplete="tel"
                         type="tel"
                         value={personal.phone}
                         onChange={(e) => setPersonal((p) => ({ ...p, phone: e.target.value }))}
@@ -1396,6 +1445,7 @@ export function ReservationContent() {
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
+                {assist}
               </motion.div>
             )}
 
@@ -1458,6 +1508,7 @@ export function ReservationContent() {
                     )}
                   </button>
                 </div>
+                {assist}
               </motion.div>
             )}
 
