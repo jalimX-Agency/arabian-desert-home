@@ -206,7 +206,7 @@ function Counter({
           type="button"
           onClick={() => onChange(Math.max(min, value - 1))}
           disabled={value <= min}
-          className="w-8 h-8 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 disabled:opacity-30 cursor-pointer"
+          className="w-10 h-10 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 disabled:opacity-30 cursor-pointer"
         >
           <Minus className="w-3 h-3" />
         </button>
@@ -215,7 +215,7 @@ function Counter({
           type="button"
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value >= max}
-          className="w-8 h-8 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 disabled:opacity-30 cursor-pointer"
+          className="w-10 h-10 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 disabled:opacity-30 cursor-pointer"
         >
           <Plus className="w-3 h-3" />
         </button>
@@ -293,13 +293,13 @@ function DatePicker({
         <DialogTrigger asChild>
           <button
             type="button"
-            className="w-full flex items-center gap-3 rounded-2xl border border-border/50 bg-background/50 hover:border-amber/30 px-4 py-3 text-left text-sm transition-all duration-300 cursor-pointer"
+            className="w-full flex items-center gap-3 rounded-2xl border border-border/50 bg-background/50 hover:border-amber/30 px-3 sm:px-4 py-3 min-h-12 text-left text-sm transition-all duration-300 cursor-pointer"
           >
-            <div className="w-8 h-8 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-amber/10 border border-amber/15 hidden sm:flex items-center justify-center flex-shrink-0">
               <CalendarIcon className="w-4 h-4 text-amber/70" />
             </div>
             <span className={value ? "text-foreground" : "text-muted-foreground"}>
-              {value ? format(value, "dd MMMM yyyy", { locale: dateFnsLocale }) : placeholder}
+              {value ? format(value, "d MMM yyyy", { locale: dateFnsLocale }) : placeholder}
             </span>
           </button>
         </DialogTrigger>
@@ -413,6 +413,7 @@ function CartList({
 type PrimaryType = "suite" | "activity" | "daypass";
 
 const BOOKING_WHATSAPP = "212667370206";
+const QTY_LABEL = { fr: "Nombre de tentes", en: "Number of tents", es: "Número de tiendas", it: "Numero di tende" } as const;
 
 const ASSIST_COPY = {
   fr: { total: "Total estimé", noPayment: "Aucun paiement maintenant : vous envoyez une demande et notre équipe vous confirme la disponibilité.", whatsapp: "Vous préférez WhatsApp ? Envoyez cette demande en un clic", waIntro: "Bonjour, je souhaite réserver chez Arabian Desert Home :", adults: "adulte(s)", children: "enfant(s)" },
@@ -821,17 +822,17 @@ export function ReservationContent() {
       </section>
 
       {/* Form */}
-      <section ref={wizardRef} className="relative py-8 md:py-24 px-4 md:px-10 pattern-dots scroll-mt-20">
+      <section ref={wizardRef} className="relative py-8 md:py-24 px-4 md:px-10 pattern-dots scroll-mt-20 overflow-x-clip pb-28 md:pb-24">
         <div className="max-w-3xl mx-auto">
           {/* Step indicators */}
-          <div className="flex items-center justify-center gap-2 mb-6 md:mb-12">
+          <div className="flex items-center justify-center gap-1 sm:gap-2 mb-6 md:mb-12">
             {stepLabels.map((label, i) => {
               const n = i + 1;
               return (
                 <div key={n} className="flex items-center">
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-10 h-10 flex items-center justify-center rounded-full transition-all duration-400 ${
+                      className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full transition-all duration-400 ${
                         step > n
                           ? "bg-amber text-warm-black shadow-lg shadow-amber/20"
                           : step === n
@@ -846,7 +847,7 @@ export function ReservationContent() {
                     </span>
                   </div>
                   {i < stepLabels.length - 1 && (
-                    <div className={`w-8 md:w-14 h-[2px] mx-2 rounded-full transition-colors duration-500 ${step > n ? "bg-amber" : "bg-border"}`} />
+                    <div className={`w-4 sm:w-8 md:w-14 h-[2px] mx-1 sm:mx-2 rounded-full transition-colors duration-500 ${step > n ? "bg-amber" : "bg-border"}`} />
                   )}
                 </div>
               );
@@ -863,12 +864,12 @@ export function ReservationContent() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -30 }}
                 transition={{ duration: 0.5, ease: smoothEase }}
-                className="glass-card card-warm p-8 md:p-10"
+                className="glass-card card-warm p-5 sm:p-8 md:p-10"
               >
                 <h2 className="heading-editorial text-2xl md:text-3xl mb-2">
                   {t("booking2.chooseExperienceTitle")}
                 </h2>
-                <p className="text-sm text-muted-foreground mb-8 body-editorial">
+                <p className="text-sm text-muted-foreground mb-5 sm:mb-8 body-editorial">
                   {t("booking2.chooseExperienceDesc")}
                 </p>
 
@@ -883,20 +884,23 @@ export function ReservationContent() {
                     <button
                       key={type}
                       type="button"
-                      onClick={() => selectPrimaryType(type)}
-                      className={`relative p-6 rounded-2xl text-left transition-all duration-400 cursor-pointer ${
+                      // One tap chooses and moves on: no second "Continue" tap needed.
+                      onClick={() => { selectPrimaryType(type); setStep(2); }}
+                      className={`relative p-4 sm:p-6 rounded-2xl text-left transition-all duration-400 cursor-pointer flex sm:block items-center gap-4 ${
                         primaryType === type
                           ? "border-2 border-amber bg-amber/[0.08] shadow-lg shadow-amber/10"
                           : "border border-border/50 bg-background/50 hover:border-amber/30 hover:bg-amber/[0.04]"
                       }`}
                     >
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-all duration-300 ${
+                      <div className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center sm:mb-4 transition-all duration-300 ${
                         primaryType === type ? "bg-amber text-warm-black" : "bg-amber/10 border border-amber/15"
                       }`}>
                         <Icon className={`w-6 h-6 ${primaryType === type ? "text-warm-black" : "text-amber"}`} />
                       </div>
-                      <p className="font-serif text-base mb-1">{title}</p>
-                      <p className="text-xs text-muted-foreground body-editorial">{desc}</p>
+                      <div className="min-w-0">
+                        <p className="font-serif text-base mb-1">{title}</p>
+                        <p className="text-xs text-muted-foreground body-editorial">{desc}</p>
+                      </div>
                       {primaryType === type && (
                         <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
                           <Check className="w-3 h-3 text-warm-black" />
@@ -906,7 +910,7 @@ export function ReservationContent() {
                   ))}
                 </div>
 
-                <div className="flex justify-end mt-10">
+                <div className="flex justify-end mt-6 sm:mt-10">
                   <button
                     onClick={() => setStep(2)}
                     className="btn-primary inline-flex items-center gap-2 cursor-pointer"
@@ -926,12 +930,12 @@ export function ReservationContent() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -30 }}
                 transition={{ duration: 0.5, ease: smoothEase }}
-                className="glass-card card-warm p-8 md:p-10"
+                className="glass-card card-warm p-5 sm:p-8 md:p-10"
               >
                 <h2 className="heading-editorial text-2xl md:text-3xl mb-2">
                   {t("booking2.bookingDetailsTitle")}
                 </h2>
-                <p className="text-sm text-muted-foreground mb-8 body-editorial">
+                <p className="text-sm text-muted-foreground mb-5 sm:mb-8 body-editorial">
                   {t("booking2.bookingDetailsDesc")}
                 </p>
 
@@ -939,6 +943,38 @@ export function ReservationContent() {
                   {/* ── Suite flow — multi-select tent types, each with its own quantity ── */}
                   {primaryType === "suite" && (
                     <>
+                      {/* Dates first: the tents below then show the price of the chosen nights. */}
+                      <div className="grid grid-cols-2 gap-3 md:gap-6">
+                        <DatePicker
+                          label={t("booking2.checkIn")}
+                          value={checkIn}
+                          onChange={(d) => {
+                            setCheckIn(d);
+                            // A departure that no longer follows the arrival becomes the next day.
+                            if (d && (!checkOut || checkOut <= d)) {
+                              const next = new Date(d);
+                              next.setDate(next.getDate() + 1);
+                              setCheckOut(next);
+                            }
+                          }}
+                          placeholder={t("booking2.selectDate")}
+                          dateFnsLocale={dateFnsLocale}
+                          seasonalWindows={toWindows(selectedSuites[0]?.seasonalPrices)}
+                          blockedWindows={suiteBlockedWindows}
+                          t={t}
+                        />
+                        <DatePicker
+                          label={t("booking2.checkOut")}
+                          value={checkOut}
+                          onChange={setCheckOut}
+                          disableBefore={checkIn ?? new Date()}
+                          placeholder={t("booking2.selectDate")}
+                          dateFnsLocale={dateFnsLocale}
+                          seasonalWindows={toWindows(selectedSuites[0]?.seasonalPrices)}
+                          blockedWindows={suiteBlockedWindows}
+                          t={t}
+                        />
+                      </div>
                       <div className="space-y-2">
                         <Label className="luxury-label text-xs">
                           {t("booking2.chooseTent")} *
@@ -955,14 +991,14 @@ export function ReservationContent() {
                             return (
                               <div
                                 key={suite.id}
-                                className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 ${
+                                className={`flex flex-wrap items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl transition-all duration-300 ${
                                   qty > 0
                                     ? "border-2 border-amber bg-amber/[0.08]"
                                     : "border border-border/50 bg-background/50"
                                 }`}
                               >
                                 {suite.image && (
-                                  <img src={suite.image} alt={name} className="w-20 h-20 rounded-xl object-cover shrink-0" />
+                                  <img src={suite.image} alt={name} className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0" />
                                 )}
                                 <div className="flex-1 min-w-0">
                                   <p className="font-serif text-base mb-1">{name}</p>
@@ -994,12 +1030,15 @@ export function ReservationContent() {
                                     <span className="flex items-center gap-1"><Baby className="w-3 h-3 text-amber/60" />{suite.maxChildren}</span>
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-2 shrink-0">
+                                {/* On a phone the quantity gets its own row, so the name and price keep their width. */}
+                                <div className="flex items-center justify-end gap-3 shrink-0 basis-full sm:basis-auto border-t border-border/30 pt-3 sm:border-0 sm:pt-0">
+                                  <span className="text-xs text-muted-foreground mr-auto sm:hidden">{QTY_LABEL[language]}</span>
                                   <button
                                     type="button"
+                                    aria-label="−"
                                     onClick={() => setTentQuantity(suite.id, qty - 1)}
                                     disabled={qty <= 0}
-                                    className="w-8 h-8 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 disabled:opacity-30 cursor-pointer"
+                                    className="w-10 h-10 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 disabled:opacity-30 cursor-pointer"
                                   >
                                     <Minus className="w-3 h-3" />
                                   </button>
@@ -1007,7 +1046,7 @@ export function ReservationContent() {
                                   <button
                                     type="button"
                                     onClick={() => setTentQuantity(suite.id, qty + 1)}
-                                    className="w-8 h-8 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 cursor-pointer"
+                                    className="w-10 h-10 rounded-full border border-border/50 hover:border-amber/30 hover:bg-amber/[0.06] flex items-center justify-center transition-all duration-300 cursor-pointer"
                                   >
                                     <Plus className="w-3 h-3" />
                                   </button>
@@ -1018,29 +1057,6 @@ export function ReservationContent() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <DatePicker
-                          label={t("booking2.checkIn")}
-                          value={checkIn}
-                          onChange={setCheckIn}
-                          placeholder={t("booking2.selectDate")}
-                          dateFnsLocale={dateFnsLocale}
-                          seasonalWindows={toWindows(selectedSuites[0]?.seasonalPrices)}
-                          blockedWindows={suiteBlockedWindows}
-                          t={t}
-                        />
-                        <DatePicker
-                          label={t("booking2.checkOut")}
-                          value={checkOut}
-                          onChange={setCheckOut}
-                          disableBefore={checkIn ?? new Date()}
-                          placeholder={t("booking2.selectDate")}
-                          dateFnsLocale={dateFnsLocale}
-                          seasonalWindows={toWindows(selectedSuites[0]?.seasonalPrices)}
-                          blockedWindows={suiteBlockedWindows}
-                          t={t}
-                        />
-                      </div>
                     </>
                   )}
 
@@ -1341,7 +1357,7 @@ export function ReservationContent() {
                   <button
                     onClick={() => setStep(3)}
                     disabled={!canContinueStep2}
-                    className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="btn-primary hidden md:inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {t("booking2.continue")}
                     <ArrowRight className="w-4 h-4" />
@@ -1359,12 +1375,12 @@ export function ReservationContent() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -30 }}
                 transition={{ duration: 0.5, ease: smoothEase }}
-                className="glass-card card-warm p-8 md:p-10"
+                className="glass-card card-warm p-5 sm:p-8 md:p-10"
               >
                 <h2 className="heading-editorial text-2xl md:text-3xl mb-2">
                   {t("booking2.yourInfoTitle")}
                 </h2>
-                <p className="text-sm text-muted-foreground mb-8 body-editorial">
+                <p className="text-sm text-muted-foreground mb-5 sm:mb-8 body-editorial">
                   {t("booking2.yourInfoDesc")}
                 </p>
 
@@ -1380,7 +1396,7 @@ export function ReservationContent() {
                         value={personal.firstName}
                         onChange={(e) => setPersonal((p) => ({ ...p, firstName: e.target.value }))}
                         required
-                        className="rounded-2xl border-border/50 focus:border-amber/50 bg-background/50"
+                        className="rounded-2xl border-border/50 focus:border-amber/50 bg-background/50 h-12 text-base"
                         placeholder={t("booking2.firstNamePlaceholder")}
                       />
                     </div>
@@ -1394,7 +1410,7 @@ export function ReservationContent() {
                         value={personal.lastName}
                         onChange={(e) => setPersonal((p) => ({ ...p, lastName: e.target.value }))}
                         required
-                        className="rounded-2xl border-border/50 focus:border-amber/50 bg-background/50"
+                        className="rounded-2xl border-border/50 focus:border-amber/50 bg-background/50 h-12 text-base"
                         placeholder={t("booking2.lastNamePlaceholder")}
                       />
                     </div>
@@ -1409,7 +1425,7 @@ export function ReservationContent() {
                         value={personal.email}
                         onChange={(e) => setPersonal((p) => ({ ...p, email: e.target.value }))}
                         required
-                        className="rounded-2xl border-border/50 focus:border-amber/50 bg-background/50"
+                        className="rounded-2xl border-border/50 focus:border-amber/50 bg-background/50 h-12 text-base"
                         placeholder="jean@exemple.com"
                       />
                     </div>
@@ -1424,14 +1440,14 @@ export function ReservationContent() {
                         value={personal.phone}
                         onChange={(e) => setPersonal((p) => ({ ...p, phone: e.target.value }))}
                         required
-                        className="rounded-2xl border-border/50 focus:border-amber/50 bg-background/50"
+                        className="rounded-2xl border-border/50 focus:border-amber/50 bg-background/50 h-12 text-base"
                         placeholder="+212 6XX XXX XXX"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-10">
+                <div className="flex justify-between gap-3 mt-6 sm:mt-10">
                   <button onClick={() => setStep(2)} className="btn-outline inline-flex items-center gap-2 cursor-pointer">
                     <ArrowLeft className="w-4 h-4" />
                     {t("booking2.back")}
@@ -1439,7 +1455,7 @@ export function ReservationContent() {
                   <button
                     onClick={() => setStep(4)}
                     disabled={!isPersonalValid}
-                    className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="btn-primary hidden md:inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {t("booking2.continue")}
                     <ArrowRight className="w-4 h-4" />
@@ -1457,12 +1473,12 @@ export function ReservationContent() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -30 }}
                 transition={{ duration: 0.5, ease: smoothEase }}
-                className="glass-card card-warm p-8 md:p-10"
+                className="glass-card card-warm p-5 sm:p-8 md:p-10"
               >
                 <h2 className="heading-editorial text-2xl md:text-3xl mb-2">
                   {t("booking2.reviewTitle")}
                 </h2>
-                <p className="text-sm text-muted-foreground mb-8 body-editorial">
+                <p className="text-sm text-muted-foreground mb-5 sm:mb-8 body-editorial">
                   {t("booking2.reviewDesc")}
                 </p>
 
@@ -1485,7 +1501,7 @@ export function ReservationContent() {
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-10">
+                <div className="flex justify-between gap-3 mt-6 sm:mt-10">
                   <button onClick={() => setStep(3)} className="btn-outline inline-flex items-center gap-2 cursor-pointer">
                     <ArrowLeft className="w-4 h-4" />
                     {t("booking2.back")}
@@ -1493,7 +1509,7 @@ export function ReservationContent() {
                   <button
                     onClick={handleSubmit}
                     disabled={allItems.length === 0 || isSubmitting}
-                    className="btn-primary inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="btn-primary hidden md:inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {isSubmitting ? (
                       <>
@@ -1575,6 +1591,29 @@ export function ReservationContent() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Phone only: the total and the next action stay in reach while the long steps scroll.
+              The side paddings leave room for the floating theme and WhatsApp buttons. */}
+          {step >= 2 && step <= 4 && (
+            <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur border-t border-border/50 pl-16 pr-20 py-3 flex items-center justify-between gap-2">
+              {/* The review step already shows the total; its longer button label needs the room. */}
+              <div className={`min-w-0 ${step === 4 ? "hidden" : ""}`}>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{assistCopy.total}</p>
+                <p className="mono-number text-amber text-base truncate">
+                  {allItems.length > 0 ? `${grandTotal.toLocaleString("fr-FR")} ${grandCurrency}` : "—"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={step === 2 ? () => setStep(3) : step === 3 ? () => setStep(4) : handleSubmit}
+                disabled={step === 2 ? !canContinueStep2 : step === 3 ? !isPersonalValid : allItems.length === 0 || isSubmitting}
+                className={`btn-primary !px-4 !py-3 !text-[11px] inline-flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer ${step === 4 ? "flex-1" : ""}`}
+              >
+                {step === 4 ? t("booking2.sendRequest") : t("booking2.continue")}
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </>
