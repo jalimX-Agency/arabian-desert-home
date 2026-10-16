@@ -19,10 +19,15 @@ export function nightsBetween(checkIn: string | Date | null | undefined, checkOu
   return Number.isFinite(ms) ? Math.max(0, Math.round(ms / 86_400_000)) : 0;
 }
 
-/** The child rate derived from an adult unit price. Whole units, like the site's own booking
- *  engine (priceCartItem), so a quote and a booking never differ by a few cents. */
+/** The child rate derived from an adult unit price, to the cent (75 € at 50 % → 37,50 €).
+ *  The single rule for the site, the booking engine, the admin and quotes. */
 export function childUnitPrice(unitPrice: number, childPricePercent: number): number {
-  return Math.round((unitPrice * childPricePercent) / 100);
+  return roundMoney((unitPrice * childPricePercent) / 100);
+}
+
+/** Adults at the unit price plus children at the child rate, to the cent. */
+export function peopleTotal(unitPrice: number, adults: number, children: number, childPricePercent: number): number {
+  return roundMoney(adults * unitPrice + children * childUnitPrice(unitPrice, childPricePercent));
 }
 
 /** Line total for a price typed per person (activity, day pass) or per night (tent). */

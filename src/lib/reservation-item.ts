@@ -1,3 +1,4 @@
+import { peopleTotal } from "@/lib/devis-pricing";
 import { calendarDay } from "@/lib/calendar-day";
 import { db } from "@/lib/db";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
@@ -109,7 +110,7 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
       guests,
       children,
       experiences: item.experiences || null,
-      totalAmount: guests * unitPrice + children * Math.round(unitPrice * activity.childPricePercent / 100),
+      totalAmount: peopleTotal(unitPrice, guests, children, activity.childPricePercent),
       currency: item.currencyOverride ?? activity.currency,
     };
   }
@@ -134,7 +135,7 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
       guests,
       children,
       experiences: item.experiences || null,
-      totalAmount: guests * unitPrice + children * Math.round(unitPrice * pass.childPricePercent / 100),
+      totalAmount: peopleTotal(unitPrice, guests, children, pass.childPricePercent),
       currency: item.currencyOverride ?? pass.currency,
     };
   }
