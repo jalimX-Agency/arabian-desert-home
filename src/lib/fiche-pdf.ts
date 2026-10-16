@@ -1,3 +1,4 @@
+import { calendarDay } from "@/lib/calendar-day";
 import { readFileSync, existsSync } from "fs";
 import path from "path";
 import type { Booking, Suite, Activity, DayPass } from "@prisma/client";
@@ -212,11 +213,11 @@ function getServiceName(t: FicheDict, lang: FicheLang, b: FicheBooking): string 
 }
 
 function formatDateLong(d: Date, lang: FicheLang): string {
-  return d.toLocaleDateString(DATE_LOCALE[lang], { day: "2-digit", month: "long", year: "numeric" });
+  return calendarDay(d).toLocaleDateString(DATE_LOCALE[lang], { day: "2-digit", month: "long", year: "numeric", timeZone: "UTC" });
 }
 
 function formatDateShort(d: Date, lang: FicheLang): string {
-  return d.toLocaleDateString(DATE_LOCALE[lang], { day: "2-digit", month: "long" });
+  return calendarDay(d).toLocaleDateString(DATE_LOCALE[lang], { day: "2-digit", month: "long", timeZone: "UTC" });
 }
 
 export function escapeHtml(s: string): string {

@@ -1,3 +1,4 @@
+import { localDay } from "@/lib/calendar-day";
 import { format } from "date-fns";
 import { sumMoney } from "@/lib/money";
 import { fr } from "date-fns/locale";
@@ -93,9 +94,9 @@ export function getServiceName(b: Booking): string {
 
 export function formatDateCellText(b: Booking): string {
   if (b.serviceType === "suite" && b.checkIn && b.checkOut) {
-    return `${format(new Date(b.checkIn), "d MMM", { locale: fr })} → ${format(new Date(b.checkOut), "d MMM yyyy", { locale: fr })}`;
+    return `${format(localDay(b.checkIn), "d MMM", { locale: fr })} → ${format(localDay(b.checkOut), "d MMM yyyy", { locale: fr })}`;
   }
-  if (b.date) return format(new Date(b.date), "d MMM yyyy", { locale: fr });
+  if (b.date) return format(localDay(b.date), "d MMM yyyy", { locale: fr });
   return "—";
 }
 
@@ -179,11 +180,11 @@ interface CalendarEntry {
 export function bookingCalendarEntries(b: Booking): CalendarEntry[] {
   if (b.serviceType === "suite") {
     const entries: CalendarEntry[] = [];
-    if (b.checkIn) entries.push({ booking: b, date: new Date(b.checkIn), label: "Arrivée" });
-    if (b.checkOut) entries.push({ booking: b, date: new Date(b.checkOut), label: "Départ" });
+    if (b.checkIn) entries.push({ booking: b, date: localDay(b.checkIn), label: "Arrivée" });
+    if (b.checkOut) entries.push({ booking: b, date: localDay(b.checkOut), label: "Départ" });
     return entries;
   }
-  if (b.date) return [{ booking: b, date: new Date(b.date), label: serviceTypeLabel[b.serviceType] ?? b.serviceType }];
+  if (b.date) return [{ booking: b, date: localDay(b.date), label: serviceTypeLabel[b.serviceType] ?? b.serviceType }];
   return [];
 }
 
@@ -206,9 +207,9 @@ export function bookingsToCsv(bookings: Booking[]): string {
     channelLabel[b.reservation?.channel ?? "website"] ?? "Site web",
     serviceTypeLabel[b.serviceType] ?? b.serviceType,
     getServiceName(b),
-    b.checkIn ? format(new Date(b.checkIn), "yyyy-MM-dd") : "",
-    b.checkOut ? format(new Date(b.checkOut), "yyyy-MM-dd") : "",
-    b.date ? format(new Date(b.date), "yyyy-MM-dd") : "",
+    b.checkIn ? format(localDay(b.checkIn), "yyyy-MM-dd") : "",
+    b.checkOut ? format(localDay(b.checkOut), "yyyy-MM-dd") : "",
+    b.date ? format(localDay(b.date), "yyyy-MM-dd") : "",
     b.guests,
     b.children,
     b.experiences ?? "",

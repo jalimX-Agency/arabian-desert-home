@@ -1,5 +1,7 @@
 "use client";
 
+import { localDay } from "@/lib/calendar-day";
+
 import { format } from "date-fns";
 import { formatMoney } from "@/lib/money";
 import { fr } from "date-fns/locale";
@@ -72,7 +74,7 @@ export function DevisTable({ rows, loading, onRowClick }: DevisTableProps) {
                     {format(new Date(d.createdAt), "d MMM yyyy", { locale: fr })}
                   </td>
                   <td className={`px-4 py-3 whitespace-nowrap ${expired ? "text-red-500" : "text-gray-500 dark:text-white/60"}`}>
-                    {format(new Date(d.validUntil), "d MMM yyyy", { locale: fr })}
+                    {format(localDay(d.validUntil), "d MMM yyyy", { locale: fr })}
                   </td>
                   <td className="px-4 py-3 text-center text-gray-500 dark:text-white/60">{d.items.length}</td>
                   <td className="px-4 py-3 text-right font-medium whitespace-nowrap">

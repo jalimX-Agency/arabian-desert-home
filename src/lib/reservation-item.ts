@@ -1,3 +1,4 @@
+import { calendarDay } from "@/lib/calendar-day";
 import { db } from "@/lib/db";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
 import { rangeOverlapsClosure, suitesAvailability } from "@/lib/availability";
@@ -52,8 +53,9 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
     const quantity = Math.max(1, item.quantity ?? 1);
     const suite = await db.suite.findUnique({ where: { id: item.suiteId }, include: { seasonalPrices: true, closures: true } });
     if (!suite) throw new Error("Suite not found");
-    const checkIn = new Date(item.checkIn);
-    const checkOut = new Date(item.checkOut);
+    // Stored as the calendar day (UTC midnight), whatever time zone the visitor picked it in.
+    const checkIn = calendarDay(item.checkIn);
+    const checkOut = calendarDay(item.checkOut);
     if (!item.allowClosedPeriod && rangeOverlapsClosure(checkIn, checkOut, suite.closures)) {
       throw new Error(`${suite.name} n'est pas disponible sur ces dates`);
     }
@@ -93,7 +95,7 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
     }
     const activity = await db.activity.findUnique({ where: { id: item.activityId }, include: { seasonalPrices: true } });
     if (!activity) throw new Error("Activity not found");
-    const date = new Date(item.date);
+    const date = calendarDay(item.date);
     const unitPrice = priceForDate(activity.price, activity.seasonalPrices, date);
     return {
       serviceType: "activity",
@@ -118,7 +120,7 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
     }
     const pass = await db.dayPass.findUnique({ where: { id: item.dayPassId }, include: { seasonalPrices: true } });
     if (!pass) throw new Error("Day pass not found");
-    const date = new Date(item.date);
+    const date = calendarDay(item.date);
     const unitPrice = priceForDate(pass.price, pass.seasonalPrices, date);
     return {
       serviceType: "daypass",

@@ -1,3 +1,4 @@
+import { calendarDay } from "@/lib/calendar-day";
 interface ClosureWindow {
   startDate: Date;
   endDate: Date;
@@ -5,16 +6,16 @@ interface ClosureWindow {
 
 /** Whether a single date falls inside any closure window. */
 export function isDateBlocked(date: Date, closures: ClosureWindow[]): boolean {
-  return closures.some((c) => date >= c.startDate && date <= c.endDate);
+  const day = calendarDay(date).getTime();
+  return closures.some((c) => day >= calendarDay(c.startDate).getTime() && day <= calendarDay(c.endDate).getTime());
 }
 
 /** Whether any night of a stay (checkIn inclusive to checkOut exclusive) falls inside a closure window. */
 export function rangeOverlapsClosure(checkIn: Date, checkOut: Date, closures: ClosureWindow[]): boolean {
-  const nights = Math.max(1, Math.round((checkOut.getTime() - checkIn.getTime()) / 86_400_000));
+  const start = calendarDay(checkIn).getTime();
+  const nights = Math.max(1, Math.round((calendarDay(checkOut).getTime() - start) / 86_400_000));
   for (let i = 0; i < nights; i++) {
-    const night = new Date(checkIn);
-    night.setDate(night.getDate() + i);
-    if (isDateBlocked(night, closures)) return true;
+    if (isDateBlocked(new Date(start + i * 86_400_000), closures)) return true;
   }
   return false;
 }
@@ -32,14 +33,15 @@ interface StayLike {
  * A booking occupies the nights from its check-in up to (not including) its check-out.
  */
 export function peakUnitsTaken(checkIn: Date, checkOut: Date, stays: StayLike[]): number {
-  const nights = Math.max(1, Math.round((checkOut.getTime() - checkIn.getTime()) / DAY_MS));
+  const start = calendarDay(checkIn).getTime();
+  const nights = Math.max(1, Math.round((calendarDay(checkOut).getTime() - start) / DAY_MS));
   let peak = 0;
   for (let i = 0; i < nights; i++) {
-    const night = checkIn.getTime() + i * DAY_MS;
+    const night = start + i * DAY_MS;
     let taken = 0;
     for (const s of stays) {
       if (!s.checkIn || !s.checkOut) continue;
-      if (s.checkIn.getTime() <= night && night < s.checkOut.getTime()) taken += s.quantity;
+      if (calendarDay(s.checkIn).getTime() <= night && night < calendarDay(s.checkOut).getTime()) taken += s.quantity;
     }
     if (taken > peak) peak = taken;
   }

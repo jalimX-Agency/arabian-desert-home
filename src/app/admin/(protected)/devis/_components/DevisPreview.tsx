@@ -1,5 +1,7 @@
 "use client";
 
+import { localDay } from "@/lib/calendar-day";
+
 import { format } from "date-fns";
 import { fr, enUS, es } from "date-fns/locale";
 import { formatMoney, sumMoney } from "@/lib/money";
@@ -36,7 +38,7 @@ export function DevisPreview({ lang, currency, clientName, title, validUntil, co
   const t = COPY[l];
   const locale = DATE_LOCALE[l];
   const money = (n: number) => `${formatMoney(n)} ${currency}`;
-  const day = (d: string) => format(new Date(d), "d MMM yyyy", { locale });
+  const day = (d: string) => format(localDay(d), "d MMM yyyy", { locale });
 
   const total = sumMoney(items.map((i) => i.totalAmount));
   const discounts = sumMoney(items.filter((i) => i.totalAmount < 0).map((i) => i.totalAmount));
