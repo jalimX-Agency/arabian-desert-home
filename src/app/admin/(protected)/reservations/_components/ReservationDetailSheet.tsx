@@ -46,7 +46,7 @@ import {
 } from "../_lib/reservation-utils";
 import {
   Catalog, CatalogSuite, CatalogActivity, CatalogDayPass,
-  EditableItem, bookingToEditable, emptyItem, computeItemPrice,
+  EditableItem, bookingToEditable, emptyItem, computeItemPrice, applyItemPatch,
   fetchCatalog, isItemValid, itemToPayload,
 } from "../_lib/item-types";
 import { ItemCard } from "./ItemCard";
@@ -323,10 +323,11 @@ export function ReservationDetailSheet({
     setItems(group.items.map(bookingToEditable));
   }, [group]);
 
-  // Keep auto-priced items (not manually overridden) in sync with date/service/guest changes.
+  // Keep auto-priced items in sync with date/service/guest changes. Saved lines keep the amount
+  // they were booked at (lockedFromSave) until the admin edits them.
   useEffect(() => {
     setItems((prev) =>
-      prev.map((it) => (it.customPrice ? it : { ...it, totalAmount: computeItemPrice(it, catalog) }))
+      prev.map((it) => (it.customPrice || it.lockedFromSave ? it : { ...it, totalAmount: computeItemPrice(it, catalog) }))
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [suites, activities, dayPasses, JSON.stringify(items.map((i) => [i.serviceType, i.suiteId, i.activityId, i.dayPassId, i.checkIn, i.checkOut, i.date, i.guests, i.children, i.quantity]))]);
@@ -339,7 +340,7 @@ export function ReservationDetailSheet({
   const grandTotal = useMemo(() => sumMoney(items.map((it) => it.totalAmount)), [items]);
 
   function updateItem(key: string, patch: Partial<EditableItem>) {
-    setItems((prev) => prev.map((it) => (it.key === key ? { ...it, ...patch } : it)));
+    setItems((prev) => prev.map((it) => (it.key === key ? applyItemPatch(it, patch) : it)));
   }
 
   const isValid =

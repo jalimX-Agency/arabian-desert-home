@@ -1,3 +1,4 @@
+import { calendarDay } from "@/lib/calendar-day";
 import { NextRequest, NextResponse, after } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
@@ -95,9 +96,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         suiteId: item.serviceType === "suite" ? item.suiteId ?? null : null,
         activityId: item.serviceType === "activity" ? item.activityId ?? null : null,
         dayPassId: item.serviceType === "daypass" ? item.dayPassId ?? null : null,
-        checkIn: item.checkIn ? new Date(item.checkIn) : null,
-        checkOut: item.checkOut ? new Date(item.checkOut) : null,
-        date: item.date ? new Date(item.date) : null,
+        checkIn: item.checkIn ? calendarDay(item.checkIn) : null,
+        checkOut: item.checkOut ? calendarDay(item.checkOut) : null,
+        date: item.date ? calendarDay(item.date) : null,
         quantity: Math.max(1, item.quantity ?? 1),
         guests: item.guests,
         children: item.children,
