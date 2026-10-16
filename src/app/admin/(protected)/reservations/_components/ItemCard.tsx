@@ -121,7 +121,7 @@ export function ItemCard({ item, catalog, computedPrice, onChange, onRemove }: I
         <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/60 cursor-pointer">
           <Checkbox
             checked={item.customPrice}
-            onCheckedChange={(v) => onChange({ customPrice: v === true, totalAmount: v === true ? item.totalAmount : computedPrice(item) })}
+            onCheckedChange={(v) => onChange({ customPrice: v === true, lockedFromSave: false, totalAmount: v === true ? item.totalAmount : computedPrice(item) })}
           />
           Prix personnalisé
         </label>
@@ -139,6 +139,23 @@ export function ItemCard({ item, catalog, computedPrice, onChange, onRemove }: I
           <span className="text-xs text-gray-400">{item.currency}</span>
         </div>
       </div>
+      {item.lockedFromSave && !item.customPrice && (() => {
+        const current = computedPrice({ ...item, lockedFromSave: false });
+        return (
+          <p className="text-[11px] text-gray-400 flex flex-wrap items-center justify-end gap-x-2">
+            <span>Prix enregistré à la réservation</span>
+            {current !== item.totalAmount && (
+              <button
+                type="button"
+                onClick={() => onChange({ lockedFromSave: false, totalAmount: current })}
+                className="text-amber-600 dark:text-amber-400 underline underline-offset-2 cursor-pointer"
+              >
+                Tarif actuel : {formatMoney(current)} {item.currency} — appliquer
+              </button>
+            )}
+          </p>
+        );
+      })()}
     </div>
   );
 }

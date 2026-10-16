@@ -37,6 +37,10 @@ export interface EditableItem {
   totalAmount: number;
   currency: string;
   customPrice: boolean;
+  /** A saved booking opens with the amount it was booked at. It is only re-priced once the
+   *  admin changes what the price depends on (dates, service, people…) or asks for the
+   *  current rate — opening a reservation must never silently change what the client owes. */
+  lockedFromSave?: boolean;
   /** The booking's status as loaded — read-only here; only used to flag items the
    *  client cancelled from their own page so the admin notices and can remove them. */
   status?: string;
@@ -59,8 +63,23 @@ export function bookingToEditable(b: Booking): EditableItem {
     totalAmount: b.totalAmount,
     currency: b.currency ?? "MAD",
     customPrice: false,
+    lockedFromSave: true,
     status: b.status,
   };
+}
+
+/** Fields a line's price depends on: changing one re-prices a saved line. */
+const PRICING_FIELDS = [
+  "serviceType", "suiteId", "activityId", "dayPassId", "checkIn", "checkOut", "date", "quantity", "guests", "children",
+] as const satisfies readonly (keyof EditableItem)[];
+
+/** Applies an edit, lifting the saved-price freeze when something the price depends on changes. */
+export function applyItemPatch(item: EditableItem, patch: Partial<EditableItem>): EditableItem {
+  const next = { ...item, ...patch };
+  if (item.lockedFromSave && !("lockedFromSave" in patch) && PRICING_FIELDS.some((f) => f in patch && patch[f] !== item[f])) {
+    next.lockedFromSave = false;
+  }
+  return next;
 }
 
 /** A blank line item for the editor. `currency` should be the reservation's own
@@ -82,17 +101,19 @@ export function computeItemPrice(item: EditableItem, catalog: Catalog): number {
   if (item.serviceType === "suite") {
     const suite = catalog.suites.find((s) => s.id === item.suiteId);
     if (!suite || !item.checkIn || !item.checkOut) return item.totalAmount;
+    // Rates are in the catalogue's currency: never show 170 EUR as 170 MAD.
+    if (suite.currency !== item.currency) return item.totalAmount;
     return nightlyTotal(suite.price, toWindows(suite.seasonalPrices), new Date(item.checkIn), new Date(item.checkOut)) * Math.max(1, item.quantity);
   }
   if (item.serviceType === "activity") {
     const act = catalog.activities.find((a) => a.id === item.activityId);
-    if (!act || !item.date) return item.totalAmount;
+    if (!act || !item.date || act.currency !== item.currency) return item.totalAmount;
     const unit = priceForDate(act.price, toWindows(act.seasonalPrices), new Date(item.date));
     return peopleTotal(unit, item.guests, item.children, act.childPricePercent);
   }
   if (item.serviceType === "daypass") {
     const pass = catalog.dayPasses.find((p) => p.id === item.dayPassId);
-    if (!pass || !item.date) return item.totalAmount;
+    if (!pass || !item.date || pass.currency !== item.currency) return item.totalAmount;
     const unit = priceForDate(pass.price, toWindows(pass.seasonalPrices), new Date(item.date));
     return peopleTotal(unit, item.guests, item.children, pass.childPricePercent);
   }
