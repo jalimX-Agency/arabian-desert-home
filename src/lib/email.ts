@@ -189,10 +189,14 @@ type BookingWithRelations = {
   date?: Date | null;
   experiences?: string | null;
   specialReqs?: string | null;
+  label?: string | null;
   suite?: NamedRow | null;
   activity?: NamedRow | null;
   dayPass?: NamedRow | null;
 };
+
+/** What a free line (transport, decoration…) is called, per language. */
+const CUSTOM_LINE_LABEL: Record<ReservationLang, string> = { fr: "Prestation", en: "Service", es: "Servicio", it: "Servizio" };
 
 // Every string a guest can read in the four client-facing booking emails.
 interface BookingStrings {
@@ -387,7 +391,8 @@ function getServiceName(booking: BookingWithRelations, lang: ReservationLang = "
   const base =
     booking.serviceType === "suite" ? localizedName(booking.suite, lang) :
     booking.serviceType === "activity" ? localizedName(booking.activity, lang) :
-    booking.serviceType === "daypass" ? localizedName(booking.dayPass, lang) : "—";
+    booking.serviceType === "daypass" ? localizedName(booking.dayPass, lang) :
+    booking.serviceType === "custom" ? booking.label || CUSTOM_LINE_LABEL[lang] : "—";
   return booking.quantity && booking.quantity > 1 ? `${base} × ${booking.quantity}` : base;
 }
 
@@ -396,6 +401,7 @@ function getServiceTypeLabel(serviceType: string, lang: ReservationLang = "fr"):
   if (serviceType === "suite") return t.accommodation;
   if (serviceType === "activity") return t.activity;
   if (serviceType === "daypass") return t.daypass;
+  if (serviceType === "custom") return CUSTOM_LINE_LABEL[lang];
   return serviceType;
 }
 

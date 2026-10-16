@@ -24,6 +24,8 @@ export interface Booking {
   children: number;
   experiences?: string | null;
   specialReqs?: string | null;
+  /** Free line (serviceType "custom"): its own label, no catalogue link. */
+  label?: string | null;
   status: string;
   totalAmount: number;
   currency: string;
@@ -52,13 +54,15 @@ export const statusColors: Record<string, string> = {
   cancelled: "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/20",
 };
 
-export const serviceTypeOptions = ["suite", "activity", "daypass"];
+export const serviceTypeOptions = ["suite", "activity", "daypass", "custom"];
 export const serviceTypeLabel: Record<string, string> = {
   suite: "Tente",
   activity: "Activité",
   daypass: "Day Pass",
+  custom: "Prestation",
 };
 export const serviceTypeBadge: Record<string, string> = {
+  custom: "bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-white/60",
   suite: "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400",
   activity: "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400",
   daypass: "bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400",
@@ -88,7 +92,8 @@ export function getServiceName(b: Booking): string {
   const base =
     b.serviceType === "suite" ? b.suite?.name ?? "—" :
     b.serviceType === "activity" ? b.activity?.name ?? "—" :
-    b.serviceType === "daypass" ? b.dayPass?.name ?? "—" : "—";
+    b.serviceType === "daypass" ? b.dayPass?.name ?? "—" :
+    b.serviceType === "custom" ? b.label || "Prestation" : "—";
   return b.quantity > 1 ? `${base} × ${b.quantity}` : base;
 }
 

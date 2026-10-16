@@ -8,11 +8,13 @@ function getServiceName(b: {
   suite: { name: string } | null;
   activity: { name: string } | null;
   dayPass: { name: string } | null;
+  label?: string | null;
 }): string {
   const base =
     b.serviceType === "suite" ? b.suite?.name ?? "—" :
     b.serviceType === "activity" ? b.activity?.name ?? "—" :
-    b.serviceType === "daypass" ? b.dayPass?.name ?? "—" : "—";
+    b.serviceType === "daypass" ? b.dayPass?.name ?? "—" :
+    b.serviceType === "custom" ? b.label || "Prestation" : "—";
   return b.quantity > 1 ? `${base} × ${b.quantity}` : base;
 }
 

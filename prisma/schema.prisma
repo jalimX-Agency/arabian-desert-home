@@ -209,6 +209,7 @@ model Booking {
   children    Int       @default(0)
   experiences String?
   specialReqs String?
+  label       String? // free line (transport, decoration…): serviceType "custom", no catalogue link
   status      String    @default("pending")
   totalAmount Float
   currency    String    @default("MAD")

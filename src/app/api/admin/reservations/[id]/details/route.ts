@@ -14,7 +14,8 @@ const include = { suite: true, activity: true, dayPass: true } as const;
 interface EditItem {
   id?: string;
   _delete?: boolean;
-  serviceType: "suite" | "activity" | "daypass";
+  serviceType: "suite" | "activity" | "daypass" | "custom";
+  label?: string | null;
   suiteId?: string | null;
   activityId?: string | null;
   dayPassId?: string | null;
@@ -96,6 +97,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         suiteId: item.serviceType === "suite" ? item.suiteId ?? null : null,
         activityId: item.serviceType === "activity" ? item.activityId ?? null : null,
         dayPassId: item.serviceType === "daypass" ? item.dayPassId ?? null : null,
+        label: item.serviceType === "custom" ? (item.label?.trim() || "Prestation") : null,
         checkIn: item.checkIn ? calendarDay(item.checkIn) : null,
         checkOut: item.checkOut ? calendarDay(item.checkOut) : null,
         date: item.date ? calendarDay(item.date) : null,

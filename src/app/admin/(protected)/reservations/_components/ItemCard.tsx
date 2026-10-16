@@ -37,7 +37,11 @@ export function ItemCard({ item, catalog, computedPrice, onChange, onRemove }: I
       <div className="flex items-center justify-between gap-3">
         <Select
           value={item.serviceType}
-          onValueChange={(v) => onChange({ serviceType: v as ServiceType, suiteId: "", activityId: "", dayPassId: "" })}
+          onValueChange={(v) => onChange({
+            serviceType: v as ServiceType, suiteId: "", activityId: "", dayPassId: "",
+            // A free line is priced by hand.
+            ...(v === "custom" ? { customPrice: true, guests: 0 } : {}),
+          })}
         >
           <SelectTrigger size="sm" className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -53,6 +57,18 @@ export function ItemCard({ item, catalog, computedPrice, onChange, onRemove }: I
         </button>
       </div>
 
+      {item.serviceType === "custom" && (
+        <div className="grid grid-cols-3 gap-2">
+          <div className="col-span-2">
+            <Label className="text-xs text-gray-400 mb-1 block">Désignation</Label>
+            <Input value={item.label} onChange={(e) => onChange({ label: e.target.value })} placeholder="Transport privé, décoration…" />
+          </div>
+          <div>
+            <Label className="text-xs text-gray-400 mb-1 block">Quantité</Label>
+            <Input type="number" min={1} value={item.quantity} onChange={(e) => onChange({ quantity: Math.max(1, Number(e.target.value)) })} />
+          </div>
+        </div>
+      )}
       {item.serviceType === "suite" && (
         <>
           <Select value={item.suiteId} onValueChange={(v) => onChange({ suiteId: v })}>
@@ -118,7 +134,7 @@ export function ItemCard({ item, catalog, computedPrice, onChange, onRemove }: I
       </div>
 
       <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-white/5">
-        <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/60 cursor-pointer">
+        <label className={`flex items-center gap-2 text-xs text-gray-500 dark:text-white/60 cursor-pointer ${item.serviceType === "custom" ? "invisible" : ""}`}>
           <Checkbox
             checked={item.customPrice}
             onCheckedChange={(v) => onChange({ customPrice: v === true, lockedFromSave: false, totalAmount: v === true ? item.totalAmount : computedPrice(item) })}
