@@ -1,3 +1,4 @@
+import { localDay } from "@/lib/calendar-day";
 import { format } from "date-fns";
 import { computeItemPrice, toWindows, type Catalog, type EditableItem, type ServiceType } from "../../reservations/_lib/item-types";
 import { priceForDate } from "@/lib/seasonal-price";
@@ -58,7 +59,7 @@ export function emptyDevisItem(
 
 export function devisItemToEditable(item: DevisItem): EditableDevisItem {
   const isCustom = item.kind === "custom";
-  const ymd = (d: string | null | undefined) => (d ? format(new Date(d), "yyyy-MM-dd") : "");
+  const ymd = (d: string | null | undefined) => (d ? format(localDay(d), "yyyy-MM-dd") : "");
   // A unit price on a catalogue line means it was quoted per person / per night; otherwise
   // the saved amount is kept as a fixed total until the admin edits the line.
   const priceMode: DevisPriceMode = isCustom ? "catalog" : item.unitPrice > 0 ? "unit" : "total";

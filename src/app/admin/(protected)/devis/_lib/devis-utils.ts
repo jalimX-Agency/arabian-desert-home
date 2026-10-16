@@ -1,3 +1,4 @@
+import { localDay } from "@/lib/calendar-day";
 import { format } from "date-fns";
 import { roundMoney } from "@/lib/money";
 
@@ -153,7 +154,7 @@ export function devisToCsv(rows: Devis[]): string {
     d.title ?? "",
     format(new Date(d.createdAt), "yyyy-MM-dd"),
     d.sentAt ? format(new Date(d.sentAt), "yyyy-MM-dd") : "",
-    format(new Date(d.validUntil), "yyyy-MM-dd"),
+    format(localDay(d.validUntil), "yyyy-MM-dd"),
     d.answeredAt ? format(new Date(d.answeredAt), "yyyy-MM-dd") : "",
     d.answeredBy ?? "",
     d.items.length,

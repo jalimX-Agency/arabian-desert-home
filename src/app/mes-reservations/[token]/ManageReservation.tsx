@@ -1,5 +1,8 @@
 "use client";
 
+import { localDay } from "@/lib/calendar-day";
+import { toISODay } from "@/lib/tent-stay";
+
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
@@ -363,9 +366,9 @@ function itemName(item: ReservationItem, language: Language): string {
 
 function itemDates(item: ReservationItem, locale: Locale): string {
   if (item.serviceType === "suite" && item.checkIn && item.checkOut) {
-    return `${format(new Date(item.checkIn), "d MMM yyyy", { locale })} → ${format(new Date(item.checkOut), "d MMM yyyy", { locale })}`;
+    return `${format(localDay(item.checkIn), "d MMM yyyy", { locale })} → ${format(localDay(item.checkOut), "d MMM yyyy", { locale })}`;
   }
-  if (item.date) return format(new Date(item.date), "d MMM yyyy", { locale });
+  if (item.date) return format(localDay(item.date), "d MMM yyyy", { locale });
   return "—";
 }
 
@@ -403,7 +406,7 @@ function ModifyDatesPanel({
   }));
   const [range, setRange] = useState<DateRange | undefined>(
     isSuite && item.checkIn && item.checkOut
-      ? { from: new Date(item.checkIn), to: new Date(item.checkOut) }
+      ? { from: localDay(item.checkIn), to: localDay(item.checkOut) }
       : undefined
   );
   const [single, setSingle] = useState<Date | undefined>(item.date ? new Date(item.date) : undefined);
@@ -423,13 +426,13 @@ function ModifyDatesPanel({
         setLocalError(c.errClosure);
         return;
       }
-      onSubmit({ checkIn: range.from.toISOString(), checkOut: range.to.toISOString() });
+      onSubmit({ checkIn: toISODay(range.from), checkOut: toISODay(range.to) });
     } else {
       if (!single) {
         setLocalError(c.errChooseDate);
         return;
       }
-      onSubmit({ date: single.toISOString() });
+      onSubmit({ date: toISODay(single) });
     }
   }
 

@@ -1,3 +1,4 @@
+import { calendarDay } from "@/lib/calendar-day";
 import { escapeHtml, getLogoDataUri } from "@/lib/fiche-pdf";
 import { formatMoney, sumMoney } from "@/lib/money";
 import { fallbackBreakdown, formatBreakdown, readBreakdown } from "@/lib/devis-breakdown";
@@ -158,7 +159,7 @@ const I18N = {
 };
 
 function fmtDate(d: Date, lang: DevisLang): string {
-  return d.toLocaleDateString(DATE_LOCALE[lang], { day: "2-digit", month: "long", year: "numeric" });
+  return calendarDay(d).toLocaleDateString(DATE_LOCALE[lang], { day: "2-digit", month: "long", year: "numeric", timeZone: "UTC" });
 }
 
 function fmtMoney(amount: number, currency: string, lang: DevisLang): string {

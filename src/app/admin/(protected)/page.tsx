@@ -1,5 +1,7 @@
 "use client";
 
+import { localDay } from "@/lib/calendar-day";
+
 import { useEffect, useState } from "react";
 import { CalendarCheck, Mail, BedDouble, CheckCircle, Clock, XCircle } from "lucide-react";
 import { format } from "date-fns";
@@ -134,7 +136,7 @@ export default function AdminDashboardPage() {
                       )}
                     </p>
                     <p className="text-xs text-gray-400 truncate">
-                      {b.serviceName}{b.checkIn ? ` · ${format(new Date(b.checkIn), "d MMM yyyy", { locale: fr })}` : ""}
+                      {b.serviceName}{b.checkIn ? ` · ${format(localDay(b.checkIn), "d MMM yyyy", { locale: fr })}` : ""}
                     </p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">

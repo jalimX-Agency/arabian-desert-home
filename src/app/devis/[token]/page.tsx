@@ -1,5 +1,7 @@
 "use client";
 
+import { localDay } from "@/lib/calendar-day";
+
 import { useEffect, useState, useCallback } from "react";
 import { formatMoney, sumMoney } from "@/lib/money";
 import { fallbackBreakdown, formatBreakdown, readBreakdown } from "@/lib/devis-breakdown";
@@ -173,9 +175,9 @@ export default function DevisPage() {
   function itemDates(item: DevisItem): string | null {
     if (item.checkIn && item.checkOut) {
       const nights = Math.max(1, Math.round((new Date(item.checkOut).getTime() - new Date(item.checkIn).getTime()) / 86_400_000));
-      return `${format(new Date(item.checkIn), "d MMM yyyy", { locale })} → ${format(new Date(item.checkOut), "d MMM yyyy", { locale })} · ${t.nights(nights)}`;
+      return `${format(localDay(item.checkIn), "d MMM yyyy", { locale })} → ${format(localDay(item.checkOut), "d MMM yyyy", { locale })} · ${t.nights(nights)}`;
     }
-    if (item.date) return format(new Date(item.date), "d MMM yyyy", { locale });
+    if (item.date) return format(localDay(item.date), "d MMM yyyy", { locale });
     return null;
   }
 
@@ -221,7 +223,7 @@ export default function DevisPage() {
                   <span>{t.issued} {format(new Date(devis.createdAt), "d MMMM yyyy", { locale })}</span>
                   <span className={devis.expired ? "text-red-500" : ""}>
                     <Clock className="w-3 h-3 inline mr-1" />
-                    {t.validUntil} {format(new Date(devis.validUntil), "d MMMM yyyy", { locale })}
+                    {t.validUntil} {format(localDay(devis.validUntil), "d MMMM yyyy", { locale })}
                   </span>
                 </div>
               </div>

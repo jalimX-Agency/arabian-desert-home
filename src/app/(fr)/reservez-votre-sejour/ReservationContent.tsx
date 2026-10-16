@@ -34,8 +34,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage, pickLocalized } from "@/lib/i18n/context";
 import { trackEvent } from "@/lib/analytics";
-import { parseISODay, parseTentPicks, readStayFromQuery } from "@/lib/tent-stay";
+import { parseISODay, parseTentPicks, readStayFromQuery, toISODay } from "@/lib/tent-stay";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
+import { calendarDay, nightsBetweenDays } from "@/lib/calendar-day";
 
 const DATE_LOCALES = { fr: frLocale, en: enUS, es: esLocale, it: itLocale };
 
@@ -413,6 +414,12 @@ function CartList({
 type PrimaryType = "suite" | "activity" | "daypass";
 
 const BOOKING_WHATSAPP = "212667370206";
+const STAY_COPY = {
+  fr: { nights: (n: number) => `${n} nuit${n > 1 ? "s" : ""}`, range: (a: number, b: number, c: string) => `de ${a} à ${b} ${c} la nuit selon la saison` },
+  en: { nights: (n: number) => `${n} night${n > 1 ? "s" : ""}`, range: (a: number, b: number, c: string) => `${a}–${b} ${c} a night depending on the season` },
+  es: { nights: (n: number) => `${n} noche${n > 1 ? "s" : ""}`, range: (a: number, b: number, c: string) => `de ${a} a ${b} ${c} la noche según la temporada` },
+  it: { nights: (n: number) => `${n} nott${n > 1 ? "i" : "e"}`, range: (a: number, b: number, c: string) => `da ${a} a ${b} ${c} a notte secondo la stagione` },
+} as const;
 const QTY_LABEL = { fr: "Nombre de tentes", en: "Number of tents", es: "Número de tiendas", it: "Numero di tende" } as const;
 
 const ASSIST_COPY = {
@@ -687,9 +694,11 @@ export function ReservationContent() {
           suiteId: item.serviceType === "suite" ? item.itemId : undefined,
           activityId: item.serviceType === "activity" ? item.itemId : undefined,
           dayPassId: item.serviceType === "daypass" ? item.itemId : undefined,
-          checkIn: item.checkIn?.toISOString(),
-          checkOut: item.checkOut?.toISOString(),
-          date: item.date?.toISOString(),
+          // Calendar days (YYYY-MM-DD), not instants: a local midnight sent as UTC would land
+          // on the previous day for visitors east of Greenwich.
+          checkIn: item.checkIn ? toISODay(item.checkIn) : undefined,
+          checkOut: item.checkOut ? toISODay(item.checkOut) : undefined,
+          date: item.date ? toISODay(item.date) : undefined,
           quantity: item.quantity,
           guests: item.guests,
           children: item.children,
@@ -988,6 +997,15 @@ export function ReservationContent() {
                             const cardPrice = checkIn ? priceForDate(suite.price, toWindows(suite.seasonalPrices), checkIn) : null;
                             const isSeasonal = cardPrice !== null && cardPrice !== suite.price;
                             const qty = tentQuantities[suite.id] ?? 0;
+                            // With both dates, show what one tent costs for the whole stay: the
+                            // nights can sit in different seasons, so the first night's rate alone misleads.
+                            const stayNights = checkIn && checkOut ? nightsBetweenDays(checkIn, checkOut) : 0;
+                            const nightRates = stayNights > 0
+                              ? Array.from({ length: stayNights }, (_, i) => priceForDate(suite.price, toWindows(suite.seasonalPrices), new Date(calendarDay(checkIn!).getTime() + i * 86_400_000)))
+                              : [];
+                            const stayTotal = nightRates.reduce((sum, r) => sum + r, 0);
+                            const minRate = nightRates.length ? Math.min(...nightRates) : 0;
+                            const maxRate = nightRates.length ? Math.max(...nightRates) : 0;
                             return (
                               <div
                                 key={suite.id}
@@ -1005,7 +1023,24 @@ export function ReservationContent() {
                                   <p className="text-[10px] text-muted-foreground mb-1">
                                     {t("booking2.wholeTent")}
                                   </p>
-                                  {cardPrice === null ? (
+                                  {stayNights > 0 ? (
+                                    <>
+                                      <div className="flex items-baseline gap-1 flex-wrap">
+                                        <span className="mono-number text-amber text-base">{stayTotal}</span>
+                                        <span className="text-xs text-muted-foreground">{suite.currency} · {STAY_COPY[language].nights(stayNights)}</span>
+                                      </div>
+                                      <p className="text-[10px] text-muted-foreground">
+                                        {minRate === maxRate
+                                          ? `${minRate} ${suite.currency}${t("booking2.perNight")}`
+                                          : STAY_COPY[language].range(minRate, maxRate, suite.currency)}
+                                      </p>
+                                      {nightRates.some((r) => r !== suite.price) && (
+                                        <p className="text-[10px] text-amber flex items-center gap-1">
+                                          <Sparkles className="w-2.5 h-2.5" />{t("booking2.specialRatePrefix")}
+                                        </p>
+                                      )}
+                                    </>
+                                  ) : cardPrice === null ? (
                                     <p className="text-[10px] text-amber/80">
                                       {t("booking2.priceAfterDates")}
                                     </p>

@@ -1,3 +1,4 @@
+import { localDay } from "@/lib/calendar-day";
 import { format } from "date-fns";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
 import type { Booking } from "./reservation-utils";
@@ -48,9 +49,9 @@ export function bookingToEditable(b: Booking): EditableItem {
     suiteId: b.suiteId ?? "",
     activityId: b.activityId ?? "",
     dayPassId: b.dayPassId ?? "",
-    checkIn: b.checkIn ? format(new Date(b.checkIn), "yyyy-MM-dd") : "",
-    checkOut: b.checkOut ? format(new Date(b.checkOut), "yyyy-MM-dd") : "",
-    date: b.date ? format(new Date(b.date), "yyyy-MM-dd") : "",
+    checkIn: b.checkIn ? format(localDay(b.checkIn), "yyyy-MM-dd") : "",
+    checkOut: b.checkOut ? format(localDay(b.checkOut), "yyyy-MM-dd") : "",
+    date: b.date ? format(localDay(b.date), "yyyy-MM-dd") : "",
     quantity: b.quantity,
     guests: b.guests,
     children: b.children,

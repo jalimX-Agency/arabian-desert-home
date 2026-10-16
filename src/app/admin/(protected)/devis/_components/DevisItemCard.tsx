@@ -1,5 +1,7 @@
 "use client";
 
+import { localDay } from "@/lib/calendar-day";
+
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -32,7 +34,7 @@ interface DevisItemCardProps {
 
 /** One-line recap shown while the card is collapsed. */
 function summarise(item: EditableDevisItem, catalog: Catalog): { title: string; detail: string } {
-  const fmt = (d: string) => format(new Date(d), "d MMM yyyy", { locale: fr });
+  const fmt = (d: string) => format(localDay(d), "d MMM yyyy", { locale: fr });
   const people = `${item.guests} ad.${item.children > 0 ? ` + ${item.children} enf.` : ""}`;
 
   if (item.kind === "custom") {

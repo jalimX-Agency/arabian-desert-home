@@ -1,3 +1,4 @@
+import { calendarDay } from "@/lib/calendar-day";
 import { Resend } from "resend";
 import { db } from "@/lib/db";
 import { formatMoney as formatAmount } from "@/lib/money";
@@ -399,7 +400,8 @@ function getServiceTypeLabel(serviceType: string, lang: ReservationLang = "fr"):
 }
 
 function formatDate(d: Date, lang: ReservationLang = "fr"): string {
-  return d.toLocaleDateString(LANG_LOCALE[lang], { day: "2-digit", month: "long", year: "numeric" });
+  // The stay's calendar day, read in UTC: the server must not shift it by its own time zone.
+  return calendarDay(d).toLocaleDateString(LANG_LOCALE[lang], { day: "2-digit", month: "long", year: "numeric", timeZone: "UTC" });
 }
 
 function formatMoney(amount: number, lang: ReservationLang = "fr"): string {
