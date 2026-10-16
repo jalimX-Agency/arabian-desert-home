@@ -19,7 +19,7 @@ export function toWindows(sp: SeasonalWindow[] | undefined) {
   return (sp ?? []).map((w) => ({ startDate: new Date(w.startDate), endDate: new Date(w.endDate), price: w.price }));
 }
 
-export type ServiceType = "suite" | "activity" | "daypass";
+export type ServiceType = "suite" | "activity" | "daypass" | "custom";
 
 export interface EditableItem {
   key: string;
@@ -37,6 +37,8 @@ export interface EditableItem {
   totalAmount: number;
   currency: string;
   customPrice: boolean;
+  /** Free line (serviceType "custom"): what it is (transport, decoration…). */
+  label: string;
   /** A saved booking opens with the amount it was booked at. It is only re-priced once the
    *  admin changes what the price depends on (dates, service, people…) or asks for the
    *  current rate — opening a reservation must never silently change what the client owes. */
@@ -62,8 +64,10 @@ export function bookingToEditable(b: Booking): EditableItem {
     children: b.children,
     totalAmount: b.totalAmount,
     currency: b.currency ?? "MAD",
-    customPrice: false,
+    // A free line has no catalogue rate: its amount is always the typed one.
+    customPrice: b.serviceType === "custom",
     lockedFromSave: true,
+    label: b.label ?? "",
     status: b.status,
   };
 }
@@ -94,6 +98,7 @@ export function emptyItem(currency: string = "MAD"): EditableItem {
     quantity: 1, guests: 2, children: 0,
     totalAmount: 0, currency,
     customPrice: false,
+    label: "",
   };
 }
 
@@ -131,6 +136,7 @@ export function fetchCatalog(
 }
 
 export function isItemValid(it: EditableItem): boolean {
+  if (it.serviceType === "custom") return it.label.trim() !== "";
   return it.serviceType === "suite"
     ? it.suiteId !== "" && it.checkIn !== "" && it.checkOut !== ""
     : it.serviceType === "activity"
@@ -148,7 +154,8 @@ export function itemToPayload(it: EditableItem) {
     checkIn: it.serviceType === "suite" ? it.checkIn : undefined,
     checkOut: it.serviceType === "suite" ? it.checkOut : undefined,
     date: it.serviceType !== "suite" ? it.date : undefined,
-    quantity: it.serviceType === "suite" ? it.quantity : 1,
+    quantity: it.serviceType === "suite" || it.serviceType === "custom" ? it.quantity : 1,
+    label: it.serviceType === "custom" ? it.label.trim() : undefined,
     guests: it.guests,
     children: it.children,
     totalAmount: it.totalAmount,

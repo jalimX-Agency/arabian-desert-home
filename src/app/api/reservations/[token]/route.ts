@@ -106,6 +106,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ to
     if (item.status === "cancelled") {
       return fail("item_cancelled", "Cette prestation est annulée et ne peut plus être modifiée");
     }
+    if (item.serviceType === "custom") {
+      return fail("item_not_modifiable", "Cette prestation se modifie avec notre équipe");
+    }
     const originalStart = item.checkIn ?? item.date;
     if (originalStart && isInPast(originalStart)) {
       return fail("item_started", "Cette prestation a déjà commencé et ne peut plus être modifiée");

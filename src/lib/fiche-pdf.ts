@@ -197,7 +197,10 @@ function pickName(lang: FicheLang, base: string, en?: string | null, es?: string
   return base;
 }
 
-function getServiceTypeLabel(t: FicheDict, serviceType: string): string {
+const CUSTOM_LINE_LABEL: Record<FicheLang, string> = { fr: "Prestation", en: "Service", es: "Servicio", it: "Servizio" };
+
+function getServiceTypeLabel(t: FicheDict, serviceType: string, lang: FicheLang = "fr"): string {
+  if (serviceType === "custom") return CUSTOM_LINE_LABEL[lang];
   if (serviceType === "suite") return t.accommodation;
   if (serviceType === "activity") return t.activityLabel;
   if (serviceType === "daypass") return t.dayPassLabel;
@@ -208,7 +211,8 @@ function getServiceName(t: FicheDict, lang: FicheLang, b: FicheBooking): string 
   const base =
     b.serviceType === "suite" ? pickName(lang, b.suite?.name ?? t.none, b.suite?.nameEn, b.suite?.nameEs, b.suite?.nameIt) :
     b.serviceType === "activity" ? pickName(lang, b.activity?.name ?? t.none, b.activity?.nameEn, b.activity?.nameEs, b.activity?.nameIt) :
-    b.serviceType === "daypass" ? pickName(lang, b.dayPass?.name ?? t.none, b.dayPass?.nameEn, b.dayPass?.nameEs, b.dayPass?.nameIt) : t.none;
+    b.serviceType === "daypass" ? pickName(lang, b.dayPass?.name ?? t.none, b.dayPass?.nameEn, b.dayPass?.nameEs, b.dayPass?.nameIt) :
+    b.serviceType === "custom" ? b.label || CUSTOM_LINE_LABEL[lang] : t.none;
   return b.quantity > 1 ? `${base} × ${b.quantity}` : base;
 }
 
@@ -261,7 +265,7 @@ function buildPrestationRows(t: FicheDict, lang: FicheLang, items: FicheBooking[
       return `
         <tr>
           <td>
-            <span class="item-type">${escapeHtml(getServiceTypeLabel(t, b.serviceType))}</span>
+            <span class="item-type">${escapeHtml(getServiceTypeLabel(t, b.serviceType, lang))}</span>
             <span class="item-name">${escapeHtml(getServiceName(t, lang, b))}</span>
             ${sub}
           </td>

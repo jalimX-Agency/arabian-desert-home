@@ -4,7 +4,6 @@ import { db } from "@/lib/db";
 import { DEVIS_INCLUDE } from "@/lib/devis";
 import { readBreakdown } from "@/lib/devis-breakdown";
 import { priceCartItem } from "@/lib/reservation-item";
-import { formatMoney } from "@/lib/money";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 import { parseReservationLang } from "@/lib/reservation-lang";
 import { reservationManageUrl, sendReservationConfirmedEmail } from "@/lib/email";
@@ -65,14 +64,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }
   }
 
-  // Free lines have no catalogue link, so they can't be bookings. They stay in the total and
-  // are written into the reservation notes so nothing quoted gets lost.
-  const customRecap = customItems.length
-    ? `Devis ${devis.reference} — ${customItems
-        .map((i) => `${i.label} × ${i.quantity} : ${formatMoney(i.totalAmount)} ${devis.currency}`)
-        .join("; ")}`
-    : null;
-  const specialReqs = [devis.title, customRecap].filter(Boolean).join(" · ") || null;
+  // Free lines (transport, decoration, discount…) become reservation lines of their own
+  // (serviceType "custom", no catalogue link), so they show, add up and survive later edits.
+  const specialReqs = devis.title || null;
 
   const reservation = await db.$transaction(async (tx) => {
     const created = await tx.reservation.create({
@@ -88,12 +82,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         // The quote was written in the client's language — their emails and fiche follow it.
         lang: parseReservationLang(devis.lang),
         items: {
-          create: catalogItems.map((item) => ({
+          create: [...catalogItems, ...customItems].map((item) => ({
             firstName: devis.firstName,
             lastName: devis.lastName,
             email: devis.email,
             phone: devis.phone,
-            serviceType: item.serviceType,
+            serviceType: item.kind === "custom" ? "custom" : item.serviceType,
+            label: item.kind === "custom" ? item.label : null,
             suiteId: item.suiteId,
             activityId: item.activityId,
             dayPassId: item.dayPassId,

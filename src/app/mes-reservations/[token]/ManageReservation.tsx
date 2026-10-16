@@ -38,6 +38,7 @@ interface ReservationItem {
   suite?: (LocalizedName & { closures?: ClosureWindow[] }) | null;
   activity?: LocalizedName | null;
   dayPass?: LocalizedName | null;
+  label?: string | null;
   checkIn?: string | null;
   checkOut?: string | null;
   date?: string | null;
@@ -359,7 +360,7 @@ function errorText(c: Copy, data: { code?: string; error?: string }): string {
 
 function itemName(item: ReservationItem, language: Language): string {
   const row = item.suite ?? item.activity ?? item.dayPass;
-  if (!row) return "—";
+  if (!row) return item.label || "—";
   const translated = { fr: row.name, en: row.nameEn, es: row.nameEs, it: row.nameIt }[language];
   return translated || row.name;
 }
@@ -655,7 +656,9 @@ export function ManageReservation() {
                   const statusKey = (item.status in STATUS_STYLE ? item.status : "pending") as keyof typeof STATUS_STYLE;
                   const status = STATUS_STYLE[statusKey];
                   const StatusIcon = status.icon;
-                  const canModify = item.status !== "cancelled" && !itemHasStarted(item);
+                  // A free line (transport…) is arranged with our team: no self-service change.
+                  const isCustom = item.serviceType === "custom";
+                  const canModify = !isCustom && item.status !== "cancelled" && !itemHasStarted(item);
                   const isEditing = editingItemId === item.id;
                   return (
                     <div key={item.id} className="glass-card card-warm p-6">
@@ -664,7 +667,7 @@ export function ManageReservation() {
                         <Icon className="w-5 h-5 text-amber" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="luxury-label text-amber/70 text-[10px] mb-1">{c.service[item.serviceType as keyof Copy["service"]] ?? item.serviceType}</p>
+                        <p className="luxury-label text-amber/70 text-[10px] mb-1">{c.service[item.serviceType as keyof Copy["service"]] ?? (item.serviceType === "custom" ? "Service" : item.serviceType)}</p>
                         <p className="font-serif text-lg mb-1">{itemName(item, language)}</p>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" />{itemDates(item, locale)}</span>
@@ -686,7 +689,7 @@ export function ManageReservation() {
                               {c.modifyDates}
                             </button>
                           )}
-                          {item.status !== "cancelled" && (
+                          {!isCustom && item.status !== "cancelled" && (
                             <button
                               onClick={() => handleCancelItem(item.id)}
                               disabled={busyItemId === item.id}
