@@ -1,5 +1,9 @@
 "use client";
 
+import { formatMoney, sumMoney } from "@/lib/money";
+
+import { peopleTotal } from "@/lib/devis-pricing";
+
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
@@ -389,7 +393,7 @@ function CartList({
                     {item.children > 0 ? `, ${item.children} ${t("booking2.children")}` : ""}
                   </p>
                 </div>
-                <span className="mono-number text-amber text-sm shrink-0">{item.price.toLocaleString("fr-FR")} {item.currency}</span>
+                <span className="mono-number text-amber text-sm shrink-0">{formatMoney(item.price)} {item.currency}</span>
                 <button
                   type="button"
                   onClick={() => onRemove(item.key)}
@@ -403,7 +407,7 @@ function CartList({
           })}
           <div className="flex items-center justify-between pt-3 border-t border-border/30">
             <span className="text-sm font-medium">{t("booking2.summaryTotal")}</span>
-            <span className="mono-number text-amber text-lg">{total.toLocaleString("fr-FR")} {currency}</span>
+            <span className="mono-number text-amber text-lg">{formatMoney(total)} {currency}</span>
           </div>
         </div>
       )}
@@ -596,7 +600,7 @@ export function ReservationContent() {
     const act = activities.find((a) => a.id === addOnActivityId);
     if (!act) return;
     const unitPrice = priceForDate(act.price, toWindows(act.seasonalPrices), addOnDate);
-    const price = addOnAdults * unitPrice + addOnChildren * Math.round(unitPrice * act.childPricePercent / 100);
+    const price = peopleTotal(unitPrice, addOnAdults, addOnChildren, act.childPricePercent);
     setAddOns((c) => [...c, {
       key: `${Date.now()}-${Math.random()}`,
       serviceType: "activity",
@@ -648,7 +652,7 @@ export function ReservationContent() {
         date: primaryDate,
         quantity: 1,
         guests: primaryAdults, children: primaryChildren,
-        price: primaryAdults * unitPrice + primaryChildren * Math.round(unitPrice * act.childPricePercent / 100),
+        price: peopleTotal(unitPrice, primaryAdults, primaryChildren, act.childPricePercent),
         currency: act.currency,
       }];
     }
@@ -664,7 +668,7 @@ export function ReservationContent() {
         date: primaryDate,
         quantity: 1,
         guests: primaryAdults, children: primaryChildren,
-        price: primaryAdults * unitPrice + primaryChildren * Math.round(unitPrice * pass.childPricePercent / 100),
+        price: peopleTotal(unitPrice, primaryAdults, primaryChildren, pass.childPricePercent),
         currency: pass.currency,
       }];
     }
@@ -672,7 +676,7 @@ export function ReservationContent() {
   }
 
   const allItems = [...getPrimaryCartItems(), ...addOns];
-  const grandTotal = allItems.reduce((sum, item) => sum + item.price, 0);
+  const grandTotal = sumMoney(allItems.map((item) => item.price));
   const grandCurrency = allItems[0]?.currency ?? "MAD";
 
   const isPersonalValid =
@@ -766,14 +770,14 @@ export function ReservationContent() {
       const people = `${item.guests} ${assistCopy.adults}${item.children > 0 ? ` + ${item.children} ${assistCopy.children}` : ""}`;
       return `• ${item.name}${item.quantity && item.quantity > 1 ? ` × ${item.quantity}` : ""}${dates ? ` — ${dates}` : ""} — ${people}`;
     }),
-    allItems.length > 0 ? `${assistCopy.total} : ${grandTotal.toLocaleString("fr-FR")} ${grandCurrency}` : "",
+    allItems.length > 0 ? `${assistCopy.total} : ${formatMoney(grandTotal)} ${grandCurrency}` : "",
   ].filter(Boolean).join("\n");
   const assist = (
     <div className="mt-6 pt-5 border-t border-border/40 space-y-3 text-center">
       {allItems.length > 0 && (
         <p className="text-sm">
           <span className="text-muted-foreground">{assistCopy.total} : </span>
-          <span className="mono-number text-amber text-base">{grandTotal.toLocaleString("fr-FR")} {grandCurrency}</span>
+          <span className="mono-number text-amber text-base">{formatMoney(grandTotal)} {grandCurrency}</span>
         </p>
       )}
       <p className="text-xs text-muted-foreground body-editorial">{assistCopy.noPayment}</p>
@@ -1589,13 +1593,13 @@ export function ReservationContent() {
                   {allItems.map((item) => (
                     <div key={item.key} className="flex justify-between text-sm gap-4">
                       <span className="text-muted-foreground">{serviceTypeLabels[item.serviceType]} — {item.name}</span>
-                      <span className="text-right shrink-0">{item.price.toLocaleString("fr-FR")} {item.currency}</span>
+                      <span className="text-right shrink-0">{formatMoney(item.price)} {item.currency}</span>
                     </div>
                   ))}
                   <div className="h-px bg-border/30" />
                   <div className="flex justify-between text-sm font-medium">
                     <span className="text-muted-foreground">{t("booking2.summaryTotal")}</span>
-                    <span className="text-amber mono-number">{grandTotal.toLocaleString("fr-FR")} {grandCurrency}</span>
+                    <span className="text-amber mono-number">{formatMoney(grandTotal)} {grandCurrency}</span>
                   </div>
                 </div>
 
@@ -1635,7 +1639,7 @@ export function ReservationContent() {
               <div className={`min-w-0 ${step === 4 ? "hidden" : ""}`}>
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{assistCopy.total}</p>
                 <p className="mono-number text-amber text-base truncate">
-                  {allItems.length > 0 ? `${grandTotal.toLocaleString("fr-FR")} ${grandCurrency}` : "—"}
+                  {allItems.length > 0 ? `${formatMoney(grandTotal)} ${grandCurrency}` : "—"}
                 </p>
               </div>
               <button

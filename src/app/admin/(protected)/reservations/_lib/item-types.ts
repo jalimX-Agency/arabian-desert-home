@@ -1,3 +1,4 @@
+import { peopleTotal } from "@/lib/devis-pricing";
 import { localDay } from "@/lib/calendar-day";
 import { format } from "date-fns";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
@@ -87,13 +88,13 @@ export function computeItemPrice(item: EditableItem, catalog: Catalog): number {
     const act = catalog.activities.find((a) => a.id === item.activityId);
     if (!act || !item.date) return item.totalAmount;
     const unit = priceForDate(act.price, toWindows(act.seasonalPrices), new Date(item.date));
-    return item.guests * unit + item.children * Math.round((unit * act.childPricePercent) / 100);
+    return peopleTotal(unit, item.guests, item.children, act.childPricePercent);
   }
   if (item.serviceType === "daypass") {
     const pass = catalog.dayPasses.find((p) => p.id === item.dayPassId);
     if (!pass || !item.date) return item.totalAmount;
     const unit = priceForDate(pass.price, toWindows(pass.seasonalPrices), new Date(item.date));
-    return item.guests * unit + item.children * Math.round((unit * pass.childPricePercent) / 100);
+    return peopleTotal(unit, item.guests, item.children, pass.childPricePercent);
   }
   return item.totalAmount;
 }

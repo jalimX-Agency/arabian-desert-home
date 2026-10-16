@@ -1,6 +1,7 @@
 "use client";
 
 import { localDay } from "@/lib/calendar-day";
+import { formatMoney } from "@/lib/money";
 
 import { useEffect, useState } from "react";
 import { CalendarCheck, Mail, BedDouble, CheckCircle, Clock, XCircle } from "lucide-react";
@@ -140,7 +141,7 @@ export default function AdminDashboardPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-sm text-amber-600 dark:text-amber-400">{b.totalAmount} {b.currency}</span>
+                    <span className="text-sm text-amber-600 dark:text-amber-400">{formatMoney(b.totalAmount)} {b.currency}</span>
                     <span className={`text-[10px] px-2 py-1 rounded-full uppercase tracking-widest ${statusColors[b.status] ?? "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60"}`}>
                       {b.status}
                     </span>
