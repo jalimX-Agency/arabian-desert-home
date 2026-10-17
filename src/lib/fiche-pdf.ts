@@ -587,7 +587,7 @@ function findLocalChrome(): string | undefined {
 }
 
 /** Renders the fiche HTML to a PDF buffer via headless Chromium (Sparticuz build in production, a local browser in dev). */
-export async function generateFichePdf(html: string): Promise<Buffer> {
+export async function generateFichePdf(html: string, opts: { footerTemplate?: string } = {}): Promise<Buffer> {
   const puppeteer = await import("puppeteer-core");
   const isServerless = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
 
@@ -615,7 +615,13 @@ export async function generateFichePdf(html: string): Promise<Buffer> {
     await page.setContent(html, { waitUntil: "networkidle0" });
     await page.evaluateHandle("document.fonts.ready");
     await page.emulateMediaType("print");
-    const pdf = await page.pdf({ printBackground: true, preferCSSPageSize: true });
+    const pdf = await page.pdf({
+      printBackground: true,
+      preferCSSPageSize: true,
+      ...(opts.footerTemplate
+        ? { displayHeaderFooter: true, headerTemplate: "<span></span>", footerTemplate: opts.footerTemplate }
+        : {}),
+    });
     return Buffer.from(pdf);
   } finally {
     await browser.close();
