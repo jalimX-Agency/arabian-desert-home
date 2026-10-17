@@ -153,7 +153,7 @@ export function itemToPayload(it: EditableItem) {
     dayPassId: it.serviceType === "daypass" ? it.dayPassId : undefined,
     checkIn: it.serviceType === "suite" ? it.checkIn : undefined,
     checkOut: it.serviceType === "suite" ? it.checkOut : undefined,
-    date: it.serviceType !== "suite" ? it.date : undefined,
+    date: it.serviceType !== "suite" ? it.date || undefined : undefined,
     quantity: it.serviceType === "suite" || it.serviceType === "custom" ? it.quantity : 1,
     label: it.serviceType === "custom" ? it.label.trim() : undefined,
     guests: it.guests,

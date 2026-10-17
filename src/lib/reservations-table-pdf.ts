@@ -51,7 +51,7 @@ function datesCell(b: TableBooking): string {
     const nights = Math.max(1, nightsBetweenDays(b.checkIn, b.checkOut));
     return `${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}<div class="sub">${nights} nuit${nights > 1 ? "s" : ""}</div>`;
   }
-  return b.date ? fmtDate(b.date) : "—";
+  return b.date ? fmtDate(b.date) : `<span class="sub">${b.serviceType === "custom" ? "pendant le séjour" : "—"}</span>`;
 }
 
 function refOf(b: TableBooking): string {
@@ -62,6 +62,19 @@ function refOf(b: TableBooking): string {
 export function startOf(b: Pick<Booking, "checkIn" | "date">): Date | null {
   const d = b.checkIn ?? b.date;
   return d ? calendarDay(d) : null;
+}
+
+/** The day a line is planned on. An undated line (transfer, lunch… added by hand) goes with
+ *  its reservation: on that reservation's first dated day. */
+function planningDays(bookings: TableBooking[]): (b: TableBooking) => Date | null {
+  const firstDay = new Map<string, number>();
+  for (const b of bookings) {
+    const d = startOf(b);
+    if (!d) continue;
+    const r = refOf(b);
+    firstDay.set(r, Math.min(firstDay.get(r) ?? Infinity, d.getTime()));
+  }
+  return (b) => startOf(b) ?? (firstDay.has(refOf(b)) ? new Date(firstDay.get(refOf(b))!) : null);
 }
 
 /** Placeholders some channels put in contact fields ("-", "--", "n/a"). */
@@ -77,9 +90,10 @@ function realContact(value: string | null | undefined): string | null {
  */
 export function sortForPlanning(bookings: TableBooking[]): TableBooking[] {
   const typeRank: Record<string, number> = { suite: 0, daypass: 1, activity: 2, custom: 3 };
+  const day = planningDays(bookings);
   return [...bookings].sort((a, b) => {
-    const da = startOf(a)?.getTime() ?? Infinity;
-    const db = startOf(b)?.getTime() ?? Infinity;
+    const da = day(a)?.getTime() ?? Infinity;
+    const db = day(b)?.getTime() ?? Infinity;
     if (da !== db) return da - db;
     const ra = refOf(a), rb = refOf(b);
     if (ra !== rb) return ra < rb ? -1 : 1;
@@ -105,9 +119,11 @@ export function buildReservationsTableHtml(bookings: TableBooking[], scopeLabel:
     : "";
 
   // One section per day, headed by what the team has to prepare that day.
+  const planned = planningDays(bookings);
   const days = new Map<string, TableBooking[]>();
   for (const b of bookings) {
-    const key = startOf(b) ? dayKey(startOf(b)!) : "undated";
+    const d = planned(b);
+    const key = d ? dayKey(d) : "undated";
     days.set(key, [...(days.get(key) ?? []), b]);
   }
 
@@ -139,8 +155,9 @@ export function buildReservationsTableHtml(bookings: TableBooking[], scopeLabel:
       const status = STATUS[b.status] ?? { label: b.status, cls: "st-pending" };
       const contact = [realContact(b.phone), realContact(b.email)].filter(Boolean).map((s) => escapeHtml(s!)).join("<br>");
       const notes = (b.reservation?.specialReqs ?? b.specialReqs ?? "").trim();
+      const fullName = [realContact(b.firstName), realContact(b.lastName)].filter(Boolean).join(" ") || "—";
       const clientCell = startsGroup
-        ? `<div class="name">${escapeHtml(`${b.firstName} ${b.lastName}`)}</div>${contact ? `<div class="sub">${contact}</div>` : ""}${notes ? `<div class="note">${escapeHtml(notes.length > 140 ? `${notes.slice(0, 140)}…` : notes)}</div>` : ""}`
+        ? `<div class="name">${escapeHtml(fullName)}</div>${contact ? `<div class="sub">${contact}</div>` : ""}${notes ? `<div class="note">${escapeHtml(notes.length > 140 ? `${notes.slice(0, 140)}…` : notes)}</div>` : ""}`
         : "";
       return `
         <tr class="${startsGroup ? "group-start" : "group-cont"}${b.status === "cancelled" ? " cancelled" : ""}">

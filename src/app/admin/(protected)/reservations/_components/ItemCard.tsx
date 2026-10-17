@@ -67,6 +67,10 @@ export function ItemCard({ item, catalog, computedPrice, onChange, onRemove }: I
             <Label className="text-xs text-gray-400 mb-1 block">Quantité</Label>
             <Input type="number" min={1} value={item.quantity} onChange={(e) => onChange({ quantity: Math.max(1, Number(e.target.value)) })} />
           </div>
+          <div className="col-span-3">
+            <Label className="text-xs text-gray-400 mb-1 block">Date (facultatif — sinon le jour d&apos;arrivée sur le planning)</Label>
+            <Input type="date" value={item.date} onChange={(e) => onChange({ date: e.target.value })} />
+          </div>
         </div>
       )}
       {item.serviceType === "suite" && (
