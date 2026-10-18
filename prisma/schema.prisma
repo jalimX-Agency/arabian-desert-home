@@ -210,11 +210,37 @@ model Booking {
   experiences String?
   specialReqs String?
   label       String? // free line (transport, decoration…): serviceType "custom", no catalogue link
+  transportId String? // set when the guest picked a transport option; the line itself stays a free line
+  transport   TransportOption? @relation(fields: [transportId], references: [id], onDelete: SetNull)
   status      String    @default("pending")
   totalAmount Float
   currency    String    @default("MAD")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+// A transfer the guest can add to a reservation (Marrakech ↔ camp…), managed from the
+// admin. Booked as a free line whose amount is frozen at booking time, so changing the
+// price here never touches reservations already made.
+model TransportOption {
+  id            String    @id @default(cuid())
+  name          String
+  nameEn        String    @default("")
+  nameEs        String    @default("")
+  nameIt        String    @default("")
+  description   String    @default("")
+  descriptionEn String    @default("")
+  descriptionEs String    @default("")
+  descriptionIt String    @default("")
+  price         Int
+  currency      String    @default("EUR")
+  pricing       String    @default("forfait") // forfait (per reservation) | vehicule (per vehicle of `capacity` people) | personne
+  capacity      Int       @default(4)
+  active        Boolean   @default(true)
+  order         Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  bookings      Booking[]
 }
 
 model SeasonalPrice {

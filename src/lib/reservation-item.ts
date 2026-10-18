@@ -1,14 +1,18 @@
 import { peopleTotal } from "@/lib/devis-pricing";
+import { transportTotal, transportUnits } from "@/lib/transport";
 import { calendarDay } from "@/lib/calendar-day";
 import { db } from "@/lib/db";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
 import { rangeOverlapsClosure, suitesAvailability } from "@/lib/availability";
 
 export interface CartItemInput {
-  serviceType: "suite" | "activity" | "daypass";
+  serviceType: "suite" | "activity" | "daypass" | "transport";
   suiteId?: string;
   activityId?: string;
   dayPassId?: string;
+  transportId?: string;
+  /** Transport only: where the guest wants to be picked up (hotel, riad, airport + flight…). */
+  pickup?: string;
   checkIn?: string;
   checkOut?: string;
   date?: string;
@@ -40,6 +44,9 @@ export interface PricedItem {
   experiences: string | null;
   totalAmount: number;
   currency: string;
+  /** Transport lines are saved as free lines ("custom") carrying their own label. */
+  label?: string | null;
+  transportId?: string | null;
 }
 
 /** Validates and prices one cart item against the DB (seasonal-aware). Throws with a user-facing message on bad input. */
@@ -137,6 +144,35 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
       experiences: item.experiences || null,
       totalAmount: peopleTotal(unitPrice, guests, children, pass.childPricePercent),
       currency: item.currencyOverride ?? pass.currency,
+    };
+  }
+
+  if (item.serviceType === "transport") {
+    if (!item.transportId || !item.date) {
+      throw new Error("Transport booking requires transportId and date");
+    }
+    const opt = await db.transportOption.findUnique({ where: { id: item.transportId } });
+    if (!opt || !opt.active) throw new Error("Transport not available");
+    const passengers = guests + children;
+    const pickup = item.pickup?.trim().slice(0, 200);
+    // A free line whose amount is frozen now: later price changes in the admin only
+    // apply to new bookings.
+    return {
+      serviceType: "custom",
+      suiteId: null,
+      activityId: null,
+      dayPassId: null,
+      checkIn: null,
+      checkOut: null,
+      date: calendarDay(item.date),
+      quantity: transportUnits(opt, passengers),
+      guests,
+      children,
+      experiences: null,
+      totalAmount: transportTotal(opt, passengers),
+      currency: item.currencyOverride ?? opt.currency,
+      label: pickup ? `${opt.name} — Prise en charge : ${pickup}` : opt.name,
+      transportId: opt.id,
     };
   }
 
