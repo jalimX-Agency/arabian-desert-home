@@ -3,6 +3,7 @@
 import { formatMoney, sumMoney } from "@/lib/money";
 
 import { peopleTotal } from "@/lib/devis-pricing";
+import { transportTotal, transportUnits, transportUnitLabel } from "@/lib/transport";
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
@@ -21,6 +22,7 @@ import {
   Sparkles,
   Trash2,
   ShoppingBag,
+  Car,
 } from "lucide-react";
 import { format, type Locale } from "date-fns";
 import { fr as frLocale, enUS, es as esLocale, it as itLocale } from "date-fns/locale";
@@ -107,7 +109,24 @@ interface Activity {
   childPricePercent: number;
   image?: string;
   duration?: string;
+  transportIncluded?: boolean;
   seasonalPrices?: SeasonalPriceWindow[];
+}
+
+interface TransportOption {
+  id: string;
+  name: string;
+  nameEn?: string;
+  nameEs?: string;
+  nameIt?: string;
+  description?: string;
+  descriptionEn?: string;
+  descriptionEs?: string;
+  descriptionIt?: string;
+  price: number;
+  currency: string;
+  pricing: string;
+  capacity: number;
 }
 
 interface DayPass {
@@ -126,7 +145,7 @@ interface DayPass {
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
-type ServiceType = "suite" | "activity" | "daypass";
+type ServiceType = "suite" | "activity" | "daypass" | "transport";
 
 interface CartItem {
   key: string;
@@ -356,7 +375,7 @@ function CartList({
   titleText?: string;
   hideEmptyState?: boolean;
 }) {
-  const SERVICE_ICON: Record<ServiceType, React.ElementType> = { suite: Tent, activity: Bike, daypass: Sun };
+  const SERVICE_ICON: Record<ServiceType, React.ElementType> = { suite: Tent, activity: Bike, daypass: Sun, transport: Car };
   const total = cart.reduce((sum, item) => sum + item.price, 0);
   const currency = cart[0]?.currency ?? "MAD";
 
@@ -424,6 +443,12 @@ const STAY_COPY = {
   es: { nights: (n: number) => `${n} noche${n > 1 ? "s" : ""}`, range: (a: number, b: number, c: string) => `de ${a} a ${b} ${c} la noche según la temporada` },
   it: { nights: (n: number) => `${n} nott${n > 1 ? "i" : "e"}`, range: (a: number, b: number, c: string) => `da ${a} a ${b} ${c} a notte secondo la stagione` },
 } as const;
+const TRANSPORT_COPY = {
+  fr: { title: "Besoin d'un transport ?", desc: "Nous venons vous chercher à Marrakech (hôtel, riad ou aéroport) et vous y ramenons.", pickup: "Lieu de prise en charge", pickupPh: "Hôtel, riad, aéroport + n° de vol…", none: "Non merci", type: "Transport", date: (d: string) => `Prise en charge le ${d}` },
+  en: { title: "Need transport?", desc: "We pick you up in Marrakech (hotel, riad or airport) and drive you back.", pickup: "Pick-up location", pickupPh: "Hotel, riad, airport + flight no.…", none: "No thanks", type: "Transport", date: (d: string) => `Pick-up on ${d}` },
+  es: { title: "¿Necesita transporte?", desc: "Le recogemos en Marrakech (hotel, riad o aeropuerto) y le llevamos de vuelta.", pickup: "Lugar de recogida", pickupPh: "Hotel, riad, aeropuerto + n.º de vuelo…", none: "No, gracias", type: "Transporte", date: (d: string) => `Recogida el ${d}` },
+  it: { title: "Serve un transfer?", desc: "Vi veniamo a prendere a Marrakech (hotel, riad o aeroporto) e vi riaccompagniamo.", pickup: "Luogo di ritiro", pickupPh: "Hotel, riad, aeroporto + n. volo…", none: "No grazie", type: "Transfer", date: (d: string) => `Ritiro il ${d}` },
+} as const;
 const QTY_LABEL = { fr: "Nombre de tentes", en: "Number of tents", es: "Número de tiendas", it: "Numero di tende" } as const;
 
 const ASSIST_COPY = {
@@ -462,6 +487,10 @@ export function ReservationContent() {
   const [suites, setSuites] = useState<Suite[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [dayPasses, setDayPasses] = useState<DayPass[]>([]);
+  const [transports, setTransports] = useState<TransportOption[]>([]);
+  // Optional transfer, added on top of whatever was chosen (one option, picked up on the first day).
+  const [transportId, setTransportId] = useState("");
+  const [pickup, setPickup] = useState("");
 
   // The primary item — one or more tent types (with quantities), one activity, or one Day Pass.
   const [primaryType, setPrimaryType] = useState<PrimaryType>("suite");
@@ -524,6 +553,7 @@ export function ReservationContent() {
     fetch("/api/suites").then((r) => r.json()).then(setSuites).catch(() => {});
     fetch("/api/activities").then((r) => r.json()).then(setActivities).catch(() => {});
     fetch("/api/day-passes").then((r) => r.json()).then(setDayPasses).catch(() => {});
+    fetch("/api/transports").then((r) => r.json()).then(setTransports).catch(() => {});
   }, []);
 
   // A stay chosen on the tents page arrives through the URL (dates, guests, tents):
@@ -675,7 +705,31 @@ export function ReservationContent() {
     return [];
   }
 
-  const allItems = [...getPrimaryCartItems(), ...addOns];
+  // The transfer is offered once the first day is known, unless the chosen activity already includes it.
+  const transportDate = primaryType === "suite" ? checkIn : primaryDate;
+  const primaryActivity = primaryType === "activity" ? activities.find((a) => a.id === activityId) : undefined;
+  const canAddTransport = transports.length > 0 && transportDate !== undefined && !primaryActivity?.transportIncluded;
+  const selectedTransport = canAddTransport ? transports.find((o) => o.id === transportId) : undefined;
+  const transportCopy = TRANSPORT_COPY[language];
+
+  function getTransportCartItems(): CartItem[] {
+    if (!selectedTransport || !transportDate) return [];
+    const passengers = primaryAdults + primaryChildren;
+    return [{
+      key: "transport",
+      serviceType: "transport",
+      itemId: selectedTransport.id,
+      name: localizeName(selectedTransport.name, selectedTransport.nameEn, selectedTransport.nameEs, selectedTransport.nameIt),
+      date: transportDate,
+      quantity: transportUnits(selectedTransport, passengers),
+      guests: primaryAdults,
+      children: primaryChildren,
+      price: transportTotal(selectedTransport, passengers),
+      currency: selectedTransport.currency,
+    }];
+  }
+
+  const allItems = [...getPrimaryCartItems(), ...addOns, ...getTransportCartItems()];
   const grandTotal = sumMoney(allItems.map((item) => item.price));
   const grandCurrency = allItems[0]?.currency ?? "MAD";
 
@@ -698,6 +752,8 @@ export function ReservationContent() {
           suiteId: item.serviceType === "suite" ? item.itemId : undefined,
           activityId: item.serviceType === "activity" ? item.itemId : undefined,
           dayPassId: item.serviceType === "daypass" ? item.itemId : undefined,
+          transportId: item.serviceType === "transport" ? item.itemId : undefined,
+          pickup: item.serviceType === "transport" ? pickup.trim() || undefined : undefined,
           // Calendar days (YYYY-MM-DD), not instants: a local midnight sent as UTC would land
           // on the previous day for visitors east of Greenwich.
           checkIn: item.checkIn ? toISODay(item.checkIn) : undefined,
@@ -735,7 +791,7 @@ export function ReservationContent() {
       setIsSubmitting(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [personal, specialReqs, allItems, language]);
+  }, [personal, specialReqs, allItems, language, pickup]);
 
   const stepLabels = [
     t("booking2.stepService"),
@@ -755,6 +811,7 @@ export function ReservationContent() {
     setWantsAddOn(false);
     setAddOns([]);
     setSpecialReqs("");
+    setTransportId(""); setPickup("");
     setManageUrl("");
   }
 
@@ -792,10 +849,11 @@ export function ReservationContent() {
     </div>
   );
 
-  const serviceTypeLabels: Record<PrimaryType, string> = {
+  const serviceTypeLabels: Record<ServiceType, string> = {
     suite: t("booking2.serviceTypeSuiteLabel"),
     activity: t("booking2.serviceTypeActivityLabel"),
     daypass: "Day Pass",
+    transport: transportCopy.type,
   };
 
   return (
@@ -1380,6 +1438,78 @@ export function ReservationContent() {
                       )}
                     </div>
                   )}
+
+                  {/* ── Optional transfer — once the first day is known ── */}
+                  {canAddTransport && transportDate && (
+                    <div className="pt-6 border-t border-border/30 space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-9 h-9 rounded-full bg-amber/10 border border-amber/15 flex items-center justify-center shrink-0">
+                          <Car className="w-4 h-4 text-amber" />
+                        </div>
+                        <div>
+                          <p className="heading-editorial text-lg mb-1">{transportCopy.title}</p>
+                          <p className="text-xs text-muted-foreground body-editorial">{transportCopy.desc}</p>
+                        </div>
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {transports.map((opt) => {
+                          const passengers = primaryAdults + primaryChildren;
+                          const selected = transportId === opt.id;
+                          const desc = localizeName(opt.description ?? "", opt.descriptionEn, opt.descriptionEs, opt.descriptionIt);
+                          return (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              aria-pressed={selected}
+                              onClick={() => setTransportId(selected ? "" : opt.id)}
+                              className={`relative rounded-2xl p-4 text-left transition-all duration-300 cursor-pointer ${
+                                selected ? "border-2 border-amber bg-amber/[0.08]" : "border border-border/50 bg-background/50 hover:border-amber/30"
+                              }`}
+                            >
+                              <p className="font-serif text-sm pr-6">{localizeName(opt.name, opt.nameEn, opt.nameEs, opt.nameIt)}</p>
+                              {desc && <p className="text-xs text-muted-foreground mt-1">{desc}</p>}
+                              <p className="mt-2 flex items-baseline gap-1 flex-wrap">
+                                <span className="mono-number text-amber text-base">{formatMoney(transportTotal(opt, passengers))}</span>
+                                <span className="text-xs text-muted-foreground">{opt.currency}</span>
+                                {opt.pricing !== "forfait" && (
+                                  <span className="text-[11px] text-muted-foreground">· {opt.price} {opt.currency} {transportUnitLabel(opt, language)}</span>
+                                )}
+                              </p>
+                              {selected && (
+                                <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
+                                  <Check className="w-3 h-3 text-warm-black" />
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                        <button
+                          type="button"
+                          aria-pressed={transportId === ""}
+                          onClick={() => setTransportId("")}
+                          className={`rounded-2xl p-4 text-sm text-left transition-all duration-300 cursor-pointer ${
+                            transportId === "" ? "border-2 border-amber/60 bg-background/50" : "border border-border/50 bg-background/50 hover:border-amber/30"
+                          }`}
+                        >
+                          {transportCopy.none}
+                        </button>
+                      </div>
+                      {selectedTransport && (
+                        <div className="space-y-2">
+                          <p className="text-xs text-muted-foreground">{transportCopy.date(format(transportDate, "d MMMM yyyy", { locale: dateFnsLocale }))}</p>
+                          <Label htmlFor="transportPickup" className="luxury-label text-xs">{transportCopy.pickup}</Label>
+                          <Input
+                            id="transportPickup"
+                            value={pickup}
+                            maxLength={200}
+                            onChange={(e) => setPickup(e.target.value)}
+                            placeholder={transportCopy.pickupPh}
+                            className="h-12 text-base rounded-2xl border-border/50 focus:border-amber/50 bg-background/50"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {addOnIncomplete && (
@@ -1522,7 +1652,7 @@ export function ReservationContent() {
                 </p>
 
                 <div className="space-y-6">
-                  <CartList cart={allItems} onRemove={(key) => key === "primary" ? undefined : removeAddOn(key)} dateFnsLocale={dateFnsLocale} t={t} />
+                  <CartList cart={allItems} onRemove={(key) => key === "transport" ? setTransportId("") : key === "primary" ? undefined : removeAddOn(key)} dateFnsLocale={dateFnsLocale} t={t} />
 
                   <div className="space-y-2">
                     <Label htmlFor="specialReqs" className="luxury-label text-xs">

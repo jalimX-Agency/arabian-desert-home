@@ -11,6 +11,10 @@ interface Field {
   label: string;
   type?: "text" | "number" | "textarea" | "checkbox" | "select" | "image" | "images" | "tags" | "toggleNumber";
   options?: string[];
+  /** Display text for select options (the stored value stays the option itself). */
+  optionLabels?: Record<string, string>;
+  /** Value a new item starts with, instead of the type's empty value. */
+  defaultValue?: unknown;
   required?: boolean;
   folder?: string;
 }
@@ -100,7 +104,7 @@ function FieldInput({ field, value, onChange }: {
         onChange={(e) => onChange(e.target.value)}
         className={base}
       >
-        {field.options?.map((o) => <option key={o} value={o}>{o}</option>)}
+        {field.options?.map((o) => <option key={o} value={o}>{field.optionLabels?.[o] ?? o}</option>)}
       </select>
     );
   }
@@ -136,7 +140,7 @@ export function ResourceManager({ title, apiPath, fields, columns, tabs }: Resou
   function openCreate() {
     const defaults: Record<string, unknown> = {};
     fields.forEach((f) => {
-      defaults[f.key] = f.type === "checkbox" ? false : f.type === "toggleNumber" ? null : f.type === "number" ? 0 : "";
+      defaults[f.key] = f.defaultValue !== undefined ? f.defaultValue : f.type === "checkbox" ? false : f.type === "toggleNumber" ? null : f.type === "number" ? 0 : "";
     });
     setForm(defaults);
     setEditing(null);

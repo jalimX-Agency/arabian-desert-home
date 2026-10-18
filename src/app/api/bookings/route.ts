@@ -25,6 +25,11 @@ export async function POST(request: Request) {
       return Response.json({ error: "At least one item is required" }, { status: 400 });
     }
 
+    // Transport is an extra on a stay or an activity, never booked on its own.
+    if (items.every((item) => item.serviceType === "transport")) {
+      return Response.json({ error: "Transport must be added to a stay or an activity" }, { status: 400 });
+    }
+
     let priced;
     try {
       priced = await Promise.all(items.map((item) => priceCartItem(item)));
@@ -56,6 +61,8 @@ export async function POST(request: Request) {
             guests: p.guests,
             children: p.children,
             experiences: p.experiences,
+            label: p.label ?? null,
+            transportId: p.transportId ?? null,
             specialReqs: specialReqs || null,
             totalAmount: p.totalAmount,
             currency: p.currency,

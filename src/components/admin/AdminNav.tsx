@@ -7,7 +7,7 @@ import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import {
   LayoutDashboard, BedDouble, Zap, Sun, UtensilsCrossed,
-  MessageSquareQuote, CalendarCheck, Mail, Settings, LogOut, Images, Moon, BookOpen, Tag, FileText,
+  MessageSquareQuote, CalendarCheck, Mail, Settings, LogOut, Images, Moon, BookOpen, Tag, FileText, Car,
   Menu, X,
 } from "lucide-react";
 
@@ -18,6 +18,7 @@ const links = [
   { href: "/admin/hebergements", label: "Hébergements", icon: BedDouble },
   { href: "/admin/activites", label: "Activités", icon: Zap },
   { href: "/admin/day-pass", label: "Day Pass", icon: Sun },
+  { href: "/admin/transport", label: "Transport", icon: Car },
   { href: "/admin/tarifs-saisonniers", label: "Tarifs & Fermetures", icon: Tag },
   { href: "/admin/restaurant", label: "Restaurant", icon: UtensilsCrossed },
   { href: "/admin/galerie", label: "Galerie", icon: Images },
