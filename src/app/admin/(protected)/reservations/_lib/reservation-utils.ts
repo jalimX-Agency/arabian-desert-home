@@ -107,8 +107,8 @@ export function formatDateCellText(b: Booking): string {
 
 /** The earliest relevant date for a booking item — used to sort/display the reservation's nearest date. */
 export function earliestDate(b: Booking): Date | null {
-  if (b.checkIn) return new Date(b.checkIn);
-  if (b.date) return new Date(b.date);
+  if (b.checkIn) return localDay(b.checkIn);
+  if (b.date) return localDay(b.date);
   return null;
 }
 

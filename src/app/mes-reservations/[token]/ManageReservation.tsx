@@ -410,7 +410,7 @@ function ModifyDatesPanel({
       ? { from: localDay(item.checkIn), to: localDay(item.checkOut) }
       : undefined
   );
-  const [single, setSingle] = useState<Date | undefined>(item.date ? new Date(item.date) : undefined);
+  const [single, setSingle] = useState<Date | undefined>(item.date ? localDay(item.date) : undefined);
   const [localError, setLocalError] = useState<string | null>(null);
 
   const today = startOfToday();
