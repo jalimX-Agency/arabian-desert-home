@@ -1,5 +1,7 @@
 "use client";
 
+import { localDay } from "@/lib/calendar-day";
+
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -151,7 +153,7 @@ function ReviewRequestRow({ group, onSent }: { group: ReservationGroup; onSent: 
   const lastDay = active.reduce<Date | null>((max, b) => {
     const d = b.checkOut ?? b.date ?? b.checkIn;
     if (!d) return max;
-    const t = new Date(d);
+    const t = localDay(d);
     return !max || t > max ? t : max;
   }, null);
   const today = new Date();
