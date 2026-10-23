@@ -3,7 +3,7 @@ import { transportTotal, transportUnits } from "@/lib/transport";
 import { calendarDay } from "@/lib/calendar-day";
 import { db } from "@/lib/db";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
-import { rangeOverlapsClosure, suitesAvailability } from "@/lib/availability";
+import { isDateBlocked, rangeOverlapsClosure, suitesAvailability } from "@/lib/availability";
 
 export interface CartItemInput {
   serviceType: "suite" | "activity" | "daypass" | "transport";
@@ -101,9 +101,12 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
     if (!item.activityId || !item.date) {
       throw new Error("Activity booking requires activityId and date");
     }
-    const activity = await db.activity.findUnique({ where: { id: item.activityId }, include: { seasonalPrices: true } });
+    const activity = await db.activity.findUnique({ where: { id: item.activityId }, include: { seasonalPrices: true, closures: true } });
     if (!activity) throw new Error("Activity not found");
     const date = calendarDay(item.date);
+    if (!item.allowClosedPeriod && isDateBlocked(date, activity.closures)) {
+      throw new Error(`${activity.name} n'est pas disponible à cette date`);
+    }
     const unitPrice = priceForDate(activity.price, activity.seasonalPrices, date);
     return {
       serviceType: "activity",
@@ -126,9 +129,12 @@ export async function priceCartItem(item: CartItemInput): Promise<PricedItem> {
     if (!item.dayPassId || !item.date) {
       throw new Error("Day pass booking requires dayPassId and date");
     }
-    const pass = await db.dayPass.findUnique({ where: { id: item.dayPassId }, include: { seasonalPrices: true } });
+    const pass = await db.dayPass.findUnique({ where: { id: item.dayPassId }, include: { seasonalPrices: true, closures: true } });
     if (!pass) throw new Error("Day pass not found");
     const date = calendarDay(item.date);
+    if (!item.allowClosedPeriod && isDateBlocked(date, pass.closures)) {
+      throw new Error(`${pass.name} n'est pas disponible à cette date`);
+    }
     const unitPrice = priceForDate(pass.price, pass.seasonalPrices, date);
     return {
       serviceType: "daypass",

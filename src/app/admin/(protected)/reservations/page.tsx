@@ -19,6 +19,9 @@ import { ReservationCalendar } from "./_components/ReservationCalendar";
 import { ReservationDetailSheet } from "./_components/ReservationDetailSheet";
 import { NewReservationDialog } from "./_components/NewReservationDialog";
 import { ConfirmDialog } from "./_components/ConfirmDialog";
+import { QuickFilters } from "./_components/QuickFilters";
+import { DayPlanCard } from "@/components/admin/DayPlanCard";
+import { parseISODay } from "@/lib/tent-stay";
 
 export default function ReservationsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -92,8 +95,11 @@ export default function ReservationsPage() {
     if (sortMode === "range" && (dateFrom || dateTo)) {
       const d = earliestDate(b);
       if (!d) return false;
-      if (dateFrom && d < new Date(dateFrom)) return false;
-      if (dateTo && d > new Date(dateTo + "T23:59:59")) return false;
+      // Both sides are local calendar days (earliestDate gives the day at local midnight).
+      const fromDay = parseISODay(dateFrom);
+      const toDay = parseISODay(dateTo);
+      if (fromDay && d < fromDay) return false;
+      if (toDay && d > toDay) return false;
     }
     return true;
   });
@@ -172,6 +178,18 @@ export default function ReservationsPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+      <DayPlanCard defaultOpen={false} />
+
+      <QuickFilters
+        bookings={bookings}
+        rangeFrom={sortMode === "range" ? dateFrom : ""}
+        rangeTo={sortMode === "range" ? dateTo : ""}
+        pendingActive={statusFilter === "pending"}
+        onRange={(r) => { setSortMode("range"); setDateFrom(r.from); setDateTo(r.to); setStatusFilter("all"); setTimeFilter("all"); }}
+        onPending={() => { setStatusFilter("pending"); setDateFrom(""); setDateTo(""); setSortMode("checkin"); setTimeFilter("all"); }}
+        onClear={() => { setStatusFilter("all"); setDateFrom(""); setDateTo(""); setSortMode("reservationDate"); }}
+      />
+
       <ReservationToolbar
         search={search}
         onSearchChange={setSearch}

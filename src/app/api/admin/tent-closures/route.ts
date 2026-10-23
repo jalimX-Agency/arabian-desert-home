@@ -7,7 +7,7 @@ export async function GET() {
   if (deny) return deny;
   const closures = await db.tentClosure.findMany({
     orderBy: { startDate: "asc" },
-    include: { suite: { select: { name: true } } },
+    include: { suite: { select: { name: true } }, activity: { select: { name: true } }, dayPass: { select: { name: true } } },
   });
   return NextResponse.json(closures);
 }

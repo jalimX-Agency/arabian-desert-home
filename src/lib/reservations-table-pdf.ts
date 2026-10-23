@@ -54,7 +54,7 @@ function datesCell(b: TableBooking): string {
   return b.date ? fmtDate(b.date) : `<span class="sub">${b.serviceType === "custom" ? "pendant le séjour" : "—"}</span>`;
 }
 
-function refOf(b: TableBooking): string {
+export function refOf(b: TableBooking): string {
   return `ADH-${(b.reservation?.id ?? b.id).slice(-8).toUpperCase()}`;
 }
 
@@ -78,7 +78,7 @@ function planningDays(bookings: TableBooking[]): (b: TableBooking) => Date | nul
 }
 
 /** Placeholders some channels put in contact fields ("-", "--", "n/a"). */
-function realContact(value: string | null | undefined): string | null {
+export function realContact(value: string | null | undefined): string | null {
   const v = (value ?? "").trim();
   return v && !/^[-–—_.\s]*$|^n\/?a$/i.test(v) ? v : null;
 }
