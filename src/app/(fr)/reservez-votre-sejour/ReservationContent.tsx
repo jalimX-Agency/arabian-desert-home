@@ -42,7 +42,7 @@ import { useLanguage, pickLocalized } from "@/lib/i18n/context";
 import { trackEvent } from "@/lib/analytics";
 import { parseISODay, parseTentPicks, readStayFromQuery, toISODay } from "@/lib/tent-stay";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
-import { calendarDay, nightsBetweenDays } from "@/lib/calendar-day";
+import { calendarDay, localDay, nightsBetweenDays } from "@/lib/calendar-day";
 
 const DATE_LOCALES = { fr: frLocale, en: enUS, es: esLocale, it: itLocale };
 
@@ -57,8 +57,8 @@ interface SeasonalPriceWindow {
 /** Converts the wire-format (string dates) seasonal windows into Date-based ones for pricing/calendar logic. */
 function toWindows(sp: SeasonalPriceWindow[] | undefined) {
   return (sp ?? []).map((w) => ({
-    startDate: new Date(w.startDate),
-    endDate: new Date(w.endDate),
+    startDate: localDay(w.startDate),
+    endDate: localDay(w.endDate),
     price: w.price,
     label: w.label,
   }));
@@ -66,9 +66,10 @@ function toWindows(sp: SeasonalPriceWindow[] | undefined) {
 
 /** Converts wire-format closure windows into Date-based ones for calendar blocking. */
 function toClosureWindows(closures: ClosureWindow[] | undefined) {
+  // Local midnight of each calendar day: the date picker compares local dates.
   return (closures ?? []).map((c) => ({
-    startDate: new Date(c.startDate),
-    endDate: new Date(c.endDate),
+    startDate: localDay(c.startDate),
+    endDate: localDay(c.endDate),
   }));
 }
 
@@ -111,6 +112,7 @@ interface Activity {
   duration?: string;
   transportIncluded?: boolean;
   seasonalPrices?: SeasonalPriceWindow[];
+  closures?: ClosureWindow[];
 }
 
 interface TransportOption {
@@ -141,6 +143,7 @@ interface DayPass {
   childPricePercent: number;
   image?: string;
   seasonalPrices?: SeasonalPriceWindow[];
+  closures?: ClosureWindow[];
 }
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
@@ -1224,6 +1227,7 @@ export function ReservationContent() {
                         placeholder={t("booking2.selectDate")}
                         dateFnsLocale={dateFnsLocale}
                         seasonalWindows={toWindows(activities.find((a) => a.id === activityId)?.seasonalPrices)}
+                        blockedWindows={toClosureWindows(activities.find((a) => a.id === activityId)?.closures)}
                         t={t}
                       />
                     </>
@@ -1295,6 +1299,7 @@ export function ReservationContent() {
                         placeholder={t("booking2.selectDate")}
                         dateFnsLocale={dateFnsLocale}
                         seasonalWindows={toWindows(dayPasses.find((p) => p.id === dayPassId)?.seasonalPrices)}
+                        blockedWindows={toClosureWindows(dayPasses.find((p) => p.id === dayPassId)?.closures)}
                         t={t}
                       />
                     </>
@@ -1413,6 +1418,7 @@ export function ReservationContent() {
                         placeholder={t("booking2.selectDate")}
                         dateFnsLocale={dateFnsLocale}
                         seasonalWindows={toWindows(activities.find((a) => a.id === addOnActivityId)?.seasonalPrices)}
+                        blockedWindows={toClosureWindows(activities.find((a) => a.id === addOnActivityId)?.closures)}
                         t={t}
                       />
 

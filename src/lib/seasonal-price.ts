@@ -6,13 +6,13 @@ interface PriceWindow {
   price: number;
 }
 
-/** Returns the seasonal override price active on `date`, or `basePrice` if none applies.
+/** The seasonal window that sets the price on `date`, or undefined when the base price applies.
  *  Compared by calendar day (both window ends included), so a browser's local midnight and
- *  the server's UTC midnight give the same price. When windows overlap, the shortest
+ *  the server's UTC midnight give the same answer. When windows overlap, the shortest
  *  (most specific) one wins, whatever order the database returned them in. */
-export function priceForDate(basePrice: number, seasonalPrices: PriceWindow[], date: Date): number {
+export function windowForDate<W extends PriceWindow>(seasonalPrices: W[], date: Date): W | undefined {
   const day = calendarDay(date).getTime();
-  let match: PriceWindow | undefined;
+  let match: W | undefined;
   let matchSpan = Infinity;
   for (const sp of seasonalPrices) {
     const start = calendarDay(sp.startDate).getTime();
@@ -23,7 +23,12 @@ export function priceForDate(basePrice: number, seasonalPrices: PriceWindow[], d
       matchSpan = end - start;
     }
   }
-  return match ? match.price : basePrice;
+  return match;
+}
+
+/** Returns the seasonal override price active on `date`, or `basePrice` if none applies. */
+export function priceForDate(basePrice: number, seasonalPrices: PriceWindow[], date: Date): number {
+  return windowForDate(seasonalPrices, date)?.price ?? basePrice;
 }
 
 /** Sums the nightly price (seasonal-aware) for every night from checkIn (inclusive) to checkOut (exclusive). */

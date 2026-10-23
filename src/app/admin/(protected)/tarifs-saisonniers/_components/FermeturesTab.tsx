@@ -15,8 +15,10 @@ interface TentClosure {
   label: string;
   startDate: string;
   endDate: string;
-  suiteId: string;
-  suite: { name: string };
+  suiteId: string | null;
+  suite: { name: string } | null;
+  activity?: { name: string } | null;
+  dayPass?: { name: string } | null;
 }
 
 export function FermeturesTab() {
@@ -65,7 +67,7 @@ export function FermeturesTab() {
 
   function openEdit(c: TentClosure) {
     setEditing(c);
-    setSuiteIds([c.suiteId]);
+    setSuiteIds(c.suiteId ? [c.suiteId] : []);
     setLabel(c.label);
     setStartDate(c.startDate.slice(0, 10));
     setEndDate(c.endDate.slice(0, 10));
@@ -74,7 +76,7 @@ export function FermeturesTab() {
   }
 
   async function handleSave() {
-    if (!label || !startDate || !endDate || suiteIds.length === 0) {
+    if (!label || !startDate || !endDate || (modal === "create" && suiteIds.length === 0)) {
       setError("Tous les champs sont requis, et au moins une tente doit être sélectionnée.");
       return;
     }
@@ -159,7 +161,7 @@ export function FermeturesTab() {
                   <td className="px-5 py-4 text-gray-900 dark:text-gray-100">{c.label}</td>
                   <td className="px-5 py-4 text-gray-600 dark:text-gray-400">
                     <span className="inline-block text-xs px-2 py-0.5 rounded-full font-medium bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400">
-                      {c.suite.name}
+                      {c.suite?.name ?? c.activity?.name ?? c.dayPass?.name ?? "—"}
                     </span>
                   </td>
                   <td className="px-5 py-4 text-gray-600 dark:text-gray-400 text-xs">
