@@ -63,6 +63,26 @@ interface StayInfo {
 
 const LOCALE: Record<Language, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES", it: "it-IT" };
 
+const QUICK_COPY: Record<Language, { tonight: string; tomorrow: string; weekend: string }> = {
+  fr: { tonight: "Ce soir", tomorrow: "Demain", weekend: "Ce week-end" },
+  en: { tonight: "Tonight", tomorrow: "Tomorrow", weekend: "This weekend" },
+  es: { tonight: "Esta noche", tomorrow: "Mañana", weekend: "Este fin de semana" },
+  it: { tonight: "Stasera", tomorrow: "Domani", weekend: "Questo weekend" },
+};
+
+/** One-tap stays for visitors on a phone: tonight, tomorrow night, or Friday → Sunday
+ *  (from today when it is already Friday or Saturday). */
+function quickStays(today: string): { key: "tonight" | "tomorrow" | "weekend"; checkIn: string; checkOut: string }[] {
+  const weekday = parseISODay(today)?.getDay() ?? 0;
+  const friday = weekday === 5 || weekday === 6 ? today : addDaysISO(today, (5 - weekday + 7) % 7);
+  const sunday = addDaysISO(today, (7 - weekday) % 7 || 7);
+  return [
+    { key: "tonight", checkIn: today, checkOut: addDaysISO(today, 1) },
+    { key: "tomorrow", checkIn: addDaysISO(today, 1), checkOut: addDaysISO(today, 2) },
+    { key: "weekend", checkIn: friday, checkOut: sunday },
+  ];
+}
+
 const COPY: Record<Language, {
   title: string; subtitle: string; arrival: string; departure: string; adults: string; children: string;
   nights: (n: number) => string; pickDates: string; pickDatesShort: string; priceFor: (n: number) => string;
@@ -384,6 +404,23 @@ export function TentsBooking({ suites }: { suites: TentSuite[] }) {
                 ))}
               </select>
             </label>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {quickStays(today).map((q) => {
+              const on = stay.checkIn === q.checkIn && stay.checkOut === q.checkOut;
+              return (
+                <button
+                  key={q.key}
+                  type="button"
+                  onClick={() => setStay((s) => ({ ...s, checkIn: q.checkIn, checkOut: q.checkOut }))}
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-medium border transition-colors cursor-pointer ${
+                    on ? "bg-amber text-black border-amber" : "border-amber/40 text-amber hover:bg-amber/10"
+                  }`}
+                >
+                  {QUICK_COPY[language][q.key]}
+                </button>
+              );
+            })}
           </div>
           {hasDates && (
             <p className="mt-4 text-sm text-foreground/80 flex items-center gap-2">

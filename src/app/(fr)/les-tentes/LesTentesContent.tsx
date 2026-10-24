@@ -1,8 +1,39 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useLanguage } from "@/lib/i18n/context";
+import { MessageCircle, Sparkles } from "lucide-react";
+import { pickLocalized, useLanguage } from "@/lib/i18n/context";
 import { TentsBooking, type TentSuite } from "@/components/arabian/TentsBooking";
+import { currentTentOffer, type TentOffer } from "@/lib/tent-offer";
+
+type OfferSuite = TentSuite & { price: number; nameEn?: string; seasonalPrices?: { startDate: string; endDate: string; price: number }[] };
+
+const WHATSAPP_NUMBER = "212667370206";
+const LOCALE = { fr: "fr-FR", en: "en-GB", es: "es-ES", it: "it-IT" } as const;
+
+const OFFER_COPY = {
+  fr: {
+    offer: (tent: string, price: string, until: string) => `Offre : ${tent} à ${price} la nuit jusqu'au ${until}, petit-déjeuner inclus`,
+    whatsapp: "Une question ? Réponse rapide sur WhatsApp",
+    message: "Bonjour, je souhaite réserver une tente chez Arabian Desert Home. Mes dates : ",
+  },
+  en: {
+    offer: (tent: string, price: string, until: string) => `Offer: ${tent} at ${price} a night until ${until}, breakfast included`,
+    whatsapp: "A question? Quick answer on WhatsApp",
+    message: "Hello, I would like to book a tent at Arabian Desert Home. My dates: ",
+  },
+  es: {
+    offer: (tent: string, price: string, until: string) => `Oferta: ${tent} a ${price} la noche hasta el ${until}, desayuno incluido`,
+    whatsapp: "¿Una pregunta? Respuesta rápida por WhatsApp",
+    message: "Hola, me gustaría reservar una tienda en Arabian Desert Home. Mis fechas: ",
+  },
+  it: {
+    offer: (tent: string, price: string, until: string) => `Offerta: ${tent} a ${price} a notte fino al ${until}, colazione inclusa`,
+    whatsapp: "Una domanda? Risposta rapida su WhatsApp",
+    message: "Buongiorno, vorrei prenotare una tenda presso Arabian Desert Home. Le mie date: ",
+  },
+} as const;
 
 const smoothEase = [0.25, 0.46, 0.45, 0.94] as const;
 
@@ -18,6 +49,23 @@ const HERO_COPY = {
 export function LesTentesContent({ suites }: { suites: TentSuite[] }) {
   const { language } = useLanguage();
   const hero = HERO_COPY[language];
+  const o = OFFER_COPY[language];
+
+  // The running promotion (e.g. the ad's "from 130 €") with its end date, read from the
+  // seasonal rates at view time, so it changes or disappears with the period by itself.
+  const [offer, setOffer] = useState<TentOffer<OfferSuite> | null>(null);
+  useEffect(() => {
+    fetch("/api/suites")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((list: OfferSuite[]) => setOffer(currentTentOffer(list)))
+      .catch(() => {});
+  }, []);
+
+  const offerText = offer && o.offer(
+    pickLocalized(language, offer.suite.name, offer.suite.nameEn, offer.suite.nameEs, offer.suite.nameIt),
+    new Intl.NumberFormat(LOCALE[language], { style: "currency", currency: offer.currency, maximumFractionDigits: 0 }).format(offer.price),
+    new Date(`${offer.until}T00:00:00Z`).toLocaleDateString(LOCALE[language], { day: "numeric", month: "long", timeZone: "UTC" }),
+  );
 
   return (
     <>
@@ -30,7 +78,7 @@ export function LesTentesContent({ suites }: { suites: TentSuite[] }) {
         <div className="absolute inset-0 bg-gradient-to-b from-warm-black/40 via-warm-black/60 to-warm-black" />
         <div className="absolute inset-0 grain-overlay pointer-events-none" />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 pt-28 pb-8 md:pt-36 md:pb-12">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 pt-24 pb-6 md:pt-36 md:pb-12">
           <motion.span
             initial={{ y: 10 }}
             animate={{ y: 0 }}
@@ -49,10 +97,28 @@ export function LesTentesContent({ suites }: { suites: TentSuite[] }) {
           </motion.h1>
           <motion.p
                         transition={{ duration: 0.6, delay: 0.1, ease: smoothEase }}
-            className="body-editorial text-white/60 text-sm md:text-base max-w-2xl"
+            className="hidden sm:block body-editorial text-white/60 text-sm md:text-base max-w-2xl"
           >
             {hero.text}
           </motion.p>
+
+          <div className="mt-5 flex flex-col sm:flex-row sm:flex-wrap gap-2.5">
+            {offerText && (
+              <p className="inline-flex items-start gap-2 rounded-2xl bg-amber/15 border border-amber/40 px-3.5 py-2 text-sm text-amber">
+                <Sparkles className="w-4 h-4 mt-0.5 shrink-0" />
+                <span>{offerText}</span>
+              </p>
+            )}
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(o.message)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] hover:bg-[#1ebe5a] px-4 py-2.5 text-sm font-semibold text-white transition-colors"
+            >
+              <MessageCircle className="w-4 h-4" />
+              {o.whatsapp}
+            </a>
+          </div>
         </div>
       </section>
 
