@@ -12,9 +12,10 @@ import {
   type SiteLanguage,
 } from "@/lib/analytics";
 
-const COPY: Record<SiteLanguage, { title: string; body: string; accept: string; refuse: string; more: string }> = {
+const COPY: Record<SiteLanguage, { title: string; body: string; short: string; accept: string; refuse: string; more: string }> = {
   fr: {
     title: "Votre vie privée",
+    short: "Cookies Google (audience et annonces), seulement avec votre accord.",
     body: "Avec votre accord, Google mesure l'audience du site (Analytics) et l'efficacité de nos annonces, et personnalise leur affichage (Ads). Modifiable à tout moment.",
     accept: "Accepter",
     refuse: "Refuser",
@@ -22,6 +23,7 @@ const COPY: Record<SiteLanguage, { title: string; body: string; accept: string; 
   },
   en: {
     title: "Your privacy",
+    short: "Google cookies (traffic and ads), only with your consent.",
     body: "With your consent, Google measures site traffic (Analytics) and how well our ads perform, and personalises how they are shown (Ads). You can change this at any time.",
     accept: "Accept",
     refuse: "Decline",
@@ -29,6 +31,7 @@ const COPY: Record<SiteLanguage, { title: string; body: string; accept: string; 
   },
   es: {
     title: "Su privacidad",
+    short: "Cookies de Google (audiencia y anuncios), solo con su consentimiento.",
     body: "Con su consentimiento, Google mide la audiencia del sitio (Analytics) y la eficacia de nuestros anuncios, y personaliza su visualización (Ads). Puede cambiarlo en cualquier momento.",
     accept: "Aceptar",
     refuse: "Rechazar",
@@ -36,6 +39,7 @@ const COPY: Record<SiteLanguage, { title: string; body: string; accept: string; 
   },
   it: {
     title: "La vostra privacy",
+    short: "Cookie Google (traffico e annunci), solo con il vostro consenso.",
     body: "Con il vostro consenso, Google misura il traffico del sito (Analytics) e l'efficacia dei nostri annunci, e ne personalizza la visualizzazione (Ads). Potete cambiarlo in qualsiasi momento.",
     accept: "Accetta",
     refuse: "Rifiuta",
@@ -87,10 +91,12 @@ export function CookieBanner() {
   return (
     <section
       aria-label={c.title}
-      className="fixed inset-x-3 bottom-3 z-[60] sm:inset-x-auto sm:left-6 sm:bottom-6 sm:max-w-sm rounded-2xl border border-amber/25 bg-background/95 backdrop-blur-md shadow-2xl p-3.5 sm:p-4"
+      className="fixed inset-x-2 bottom-2 z-[60] sm:inset-x-auto sm:left-6 sm:bottom-6 sm:max-w-sm rounded-2xl border border-amber/25 bg-background/95 backdrop-blur-md shadow-2xl p-2.5 sm:p-4"
     >
-      <p className="text-xs leading-relaxed text-muted-foreground mb-3">
-        {c.body}{" "}
+      {/* On a phone a one-line notice, so the page (and its call to action) stays visible. */}
+      <p className="text-[11px] sm:text-xs leading-snug sm:leading-relaxed text-muted-foreground mb-2 sm:mb-3">
+        <span className="sm:hidden">{c.short}</span>
+        <span className="hidden sm:inline">{c.body}</span>{" "}
         <Link href={privacyHref} className="text-amber underline underline-offset-2 hover:text-amber/80">
           {c.more}
         </Link>
@@ -99,14 +105,14 @@ export function CookieBanner() {
         <button
           type="button"
           onClick={() => choose(false)}
-          className="cursor-pointer rounded-full border border-foreground/30 px-4 py-2 text-xs uppercase tracking-widest text-foreground hover:border-foreground transition-colors"
+          className="cursor-pointer rounded-full border border-foreground/30 px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs uppercase tracking-widest text-foreground hover:border-foreground transition-colors"
         >
           {c.refuse}
         </button>
         <button
           type="button"
           onClick={() => choose(true)}
-          className="cursor-pointer rounded-full border border-amber bg-amber px-4 py-2 text-xs uppercase tracking-widest text-black hover:bg-amber/90 transition-colors"
+          className="cursor-pointer rounded-full border border-amber bg-amber px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs uppercase tracking-widest text-black hover:bg-amber/90 transition-colors"
         >
           {c.accept}
         </button>
