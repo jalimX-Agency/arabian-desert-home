@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Loader2, Lock, Unlock, RotateCcw, Tag, X } from "lucide-react";
+import { BedDouble, ChevronLeft, ChevronRight, Loader2, Lock, Unlock, RotateCcw, Tag } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { addDaysISO, parseISODay, toISODay } from "@/lib/tent-stay";
@@ -16,6 +17,8 @@ interface Cell {
   closed: boolean;
   closure: string | null;
   taken: number;
+  capacity: number | null;
+  capacityCustom: boolean;
 }
 
 interface Row {
@@ -63,6 +66,8 @@ export function AvailabilityCalendar() {
   const [filter, setFilter] = useState<ItemType | "all">("all");
   const [sel, setSel] = useState<Selection | null>(null);
   const dragging = useRef(false);
+  // The edit window opens as soon as the dates are chosen, wherever the page is scrolled.
+  const [panelOpen, setPanelOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -77,7 +82,11 @@ export function AvailabilityCalendar() {
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
-    const stop = () => { dragging.current = false; };
+    const stop = () => {
+      if (!dragging.current) return;
+      dragging.current = false;
+      setPanelOpen(true);
+    };
     window.addEventListener("pointerup", stop);
     return () => window.removeEventListener("pointerup", stop);
   }, []);
@@ -94,6 +103,7 @@ export function AvailabilityCalendar() {
     e.preventDefault();
     if (e.shiftKey && sel) {
       setSel({ ...sel, rowB: rowIdx, dayB: dayIdx });
+      setPanelOpen(true);
       return;
     }
     dragging.current = true;
@@ -204,18 +214,21 @@ export function AvailabilityCalendar() {
         {!data && <div className="p-10 text-center text-sm text-gray-400">Chargement du calendrier…</div>}
       </div>
 
-      {data && bounds && (
-        <EditPanel
-          key={`${bounds.r0}-${bounds.r1}-${bounds.d0}-${bounds.d1}-${from}`}
-          rows={rows.slice(bounds.r0, bounds.r1 + 1)}
-          fromDay={data.days[bounds.d0]}
-          toDay={data.days[bounds.d1]}
-          firstCell={rows[bounds.r0].cells[bounds.d0]}
-          booked={rows.slice(bounds.r0, bounds.r1 + 1).some((r) => r.cells.slice(bounds.d0, bounds.d1 + 1).some((c) => c.taken > 0))}
-          onClose={() => setSel(null)}
-          onSaved={() => { setSel(null); load(); }}
-        />
-      )}
+      <Dialog open={panelOpen && !!bounds} onOpenChange={(open) => { if (!open) { setPanelOpen(false); setSel(null); } }}>
+        <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
+          {data && bounds && (
+            <EditPanel
+              key={`${bounds.r0}-${bounds.r1}-${bounds.d0}-${bounds.d1}-${from}`}
+              rows={rows.slice(bounds.r0, bounds.r1 + 1)}
+              fromDay={data.days[bounds.d0]}
+              toDay={data.days[bounds.d1]}
+              firstCell={rows[bounds.r0].cells[bounds.d0]}
+              booked={rows.slice(bounds.r0, bounds.r1 + 1).some((r) => r.cells.slice(bounds.d0, bounds.d1 + 1).some((c) => c.taken > 0))}
+              onSaved={() => { setPanelOpen(false); setSel(null); load(); }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -250,7 +263,7 @@ function GroupRows({
           </td>
           {row.cells.map((c, dayIdx) => {
             const selected = isSelected(rowIdx, dayIdx);
-            const left = row.units !== null ? row.units - c.taken : null;
+            const left = c.capacity !== null ? c.capacity - c.taken : null;
             const tone = c.closed
               ? "bg-red-50 dark:bg-red-500/10"
               : c.season
@@ -264,7 +277,7 @@ function GroupRows({
                 title={[
                   c.closed ? `Fermé${c.closure ? ` — ${c.closure}` : ""}` : null,
                   c.season ? `Tarif « ${c.season} »` : "Prix de base",
-                  row.units !== null ? `${c.taken}/${row.units} tente(s) réservée(s)` : c.taken > 0 ? `${c.taken} personne(s) réservée(s)` : null,
+                  c.capacity !== null ? `${c.taken}/${c.capacity} tente(s) réservée(s)${c.capacityCustom ? " · capacité modifiée" : ""}` : c.taken > 0 ? `${c.taken} personne(s) réservée(s)` : null,
                 ].filter(Boolean).join("\n")}
                 className={`relative h-[54px] px-1 text-center border-b border-r border-gray-100 dark:border-white/5 cursor-pointer ${tone} ${
                   selected ? "outline outline-2 -outline-offset-2 outline-blue-500 bg-blue-50 dark:bg-blue-500/20" : "hover:bg-gray-50 dark:hover:bg-white/5"
@@ -281,7 +294,7 @@ function GroupRows({
                 )}
                 {left !== null ? (
                   <div className={`text-[10px] ${left <= 0 ? "text-red-500 font-semibold" : c.taken > 0 ? "text-blue-600 dark:text-blue-400" : "text-gray-400"}`}>
-                    {left <= 0 ? "complet" : `${left} libre${left > 1 ? "s" : ""}`}
+                    {left <= 0 ? "complet" : `${left} libre${left > 1 ? "s" : ""}`}{c.capacityCustom ? " ✎" : ""}
                   </div>
                 ) : c.taken > 0 ? (
                   <div className="text-[10px] text-blue-600 dark:text-blue-400">{c.taken} pers.</div>
@@ -296,14 +309,13 @@ function GroupRows({
 }
 
 function EditPanel({
-  rows, fromDay, toDay, firstCell, booked, onClose, onSaved,
+  rows, fromDay, toDay, firstCell, booked, onSaved,
 }: {
   rows: Row[];
   fromDay: string;
   toDay: string;
   firstCell: Cell;
   booked: boolean;
-  onClose: () => void;
   onSaved: () => void;
 }) {
   const [start, setStart] = useState(fromDay);
@@ -311,16 +323,20 @@ function EditPanel({
   const [price, setPrice] = useState(String(firstCell.price));
   const [priceLabel, setPriceLabel] = useState(firstCell.season ?? "");
   const [closeLabel, setCloseLabel] = useState("");
+  const [units, setUnits] = useState(String(firstCell.capacity ?? ""));
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   const currencies = [...new Set(rows.map((r) => r.currency))];
   const dayCount = Math.round((parseISODay(end)!.getTime() - parseISODay(start)!.getTime()) / 86_400_000) + 1;
+  const allTents = rows.every((r) => r.type === "suite");
+  const mostTaken = Math.max(0, ...rows.flatMap((r) => r.cells.map((c) => c.taken)));
 
-  async function send(action: "price" | "reset" | "close" | "open") {
+  async function send(action: "price" | "reset" | "close" | "open" | "capacity" | "capacityReset") {
     setError("");
     if (end < start) return setError("La date de fin est avant la date de début.");
     if (action === "price" && !(Number(price) > 0)) return setError("Indiquez un prix.");
+    if (action === "capacity" && !(units !== "" && Number(units) >= 0)) return setError("Indiquez le nombre de tentes (0 ou plus).");
     setBusy(action);
     try {
       const res = await fetch("/api/admin/calendar", {
@@ -332,6 +348,7 @@ function EditPanel({
           to: end,
           targets: rows.map((r) => ({ type: r.type, id: r.id })),
           price: Number(price),
+          units: Number(units),
           label: action === "close" ? closeLabel : priceLabel,
         }),
       });
@@ -349,22 +366,18 @@ function EditPanel({
   }
 
   const btn = "inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer";
+  const spin = (k: string, icon: React.ReactNode) => (busy === k ? <Loader2 className="w-4 h-4 animate-spin" /> : icon);
 
   return (
-    <div className="sticky bottom-3 z-30 rounded-2xl border border-blue-200 dark:border-blue-500/30 bg-white dark:bg-[#141414] shadow-xl p-4 space-y-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-gray-900 dark:text-white">
-            {rows.length === 1 ? rows[0].name : `${rows.length} éléments`} · {dayCount} jour{dayCount > 1 ? "s" : ""}
-          </p>
-          {rows.length > 1 && <p className="text-xs text-gray-500 truncate max-w-[60ch]">{rows.map((r) => r.name).join(", ")}</p>}
-        </div>
-        <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 cursor-pointer" aria-label="Annuler la sélection">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
+    <div className="space-y-5">
+      <DialogHeader>
+        <DialogTitle>{rows.length === 1 ? rows[0].name : `${rows.length} éléments`}</DialogTitle>
+        <DialogDescription>
+          {dayCount} jour{dayCount > 1 ? "s" : ""}{rows.length > 1 ? ` · ${rows.map((r) => r.name).join(", ")}` : ""}
+        </DialogDescription>
+      </DialogHeader>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <Label className="text-xs text-gray-400 mb-1 block">Du</Label>
           <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
@@ -373,37 +386,68 @@ function EditPanel({
           <Label className="text-xs text-gray-400 mb-1 block">Au (inclus)</Label>
           <Input type="date" value={end} min={start} onChange={(e) => setEnd(e.target.value)} />
         </div>
-        <div>
-          <Label className="text-xs text-gray-400 mb-1 block">Prix {currencies.length === 1 ? `(${currencies[0]})` : ""}{rows[0]?.type === "suite" ? " / nuit" : " / pers."}</Label>
-          <Input type="number" min={1} value={price} onChange={(e) => setPrice(e.target.value)} />
-        </div>
-        <div>
-          <Label className="text-xs text-gray-400 mb-1 block">Nom du tarif (facultatif)</Label>
-          <Input value={priceLabel} onChange={(e) => setPriceLabel(e.target.value)} placeholder="Haute saison, Noël…" />
-        </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <button onClick={() => send("price")} disabled={!!busy} className={`${btn} bg-amber-500 hover:bg-amber-400 text-white`}>
-          {busy === "price" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Tag className="w-4 h-4" />} Appliquer ce prix
-        </button>
-        <button onClick={() => send("reset")} disabled={!!busy} className={`${btn} border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5`}>
-          {busy === "reset" ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />} Revenir au prix de base
-        </button>
-      </div>
+      <section className="space-y-3 rounded-xl border border-gray-200 dark:border-white/10 p-3.5">
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-500">Prix</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs text-gray-400 mb-1 block">Prix {currencies.length === 1 ? `(${currencies[0]})` : ""}{rows[0]?.type === "suite" ? " / nuit" : " / pers."}</Label>
+            <Input type="number" min={1} value={price} onChange={(e) => setPrice(e.target.value)} />
+          </div>
+          <div>
+            <Label className="text-xs text-gray-400 mb-1 block">Nom du tarif (facultatif)</Label>
+            <Input value={priceLabel} onChange={(e) => setPriceLabel(e.target.value)} placeholder="Haute saison, Noël…" />
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => send("price")} disabled={!!busy} className={`${btn} bg-amber-500 hover:bg-amber-400 text-white`}>
+            {spin("price", <Tag className="w-4 h-4" />)} Appliquer ce prix
+          </button>
+          <button onClick={() => send("reset")} disabled={!!busy} className={`${btn} border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5`}>
+            {spin("reset", <RotateCcw className="w-4 h-4" />)} Prix de base
+          </button>
+        </div>
+      </section>
 
-      <div className="flex flex-wrap items-end gap-2 pt-3 border-t border-gray-100 dark:border-white/10">
-        <div className="flex-1 min-w-[180px]">
-          <Label className="text-xs text-gray-400 mb-1 block">Motif de fermeture (facultatif)</Label>
+      {allTents && (
+        <section className="space-y-3 rounded-xl border border-gray-200 dark:border-white/10 p-3.5">
+          <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-500">Capacité (nombre de tentes)</h3>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="w-40">
+              <Label className="text-xs text-gray-400 mb-1 block">Tentes disponibles</Label>
+              <Input type="number" min={0} max={50} value={units} onChange={(e) => setUnits(e.target.value)} />
+            </div>
+            <button onClick={() => send("capacity")} disabled={!!busy} className={`${btn} bg-blue-600 hover:bg-blue-500 text-white`}>
+              {spin("capacity", <BedDouble className="w-4 h-4" />)} Appliquer cette capacité
+            </button>
+            <button onClick={() => send("capacityReset")} disabled={!!busy} className={`${btn} border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5`}>
+              {spin("capacityReset", <RotateCcw className="w-4 h-4" />)} Capacité de base
+            </button>
+          </div>
+          <p className="text-xs text-gray-500">
+            {rows.length === 1 ? `Capacité de base : ${rows[0].units} tente${(rows[0].units ?? 0) > 1 ? "s" : ""}. ` : ""}
+            0 = plus aucune tente de ce type à vendre sur ces dates.
+            {units !== "" && Number(units) < mostTaken ? ` ⚠ Jusqu'à ${mostTaken} tente(s) déjà réservée(s) sur ces dates : réduire la capacité n'annule pas ces réservations.` : ""}
+          </p>
+        </section>
+      )}
+
+      <section className="space-y-3 rounded-xl border border-gray-200 dark:border-white/10 p-3.5">
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-500">Fermeture</h3>
+        <div>
+          <Label className="text-xs text-gray-400 mb-1 block">Motif (facultatif)</Label>
           <Input value={closeLabel} onChange={(e) => setCloseLabel(e.target.value)} placeholder="Travaux, complet, privatisation…" />
         </div>
-        <button onClick={() => send("close")} disabled={!!busy} className={`${btn} bg-red-600 hover:bg-red-500 text-white`}>
-          {busy === "close" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />} Fermer ces dates
-        </button>
-        <button onClick={() => send("open")} disabled={!!busy} className={`${btn} border border-green-300 dark:border-green-500/40 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-500/10`}>
-          {busy === "open" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Unlock className="w-4 h-4" />} Ouvrir ces dates
-        </button>
-      </div>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => send("close")} disabled={!!busy} className={`${btn} bg-red-600 hover:bg-red-500 text-white`}>
+            {spin("close", <Lock className="w-4 h-4" />)} Fermer ces dates
+          </button>
+          <button onClick={() => send("open")} disabled={!!busy} className={`${btn} border border-green-300 dark:border-green-500/40 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-500/10`}>
+            {spin("open", <Unlock className="w-4 h-4" />)} Ouvrir ces dates
+          </button>
+        </div>
+      </section>
 
       {booked && (
         <p className="text-xs text-amber-700 dark:text-amber-400">

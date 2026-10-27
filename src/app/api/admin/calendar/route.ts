@@ -45,6 +45,17 @@ export async function POST(req: NextRequest) {
       edit = { action: "price", price, label: label || "Tarif du calendrier" };
       break;
     }
+    case "capacity": {
+      const units = Math.floor(Number(body.units));
+      if (!Number.isFinite(units) || units < 0 || units > 50) return NextResponse.json({ error: "Nombre de tentes invalide (0 à 50)" }, { status: 400 });
+      if (targets.some((t) => t.type !== "suite")) return NextResponse.json({ error: "La capacité ne s'applique qu'aux tentes" }, { status: 400 });
+      edit = { action: "capacity", units };
+      break;
+    }
+    case "capacityReset":
+      if (targets.some((t) => t.type !== "suite")) return NextResponse.json({ error: "La capacité ne s'applique qu'aux tentes" }, { status: 400 });
+      edit = { action: "capacityReset" };
+      break;
     case "reset":
       edit = { action: "reset" };
       break;

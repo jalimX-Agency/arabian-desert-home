@@ -57,6 +57,7 @@ model Suite {
   bookings          Booking[]
   seasonalPrices    SeasonalPrice[]
   closures          TentClosure[]
+  capacities        SuiteCapacity[]
   devisItems        DevisItem[]
 }
 
@@ -262,6 +263,20 @@ model SeasonalPrice {
 }
 
 /** A period during which a tent type is closed for booking (maintenance, private use, etc). */
+// Number of tents of a type available over a date range, overriding Suite.units (the
+// everyday count). Set from the admin calendar: fewer tents for a private event, more
+// for a peak week, 0 to sell nothing. The shortest overlapping range wins.
+model SuiteCapacity {
+  id        String   @id @default(cuid())
+  suiteId   String
+  suite     Suite    @relation(fields: [suiteId], references: [id], onDelete: Cascade)
+  startDate DateTime
+  endDate   DateTime
+  units     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // A closed period for one tent type, activity or Day Pass (exactly one of the three ids).
 // The model kept its historical name; it now covers every bookable item.
 model TentClosure {
