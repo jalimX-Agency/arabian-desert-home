@@ -48,6 +48,56 @@ export function peakUnitsTaken(checkIn: Date, checkOut: Date, stays: StayLike[])
   return peak;
 }
 
+interface CapacityWindow {
+  startDate: Date;
+  endDate: Date;
+  units: number;
+}
+
+/** Tents of a type available on one night: the capacity range covering it (the shortest
+ *  wins when several overlap), otherwise the type's everyday count. */
+export function unitsOnNight(baseUnits: number, capacities: CapacityWindow[], night: Date): number {
+  const day = calendarDay(night).getTime();
+  let match: CapacityWindow | undefined;
+  let span = Infinity;
+  for (const c of capacities) {
+    const start = calendarDay(c.startDate).getTime();
+    const end = calendarDay(c.endDate).getTime();
+    if (day < start || day > end) continue;
+    if (end - start < span) {
+      match = c;
+      span = end - start;
+    }
+  }
+  return match ? match.units : baseUnits;
+}
+
+/**
+ * The fewest tents still free on any night of [checkIn, checkOut): capacity of the night
+ * minus what the active bookings hold that night. Also returns the highest capacity of
+ * the stay (what the tent picker may offer at most).
+ */
+export function tentsLeft(
+  checkIn: Date,
+  checkOut: Date,
+  baseUnits: number,
+  capacities: CapacityWindow[],
+  stays: StayLike[],
+): { left: number; units: number } {
+  const start = calendarDay(checkIn).getTime();
+  const nights = Math.max(1, Math.round((calendarDay(checkOut).getTime() - start) / DAY_MS));
+  let left = Infinity;
+  let units = 0;
+  for (let i = 0; i < nights; i++) {
+    const night = new Date(start + i * DAY_MS);
+    const capacity = unitsOnNight(baseUnits, capacities, night);
+    const taken = peakUnitsTaken(night, new Date(start + (i + 1) * DAY_MS), stays);
+    left = Math.min(left, capacity - taken);
+    units = Math.max(units, capacity);
+  }
+  return { left: Math.max(0, left), units };
+}
+
 export interface SuiteAvailability {
   suiteId: string;
   units: number;
@@ -64,7 +114,7 @@ export interface SuiteAvailability {
  */
 export async function suitesAvailability(
   db: {
-    suite: { findMany: (args: unknown) => Promise<{ id: string; units: number; closures: ClosureWindow[] }[]> };
+    suite: { findMany: (args: unknown) => Promise<{ id: string; units: number; closures: ClosureWindow[]; capacities: CapacityWindow[] }[]> };
     booking: { findMany: (args: unknown) => Promise<{ suiteId: string | null; checkIn: Date | null; checkOut: Date | null; quantity: number }[]> };
   },
   checkIn: Date,
@@ -73,7 +123,7 @@ export async function suitesAvailability(
 ): Promise<SuiteAvailability[]> {
   const suites = await db.suite.findMany({
     where: opts.suiteIds ? { id: { in: opts.suiteIds } } : {},
-    select: { id: true, units: true, closures: true },
+    select: { id: true, units: true, closures: true, capacities: { select: { startDate: true, endDate: true, units: true } } },
   });
   const bookings = await db.booking.findMany({
     where: {
@@ -88,8 +138,8 @@ export async function suitesAvailability(
   });
   return suites.map((suite) => {
     const closed = rangeOverlapsClosure(checkIn, checkOut, suite.closures);
-    const taken = peakUnitsTaken(checkIn, checkOut, bookings.filter((b) => b.suiteId === suite.id));
-    return { suiteId: suite.id, units: suite.units, left: closed ? 0 : Math.max(0, suite.units - taken), closed };
+    const { left, units } = tentsLeft(checkIn, checkOut, suite.units, suite.capacities, bookings.filter((b) => b.suiteId === suite.id));
+    return { suiteId: suite.id, units, left: closed ? 0 : left, closed };
   });
 }
 

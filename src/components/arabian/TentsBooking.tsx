@@ -449,7 +449,7 @@ export function TentsBooking({ suites }: { suites: TentSuite[] }) {
             const needed = Math.ceil(stay.adults / Math.max(1, suite.maxGuests));
             const deadline = hasDates ? freeCancellationUntil(stay.checkIn, suite.freeCancellationDays) : "";
             const freeStillPossible = hasDates && deadline >= today;
-            const maxPick = Math.min(left ?? suite.units, suite.units);
+            const maxPick = Math.min(left ?? suite.units, row?.units ?? suite.units);
 
             return (
               <article key={suite.id} className="glass-card card-warm overflow-hidden grid md:grid-cols-[320px_1fr_300px] lg:grid-cols-[360px_1fr_320px]">

@@ -1,7 +1,7 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { calendarDay, dayKey, DAY_MS } from "@/lib/calendar-day";
 import { windowForDate } from "@/lib/seasonal-price";
-import { isDateBlocked } from "@/lib/availability";
+import { isDateBlocked, unitsOnNight } from "@/lib/availability";
 
 /**
  * The admin's Booking-style calendar: one row per bookable item (tent type, activity, Day
@@ -26,6 +26,10 @@ export interface CalendarCell {
   closure: string | null;
   /** Tents taken that night (tents), or people booked that day (activities, Day Pass). */
   taken: number;
+  /** Tents of this type available that night (tents only; null for activities / Day Pass). */
+  capacity: number | null;
+  /** The capacity comes from a range set in the calendar, not the type's everyday count. */
+  capacityCustom: boolean;
 }
 
 export interface CalendarRow {
@@ -49,7 +53,7 @@ export async function loadCalendar(db: PrismaClient, from: Date, days: number): 
   const end = new Date(start + days * DAY_MS);
 
   const [suites, activities, passes, bookings] = await Promise.all([
-    db.suite.findMany({ orderBy: { order: "asc" }, include: { seasonalPrices: true, closures: true } }),
+    db.suite.findMany({ orderBy: { order: "asc" }, include: { seasonalPrices: true, closures: true, capacities: true } }),
     db.activity.findMany({ orderBy: { order: "asc" }, include: { seasonalPrices: true, closures: true } }),
     db.dayPass.findMany({ orderBy: { order: "asc" }, include: { seasonalPrices: true, closures: true } }),
     db.booking.findMany({
@@ -70,6 +74,7 @@ export async function loadCalendar(db: PrismaClient, from: Date, days: number): 
     item: { id: string; name: string; currency: string; price: number; seasonalPrices: { startDate: Date; endDate: Date; price: number; label: string }[]; closures: { startDate: Date; endDate: Date; label: string }[] },
     units: number | null,
     takenOn: (day: number) => number,
+    capacities: { startDate: Date; endDate: Date; units: number }[] = [],
   ): CalendarRow => ({
     type,
     id: item.id,
@@ -86,6 +91,8 @@ export async function loadCalendar(db: PrismaClient, from: Date, days: number): 
         closed: Boolean(closure),
         closure: closure?.label ?? null,
         taken: takenOn(d.getTime()),
+        capacity: units === null ? null : unitsOnNight(units, capacities, d),
+        capacityCustom: units !== null && capacities.some((c) => isDateBlocked(d, [c])),
       };
     }),
   });
@@ -103,7 +110,7 @@ export async function loadCalendar(db: PrismaClient, from: Date, days: number): 
   return {
     days: dayList.map((d) => dayKey(d)),
     rows: [
-      ...suites.map((s) => row("suite", s, s.units, nightTaken(s.id))),
+      ...suites.map((s) => row("suite", s, s.units, nightTaken(s.id), s.capacities)),
       ...activities.map((a) => row("activity", a, null, peopleOn((b) => b.activityId === a.id))),
       ...passes.map((p) => row("dayPass", p, null, peopleOn((b) => b.dayPassId === p.id))),
     ],
@@ -137,6 +144,8 @@ async function cutOut<P extends Period>(
 
 export type CalendarAction =
   | { action: "price"; price: number; label: string }
+  | { action: "capacity"; units: number }
+  | { action: "capacityReset" }
   | { action: "reset" }
   | { action: "close"; label: string }
   | { action: "open" };
@@ -146,6 +155,22 @@ export async function paintRange(tx: Db, target: CalendarTarget, from: Date, to:
   const start = calendarDay(from).getTime();
   const end = calendarDay(to).getTime();
   const fk = FK[target.type];
+
+  if (edit.action === "capacity" || edit.action === "capacityReset") {
+    if (target.type !== "suite") throw new Error("La capacité ne s'applique qu'aux tentes");
+    const ranges = await tx.suiteCapacity.findMany({ where: { suiteId: target.id } });
+    await cutOut(
+      ranges,
+      start,
+      end,
+      (id) => tx.suiteCapacity.delete({ where: { id } }),
+      (c, startDate, endDate) => tx.suiteCapacity.create({ data: { suiteId: target.id, units: c.units, startDate, endDate } }),
+    );
+    if (edit.action === "capacity") {
+      await tx.suiteCapacity.create({ data: { suiteId: target.id, units: edit.units, startDate: new Date(start), endDate: new Date(end) } });
+    }
+    return;
+  }
 
   if (edit.action === "price" || edit.action === "reset") {
     const windows = await tx.seasonalPrice.findMany({ where: { [fk]: target.id } });
