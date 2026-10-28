@@ -2,11 +2,12 @@ import { db } from "@/lib/db";
 import { sendReservationConfirmation, sendReservationNotification, reservationManageUrl } from "@/lib/email";
 import { priceCartItem, type CartItemInput } from "@/lib/reservation-item";
 import { parseReservationLang } from "@/lib/reservation-lang";
+import { isLeadSource } from "@/lib/lead-source";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { firstName, lastName, email, phone, specialReqs, items, lang: rawLang } = body as {
+    const { firstName, lastName, email, phone, specialReqs, items, lang: rawLang, source: rawSource } = body as {
       firstName?: string;
       lastName?: string;
       email?: string;
@@ -15,6 +16,8 @@ export async function POST(request: Request) {
       items?: CartItemInput[];
       /** The site language the guest booked in — decides the language of their emails and fiche. */
       lang?: string;
+      /** Where the guest came from (ads, organic, ai…), worked out by the page. */
+      source?: string;
     };
     const lang = parseReservationLang(rawLang);
 
@@ -47,6 +50,7 @@ export async function POST(request: Request) {
         totalAmount,
         currency,
         lang,
+        source: isLeadSource(rawSource) ? rawSource : null,
         items: {
           create: priced.map((p) => ({
             firstName, lastName, email, phone,
@@ -74,6 +78,11 @@ export async function POST(request: Request) {
         items: { include: { suite: true, activity: true, dayPass: true } },
       },
     });
+
+    // Anonymous count of the request by source, whatever the visitor's cookie choice.
+    await db.leadEvent
+      .create({ data: { kind: "form", source: isLeadSource(rawSource) ? rawSource : "direct", page: "/reservez-votre-sejour", lang } })
+      .catch(() => {});
 
     const manageUrl = reservationManageUrl(reservation.accessToken);
 

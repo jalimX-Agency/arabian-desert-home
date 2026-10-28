@@ -3,6 +3,7 @@
 import { localDay } from "@/lib/calendar-day";
 import { formatMoney } from "@/lib/money";
 import { DayPlanCard } from "@/components/admin/DayPlanCard";
+import { LeadSourcesCard } from "@/components/admin/LeadSourcesCard";
 
 import { useEffect, useState } from "react";
 import { CalendarCheck, Mail, BedDouble, CheckCircle, Clock, XCircle } from "lucide-react";
@@ -118,6 +119,9 @@ export default function AdminDashboardPage() {
 
       {/* Tomorrow: what the team prepares */}
       <DayPlanCard />
+
+      {/* Where the requests come from, counted without cookies */}
+      <LeadSourcesCard />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent bookings */}
