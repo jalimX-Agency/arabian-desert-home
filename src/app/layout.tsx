@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { CookieBanner } from "@/components/analytics/CookieBanner";
 import { WhatsAppButton } from "@/components/analytics/WhatsAppButton";
+import { earlyTagScript } from "@/lib/analytics";
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
@@ -112,6 +113,7 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
+        <script id="ga-early" dangerouslySetInnerHTML={{ __html: earlyTagScript() }} />
         <script
           id="lang-correction"
           dangerouslySetInnerHTML={{

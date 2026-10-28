@@ -3,6 +3,8 @@
  * page source of every site using them), so they live in code; the env variables
  * can override them per environment.
  */
+import { classifySource } from "@/lib/lead-source";
+
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-B2HNNGN22V";
 export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ?? "AW-18270149902";
 
@@ -10,14 +12,14 @@ export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ?? "AW-182701
 export const CONSENT_KEY = "adh-cookie-consent";
 /** Bumped when the banner starts asking for more: version 1 covered analytics only,
  *  version 2 covers analytics + advertising, so earlier answers are asked again. */
-const CONSENT_VERSION = 2;
+export const CONSENT_VERSION = 2;
 /** Dispatched on `window` whenever the stored choice changes. */
 export const CONSENT_EVENT = "adh:consent-change";
 /** Dispatched on `window` to re-open the cookie banner (footer "Cookies" link). */
 export const OPEN_SETTINGS_EVENT = "adh:open-cookie-settings";
 
 /** A choice is asked again after 6 months, as regulators recommend. */
-const CONSENT_TTL_MS = 180 * 24 * 60 * 60 * 1000;
+export const CONSENT_TTL_MS = 180 * 24 * 60 * 60 * 1000;
 
 export type ConsentChoice = "granted" | "denied" | null;
 
@@ -170,5 +172,54 @@ export function withdrawConsent(): void {
       for (const domain of domains) document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${domain}`;
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
     }
+  }
+}
+
+/**
+ * The tag as an inline script for the page <head>. It runs while the page is still
+ * loading, so a visitor who leaves within a couple of seconds is still counted; waiting
+ * for React to start (as before) lost them. Same rules as loadAnalytics: every consent
+ * signal denied unless the visitor already accepted, and never on private pages.
+ */
+export function earlyTagScript(): string {
+  const privateRe = "^\/(admin|mes-reservations|devis)(\/|$)";
+  return `(function(){try{
+var w=window,l=location;
+if(new RegExp(${JSON.stringify(privateRe)}).test(l.pathname))return;
+var ok=false;
+try{var r=w.localStorage.getItem(${JSON.stringify(CONSENT_KEY)});if(r){var c=JSON.parse(r);ok=c&&c.analytics===true&&typeof c.ts==="number"&&Date.now()-c.ts<=${CONSENT_TTL_MS}&&c.v===${CONSENT_VERSION};}}catch(e){}
+w.dataLayer=w.dataLayer||[];
+w.gtag=function(){w.dataLayer.push(arguments);};
+var g=function(v){return{analytics_storage:v,ad_storage:v,ad_user_data:v,ad_personalization:v};};
+w.gtag("consent","default",g("denied"));
+if(ok)w.gtag("consent","update",g("granted"));
+w.gtag("set","ads_data_redaction",true);
+w.gtag("set","url_passthrough",true);
+w.gtag("js",new Date());
+w.gtag("config",${JSON.stringify(GA_MEASUREMENT_ID)});
+w.gtag("config",${JSON.stringify(GOOGLE_ADS_ID)});
+var s=document.createElement("script");s.async=true;
+s.src="https://www.googletagmanager.com/gtag/js?id="+${JSON.stringify(GA_MEASUREMENT_ID)};
+document.head.appendChild(s);
+w.__adhGaLoaded=true;
+}catch(e){}})();`;
+}
+
+/** Anonymous count of a lead action (no cookie, no identifier) so requests can be counted by
+ *  source even for visitors who refused or ignored the cookie banner. Silent on failure. */
+export function reportLead(kind: "whatsapp" | "phone"): void {
+  if (typeof window === "undefined" || isPrivatePath(window.location.pathname)) return;
+  const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+  const body = JSON.stringify({
+    kind,
+    source: classifySource(nav?.name ?? window.location.href, document.referrer, window.location.hostname),
+    page: window.location.pathname,
+    lang: languageFromPath(window.location.pathname),
+  });
+  try {
+    if (navigator.sendBeacon) navigator.sendBeacon("/api/lead-event", new Blob([body], { type: "application/json" }));
+    else void fetch("/api/lead-event", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true });
+  } catch {
+    // Never let counting get in the way of the tap.
   }
 }

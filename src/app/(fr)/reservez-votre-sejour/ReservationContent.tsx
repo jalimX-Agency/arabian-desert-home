@@ -40,6 +40,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage, pickLocalized } from "@/lib/i18n/context";
 import { trackEvent } from "@/lib/analytics";
+import { currentLeadSource } from "@/lib/lead-source";
 import { parseISODay, parseTentPicks, readStayFromQuery, toISODay } from "@/lib/tent-stay";
 import { priceForDate, nightlyTotal } from "@/lib/seasonal-price";
 import { calendarDay, localDay, nightsBetweenDays } from "@/lib/calendar-day";
@@ -749,6 +750,7 @@ export function ReservationContent() {
         ...personal,
         // The language of the page they booked on: their emails and fiche follow it.
         lang: language,
+        source: currentLeadSource(),
         specialReqs: specialReqs || undefined,
         items: allItems.map((item) => ({
           serviceType: item.serviceType,

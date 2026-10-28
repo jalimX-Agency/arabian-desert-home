@@ -7,6 +7,7 @@ import {
   isPrivatePath,
   loadAnalytics,
   readConsent,
+  reportLead,
   setAnalyticsDisabled,
   trackEvent,
   withdrawConsent,
@@ -54,8 +55,10 @@ export function GoogleAnalytics() {
       const params = { link_url: href, link_text: (link.textContent ?? "").trim().slice(0, 80) };
       if (href.startsWith("tel:")) {
         trackEvent("phone_click", params);
+        reportLead("phone");
       } else if (/^(https?:)?\/\/(wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com)\//i.test(href) || href.startsWith("whatsapp:")) {
         trackEvent("whatsapp_click", params);
+        reportLead("whatsapp");
       }
     }
     document.addEventListener("click", onClick, true);

@@ -183,6 +183,8 @@ model Reservation {
   lang        String    @default("fr")
   /// Set when the admin sent the post-stay Google review request email.
   reviewRequestSentAt DateTime?
+  /// Where the guest came from when they sent the request: ads | organic | ai | social | direct | other.
+  source      String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   items       Booking[]
@@ -333,6 +335,20 @@ model GalleryImage {
   featured  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// One anonymous count per lead action (WhatsApp tap, phone tap, booking request), with
+// where the visitor came from. No cookie, no identifier, no IP and no personal data: it
+// only answers "how many requests came from which source", whatever the cookie choice.
+model LeadEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  kind      String   // whatsapp | phone | form
+  source    String   // ads | organic | ai | social | direct | other
+  page      String   // path only, no query string
+  lang      String   @default("fr")
+
+  @@index([createdAt])
 }
 
 model BlogPost {
