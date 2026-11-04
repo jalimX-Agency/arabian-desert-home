@@ -38,6 +38,8 @@ export interface Booking {
     channel: string;
     lang?: string;
     reviewRequestSentAt?: string | null;
+    /** Total received so far (advance payments), in the reservation's currency. */
+    paid?: number;
     _count: { items: number };
   } | null;
 }
@@ -125,6 +127,16 @@ export function groupBookings(bookings: Booking[]): ReservationGroup[] {
 
 export function groupTotalAmount(g: ReservationGroup): number {
   return g.items[0]?.reservation?.totalAmount ?? sumMoney(g.items.map((b) => b.totalAmount));
+}
+
+/** How much of a reservation has been paid: nothing yet, an advance, or everything. */
+export type PaymentState = "none" | "partial" | "paid";
+
+export function groupPayment(g: ReservationGroup): { state: PaymentState; paid: number; balance: number } {
+  const paid = g.items[0]?.reservation?.paid ?? 0;
+  const total = groupTotalAmount(g);
+  const balance = Math.max(0, Math.round((total - paid) * 100) / 100);
+  return { state: paid <= 0 ? "none" : balance > 0 ? "partial" : "paid", paid, balance };
 }
 
 export function groupChannel(g: ReservationGroup): string {

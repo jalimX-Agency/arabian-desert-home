@@ -60,7 +60,16 @@ interface Reservation {
   currency: string;
   createdAt: string;
   items: ReservationItem[];
+  payments?: { id: string; amount: number; method: string; paidAt: string }[];
 }
+
+/** Wording of the "your payments" block, per language. */
+const PAY_COPY: Record<Language, { title: string; received: string; balance: string; settled: string; methods: Record<string, string> }> = {
+  fr: { title: "Vos paiements", received: "Acompte reçu", balance: "Reste à payer sur place", settled: "Votre réservation est entièrement réglée.", methods: { bank_transfer: "Virement bancaire", cash: "Espèces", card: "Carte bancaire", other: "Autre" } },
+  en: { title: "Your payments", received: "Advance received", balance: "Balance payable on site", settled: "Your reservation is paid in full.", methods: { bank_transfer: "Bank transfer", cash: "Cash", card: "Card", other: "Other" } },
+  es: { title: "Sus pagos", received: "Anticipo recibido", balance: "Saldo a pagar en el lugar", settled: "Su reserva está pagada en su totalidad.", methods: { bank_transfer: "Transferencia bancaria", cash: "Efectivo", card: "Tarjeta", other: "Otro" } },
+  it: { title: "I suoi pagamenti", received: "Acconto ricevuto", balance: "Saldo da pagare in loco", settled: "La sua prenotazione è interamente saldata.", methods: { bank_transfer: "Bonifico bancario", cash: "Contanti", card: "Carta", other: "Altro" } },
+};
 
 const DATE_LOCALES: Record<Language, Locale> = { fr, en: enGB, es: esLocale, it: itLocale };
 
@@ -726,6 +735,37 @@ export function ManageReservation() {
                 <p className="text-xs text-muted-foreground">
                   {c.totalNote}
                 </p>
+                {reservation.payments && reservation.payments.length > 0 && (() => {
+                  const pay = PAY_COPY[language];
+                  const paid = reservation.payments.reduce((sum, p) => sum + p.amount, 0);
+                  const balance = Math.max(0, Math.round((reservation.totalAmount - paid) * 100) / 100);
+                  return (
+                    <div className="mt-5 pt-5 border-t border-border/50 space-y-2">
+                      <span className="luxury-label text-xs block">{pay.title}</span>
+                      {reservation.payments.map((p) => (
+                        <div key={p.id} className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            {new Date(p.paidAt).toLocaleDateString(numberLocale, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}
+                            {" · "}{pay.methods[p.method] ?? pay.methods.other}
+                          </span>
+                          <span className="mono-number">{formatMoney(p.amount, numberLocale)} {reservation.currency}</span>
+                        </div>
+                      ))}
+                      <div className="flex items-center justify-between pt-2">
+                        <span className="luxury-label text-amber/70">{pay.received}</span>
+                        <span className="mono-number text-lg text-amber">{formatMoney(paid, numberLocale)} {reservation.currency}</span>
+                      </div>
+                      {balance > 0 ? (
+                        <div className="flex items-center justify-between">
+                          <span className="luxury-label text-amber/70">{pay.balance}</span>
+                          <span className="mono-number text-lg text-amber">{formatMoney(balance, numberLocale)} {reservation.currency}</span>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-amber">{pay.settled}</p>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="glass-card card-warm p-6 mb-8">

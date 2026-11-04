@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
+import { sumMoney } from "@/lib/money";
 
 export async function GET() {
   const deny = await requireAdmin();
@@ -11,8 +12,13 @@ export async function GET() {
       suite: { select: { name: true } },
       activity: { select: { name: true } },
       dayPass: { select: { name: true } },
-      reservation: { select: { id: true, accessToken: true, totalAmount: true, currency: true, channel: true, lang: true, reviewRequestSentAt: true, _count: { select: { items: true } } } },
+      reservation: { select: { id: true, accessToken: true, totalAmount: true, currency: true, channel: true, lang: true, reviewRequestSentAt: true, payments: { select: { amount: true } }, _count: { select: { items: true } } } },
     },
   });
-  return NextResponse.json(bookings);
+  // The list only needs how much has been received, not the payment rows themselves.
+  return NextResponse.json(bookings.map((b) => {
+    if (!b.reservation) return b;
+    const { payments, ...reservation } = b.reservation;
+    return { ...b, reservation: { ...reservation, paid: sumMoney(payments.map((p) => p.amount)) } };
+  }));
 }

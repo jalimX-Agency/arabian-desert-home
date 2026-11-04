@@ -537,7 +537,7 @@ export function ReservationDetailSheet({
             <span className="text-lg font-semibold text-amber-600 dark:text-amber-400">{formatMoney(grandTotal)} {currency}</span>
           </div>
 
-          <PaymentsSection reservationId={group.id} hasReservation={!!primary.reservation} />
+          <PaymentsSection reservationId={group.id} hasReservation={!!primary.reservation} onChanged={onSaved} />
         </div>
 
         <SheetFooter>
