@@ -2,7 +2,7 @@ import { calendarDay } from "@/lib/calendar-day";
 import { readFileSync, existsSync } from "fs";
 import path from "path";
 import type { Booking, Suite, Activity, DayPass } from "@prisma/client";
-import { formatMoney } from "@/lib/money";
+import { formatMoney, roundMoney } from "@/lib/money";
 
 export type FicheLang = "fr" | "en" | "es" | "it";
 
@@ -43,6 +43,11 @@ const FICHE_I18N = {
     total: "Tarif total",
     paymentMethod: "Méthode de paiement",
     paymentGeneric: "Paiement sur place",
+    advanceReceived: "Acompte reçu",
+    balanceDue: "Reste à payer",
+    paidInFull: "Réglé intégralement",
+    paymentAdvance: "Acompte reçu · solde à régler sur place",
+    paymentPaid: "Paiement reçu",
     remarks: "Remarques",
     confirmedTitle: "Réservation confirmée.",
     confirmedBody: "Merci de présenter cette fiche à votre arrivée au campement.",
@@ -83,6 +88,11 @@ const FICHE_I18N = {
     total: "Total price",
     paymentMethod: "Payment method",
     paymentGeneric: "Payment on site",
+    advanceReceived: "Advance received",
+    balanceDue: "Balance due",
+    paidInFull: "Paid in full",
+    paymentAdvance: "Advance received · balance payable on site",
+    paymentPaid: "Payment received",
     remarks: "Remarks",
     confirmedTitle: "Reservation confirmed.",
     confirmedBody: "Please present this voucher upon your arrival at the camp.",
@@ -123,6 +133,11 @@ const FICHE_I18N = {
     total: "Precio total",
     paymentMethod: "Método de pago",
     paymentGeneric: "Pago en el lugar",
+    advanceReceived: "Anticipo recibido",
+    balanceDue: "Pendiente de pago",
+    paidInFull: "Pagado en su totalidad",
+    paymentAdvance: "Anticipo recibido · saldo a pagar en el lugar",
+    paymentPaid: "Pago recibido",
     remarks: "Observaciones",
     confirmedTitle: "Reserva confirmada.",
     confirmedBody: "Por favor, presente esta ficha a su llegada al campamento.",
@@ -163,6 +178,11 @@ const FICHE_I18N = {
     total: "Prezzo totale",
     paymentMethod: "Metodo di pagamento",
     paymentGeneric: "Pagamento in loco",
+    advanceReceived: "Acconto ricevuto",
+    balanceDue: "Saldo da pagare",
+    paidInFull: "Pagato per intero",
+    paymentAdvance: "Acconto ricevuto · saldo da pagare in loco",
+    paymentPaid: "Pagamento ricevuto",
     remarks: "Note",
     confirmedTitle: "Prenotazione confermata.",
     confirmedBody: "Vi preghiamo di presentare questa scheda al vostro arrivo al campo.",
@@ -283,11 +303,21 @@ export interface FicheOptions {
   totalAmount: number;
   currency: string;
   lang?: FicheLang;
+  /** Amount already received from the guest (advance payments). Shown with the balance when above zero. */
+  paidAmount?: number;
 }
 
 /** Builds the print-ready "Fiche de Réservation" HTML sent as a PDF once a reservation is confirmed. */
-export function buildFicheHtml({ reservationRef, items, totalAmount, currency, lang = "fr" }: FicheOptions): string {
+export function buildFicheHtml({ reservationRef, items, totalAmount, currency, lang = "fr", paidAmount = 0 }: FicheOptions): string {
   const t = FICHE_I18N[lang];
+  const money = (n: number) => `${formatMoney(n, NUMBER_LOCALE[lang])} ${currency}`;
+  const balance = Math.max(0, roundMoney(totalAmount - paidAmount));
+  // Advance payments: the guest sees what was received and what is left to pay on arrival.
+  const paymentLines = paidAmount > 0
+    ? `<div class="total-row sub paid"><span class="lbl">${t.advanceReceived}</span><span class="val">${money(paidAmount)}</span></div>
+    <div class="total-row sub due"><span class="lbl">${balance > 0 ? t.balanceDue : t.paidInFull}</span><span class="val">${balance > 0 ? money(balance) : ""}</span></div>`
+    : "";
+  const paymentMethodText = paidAmount <= 0 ? t.paymentGeneric : balance > 0 ? t.paymentAdvance : t.paymentPaid;
   const first = items[0];
   const stay = computeStayWindow(items);
   const paxTotal = items.reduce((max, i) => Math.max(max, i.guests), 0);
@@ -464,6 +494,10 @@ export function buildFicheHtml({ reservationRef, items, totalAmount, currency, l
   .total-row{ display:flex; justify-content:flex-end; align-items:baseline; gap:16px; padding:12px 0 22px; }
   .total-row .lbl{ font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-soft); }
   .total-row .val{ font-family:"Cinzel", serif; font-weight:600; font-size:22px; color:var(--gold-deep); font-variant-numeric:tabular-nums; }
+  .total-row.sub{ padding:0 0 6px; }
+  .total-row.sub .val{ font-size:16px; }
+  .total-row.paid .val{ color:#1e6b3f; }
+  .total-row.due{ padding-bottom:22px; }
   .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:28px; padding:18px 0 20px; border-top:1px solid var(--rule); }
   .two-col .field .v{ font-size:13.5px; line-height:1.6; font-weight:400; }
   .confirm-strip{
@@ -546,11 +580,12 @@ export function buildFicheHtml({ reservationRef, items, totalAmount, currency, l
       <span class="lbl">${t.total}</span>
       <span class="val">${formatMoney(totalAmount, NUMBER_LOCALE[lang])} ${currency}</span>
     </div>
+    ${paymentLines}
 
     <div class="two-col">
       <div class="field">
         <label>${t.paymentMethod}</label>
-        <div class="v">${t.paymentGeneric}</div>
+        <div class="v">${paymentMethodText}</div>
       </div>
       <div class="field">
         <label>${t.remarks}</label>

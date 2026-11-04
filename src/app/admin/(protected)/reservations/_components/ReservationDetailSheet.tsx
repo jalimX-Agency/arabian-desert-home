@@ -55,6 +55,7 @@ import { ItemCard } from "./ItemCard";
 import { formatMoney, sumMoney } from "@/lib/money";
 import { RESERVATION_LANGS, RESERVATION_LANG_LABEL, parseReservationLang } from "@/lib/reservation-lang";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { PaymentsSection } from "./PaymentsSection";
 
 // Public site origin — the link is meant to be sent to the guest, so never the admin's localhost.
 const SITE_URL = "https://www.arabiandeserthome.ma";
@@ -535,6 +536,8 @@ export function ReservationDetailSheet({
             <span className="text-sm text-gray-500 dark:text-white/60">Montant total</span>
             <span className="text-lg font-semibold text-amber-600 dark:text-amber-400">{formatMoney(grandTotal)} {currency}</span>
           </div>
+
+          <PaymentsSection reservationId={group.id} hasReservation={!!primary.reservation} />
         </div>
 
         <SheetFooter>

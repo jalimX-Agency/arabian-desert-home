@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { sendReservationConfirmedEmail, sendReservationCancelledByAdminEmail, reservationManageUrl } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 import { parseReservationLang } from "@/lib/reservation-lang";
+import { reservationPaid } from "@/lib/payments";
 
 export const maxDuration = 60;
 
@@ -42,7 +43,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         // Legacy single bookings predate Reservation: no manage link, and French by default.
         const reservation = await db.reservation.findUnique({ where: { id }, select: { accessToken: true, lang: true } });
         const lang = parseReservationLang(reservation?.lang);
-        const html = buildFicheHtml({ reservationRef, items, totalAmount, currency, lang });
+        const paidAmount = await reservationPaid(id);
+        const html = buildFicheHtml({ reservationRef, items, totalAmount, currency, lang, paidAmount });
         const pdf = await generateFichePdf(html);
         const manageUrl = reservation ? reservationManageUrl(reservation.accessToken) : null;
         await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf, manageUrl, lang);

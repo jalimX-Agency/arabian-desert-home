@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { buildFicheHtml, generateFichePdf, type FicheLang } from "@/lib/fiche-pdf";
 import { parseReservationLang } from "@/lib/reservation-lang";
+import { reservationPaid } from "@/lib/payments";
 
 export const maxDuration = 60;
 
@@ -38,7 +39,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const currency = items[0].currency;
   const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
 
-  const html = buildFicheHtml({ reservationRef, items, totalAmount, currency, lang });
+  const paidAmount = await reservationPaid(id);
+  const html = buildFicheHtml({ reservationRef, items, totalAmount, currency, lang, paidAmount });
   const pdf = await generateFichePdf(html);
 
   return new NextResponse(new Uint8Array(pdf), {
