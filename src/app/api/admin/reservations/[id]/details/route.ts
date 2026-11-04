@@ -6,6 +6,7 @@ import { sendReservationConfirmedEmail, reservationManageUrl } from "@/lib/email
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 import { parseReservationLang } from "@/lib/reservation-lang";
 import { roundMoney, sumMoney } from "@/lib/money";
+import { reservationPaid } from "@/lib/payments";
 
 export const maxDuration = 60;
 
@@ -130,7 +131,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   after(async () => {
     try {
       const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
-      const html = buildFicheHtml({ reservationRef, items: freshItems, totalAmount, currency, lang });
+      const paidAmount = await reservationPaid(id);
+      const html = buildFicheHtml({ reservationRef, items: freshItems, totalAmount, currency, lang, paidAmount });
       const pdf = await generateFichePdf(html);
       const reservation = await db.reservation.findUnique({ where: { id }, select: { accessToken: true } });
       const manageUrl = reservation ? reservationManageUrl(reservation.accessToken) : null;

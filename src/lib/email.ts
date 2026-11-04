@@ -579,6 +579,157 @@ export async function sendReservationCancelledByAdminEmail(
   });
 }
 
+// ── Payment received email ──────────────────────────────────────────────────
+
+type PaymentStrings = {
+  subject: string;
+  banner: string;
+  intro: string;
+  title: string;
+  received: string;
+  date: string;
+  method: string;
+  reference: string;
+  total: string;
+  paidSoFar: string;
+  balance: string;
+  settled: string;
+  attached: string;
+  methods: Record<string, string>;
+};
+
+const PAYMENT_I18N: Record<ReservationLang, PaymentStrings> = {
+  fr: {
+    subject: "Paiement reçu — Arabian Desert Home",
+    banner: "Paiement bien reçu",
+    intro: "Nous confirmons la réception de votre paiement. Merci de votre confiance !",
+    title: "Votre paiement",
+    received: "Montant reçu",
+    date: "Date du paiement",
+    method: "Mode de paiement",
+    reference: "Réservation",
+    total: "Tarif total",
+    paidSoFar: "Total déjà réglé",
+    balance: "Reste à payer sur place",
+    settled: "Votre réservation est entièrement réglée.",
+    attached: "Votre fiche de réservation mise à jour est jointe à cet email.",
+    methods: { bank_transfer: "Virement bancaire", cash: "Espèces", card: "Carte bancaire", other: "Autre" },
+  },
+  en: {
+    subject: "Payment received — Arabian Desert Home",
+    banner: "Payment received",
+    intro: "We confirm that we have received your payment. Thank you for your trust!",
+    title: "Your payment",
+    received: "Amount received",
+    date: "Payment date",
+    method: "Payment method",
+    reference: "Reservation",
+    total: "Total price",
+    paidSoFar: "Total paid so far",
+    balance: "Balance payable on site",
+    settled: "Your reservation is paid in full.",
+    attached: "Your updated reservation form is attached to this email.",
+    methods: { bank_transfer: "Bank transfer", cash: "Cash", card: "Card", other: "Other" },
+  },
+  es: {
+    subject: "Pago recibido — Arabian Desert Home",
+    banner: "Pago recibido",
+    intro: "Confirmamos que hemos recibido su pago. ¡Gracias por su confianza!",
+    title: "Su pago",
+    received: "Importe recibido",
+    date: "Fecha del pago",
+    method: "Método de pago",
+    reference: "Reserva",
+    total: "Precio total",
+    paidSoFar: "Total abonado hasta ahora",
+    balance: "Saldo a pagar en el lugar",
+    settled: "Su reserva está pagada en su totalidad.",
+    attached: "Adjuntamos su ficha de reserva actualizada.",
+    methods: { bank_transfer: "Transferencia bancaria", cash: "Efectivo", card: "Tarjeta", other: "Otro" },
+  },
+  it: {
+    subject: "Pagamento ricevuto — Arabian Desert Home",
+    banner: "Pagamento ricevuto",
+    intro: "Confermiamo di aver ricevuto il suo pagamento. Grazie per la fiducia!",
+    title: "Il suo pagamento",
+    received: "Importo ricevuto",
+    date: "Data del pagamento",
+    method: "Metodo di pagamento",
+    reference: "Prenotazione",
+    total: "Prezzo totale",
+    paidSoFar: "Totale già versato",
+    balance: "Saldo da pagare in loco",
+    settled: "La sua prenotazione è interamente saldata.",
+    attached: "In allegato la sua scheda di prenotazione aggiornata.",
+    methods: { bank_transfer: "Bonifico bancario", cash: "Contanti", card: "Carta", other: "Altro" },
+  },
+};
+
+export interface PaymentReceivedEmail {
+  to: string;
+  firstName: string;
+  lang: ReservationLang;
+  /** The payment just recorded. */
+  amount: number;
+  paidAt: Date;
+  method: string;
+  currency: string;
+  /** Reservation reference shown to the guest (ADH-XXXXXXXX). */
+  reference: string;
+  /** Reservation total and everything received so far (this payment included). */
+  total: number;
+  paidTotal: number;
+  manageUrl: string | null;
+  /** Updated fiche PDF, attached only when the reservation is confirmed. */
+  pdf?: Buffer | null;
+}
+
+/** Tells the guest that a payment was recorded on their reservation, with what is still to pay. */
+export async function sendPaymentReceivedEmail(o: PaymentReceivedEmail) {
+  const t = PAYMENT_I18N[o.lang];
+  const balance = Math.max(0, Math.round((o.total - o.paidTotal + Number.EPSILON) * 100) / 100);
+  const row = (label: string, value: string, strong = false) =>
+    `<tr><td style="padding:9px 0;color:#888;border-bottom:1px solid #e3efe7">${label}</td><td style="padding:9px 0;text-align:right;border-bottom:1px solid #e3efe7;${strong ? "font-weight:700;font-size:16px;color:#1e6b3f" : "color:#333"}">${value}</td></tr>`;
+  await resend.emails.send({
+    from: FROM,
+    to: o.to,
+    subject: t.subject,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#1e6b3f;padding:32px;text-align:center">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);margin:0 auto 12px;text-align:center;font-size:0">
+            <span style="color:#fff;font-size:24px;line-height:48px">✓</span>
+          </div>
+          <p style="color:#fff;font-size:18px;font-weight:600;margin:0 0 4px">${t.banner}</p>
+          <p style="color:rgba(255,255,255,0.75);letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
+        </div>
+        <div style="padding:40px 32px">
+          <h1 style="font-size:24px;font-weight:400;margin:0 0 8px">${BOOKING_I18N[o.lang].hello(o.firstName)}</h1>
+          <p style="color:#555;line-height:1.7;margin:0 0 24px">${t.intro}</p>
+          <div style="background:#f4faf6;border:1px solid #cde8d6;border-radius:8px;padding:24px;margin:0 0 24px">
+            <p style="color:#1e6b3f;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 12px">${t.title}</p>
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              ${row(t.reference, o.reference)}
+              ${row(t.received, `${formatMoney(o.amount, o.lang)} ${o.currency}`, true)}
+              ${row(t.date, formatDate(o.paidAt, o.lang))}
+              ${row(t.method, t.methods[o.method] ?? t.methods.other)}
+              ${row(t.total, `${formatMoney(o.total, o.lang)} ${o.currency}`)}
+              ${row(t.paidSoFar, `${formatMoney(o.paidTotal, o.lang)} ${o.currency}`)}
+              ${balance > 0 ? row(t.balance, `${formatMoney(balance, o.lang)} ${o.currency}`) : ""}
+            </table>
+            ${balance > 0 ? "" : `<p style="color:#1e6b3f;font-weight:600;margin:14px 0 0">${t.settled}</p>`}
+          </div>
+          ${o.pdf ? `<p style="color:#555;line-height:1.7;margin:0 0 20px">${t.attached}</p>` : ""}
+          ${o.manageUrl ? manageButton(o.manageUrl, "#1e6b3f", o.lang) : ""}
+          <p style="color:#555;line-height:1.7;margin:0 0 8px">${BOOKING_I18N[o.lang].questions}</p>
+          <p style="margin:0;color:#333;font-size:14px">📞 +212 667-370-206 &nbsp;·&nbsp; 📧 info@arabiandeserthome.ma</p>
+        </div>${bookingFooter(o.lang)}
+      </div>
+    `,
+    ...(o.pdf ? { attachments: [{ filename: BOOKING_I18N[o.lang].confirmed.attachment, content: o.pdf }] } : {}),
+  });
+}
+
 export async function sendClientCancellationNotification(
   contact: { firstName: string; lastName: string; email: string; phone?: string | null },
   cancelledItems: BookingWithRelations[],

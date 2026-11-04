@@ -189,6 +189,7 @@ model Reservation {
   updatedAt   DateTime  @updatedAt
   items       Booking[]
   devis       Devis?
+  payments    Payment[]
 }
 
 model Booking {
@@ -446,4 +447,25 @@ model DevisItem {
   currency    String    @default("MAD")
   order       Int       @default(0)
   createdAt   DateTime  @default(now())
+}
+
+// A payment received from the guest against a reservation (typically an advance paid by
+// bank transfer). The amount is in the reservation's currency; the proof (transfer receipt,
+// screenshot) is stored on R2 under an unguessable key. Deleting the reservation deletes it.
+model Payment {
+  id            String      @id @default(cuid())
+  reservationId String
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  amount        Float
+  currency      String      @default("EUR")
+  /// bank_transfer | cash | card | other
+  method        String      @default("bank_transfer")
+  paidAt        DateTime
+  note          String?
+  proofUrl      String?
+  /// Set once the confirmation email for this payment has been sent to the guest.
+  emailSentAt   DateTime?
+  createdAt     DateTime    @default(now())
+
+  @@index([reservationId])
 }
