@@ -18,6 +18,7 @@ import {
   getServiceName,
   formatDateCellText,
   groupTotalAmount,
+  groupPayment,
   groupChannel,
   groupNearestDate,
   isGroupPast,
@@ -177,7 +178,25 @@ export function ReservationTable({
                       <span className="block text-xs text-gray-400">{primary.children} enfant{primary.children > 1 ? "s" : ""}</span>
                     )}
                   </td>
-                  <td className="px-5 py-4 text-amber-600 dark:text-amber-400">{formatMoney(groupTotalAmount(g))} {primary.currency ?? "MAD"}</td>
+                  <td className="px-5 py-4 text-amber-600 dark:text-amber-400">
+                    {formatMoney(groupTotalAmount(g))} {primary.currency ?? "MAD"}
+                    {(() => {
+                      const pay = groupPayment(g);
+                      if (pay.state === "none") return null;
+                      return pay.state === "paid" ? (
+                        <span className="mt-1 block w-fit rounded-full border border-green-200 dark:border-green-500/20 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 text-[11px] font-medium text-green-700 dark:text-green-400">
+                          Payé
+                        </span>
+                      ) : (
+                        <span
+                          title={`Acompte reçu : ${formatMoney(pay.paid)} ${primary.currency ?? "MAD"} · reste ${formatMoney(pay.balance)} ${primary.currency ?? "MAD"}`}
+                          className="mt-1 block w-fit rounded-full border border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:text-blue-400"
+                        >
+                          Acompte {formatMoney(pay.paid)} · reste {formatMoney(pay.balance)}
+                        </span>
+                      );
+                    })()}
+                  </td>
                   <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                     <Select
                       value={allSameStatus ? primary.status : "mixed"}

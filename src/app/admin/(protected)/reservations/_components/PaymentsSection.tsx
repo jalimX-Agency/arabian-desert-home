@@ -51,7 +51,7 @@ const MAX_PROOF_MB = 4;
  * Advance payments on a reservation: what was received, the proof (transfer receipt) and what is
  * left to pay. Recording a payment emails the guest a receipt, and the fiche PDF shows the advance.
  */
-export function PaymentsSection({ reservationId, hasReservation }: { reservationId: string; hasReservation: boolean }) {
+export function PaymentsSection({ reservationId, hasReservation, onChanged }: { reservationId: string; hasReservation: boolean; onChanged?: () => void }) {
   const [data, setData] = useState<PaymentsData | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [open, setOpen] = useState(false);
@@ -76,7 +76,10 @@ export function PaymentsSection({ reservationId, hasReservation }: { reservation
 
   async function remove(id: string) {
     const res = await fetch(`/api/admin/reservations/${reservationId}/payments/${id}`, { method: "DELETE" });
-    if (res.ok) void load();
+    if (res.ok) {
+      void load();
+      onChanged?.();
+    }
   }
 
   const currency = data?.currency ?? "EUR";
@@ -175,7 +178,7 @@ export function PaymentsSection({ reservationId, hasReservation }: { reservation
           reservationId={reservationId}
           currency={currency}
           balance={data.balance ?? 0}
-          onSaved={() => { setOpen(false); void load(); }}
+          onSaved={() => { setOpen(false); void load(); onChanged?.(); }}
         />
       )}
 

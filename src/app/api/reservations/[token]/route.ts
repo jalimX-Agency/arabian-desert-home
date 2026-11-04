@@ -27,6 +27,8 @@ async function loadReservation(token: string) {
         },
         orderBy: { createdAt: "asc" },
       },
+      // What the guest paid so far: amount, method and date only (no proof file, no internal note).
+      payments: { select: { id: true, amount: true, method: true, paidAt: true }, orderBy: [{ paidAt: "asc" }, { createdAt: "asc" }] },
     },
   });
 }
