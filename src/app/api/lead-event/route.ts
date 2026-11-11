@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { isLeadKind, isLeadSource } from "@/lib/lead-source";
+import { countryFromHeader, deviceFromUserAgent } from "@/lib/visit";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,15 @@ export async function POST(request: NextRequest) {
   const recent = await db.leadEvent.count({ where: { createdAt: { gte: new Date(Date.now() - 60_000) } } });
   if (recent >= MAX_PER_MINUTE) return new Response(null, { status: 429 });
 
-  await db.leadEvent.create({ data: { kind: body.kind, source: body.source, page, lang } });
+  await db.leadEvent.create({
+    data: {
+      kind: body.kind,
+      source: body.source,
+      page,
+      lang,
+      country: countryFromHeader(request.headers.get("x-vercel-ip-country")),
+      device: deviceFromUserAgent(request.headers.get("user-agent")),
+    },
+  });
   return new Response(null, { status: 204 });
 }

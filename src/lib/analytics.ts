@@ -205,6 +205,42 @@ w.__adhGaLoaded=true;
 }catch(e){}})();`;
 }
 
+/** True once this page load has already reported its first view: later calls are in-site
+ *  navigation (client-side route changes), never the start of a new visit. */
+let firstViewReported = false;
+
+/**
+ * Anonymous count of a page view (no cookie, no identifier, nothing stored on the device).
+ * It opens a "visit" only for the first view of a page load that came from outside the site or
+ * from nowhere (direct); a hard reload within the site, or navigating between pages, is a plain
+ * page view. Silent on failure.
+ */
+export function reportVisit(): void {
+  if (typeof window === "undefined" || isPrivatePath(window.location.pathname)) return;
+  const own = window.location.hostname.toLowerCase();
+  let refHost = "";
+  try {
+    refHost = document.referrer ? new URL(document.referrer).hostname.toLowerCase() : "";
+  } catch {
+    refHost = "";
+  }
+  const entry = !firstViewReported && refHost !== own;
+  firstViewReported = true;
+  const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+  const body = JSON.stringify({
+    source: classifySource(nav?.name ?? window.location.href, document.referrer, own),
+    page: window.location.pathname,
+    lang: languageFromPath(window.location.pathname),
+    entry,
+  });
+  try {
+    if (navigator.sendBeacon) navigator.sendBeacon("/api/visit", new Blob([body], { type: "application/json" }));
+    else void fetch("/api/visit", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true });
+  } catch {
+    // Never let counting get in the way of the page.
+  }
+}
+
 /** Anonymous count of a lead action (no cookie, no identifier) so requests can be counted by
  *  source even for visitors who refused or ignored the cookie banner. Silent on failure. */
 export function reportLead(kind: "whatsapp" | "phone"): void {
