@@ -3,6 +3,7 @@ import { sendReservationConfirmation, sendReservationNotification, reservationMa
 import { priceCartItem, type CartItemInput } from "@/lib/reservation-item";
 import { parseReservationLang } from "@/lib/reservation-lang";
 import { isLeadSource } from "@/lib/lead-source";
+import { countryFromHeader, deviceFromUserAgent } from "@/lib/visit";
 
 export async function POST(request: Request) {
   try {
@@ -81,7 +82,16 @@ export async function POST(request: Request) {
 
     // Anonymous count of the request by source, whatever the visitor's cookie choice.
     await db.leadEvent
-      .create({ data: { kind: "form", source: isLeadSource(rawSource) ? rawSource : "direct", page: "/reservez-votre-sejour", lang } })
+      .create({
+        data: {
+          kind: "form",
+          source: isLeadSource(rawSource) ? rawSource : "direct",
+          page: "/reservez-votre-sejour",
+          lang,
+          country: countryFromHeader(request.headers.get("x-vercel-ip-country")),
+          device: deviceFromUserAgent(request.headers.get("user-agent")),
+        },
+      })
       .catch(() => {});
 
     const manageUrl = reservationManageUrl(reservation.accessToken);

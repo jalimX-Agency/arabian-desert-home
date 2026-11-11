@@ -348,6 +348,24 @@ model LeadEvent {
   source    String   // ads | organic | ai | social | direct | other
   page      String   // path only, no query string
   lang      String   @default("fr")
+  country   String   @default("")      // ISO-2 country from the edge, "" when unknown
+  device    String   @default("")      // mobile | tablet | desktop, "" for older rows
+
+  @@index([createdAt])
+}
+
+// One anonymous count per page view: where it came from, which page, language, country
+// and device class. No cookie, no IP, no user agent kept, nothing that identifies a person.
+// `entry` marks the first page of a visit, so "visits" = entry rows and "page views" = all rows.
+model SiteVisit {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  source    String   // ads | organic | ai | social | direct | other
+  page      String   // path only, no query string
+  lang      String   @default("fr")
+  country   String   @default("")
+  device    String   @default("desktop")
+  entry     Boolean  @default(false)
 
   @@index([createdAt])
 }

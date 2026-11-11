@@ -8,6 +8,7 @@ import {
   loadAnalytics,
   readConsent,
   reportLead,
+  reportVisit,
   setAnalyticsDisabled,
   trackEvent,
   withdrawConsent,
@@ -45,6 +46,11 @@ export function GoogleAnalytics() {
     loadAnalytics(choice === "granted" ? "granted" : "denied");
     if (choice === "denied") withdrawConsent();
   }, [choice, priv]);
+
+  // Cookie-free count of each public page view (visits by source, country, page and device).
+  useEffect(() => {
+    if (!priv && pathname) reportVisit();
+  }, [pathname, priv]);
 
   // Conversion clicks. One delegated listener instead of editing every link on the site.
   useEffect(() => {
