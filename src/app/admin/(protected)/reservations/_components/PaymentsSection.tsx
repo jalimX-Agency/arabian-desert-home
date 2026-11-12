@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { Banknote, CheckCircle2, Loader2, Mail, Paperclip, Plus, Trash2 } from "lucide-react";
+import { Banknote, CheckCircle2, Loader2, Mail, Paperclip, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -55,6 +55,7 @@ export function PaymentsSection({ reservationId, hasReservation, onChanged }: { 
   const [data, setData] = useState<PaymentsData | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<PaymentRow | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -154,16 +155,28 @@ export function PaymentsSection({ reservationId, hasReservation, onChanged }: { 
                       )}
                     </div>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setDeleteId(p.id)}
-                    className="cursor-pointer shrink-0 text-gray-400 hover:text-red-500"
-                    aria-label="Supprimer ce paiement"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="flex shrink-0 items-center">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setEditing(p)}
+                      className="cursor-pointer text-gray-400 hover:text-amber-600"
+                      aria-label="Modifier ce paiement"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDeleteId(p.id)}
+                      className="cursor-pointer text-gray-400 hover:text-red-500"
+                      aria-label="Supprimer ce paiement"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -172,13 +185,25 @@ export function PaymentsSection({ reservationId, hasReservation, onChanged }: { 
       )}
 
       {data && (
-        <AddPaymentDialog
+        <PaymentDialog
           open={open}
           onOpenChange={setOpen}
           reservationId={reservationId}
           currency={currency}
           balance={data.balance ?? 0}
+          payment={null}
           onSaved={() => { setOpen(false); void load(); onChanged?.(); }}
+        />
+      )}
+      {data && (
+        <PaymentDialog
+          open={editing !== null}
+          onOpenChange={(o) => { if (!o) setEditing(null); }}
+          reservationId={reservationId}
+          currency={currency}
+          balance={data.balance ?? 0}
+          payment={editing}
+          onSaved={() => { setEditing(null); void load(); onChanged?.(); }}
         />
       )}
 
@@ -195,38 +220,47 @@ export function PaymentsSection({ reservationId, hasReservation, onChanged }: { 
   );
 }
 
-function AddPaymentDialog({
-  open, onOpenChange, reservationId, currency, balance, onSaved,
+/**
+ * Adds a payment, or corrects one when `payment` is given. A correction never emails the guest:
+ * the fiche and the guest page read the payments live, so they show the new figures next time.
+ */
+function PaymentDialog({
+  open, onOpenChange, reservationId, currency, balance, payment, onSaved,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   reservationId: string;
   currency: string;
+  /** What the reservation still owes before this dialog's payment (if any) is counted. */
   balance: number;
+  payment: PaymentRow | null;
   onSaved: () => void;
 }) {
+  const editing = payment !== null;
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("bank_transfer");
   const [paidAt, setPaidAt] = useState(() => format(new Date(), "yyyy-MM-dd"));
   const [note, setNote] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [removeProof, setRemoveProof] = useState(false);
   const [sendEmail, setSendEmail] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // A fresh form each time the dialog opens.
+  // A fresh form each time the dialog opens: empty to add, filled with the payment to correct it.
   useEffect(() => {
     if (!open) return;
-    setAmount("");
-    setMethod("bank_transfer");
-    setPaidAt(format(new Date(), "yyyy-MM-dd"));
-    setNote("");
+    setAmount(payment ? String(payment.amount) : "");
+    setMethod(payment?.method ?? "bank_transfer");
+    setPaidAt(payment ? payment.paidAt.slice(0, 10) : format(new Date(), "yyyy-MM-dd"));
+    setNote(payment?.note ?? "");
     setFile(null);
+    setRemoveProof(false);
     setSendEmail(true);
     setError("");
     if (fileRef.current) fileRef.current.value = "";
-  }, [open]);
+  }, [open, payment]);
 
   function pickFile(f: File | null) {
     setError("");
@@ -249,9 +283,15 @@ function AddPaymentDialog({
       body.set("method", method);
       body.set("paidAt", paidAt);
       body.set("note", note);
-      body.set("sendEmail", String(sendEmail));
       if (file) body.set("proof", file);
-      const res = await fetch(`/api/admin/reservations/${reservationId}/payments`, { method: "POST", body });
+      let res: Response;
+      if (payment) {
+        if (removeProof && !file) body.set("removeProof", "true");
+        res = await fetch(`/api/admin/reservations/${reservationId}/payments/${payment.id}`, { method: "PATCH", body });
+      } else {
+        body.set("sendEmail", String(sendEmail));
+        res = await fetch(`/api/admin/reservations/${reservationId}/payments`, { method: "POST", body });
+      }
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(json.error ?? "L'enregistrement a échoué.");
@@ -269,8 +309,12 @@ function AddPaymentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Ajouter un paiement</DialogTitle>
-          <DialogDescription>Reste à payer : {formatMoney(balance)} {currency}</DialogDescription>
+          <DialogTitle>{editing ? "Modifier le paiement" : "Ajouter un paiement"}</DialogTitle>
+          <DialogDescription>
+            {editing
+              ? `Montant maximum pour ce paiement : ${formatMoney(balance + payment.amount)} ${currency}. Le client n’est pas prévenu.`
+              : `Reste à payer : ${formatMoney(balance)} ${currency}`}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3">
@@ -296,7 +340,20 @@ function AddPaymentDialog({
           </div>
 
           <div>
-            <Label htmlFor="pay-proof" className="text-xs text-gray-400 mb-1 block">Justificatif (image ou PDF, {MAX_PROOF_MB} Mo max)</Label>
+            <Label htmlFor="pay-proof" className="text-xs text-gray-400 mb-1 block">
+              {payment?.proofUrl ? "Remplacer le justificatif" : "Justificatif"} (image ou PDF, {MAX_PROOF_MB} Mo max)
+            </Label>
+            {payment?.proofUrl && (
+              <div className="mb-2 flex flex-wrap items-center gap-3 text-xs">
+                <a href={payment.proofUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-400 hover:underline">
+                  <Paperclip className="w-3 h-3" /> Justificatif actuel
+                </a>
+                <label className="inline-flex items-center gap-1.5 text-gray-600 dark:text-white/70 cursor-pointer">
+                  <input type="checkbox" checked={removeProof} onChange={(e) => setRemoveProof(e.target.checked)} className="cursor-pointer" />
+                  Retirer le justificatif
+                </label>
+              </div>
+            )}
             <Input
               id="pay-proof"
               ref={fileRef}
@@ -312,13 +369,15 @@ function AddPaymentDialog({
             <Textarea id="pay-note" value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="Référence du virement, remarque…" />
           </div>
 
-          <label className="flex items-start gap-2 text-sm text-gray-700 dark:text-white/80 cursor-pointer">
-            <input type="checkbox" checked={sendEmail} onChange={(e) => setSendEmail(e.target.checked)} className="mt-1 cursor-pointer" />
-            <span>
-              Envoyer l&apos;email de confirmation de paiement au client
-              <span className="block text-[11px] text-gray-400">Dans la langue de la réservation, avec le reste à payer.</span>
-            </span>
-          </label>
+          {!editing && (
+            <label className="flex items-start gap-2 text-sm text-gray-700 dark:text-white/80 cursor-pointer">
+              <input type="checkbox" checked={sendEmail} onChange={(e) => setSendEmail(e.target.checked)} className="mt-1 cursor-pointer" />
+              <span>
+                Envoyer l&apos;email de confirmation de paiement au client
+                <span className="block text-[11px] text-gray-400">Dans la langue de la réservation, avec le reste à payer.</span>
+              </span>
+            </label>
+          )}
 
           {error && <p className="text-xs text-red-500">{error}</p>}
         </div>
@@ -327,7 +386,7 @@ function AddPaymentDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy} className="cursor-pointer">Annuler</Button>
           <Button onClick={submit} disabled={busy} className="cursor-pointer">
             {busy && <Loader2 className="w-4 h-4 animate-spin" />}
-            Enregistrer le paiement
+            {editing ? "Enregistrer les modifications" : "Enregistrer le paiement"}
           </Button>
         </DialogFooter>
       </DialogContent>
