@@ -3,22 +3,13 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { db } from "@/lib/db";
 import { uploadToR2 } from "@/lib/r2";
 import { parseMoney, roundMoney, sumMoney } from "@/lib/money";
-import { isPaymentMethod, balanceDue } from "@/lib/payments";
+import { isPaymentMethod, balanceDue, MAX_PROOF_BYTES, PAYMENT_PROOF_TYPES as PROOF_TYPES } from "@/lib/payments";
 import { parseReservationLang } from "@/lib/reservation-lang";
 import { sendPaymentReceivedEmail, reservationManageUrl } from "@/lib/email";
 import { buildFicheHtml, generateFichePdf } from "@/lib/fiche-pdf";
 import { randomUUID } from "crypto";
 
 export const maxDuration = 60;
-
-// Vercel refuses request bodies above ~4.5 MB, so the proof is capped just below that.
-const MAX_PROOF_BYTES = 4 * 1024 * 1024;
-const PROOF_TYPES: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-  "application/pdf": "pdf",
-};
 
 const LEGACY_MESSAGE = "Cette réservation est une ancienne réservation sans dossier de paiement : l'acompte ne peut pas y être enregistré.";
 
