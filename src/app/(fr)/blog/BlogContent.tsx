@@ -16,7 +16,7 @@ interface BlogPost {
   image: string;
   category: string;
   author: string;
-  createdAt: string;
+  createdAt: string | Date;
   titleEn: string;
   excerptEn: string;
   titleEs?: string;

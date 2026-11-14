@@ -4,7 +4,7 @@ import { HomePage } from "@/components/arabian/HomePage";
 import { Footer } from "@/components/arabian/Footer";
 import { enAlternates } from "@/lib/seo/hreflang";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 const OG_IMAGE = "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
 

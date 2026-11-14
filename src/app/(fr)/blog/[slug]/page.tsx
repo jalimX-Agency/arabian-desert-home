@@ -7,7 +7,7 @@ import { frAlternates } from "@/lib/seo/hreflang";
 import { blogMetaOverride } from "@/lib/seo/meta-overrides";
 import { pickRelatedPosts } from "@/lib/blog-links";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const posts = await db.blogPost.findMany({ select: { slug: true } });

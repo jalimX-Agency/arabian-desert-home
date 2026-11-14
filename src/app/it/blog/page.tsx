@@ -29,10 +29,11 @@ export const metadata = {
   alternates: itAlternates("/blog"),
 };
 
-export const revalidate = 60;
+// Admin and the publishing API revalidate on change; this is only a safety net.
+export const revalidate = 3600;
 
 export default async function ItalianBlogPage() {
-  const posts = await db.blogPost.findMany({ orderBy: { createdAt: "desc" } });
+  const posts = await db.blogPost.findMany({ orderBy: { createdAt: "desc" }, select: { id: true, title: true, slug: true, excerpt: true, image: true, category: true, author: true, createdAt: true, titleEn: true, excerptEn: true, titleEs: true, excerptEs: true, titleIt: true, excerptIt: true } });
 
   const itemListSchema = JSON.stringify({
     "@context": "https://schema.org",
