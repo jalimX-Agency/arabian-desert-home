@@ -2,6 +2,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import { db } from "@/lib/db";
 import { uploadToR2 } from "@/lib/r2";
 import { notifyIndexNow, localizedUrls } from "@/lib/indexnow";
+import { revalidateLocalized } from "@/lib/revalidate";
 
 function toSlug(title: string): string {
   return title
@@ -68,6 +69,10 @@ export async function POST(req: NextRequest) {
   const post = await db.blogPost.create({ data });
   // The weekly publisher posts here, not through the admin routes, so it has to
   // ping IndexNow itself — otherwise Bing only finds new posts on its own crawl.
+  // Blog pages use a long ISR window, so a new post must refresh them itself.
+  revalidateLocalized("/blog");
+  revalidateLocalized(`/blog/${post.slug}`);
+  revalidateLocalized("/");
   after(() => notifyIndexNow([...localizedUrls(`/blog/${post.slug}`), ...localizedUrls("/blog")]));
   return NextResponse.json(post, { status: 201 });
 }

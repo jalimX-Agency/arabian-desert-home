@@ -4,7 +4,7 @@ import { HomePage } from "@/components/arabian/HomePage";
 import { Footer } from "@/components/arabian/Footer";
 import { frAlternates } from "@/lib/seo/hreflang";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export const metadata = {
   alternates: frAlternates("/"),
