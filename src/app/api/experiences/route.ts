@@ -4,6 +4,7 @@ export async function GET() {
   try {
     const experiences = await db.activity.findMany({
       where: {
+        published: true,
         category: { in: ["Expérience", "Aventure"] },
       },
       orderBy: { order: "asc" },

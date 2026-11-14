@@ -9,13 +9,13 @@ import { padDescription } from "@/lib/seo/description";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const activities = await db.activity.findMany({ select: { slug: true } });
+  const activities = await db.activity.findMany({ where: { published: true }, select: { slug: true } });
   return activities.map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const activity = await db.activity.findUnique({ where: { slug }, select: { name: true, description: true, images: true, price: true } });
+  const activity = await db.activity.findUnique({ where: { slug, published: true }, select: { name: true, description: true, images: true, price: true } });
   if (!activity) return {};
   const description = padDescription(activity.description, "fr");
   const image = activity.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ActiviteDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const activity = await db.activity.findUnique({ where: { slug } });
+  const activity = await db.activity.findUnique({ where: { slug, published: true } });
   if (!activity) notFound();
 
   const image = activity.images?.split(",")[0]?.trim() || "https://pub-1d9eaf01e84e452a968f82e2aed10777.r2.dev/gallery/hero.png";

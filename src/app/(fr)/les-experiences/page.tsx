@@ -33,7 +33,7 @@ export const metadata = {
 
 export default async function LesExperiencesPage() {
   const experiences = await db.activity.findMany({
-    where: { category: { in: ["Expérience", "Aventure"] } },
+    where: { published: true, category: { in: ["Expérience", "Aventure"] } },
     orderBy: { order: "asc" },
   });
 

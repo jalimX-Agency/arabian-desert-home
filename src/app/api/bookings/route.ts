@@ -34,6 +34,13 @@ export async function POST(request: Request) {
       return Response.json({ error: "Transport must be added to a stay or an activity" }, { status: 400 });
     }
 
+    // Hidden activities can still be booked from the admin, never from the public form.
+    const activityIds = items.filter((item) => item.serviceType === "activity" && item.activityId).map((item) => item.activityId!);
+    if (activityIds.length > 0) {
+      const hidden = await db.activity.count({ where: { id: { in: activityIds }, published: false } });
+      if (hidden > 0) return Response.json({ error: "Activity not available" }, { status: 400 });
+    }
+
     let priced;
     try {
       priced = await Promise.all(items.map((item) => priceCartItem(item)));

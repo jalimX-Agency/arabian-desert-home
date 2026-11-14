@@ -79,6 +79,8 @@ model Activity {
   transportIncluded Boolean   @default(false)
   order             Int       @default(0)
   featured          Boolean   @default(false)
+  /// Hidden activities stay usable in the admin (reservations, quotes) but disappear from the public site.
+  published         Boolean   @default(true)
   nameEn            String    @default("")
   descriptionEn     String    @default("")
   longDescriptionEn String    @default("")

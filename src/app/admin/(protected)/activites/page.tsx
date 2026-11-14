@@ -10,6 +10,7 @@ export default function ActivitesPage() {
       columns={[
         { key: "image", label: "Photo", render: (v) => v ? <img src={v as string} className="w-14 h-10 object-cover rounded-lg" alt="" /> : "—" },
         { key: "name", label: "Nom" },
+        { key: "published", label: "Site", render: (v) => v ? "Visible" : <span className="text-red-600 font-medium">Masquée</span> },
         { key: "category", label: "Catégorie" },
         { key: "price", label: "Prix", render: (v, row) => `${v} ${row.currency}` },
         { key: "duration", label: "Durée" },
@@ -21,6 +22,7 @@ export default function ActivitesPage() {
         { key: "slug", label: "Slug", required: true },
         { key: "category", label: "Catégorie", type: "select", options: ["Activité", "Expérience", "Aventure"] },
         { key: "order", label: "Ordre", type: "number" },
+        { key: "published", label: "Visible sur le site", type: "checkbox", defaultValue: true },
         { key: "featured", label: "Mis en avant", type: "checkbox" },
         // Contenu FR
         { key: "description", label: "Description courte", type: "textarea" },
@@ -54,7 +56,7 @@ export default function ActivitesPage() {
         { key: "images", label: "Images supplémentaires", type: "images", folder: "activities" },
       ]}
       tabs={[
-        { label: "Général", fieldKeys: ["name", "slug", "category", "order", "featured"] },
+        { label: "Général", fieldKeys: ["name", "slug", "category", "order", "published", "featured"] },
         { label: "Contenu FR", fieldKeys: ["description", "longDescription", "includes", "schedule"] },
         { label: "Contenu EN", fieldKeys: ["nameEn", "descriptionEn", "longDescriptionEn", "includesEn"] },
         { label: "Contenu ES", fieldKeys: ["nameEs", "descriptionEs", "longDescriptionEs", "includesEs"] },

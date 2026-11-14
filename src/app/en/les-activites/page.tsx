@@ -33,7 +33,7 @@ export const metadata = {
 };
 
 export default async function EnglishLesActivitesPage() {
-  const activities = await db.activity.findMany({ orderBy: { order: "asc" } });
+  const activities = await db.activity.findMany({ where: { published: true }, orderBy: { order: "asc" } });
 
   return (
     <div className="min-h-screen flex flex-col">
