@@ -9,14 +9,14 @@ import { padDescription } from "@/lib/seo/description";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const activities = await db.activity.findMany({ select: { slug: true } });
+  const activities = await db.activity.findMany({ where: { published: true }, select: { slug: true } });
   return activities.map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const activity = await db.activity.findUnique({
-    where: { slug },
+    where: { slug, published: true },
     select: { name: true, nameEn: true, description: true, descriptionEn: true, images: true, price: true },
   });
   if (!activity) return {};
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function EnglishActiviteDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const activity = await db.activity.findUnique({ where: { slug } });
+  const activity = await db.activity.findUnique({ where: { slug, published: true } });
   if (!activity) notFound();
 
   const name = activity.nameEn || activity.name;

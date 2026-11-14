@@ -131,7 +131,7 @@ export function fetchCatalog(
   setDayPasses: (v: CatalogDayPass[]) => void,
 ) {
   fetch("/api/suites").then((r) => r.json()).then(setSuites).catch(() => {});
-  fetch("/api/activities").then((r) => r.json()).then(setActivities).catch(() => {});
+  fetch("/api/activities?all=1").then((r) => r.json()).then(setActivities).catch(() => {});
   fetch("/api/day-passes").then((r) => r.json()).then(setDayPasses).catch(() => {});
 }
 
