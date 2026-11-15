@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const langParam = req.nextUrl.searchParams.get("lang");
   // No explicit ?lang= → the language the guest booked in (legacy single bookings: French).
-  const stored = await db.reservation.findUnique({ where: { id }, select: { lang: true } });
+  const stored = await db.reservation.findUnique({ where: { id }, select: { lang: true, discount: true, discountNote: true } });
   const lang: FicheLang = VALID_LANGS.includes(langParam as FicheLang) ? (langParam as FicheLang) : parseReservationLang(stored?.lang);
 
   const byReservation = await db.booking.findMany({
@@ -35,12 +35,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Reservation not found" }, { status: 404 });
   }
 
-  const totalAmount = items.reduce((sum, b) => sum + b.totalAmount, 0);
+  const discount = stored?.discount ?? 0;
+  const totalAmount = Math.max(0, items.reduce((sum, b) => sum + b.totalAmount, 0) - discount);
   const currency = items[0].currency;
   const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
 
   const paidAmount = await reservationPaid(id);
-  const html = buildFicheHtml({ reservationRef, items, totalAmount, currency, lang, paidAmount });
+  const html = buildFicheHtml({ reservationRef, items, totalAmount, currency, lang, paidAmount, discount, discountNote: stored?.discountNote });
   const pdf = await generateFichePdf(html);
 
   return new NextResponse(new Uint8Array(pdf), {

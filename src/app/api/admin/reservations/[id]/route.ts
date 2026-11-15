@@ -36,18 +36,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     after(async () => {
       try {
         const first = items[0];
-        const totalAmount = items.reduce((sum, b) => sum + b.totalAmount, 0);
         const currency = first.currency;
         const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
 
         // Legacy single bookings predate Reservation: no manage link, and French by default.
-        const reservation = await db.reservation.findUnique({ where: { id }, select: { accessToken: true, lang: true } });
+        const reservation = await db.reservation.findUnique({ where: { id }, select: { accessToken: true, lang: true, discount: true, discountNote: true } });
+        const discount = reservation?.discount ?? 0;
+        const totalAmount = Math.max(0, items.reduce((sum, b) => sum + b.totalAmount, 0) - discount);
         const lang = parseReservationLang(reservation?.lang);
         const paidAmount = await reservationPaid(id);
-        const html = buildFicheHtml({ reservationRef, items, totalAmount, currency, lang, paidAmount });
+        const html = buildFicheHtml({ reservationRef, items, totalAmount, currency, lang, paidAmount, discount, discountNote: reservation?.discountNote });
         const pdf = await generateFichePdf(html);
         const manageUrl = reservation ? reservationManageUrl(reservation.accessToken) : null;
-        await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf, manageUrl, lang);
+        await sendReservationConfirmedEmail(first.email, first.firstName, items, totalAmount, currency, pdf, manageUrl, lang, discount);
       } catch (err) {
         console.error("Failed to send reservation-confirmed email:", err);
       }
