@@ -21,6 +21,8 @@ const CHANNEL_LABEL: Record<string, string> = {
 };
 const STATUS: Record<string, { label: string; cls: string }> = {
   pending: { label: "En attente", cls: "st-pending" },
+  awaiting_payment: { label: "Paiement en attente", cls: "st-pending" },
+  payment_review: { label: "Paiement à vérifier", cls: "st-pending" },
   confirmed: { label: "Confirmée", cls: "st-confirmed" },
   cancelled: { label: "Annulée", cls: "st-cancelled" },
 };

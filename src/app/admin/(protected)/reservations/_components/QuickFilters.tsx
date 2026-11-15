@@ -17,8 +17,10 @@ export function QuickFilters({
   rangeFrom,
   rangeTo,
   pendingActive,
+  reviewActive,
   onRange,
   onPending,
+  onReview,
   onClear,
 }: {
   bookings: Booking[];
@@ -26,8 +28,11 @@ export function QuickFilters({
   rangeFrom: string;
   rangeTo: string;
   pendingActive: boolean;
+  /** "Paiements à vérifier": guests who sent the proof of their advance. */
+  reviewActive: boolean;
   onRange: (r: QuickRange) => void;
   onPending: () => void;
+  onReview: () => void;
   onClear: () => void;
 }) {
   const today = toISODay(new Date());
@@ -53,7 +58,9 @@ export function QuickFilters({
         })
         .map((b) => b.reservation?.id ?? b.id),
     ).size;
-  const pending = new Set(live.filter((b) => b.status === "pending").map((b) => b.reservation?.id ?? b.id)).size;
+  const countStatus = (status: string) => new Set(live.filter((b) => b.status === status).map((b) => b.reservation?.id ?? b.id)).size;
+  const pending = countStatus("pending");
+  const toReview = countStatus("payment_review");
 
   const chip = (on: boolean) =>
     `inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors ${
@@ -76,7 +83,12 @@ export function QuickFilters({
       <button onClick={pendingActive ? onClear : onPending} className={chip(pendingActive)}>
         En attente de confirmation {badge(pending, pendingActive)}
       </button>
-      {(active || rangeFrom || rangeTo || pendingActive) && (
+      {(toReview > 0 || reviewActive) && (
+        <button onClick={reviewActive ? onClear : onReview} className={chip(reviewActive)}>
+          Paiements à vérifier {badge(toReview, reviewActive)}
+        </button>
+      )}
+      {(active || rangeFrom || rangeTo || pendingActive || reviewActive) && (
         <button onClick={onClear} className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 cursor-pointer">
           Effacer
         </button>

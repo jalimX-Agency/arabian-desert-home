@@ -38,6 +38,11 @@ interface PaymentsData {
   /** Discount granted on the reservation; total is already net of it. */
   discount: number;
   discountNote: string | null;
+  /** Advance flow: amount asked of the guest, the proof they uploaded, and the reservation status. */
+  depositAmount?: number | null;
+  depositProofUrl?: string | null;
+  depositProofAt?: string | null;
+  status?: string;
   legacy: boolean;
 }
 
@@ -136,6 +141,16 @@ export function PaymentsSection({ reservationId, hasReservation, onChanged }: { 
               {data.discountNote ? ` (${data.discountNote})` : ""}
               <span className="text-gray-400"> · total des prestations {formatMoney((data.total ?? 0) + data.discount)} {currency}</span>
             </p>
+          )}
+
+          {(data.status === "awaiting_payment" || data.status === "payment_review") && (
+            <DepositPanel
+              key={`${data.status}-${data.depositProofAt ?? ""}`}
+              reservationId={reservationId}
+              currency={currency}
+              data={data}
+              onValidated={() => { void load(); onChanged?.(); }}
+            />
           )}
 
           {data.payments.length === 0 ? (
@@ -520,5 +535,75 @@ function DiscountDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Where the advance stands: what was asked (50 %), whether the guest sent the proof, and the
+ * one-click "validate and confirm" that records the payment and confirms the reservation.
+ */
+function DepositPanel({ reservationId, currency, data, onValidated }: {
+  reservationId: string;
+  currency: string;
+  data: PaymentsData;
+  onValidated: () => void;
+}) {
+  const [amount, setAmount] = useState(data.depositAmount ? String(data.depositAmount) : "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const review = data.status === "payment_review";
+
+  async function validate() {
+    if (!amount.trim()) return setError("Indiquez le montant reçu.");
+    setError("");
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/admin/reservations/${reservationId}/deposit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) return setError(json.error ?? "La validation a échoué.");
+      onValidated();
+    } catch {
+      setError("Erreur réseau.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className={`rounded-lg border p-3 space-y-2 ${review ? "border-blue-200 dark:border-blue-500/30 bg-blue-50/60 dark:bg-blue-500/[0.06]" : "border-orange-200 dark:border-orange-500/30 bg-orange-50/60 dark:bg-orange-500/[0.06]"}`}>
+      <p className={`text-xs font-semibold ${review ? "text-blue-700 dark:text-blue-300" : "text-orange-700 dark:text-orange-300"}`}>
+        {review ? "Justificatif d'acompte reçu : à vérifier" : "Acompte demandé : en attente du client"}
+      </p>
+      <p className="text-xs text-gray-600 dark:text-white/70">
+        Acompte demandé (50 %) : <span className="font-semibold">{formatMoney(data.depositAmount ?? 0)} {currency}</span>
+        {data.depositProofAt && (
+          <> · envoyé le {new Date(data.depositProofAt).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</>
+        )}
+      </p>
+      {data.depositProofUrl && (
+        <a href={data.depositProofUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-blue-700 dark:text-blue-300 hover:underline">
+          <Paperclip className="w-3 h-3" /> Voir le justificatif du client
+        </a>
+      )}
+      <div className="flex flex-wrap items-end gap-2 pt-1">
+        <div className="w-32">
+          <Label htmlFor="deposit-amount" className="text-[11px] text-gray-500 mb-1 block">Montant reçu ({currency})</Label>
+          <Input id="deposit-amount" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} className="h-8 text-sm" autoComplete="off" />
+        </div>
+        <Button size="sm" onClick={validate} disabled={busy} className="cursor-pointer text-xs">
+          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+          Valider l&apos;acompte et confirmer
+        </Button>
+      </div>
+      <p className="text-[11px] text-gray-400">
+        Enregistre le paiement{data.depositProofUrl ? " avec le justificatif du client" : ""}, passe la réservation en « Confirmée » et envoie au client l&apos;email de confirmation avec la fiche PDF.
+        {review ? " Justificatif non valable ? Repassez la réservation en « Paiement en attente » : le client reçoit à nouveau la demande." : ""}
+      </p>
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
   );
 }

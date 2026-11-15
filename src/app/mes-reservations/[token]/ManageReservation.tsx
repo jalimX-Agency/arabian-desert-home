@@ -8,7 +8,8 @@ import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { enGB, es as esLocale, fr, it as itLocale, type Locale } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
-import { Tent, Bike, Sun, Users, Baby, CalendarDays, Loader2, CheckCircle2, XCircle, Clock, Info } from "lucide-react";
+import { Tent, Bike, Sun, Users, Baby, CalendarDays, Loader2, CheckCircle2, XCircle, Clock, Info, Banknote, FileSearch } from "lucide-react";
+import { DepositSection } from "./DepositSection";
 import { Navigation } from "@/components/arabian/Navigation";
 import { Footer } from "@/components/arabian/Footer";
 import { Textarea } from "@/components/ui/textarea";
@@ -61,6 +62,9 @@ interface Reservation {
   /** Discount granted by the camp; totalAmount is already net of it. */
   discount?: number;
   discountNote?: string | null;
+  /** Advance asked when the camp accepted the request, and when the guest sent the proof. */
+  depositAmount?: number | null;
+  depositProofAt?: string | null;
   createdAt: string;
   items: ReservationItem[];
   payments?: { id: string; amount: number; method: string; paidAt: string }[];
@@ -81,7 +85,7 @@ const DATE_LOCALES: Record<Language, Locale> = { fr, en: enGB, es: esLocale, it:
 
 interface Copy {
   service: Record<"suite" | "activity" | "daypass", string>;
-  status: Record<"pending" | "confirmed" | "cancelled", string>;
+  status: Record<"pending" | "awaiting_payment" | "payment_review" | "confirmed" | "cancelled", string>;
   loading: string;
   notFoundTitle: string;
   notFoundBody: string;
@@ -116,7 +120,7 @@ interface Copy {
 const COPY: Record<Language, Copy> = {
   fr: {
     service: { suite: "Tente & Suite", activity: "Activité", daypass: "Day Pass" },
-    status: { pending: "En attente de confirmation", confirmed: "Confirmée", cancelled: "Annulée" },
+    status: { pending: "En attente de confirmation", awaiting_payment: "Acompte à verser", payment_review: "Paiement en vérification", confirmed: "Confirmée", cancelled: "Annulée" },
     loading: "Chargement de votre réservation…",
     notFoundTitle: "Réservation introuvable",
     notFoundBody: "Ce lien de gestion n'est plus valide. Vérifiez le lien reçu dans votre email de confirmation, ou contactez-nous directement au +212 667-370-206.",
@@ -177,7 +181,7 @@ const COPY: Record<Language, Copy> = {
   },
   en: {
     service: { suite: "Tent & Suite", activity: "Activity", daypass: "Day Pass" },
-    status: { pending: "Awaiting confirmation", confirmed: "Confirmed", cancelled: "Cancelled" },
+    status: { pending: "Awaiting confirmation", awaiting_payment: "Advance to pay", payment_review: "Payment being checked", confirmed: "Confirmed", cancelled: "Cancelled" },
     loading: "Loading your reservation…",
     notFoundTitle: "Reservation not found",
     notFoundBody: "This management link is no longer valid. Check the link in your confirmation email, or contact us directly on +212 667-370-206.",
@@ -238,7 +242,7 @@ const COPY: Record<Language, Copy> = {
   },
   es: {
     service: { suite: "Tienda y Suite", activity: "Actividad", daypass: "Day Pass" },
-    status: { pending: "Pendiente de confirmación", confirmed: "Confirmada", cancelled: "Cancelada" },
+    status: { pending: "Pendiente de confirmación", awaiting_payment: "Anticipo pendiente", payment_review: "Pago en verificación", confirmed: "Confirmada", cancelled: "Cancelada" },
     loading: "Cargando su reserva…",
     notFoundTitle: "Reserva no encontrada",
     notFoundBody: "Este enlace de gestión ya no es válido. Compruebe el enlace de su correo de confirmación o contáctenos directamente en el +212 667-370-206.",
@@ -299,7 +303,7 @@ const COPY: Record<Language, Copy> = {
   },
   it: {
     service: { suite: "Tenda e Suite", activity: "Attività", daypass: "Day Pass" },
-    status: { pending: "In attesa di conferma", confirmed: "Confermata", cancelled: "Annullata" },
+    status: { pending: "In attesa di conferma", awaiting_payment: "Acconto da versare", payment_review: "Pagamento in verifica", confirmed: "Confermata", cancelled: "Annullata" },
     loading: "Caricamento della vostra prenotazione…",
     notFoundTitle: "Prenotazione non trovata",
     notFoundBody: "Questo link di gestione non è più valido. Controllate il link ricevuto nell'email di conferma oppure contattateci direttamente al +212 667-370-206.",
@@ -364,6 +368,8 @@ const SERVICE_ICON: Record<string, React.ElementType> = { suite: Tent, activity:
 
 const STATUS_STYLE: Record<string, { className: string; icon: React.ElementType }> = {
   pending: { className: "bg-amber/10 text-amber border-amber/20", icon: Clock },
+  awaiting_payment: { className: "bg-orange-500/10 text-orange-600 border-orange-500/20", icon: Banknote },
+  payment_review: { className: "bg-blue-500/10 text-blue-600 border-blue-500/20", icon: FileSearch },
   confirmed: { className: "bg-green-500/10 text-green-600 border-green-500/20", icon: CheckCircle2 },
   cancelled: { className: "bg-red-500/10 text-red-500 border-red-500/20", icon: XCircle },
 };
@@ -631,6 +637,10 @@ export function ManageReservation() {
   }
 
   const allCancelled = reservation?.items.every((i) => i.status === "cancelled") ?? false;
+  // The advance flow: the camp accepted the request and waits for (or checks) the guest's 50 %.
+  const depositStatus = reservation?.items.some((i) => i.status === "awaiting_payment")
+    ? "awaiting_payment"
+    : reservation?.items.some((i) => i.status === "payment_review") ? "payment_review" : null;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -664,6 +674,19 @@ export function ManageReservation() {
                   {c.receivedOn(format(new Date(reservation.createdAt), "d MMMM yyyy", { locale }))}
                 </p>
               </div>
+
+              {depositStatus && (
+                <DepositSection
+                  key={depositStatus}
+                  token={token}
+                  language={language}
+                  status={depositStatus}
+                  depositAmount={reservation.depositAmount ?? null}
+                  depositProofAt={reservation.depositProofAt ?? null}
+                  currency={reservation.currency}
+                  onSent={load}
+                />
+              )}
 
               <div className="space-y-4 mb-8">
                 {reservation.items.map((item) => {

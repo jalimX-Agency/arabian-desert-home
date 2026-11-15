@@ -41,6 +41,7 @@ import { Button } from "@/components/ui/button";
 import {
   ReservationGroup,
   statusOptions,
+  statusLabel,
   statusColors,
   CHANNELS,
   channelLabel,
@@ -432,19 +433,19 @@ export function ReservationDetailSheet({
 
         <div className="px-4 space-y-6 pb-4">
           {/* Status quick actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {statusOptions.map((s) => (
               <button
                 key={s}
                 onClick={() => onStatusChange(group, s)}
                 disabled={statusSaving}
-                className={`flex-1 px-3 py-2 rounded-lg text-xs uppercase tracking-widest font-medium border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-wait ${
+                className={`flex-1 min-w-[30%] px-2 py-2 rounded-lg text-[11px] uppercase tracking-wider font-medium border transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-wait ${
                   primary.status === s
                     ? statusColors[s]
                     : "border-gray-200 dark:border-white/10 text-gray-400 hover:text-gray-700 dark:hover:text-white"
                 }`}
               >
-                {s}
+                {statusLabel[s] ?? s}
               </button>
             ))}
           </div>

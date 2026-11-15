@@ -1196,3 +1196,181 @@ export async function sendReservationNotification(
     `,
   });
 }
+
+// ── Advance (deposit) request ───────────────────────────────────────────────
+
+type DepositStrings = {
+  subject: string;
+  banner: string;
+  intro: string;
+  recap: string;
+  total: string;
+  deposit: string;
+  reference: string;
+  steps: string[];
+  button: string;
+  hint: string;
+};
+
+const DEPOSIT_I18N: Record<ReservationLang, DepositStrings> = {
+  fr: {
+    subject: "Votre demande est acceptée — confirmez votre réservation",
+    banner: "Demande acceptée",
+    intro: "Bonne nouvelle : nous avons le plaisir d'accepter votre demande de réservation ! Pour la confirmer définitivement, merci de nous verser un <strong>acompte de 50 %</strong> par virement bancaire.",
+    recap: "Votre réservation",
+    total: "Tarif total",
+    deposit: "Acompte à verser (50 %)",
+    reference: "Référence à indiquer sur le virement",
+    steps: [
+      "Ouvrez votre page de réservation : vous y trouverez nos coordonnées bancaires.",
+      "Effectuez le virement de l'acompte en indiquant la référence ci-dessus.",
+      "Envoyez-nous le justificatif (capture ou PDF) depuis cette même page.",
+      "Dès réception de votre paiement, nous confirmons votre réservation par email.",
+    ],
+    button: "Voir mes coordonnées de paiement",
+    hint: "Ce lien est personnel, ne le partagez pas.",
+  },
+  en: {
+    subject: "Your request is accepted — confirm your reservation",
+    banner: "Request accepted",
+    intro: "Good news: we are delighted to accept your reservation request! To confirm it, please send us a <strong>50% advance payment</strong> by bank transfer.",
+    recap: "Your reservation",
+    total: "Total price",
+    deposit: "Advance to pay (50%)",
+    reference: "Reference to write on the transfer",
+    steps: [
+      "Open your reservation page: you will find our bank details there.",
+      "Make the transfer of the advance, quoting the reference above.",
+      "Send us the proof of transfer (screenshot or PDF) from that same page.",
+      "As soon as we receive your payment, we confirm your reservation by email.",
+    ],
+    button: "See my payment details",
+    hint: "This link is personal, please do not share it.",
+  },
+  es: {
+    subject: "Su solicitud ha sido aceptada — confirme su reserva",
+    banner: "Solicitud aceptada",
+    intro: "¡Buenas noticias! Nos complace aceptar su solicitud de reserva. Para confirmarla, le rogamos que nos envíe un <strong>anticipo del 50 %</strong> por transferencia bancaria.",
+    recap: "Su reserva",
+    total: "Precio total",
+    deposit: "Anticipo a pagar (50 %)",
+    reference: "Referencia a indicar en la transferencia",
+    steps: [
+      "Abra la página de su reserva: allí encontrará nuestros datos bancarios.",
+      "Realice la transferencia del anticipo indicando la referencia anterior.",
+      "Envíenos el justificante (captura o PDF) desde esa misma página.",
+      "En cuanto recibamos su pago, confirmaremos su reserva por email.",
+    ],
+    button: "Ver mis datos de pago",
+    hint: "Este enlace es personal, no lo comparta.",
+  },
+  it: {
+    subject: "La sua richiesta è accettata — confermi la prenotazione",
+    banner: "Richiesta accettata",
+    intro: "Buone notizie: siamo lieti di accettare la sua richiesta di prenotazione! Per confermarla, la preghiamo di versare un <strong>acconto del 50%</strong> tramite bonifico bancario.",
+    recap: "La sua prenotazione",
+    total: "Prezzo totale",
+    deposit: "Acconto da versare (50%)",
+    reference: "Riferimento da indicare nel bonifico",
+    steps: [
+      "Apra la pagina della sua prenotazione: troverà le nostre coordinate bancarie.",
+      "Effettui il bonifico dell'acconto indicando il riferimento qui sopra.",
+      "Ci invii la ricevuta (screenshot o PDF) dalla stessa pagina.",
+      "Appena riceviamo il pagamento, confermiamo la prenotazione via email.",
+    ],
+    button: "Vedi i dati per il pagamento",
+    hint: "Questo link è personale, non lo condivida.",
+  },
+};
+
+export interface DepositRequestEmail {
+  to: string;
+  firstName: string;
+  lang: ReservationLang;
+  items: BookingWithRelations[];
+  currency: string;
+  reference: string;
+  total: number;
+  deposit: number;
+  manageUrl: string;
+}
+
+/** Tells the guest their request is accepted and asks for the 50 % advance, with the link to their page (bank details + proof upload). */
+export async function sendDepositRequestEmail(o: DepositRequestEmail) {
+  const t = DEPOSIT_I18N[o.lang];
+  const money = (n: number) => `${formatMoney(n, o.lang)} ${o.currency}`;
+  await resend.emails.send({
+    from: FROM,
+    to: o.to,
+    subject: t.subject,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#0f0f0f;padding:32px;text-align:center">
+          <p style="color:#c8922a;font-size:18px;font-weight:600;margin:0 0 4px">${t.banner}</p>
+          <p style="color:rgba(255,255,255,0.6);letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
+        </div>
+        <div style="padding:40px 32px">
+          <h1 style="font-size:24px;font-weight:400;margin:0 0 8px">${BOOKING_I18N[o.lang].hello(escapeEmailText(o.firstName))}</h1>
+          <p style="color:#555;line-height:1.7;margin:0 0 24px">${t.intro}</p>
+          <p style="color:#c8922a;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 12px">${t.recap}</p>
+          ${o.items.map((item, i) => buildItemBlock(item, i, o.lang)).join("")}
+          <div style="background:#faf6ee;border:1px solid #e8dfc8;border-radius:8px;padding:20px 24px;margin:8px 0 24px">
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              <tr><td style="padding:7px 0;color:#888">${t.total}</td><td style="padding:7px 0;text-align:right">${money(o.total)}</td></tr>
+              <tr><td style="padding:7px 0;color:#888;font-weight:600">${t.deposit}</td><td style="padding:7px 0;text-align:right;font-weight:700;font-size:17px;color:#c8922a">${money(o.deposit)}</td></tr>
+              <tr><td style="padding:7px 0;color:#888">${t.reference}</td><td style="padding:7px 0;text-align:right;font-family:monospace;font-size:15px;font-weight:700">${o.reference}</td></tr>
+            </table>
+          </div>
+          <ol style="color:#555;line-height:1.7;margin:0 0 28px;padding-left:20px">
+            ${t.steps.map((s) => `<li style="margin:0 0 6px">${s}</li>`).join("")}
+          </ol>
+          <p style="text-align:center;margin:0 0 12px">
+            <a href="${o.manageUrl}" style="display:inline-block;background:#c8922a;color:#fff;text-decoration:none;padding:13px 30px;border-radius:6px;font-size:14px;font-weight:600">${t.button}</a>
+          </p>
+          <p style="text-align:center;color:#999;font-size:12px;line-height:1.6;margin:0 0 32px">${t.hint}</p>
+          <p style="color:#555;line-height:1.7;margin:0 0 8px">${BOOKING_I18N[o.lang].questions}</p>
+          <p style="margin:0;color:#333;font-size:14px">📞 +212 667-370-206 &nbsp;·&nbsp; 📧 info@arabiandeserthome.ma</p>
+        </div>${bookingFooter(o.lang)}
+      </div>
+    `,
+  });
+}
+
+/** Tells the admin a guest sent the proof of their advance, so it can be checked and the reservation confirmed. */
+export async function sendDepositProofNotification(o: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  reference: string;
+  deposit: number | null;
+  currency: string;
+  proofUrl: string;
+}) {
+  const adminEmail = await getAdminEmail();
+  await resend.emails.send({
+    from: FROM,
+    to: adminEmail,
+    subject: `[Acompte à vérifier] ${o.firstName} ${o.lastName} — ${o.reference}`,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#1d4e89;padding:24px 32px">
+          <p style="color:#fff;letter-spacing:2px;font-size:12px;text-transform:uppercase;margin:0">Justificatif d'acompte reçu</p>
+        </div>
+        <div style="padding:32px">
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <tr><td style="padding:7px 0;color:#888;width:140px">Client</td><td style="padding:7px 0;font-weight:600">${escapeEmailText(`${o.firstName} ${o.lastName}`)}</td></tr>
+            <tr><td style="padding:7px 0;color:#888">Email</td><td style="padding:7px 0">${escapeEmailText(o.email)}</td></tr>
+            ${o.phone ? `<tr><td style="padding:7px 0;color:#888">Téléphone</td><td style="padding:7px 0">${escapeEmailText(o.phone)}</td></tr>` : ""}
+            <tr><td style="padding:7px 0;color:#888">Réservation</td><td style="padding:7px 0;font-family:monospace">${o.reference}</td></tr>
+            ${o.deposit !== null ? `<tr><td style="padding:7px 0;color:#888">Acompte demandé</td><td style="padding:7px 0;font-weight:600;color:#c8922a">${formatMoney(o.deposit)} ${o.currency}</td></tr>` : ""}
+          </table>
+          <p style="margin:24px 0">
+            <a href="${o.proofUrl}" style="display:inline-block;background:#1d4e89;color:#fff;text-decoration:none;padding:11px 24px;border-radius:6px;font-size:14px;font-weight:600">Voir le justificatif</a>
+          </p>
+          <p style="color:#888;font-size:13px;line-height:1.6;margin:0">Vérifiez la réception du virement, puis ouvrez la réservation dans l'administration et cliquez sur « Valider l'acompte et confirmer ».</p>
+        </div>
+      </div>
+    `,
+  });
+}

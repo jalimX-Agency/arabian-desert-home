@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
+import { BankDetailsCard } from "./BankDetailsCard";
 
 export default function ParametresPage() {
   const { data: session } = useSession();
@@ -46,6 +47,8 @@ export default function ParametresPage() {
         <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Compte admin</h2>
         <p className="text-sm text-gray-400">{session?.user?.email}</p>
       </div>
+
+      <BankDetailsCard inputClass={inputClass} labelClass={labelClass} />
 
       <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6">
         <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-6">Changer le mot de passe</h2>

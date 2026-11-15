@@ -21,7 +21,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const reservation = await db.reservation.findUnique({
     where: { id },
-    select: { totalAmount: true, currency: true, discount: true, discountNote: true, payments: { orderBy: [{ paidAt: "asc" }, { createdAt: "asc" }] } },
+    select: {
+      totalAmount: true, currency: true, discount: true, discountNote: true,
+      depositAmount: true, depositProofUrl: true, depositProofAt: true,
+      items: { select: { status: true } },
+      payments: { orderBy: [{ paidAt: "asc" }, { createdAt: "asc" }] },
+    },
   });
   if (!reservation) return NextResponse.json({ payments: [], total: null, paid: 0, balance: null, discount: 0, discountNote: null, legacy: true });
 
@@ -34,6 +39,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     balance: balanceDue(reservation.totalAmount, paid),
     discount: reservation.discount,
     discountNote: reservation.discountNote,
+    // Advance flow: what was asked, the proof the guest sent, and where the reservation stands.
+    depositAmount: reservation.depositAmount,
+    depositProofUrl: reservation.depositProofUrl,
+    depositProofAt: reservation.depositProofAt,
+    status: reservation.items.find((b) => b.status !== "cancelled")?.status ?? "cancelled",
     legacy: false,
   });
 }

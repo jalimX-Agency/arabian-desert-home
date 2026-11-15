@@ -12,6 +12,7 @@ import {
 import {
   ReservationGroup,
   statusOptions,
+  statusLabel,
   statusColors,
   serviceTypeLabel,
   serviceTypeBadge,
@@ -205,14 +206,14 @@ export function ReservationTable({
                     >
                       <SelectTrigger
                         size="sm"
-                        className={`text-xs w-[120px] border ${statusColors[primary.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"} disabled:opacity-50 disabled:cursor-wait`}
+                        className={`text-xs w-[150px] border ${statusColors[primary.status] ?? "border-gray-200 dark:border-white/20 text-gray-500 dark:text-white/60"} disabled:opacity-50 disabled:cursor-wait`}
                       >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {!allSameStatus && <SelectItem value="mixed" disabled>Mixte</SelectItem>}
                         {statusOptions.map((s) => (
-                          <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
+                          <SelectItem key={s} value={s}>{statusLabel[s] ?? s}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

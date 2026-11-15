@@ -46,7 +46,18 @@ export default function ReservationsPage() {
 
   async function load() {
     const res = await fetch("/api/admin/bookings");
-    if (res.ok) setBookings(await res.json());
+    if (res.ok) {
+      const fresh: Booking[] = await res.json();
+      setBookings(fresh);
+      // Keep the open sheet in step (e.g. statuses after "Valider l'acompte et confirmer").
+      setSelected((prev) => {
+        if (!prev) return prev;
+        const items = fresh.filter((b) => (b.reservation?.id ?? b.id) === prev.id);
+        // Only when a status moved: replacing the group resets unsaved edits in the sheet.
+        const changed = items.length > 0 && items.some((b) => prev.items.find((p) => p.id === b.id)?.status !== b.status);
+        return changed ? { ...prev, items } : prev;
+      });
+    }
     setLoading(false);
   }
 
@@ -55,11 +66,17 @@ export default function ReservationsPage() {
   async function updateStatus(group: ReservationGroup, status: string) {
     setSavingIds((prev) => new Set(prev).add(group.id));
     try {
-      await fetch(`/api/admin/reservations/${group.id}`, {
+      const res = await fetch(`/api/admin/reservations/${group.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
+      if (!res.ok) {
+        // e.g. asking for an advance that is already paid: the status did not change.
+        const data = await res.json().catch(() => ({}));
+        window.alert(data.error ?? "Le changement de statut a échoué.");
+        return;
+      }
       await load();
       setSelected((prev) =>
         prev && prev.id === group.id
@@ -185,8 +202,10 @@ export default function ReservationsPage() {
         rangeFrom={sortMode === "range" ? dateFrom : ""}
         rangeTo={sortMode === "range" ? dateTo : ""}
         pendingActive={statusFilter === "pending"}
+        reviewActive={statusFilter === "payment_review"}
         onRange={(r) => { setSortMode("range"); setDateFrom(r.from); setDateTo(r.to); setStatusFilter("all"); setTimeFilter("all"); }}
         onPending={() => { setStatusFilter("pending"); setDateFrom(""); setDateTo(""); setSortMode("checkin"); setTimeFilter("all"); }}
+        onReview={() => { setStatusFilter("payment_review"); setDateFrom(""); setDateTo(""); setSortMode("checkin"); setTimeFilter("all"); }}
         onClear={() => { setStatusFilter("all"); setDateFrom(""); setDateTo(""); setSortMode("reservationDate"); }}
       />
 
