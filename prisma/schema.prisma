@@ -180,6 +180,11 @@ model Reservation {
   channel     String    @default("website")
   totalAmount Float
   currency    String    @default("MAD")
+  /// Discount granted by the admin, in the reservation currency. totalAmount is already net of it
+  /// (sum of the lines minus the discount), so balances and payments need no change.
+  discount     Float     @default(0)
+  /// Optional reason shown to the guest (e.g. "Fidélité", "Geste commercial").
+  discountNote String?
   /// Language the guest booked in (fr | en | es | it): picks the language of every
   /// email and of the fiche PDF sent to them. Existing rows default to French.
   lang        String    @default("fr")

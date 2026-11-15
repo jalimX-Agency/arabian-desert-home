@@ -21,9 +21,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const reservation = await db.reservation.findUnique({
     where: { id },
-    select: { totalAmount: true, currency: true, payments: { orderBy: [{ paidAt: "asc" }, { createdAt: "asc" }] } },
+    select: { totalAmount: true, currency: true, discount: true, discountNote: true, payments: { orderBy: [{ paidAt: "asc" }, { createdAt: "asc" }] } },
   });
-  if (!reservation) return NextResponse.json({ payments: [], total: null, paid: 0, balance: null, legacy: true });
+  if (!reservation) return NextResponse.json({ payments: [], total: null, paid: 0, balance: null, discount: 0, discountNote: null, legacy: true });
 
   const paid = sumMoney(reservation.payments.map((p) => p.amount));
   return NextResponse.json({
@@ -32,6 +32,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     currency: reservation.currency,
     paid,
     balance: balanceDue(reservation.totalAmount, paid),
+    discount: reservation.discount,
+    discountNote: reservation.discountNote,
     legacy: false,
   });
 }
@@ -114,6 +116,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
               currency: reservation.currency,
               lang,
               paidAmount: paidTotal,
+              discount: reservation.discount,
+              discountNote: reservation.discountNote,
             }))
           : null;
         await sendPaymentReceivedEmail({

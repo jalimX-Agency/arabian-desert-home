@@ -503,8 +503,13 @@ export async function sendReservationConfirmedEmail(
   pdfBuffer: Buffer,
   manageUrl: string | null,
   lang: ReservationLang = "fr",
+  /** Discount granted by the admin; totalAmount is already net of it. */
+  discount = 0,
 ) {
   const t = BOOKING_I18N[lang];
+  const discountRow = discount > 0
+    ? `<tr style="border-top:1px solid #cde8d6"><td style="padding:12px 0 0;color:#888">${DISCOUNT_I18N[lang].discount}</td><td style="padding:12px 0 0;color:#1e6b3f;font-weight:600;text-align:right">− ${formatMoney(discount, lang)} ${currency}</td></tr>`
+    : "";
   await resend.emails.send({
     from: FROM,
     to,
@@ -525,6 +530,7 @@ export async function sendReservationConfirmedEmail(
             <p style="color:#1e6b3f;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 16px">${t.confirmed.recap}</p>
             ${items.map((item, i) => buildItemBlock(item, i, lang)).join("")}
             <table style="width:100%;border-collapse:collapse;font-size:14px">
+              ${discountRow}
               <tr style="border-top:1px solid #cde8d6"><td style="padding:12px 0 0;color:#888;font-weight:600">${t.confirmed.total}</td><td style="padding:12px 0 0;font-weight:700;font-size:16px;color:#1e6b3f;text-align:right">${formatMoney(totalAmount, lang)} ${currency}</td></tr>
             </table>
           </div>
@@ -576,6 +582,157 @@ export async function sendReservationCancelledByAdminEmail(
         </div>${bookingFooter(lang)}
       </div>
     `,
+  });
+}
+
+// ── Discount email ──────────────────────────────────────────────────────────
+
+type DiscountStrings = {
+  subject: string;
+  banner: string;
+  intro: string;
+  title: string;
+  reference: string;
+  subtotal: string;
+  discount: string;
+  reason: string;
+  newTotal: string;
+  paidSoFar: string;
+  balance: string;
+  settled: string;
+  attached: string;
+};
+
+const DISCOUNT_I18N: Record<ReservationLang, DiscountStrings> = {
+  fr: {
+    subject: "Une réduction sur votre réservation — Arabian Desert Home",
+    banner: "Réduction accordée",
+    intro: "Nous avons le plaisir de vous accorder une réduction sur votre réservation. Voici votre nouveau tarif :",
+    title: "Votre nouveau tarif",
+    reference: "Réservation",
+    subtotal: "Tarif initial",
+    discount: "Réduction",
+    reason: "Motif",
+    newTotal: "Nouveau tarif total",
+    paidSoFar: "Déjà réglé",
+    balance: "Reste à payer sur place",
+    settled: "Votre réservation est entièrement réglée.",
+    attached: "Votre fiche de réservation mise à jour est jointe à cet email.",
+  },
+  en: {
+    subject: "A discount on your reservation — Arabian Desert Home",
+    banner: "Discount applied",
+    intro: "We are pleased to offer you a discount on your reservation. Here is your new price:",
+    title: "Your new price",
+    reference: "Reservation",
+    subtotal: "Original price",
+    discount: "Discount",
+    reason: "Reason",
+    newTotal: "New total price",
+    paidSoFar: "Already paid",
+    balance: "Balance payable on site",
+    settled: "Your reservation is paid in full.",
+    attached: "Your updated reservation form is attached to this email.",
+  },
+  es: {
+    subject: "Un descuento en su reserva — Arabian Desert Home",
+    banner: "Descuento aplicado",
+    intro: "Nos complace ofrecerle un descuento en su reserva. Este es su nuevo precio:",
+    title: "Su nuevo precio",
+    reference: "Reserva",
+    subtotal: "Precio inicial",
+    discount: "Descuento",
+    reason: "Motivo",
+    newTotal: "Nuevo precio total",
+    paidSoFar: "Ya abonado",
+    balance: "Saldo a pagar en el lugar",
+    settled: "Su reserva está pagada en su totalidad.",
+    attached: "Adjuntamos su ficha de reserva actualizada.",
+  },
+  it: {
+    subject: "Uno sconto sulla sua prenotazione — Arabian Desert Home",
+    banner: "Sconto applicato",
+    intro: "Siamo lieti di offrirle uno sconto sulla sua prenotazione. Ecco il suo nuovo prezzo:",
+    title: "Il suo nuovo prezzo",
+    reference: "Prenotazione",
+    subtotal: "Prezzo iniziale",
+    discount: "Sconto",
+    reason: "Motivo",
+    newTotal: "Nuovo prezzo totale",
+    paidSoFar: "Già versato",
+    balance: "Saldo da pagare in loco",
+    settled: "La sua prenotazione è interamente saldata.",
+    attached: "In allegato la sua scheda di prenotazione aggiornata.",
+  },
+};
+
+export interface DiscountEmail {
+  to: string;
+  firstName: string;
+  lang: ReservationLang;
+  currency: string;
+  /** Reservation reference shown to the guest (ADH-XXXXXXXX). */
+  reference: string;
+  /** Sum of the lines, the discount taken off it, and what was already received. */
+  subtotal: number;
+  discount: number;
+  note: string | null;
+  paidTotal: number;
+  manageUrl: string | null;
+  /** Updated fiche PDF, attached only when the reservation is confirmed. */
+  pdf?: Buffer | null;
+}
+
+function escapeEmailText(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+}
+
+/** Tells the guest that a discount was granted on their reservation, with the new total and what is left to pay. */
+export async function sendDiscountEmail(o: DiscountEmail) {
+  const t = DISCOUNT_I18N[o.lang];
+  const round = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+  const newTotal = Math.max(0, round(o.subtotal - o.discount));
+  const balance = Math.max(0, round(newTotal - o.paidTotal));
+  const money = (n: number) => `${formatMoney(n, o.lang)} ${o.currency}`;
+  const row = (label: string, value: string, style = "color:#333") =>
+    `<tr><td style="padding:9px 0;color:#888;border-bottom:1px solid #e3efe7">${label}</td><td style="padding:9px 0;text-align:right;border-bottom:1px solid #e3efe7;${style}">${value}</td></tr>`;
+  await resend.emails.send({
+    from: FROM,
+    to: o.to,
+    subject: t.subject,
+    html: `
+      <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
+        <div style="background:#1e6b3f;padding:32px;text-align:center">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);margin:0 auto 12px;text-align:center;font-size:0">
+            <span style="color:#fff;font-size:24px;line-height:48px">%</span>
+          </div>
+          <p style="color:#fff;font-size:18px;font-weight:600;margin:0 0 4px">${t.banner}</p>
+          <p style="color:rgba(255,255,255,0.75);letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0">Arabian Desert Home</p>
+        </div>
+        <div style="padding:40px 32px">
+          <h1 style="font-size:24px;font-weight:400;margin:0 0 8px">${BOOKING_I18N[o.lang].hello(escapeEmailText(o.firstName))}</h1>
+          <p style="color:#555;line-height:1.7;margin:0 0 24px">${t.intro}</p>
+          <div style="background:#f4faf6;border:1px solid #cde8d6;border-radius:8px;padding:24px;margin:0 0 24px">
+            <p style="color:#1e6b3f;letter-spacing:3px;font-size:10px;text-transform:uppercase;margin:0 0 12px">${t.title}</p>
+            <table style="width:100%;border-collapse:collapse;font-size:14px">
+              ${row(t.reference, o.reference)}
+              ${row(t.subtotal, money(o.subtotal), "color:#999;text-decoration:line-through")}
+              ${row(t.discount, `− ${money(o.discount)}`, "color:#1e6b3f;font-weight:600")}
+              ${o.note ? row(t.reason, escapeEmailText(o.note)) : ""}
+              ${row(t.newTotal, money(newTotal), "font-weight:700;font-size:16px;color:#1e6b3f")}
+              ${o.paidTotal > 0 ? row(t.paidSoFar, money(o.paidTotal)) : ""}
+              ${o.paidTotal > 0 && balance > 0 ? row(t.balance, money(balance)) : ""}
+            </table>
+            ${o.paidTotal > 0 && balance <= 0 ? `<p style="color:#1e6b3f;font-weight:600;margin:14px 0 0">${t.settled}</p>` : ""}
+          </div>
+          ${o.pdf ? `<p style="color:#555;line-height:1.7;margin:0 0 20px">${t.attached}</p>` : ""}
+          ${o.manageUrl ? manageButton(o.manageUrl, "#1e6b3f", o.lang) : ""}
+          <p style="color:#555;line-height:1.7;margin:0 0 8px">${BOOKING_I18N[o.lang].questions}</p>
+          <p style="margin:0;color:#333;font-size:14px">📞 +212 667-370-206 &nbsp;·&nbsp; 📧 info@arabiandeserthome.ma</p>
+        </div>${bookingFooter(o.lang)}
+      </div>
+    `,
+    ...(o.pdf ? { attachments: [{ filename: BOOKING_I18N[o.lang].confirmed.attachment, content: o.pdf }] } : {}),
   });
 }
 

@@ -58,10 +58,16 @@ interface Reservation {
   specialReqs: string | null;
   totalAmount: number;
   currency: string;
+  /** Discount granted by the camp; totalAmount is already net of it. */
+  discount?: number;
+  discountNote?: string | null;
   createdAt: string;
   items: ReservationItem[];
   payments?: { id: string; amount: number; method: string; paidAt: string }[];
 }
+
+/** Label of the discount line, per language. */
+const DISCOUNT_LABEL: Record<Language, string> = { fr: "Réduction", en: "Discount", es: "Descuento", it: "Sconto" };
 
 /** Wording of the "your payments" block, per language. */
 const PAY_COPY: Record<Language, { title: string; received: string; balance: string; settled: string; methods: Record<string, string> }> = {
@@ -726,6 +732,16 @@ export function ManageReservation() {
               </div>
 
               <div className="glass-card card-warm p-6 mb-8">
+                {(reservation.discount ?? 0) > 0 && (
+                  <div className="flex items-center justify-between mb-3 pb-3 border-b border-border/40">
+                    <span className="luxury-label text-amber/70">
+                      {DISCOUNT_LABEL[language]}{reservation.discountNote ? ` · ${reservation.discountNote}` : ""}
+                    </span>
+                    <span className="mono-number text-lg text-green-700 dark:text-green-400">
+                      − {formatMoney(reservation.discount ?? 0, numberLocale)} {reservation.currency}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-1">
                   <span className="luxury-label text-amber/70">{c.total}</span>
                   <span className="mono-number text-2xl text-amber">

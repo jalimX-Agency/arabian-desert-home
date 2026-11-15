@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { Banknote, CheckCircle2, Loader2, Mail, Paperclip, Pencil, Plus, Trash2 } from "lucide-react";
+import { Banknote, CheckCircle2, Loader2, Mail, Paperclip, Pencil, Percent, Plus, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +35,9 @@ interface PaymentsData {
   currency?: string;
   paid: number;
   balance: number | null;
+  /** Discount granted on the reservation; total is already net of it. */
+  discount: number;
+  discountNote: string | null;
   legacy: boolean;
 }
 
@@ -57,6 +60,7 @@ export function PaymentsSection({ reservationId, hasReservation, onChanged }: { 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<PaymentRow | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [discountOpen, setDiscountOpen] = useState(false);
 
   const load = useCallback(async () => {
     if (!hasReservation) return;
@@ -92,9 +96,14 @@ export function PaymentsSection({ reservationId, hasReservation, onChanged }: { 
           <Banknote className="w-3.5 h-3.5" /> Paiements / acompte
         </p>
         {hasReservation && !loadError && (
-          <Button variant="outline" size="sm" onClick={() => setOpen(true)} disabled={!data || (data.balance ?? 0) <= 0} className="cursor-pointer text-xs">
-            <Plus className="w-3.5 h-3.5" /> Ajouter un paiement
-          </Button>
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setDiscountOpen(true)} disabled={!data} className="cursor-pointer text-xs">
+              <Percent className="w-3.5 h-3.5" /> {data && data.discount > 0 ? "Modifier la réduction" : "Réduction"}
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setOpen(true)} disabled={!data || (data.balance ?? 0) <= 0} className="cursor-pointer text-xs">
+              <Plus className="w-3.5 h-3.5" /> Ajouter un paiement
+            </Button>
+          </div>
         )}
       </div>
 
@@ -120,6 +129,14 @@ export function PaymentsSection({ reservationId, hasReservation, onChanged }: { 
               <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">{formatMoney(data.balance ?? 0)} {currency}</p>
             </div>
           </div>
+
+          {data.discount > 0 && (
+            <p className="text-xs text-green-700 dark:text-green-400">
+              Réduction accordée : − {formatMoney(data.discount)} {currency}
+              {data.discountNote ? ` (${data.discountNote})` : ""}
+              <span className="text-gray-400"> · total des prestations {formatMoney((data.total ?? 0) + data.discount)} {currency}</span>
+            </p>
+          )}
 
           {data.payments.length === 0 ? (
             <p className="text-xs text-gray-400">Aucun paiement enregistré.</p>
@@ -204,6 +221,20 @@ export function PaymentsSection({ reservationId, hasReservation, onChanged }: { 
           balance={data.balance ?? 0}
           payment={editing}
           onSaved={() => { setEditing(null); void load(); onChanged?.(); }}
+        />
+      )}
+
+      {data && discountOpen && (
+        <DiscountDialog
+          open={discountOpen}
+          onOpenChange={setDiscountOpen}
+          reservationId={reservationId}
+          currency={currency}
+          subtotal={(data.total ?? 0) + data.discount}
+          paid={data.paid}
+          current={data.discount}
+          currentNote={data.discountNote}
+          onSaved={() => { setDiscountOpen(false); void load(); onChanged?.(); }}
         />
       )}
 
@@ -387,6 +418,104 @@ function PaymentDialog({
           <Button onClick={submit} disabled={busy} className="cursor-pointer">
             {busy && <Loader2 className="w-4 h-4 animate-spin" />}
             {editing ? "Enregistrer les modifications" : "Enregistrer le paiement"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** Sets, changes or removes (0) the reservation's discount, and optionally emails the guest the new price. */
+function DiscountDialog({
+  open, onOpenChange, reservationId, currency, subtotal, paid, current, currentNote, onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  reservationId: string;
+  currency: string;
+  subtotal: number;
+  paid: number;
+  current: number;
+  currentNote: string | null;
+  onSaved: () => void;
+}) {
+  const [amount, setAmount] = useState(current > 0 ? String(current) : "");
+  const [note, setNote] = useState(currentNote ?? "");
+  const [sendEmail, setSendEmail] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const max = Math.max(0, Math.round((subtotal - paid) * 100) / 100);
+  const preview = Number(amount.replace(/\s/g, "").replace(",", "."));
+  const newTotal = Number.isFinite(preview) && preview >= 0 ? Math.max(0, Math.round((subtotal - preview) * 100) / 100) : null;
+
+  async function save(value: string) {
+    setError("");
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/admin/reservations/${reservationId}/discount`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: value, note, sendEmail }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(json.error ?? "L'enregistrement a échoué.");
+        return;
+      }
+      onSaved();
+    } catch {
+      setError("Erreur réseau.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{current > 0 ? "Modifier la réduction" : "Ajouter une réduction"}</DialogTitle>
+          <DialogDescription>
+            Total des prestations : {formatMoney(subtotal)} {currency}
+            {paid > 0 ? ` · déjà reçu ${formatMoney(paid)} ${currency} (réduction max. ${formatMoney(max)} ${currency})` : ""}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3">
+          <div>
+            <Label htmlFor="disc-amount" className="text-xs text-gray-400 mb-1 block">Montant de la réduction ({currency})</Label>
+            <Input id="disc-amount" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="50" autoComplete="off" />
+            {newTotal !== null && amount.trim() !== "" && (
+              <p className="mt-1 text-[11px] text-gray-500">Nouveau total : {formatMoney(newTotal)} {currency}</p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="disc-note" className="text-xs text-gray-400 mb-1 block">Motif (facultatif, visible par le client)</Label>
+            <Input id="disc-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} placeholder="Geste commercial, fidélité…" />
+          </div>
+
+          <label className="flex items-start gap-2 text-sm text-gray-700 dark:text-white/80 cursor-pointer">
+            <input type="checkbox" checked={sendEmail} onChange={(e) => setSendEmail(e.target.checked)} className="mt-1 cursor-pointer" />
+            <span>
+              Envoyer un email au client avec le nouveau tarif
+              <span className="block text-[11px] text-gray-400">Dans la langue de la réservation, avec la fiche PDF si la réservation est confirmée.</span>
+            </span>
+          </label>
+
+          {error && <p className="text-xs text-red-500">{error}</p>}
+        </div>
+
+        <DialogFooter className="gap-2 sm:gap-2">
+          {current > 0 && (
+            <Button variant="outline" onClick={() => save("0")} disabled={busy} className="cursor-pointer sm:mr-auto text-red-600">
+              Retirer la réduction
+            </Button>
+          )}
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy} className="cursor-pointer">Annuler</Button>
+          <Button onClick={() => (amount.trim() ? save(amount) : setError("Indiquez le montant de la réduction."))} disabled={busy} className="cursor-pointer">
+            {busy && <Loader2 className="w-4 h-4 animate-spin" />}
+            Enregistrer
           </Button>
         </DialogFooter>
       </DialogContent>

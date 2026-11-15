@@ -43,6 +43,8 @@ const FICHE_I18N = {
     total: "Tarif total",
     paymentMethod: "Méthode de paiement",
     paymentGeneric: "Paiement sur place",
+    subtotal: "Sous-total",
+    discount: "Réduction",
     advanceReceived: "Acompte reçu",
     balanceDue: "Reste à payer",
     paidInFull: "Réglé intégralement",
@@ -88,6 +90,8 @@ const FICHE_I18N = {
     total: "Total price",
     paymentMethod: "Payment method",
     paymentGeneric: "Payment on site",
+    subtotal: "Subtotal",
+    discount: "Discount",
     advanceReceived: "Advance received",
     balanceDue: "Balance due",
     paidInFull: "Paid in full",
@@ -133,6 +137,8 @@ const FICHE_I18N = {
     total: "Precio total",
     paymentMethod: "Método de pago",
     paymentGeneric: "Pago en el lugar",
+    subtotal: "Subtotal",
+    discount: "Descuento",
     advanceReceived: "Anticipo recibido",
     balanceDue: "Pendiente de pago",
     paidInFull: "Pagado en su totalidad",
@@ -178,6 +184,8 @@ const FICHE_I18N = {
     total: "Prezzo totale",
     paymentMethod: "Metodo di pagamento",
     paymentGeneric: "Pagamento in loco",
+    subtotal: "Subtotale",
+    discount: "Sconto",
     advanceReceived: "Acconto ricevuto",
     balanceDue: "Saldo da pagare",
     paidInFull: "Pagato per intero",
@@ -305,12 +313,20 @@ export interface FicheOptions {
   lang?: FicheLang;
   /** Amount already received from the guest (advance payments). Shown with the balance when above zero. */
   paidAmount?: number;
+  /** Discount granted by the admin; totalAmount is already net of it. */
+  discount?: number;
+  discountNote?: string | null;
 }
 
 /** Builds the print-ready "Fiche de Réservation" HTML sent as a PDF once a reservation is confirmed. */
-export function buildFicheHtml({ reservationRef, items, totalAmount, currency, lang = "fr", paidAmount = 0 }: FicheOptions): string {
+export function buildFicheHtml({ reservationRef, items, totalAmount, currency, lang = "fr", paidAmount = 0, discount = 0, discountNote }: FicheOptions): string {
   const t = FICHE_I18N[lang];
   const money = (n: number) => `${formatMoney(n, NUMBER_LOCALE[lang])} ${currency}`;
+  // A discount shows the lines' subtotal and the amount taken off, then the net total.
+  const discountLines = discount > 0
+    ? `<div class="total-row sub"><span class="lbl">${t.subtotal}</span><span class="val">${money(roundMoney(totalAmount + discount))}</span></div>
+    <div class="total-row sub paid"><span class="lbl">${t.discount}${discountNote ? ` · ${escapeHtml(discountNote)}` : ""}</span><span class="val">− ${money(discount)}</span></div>`
+    : "";
   const balance = Math.max(0, roundMoney(totalAmount - paidAmount));
   // Advance payments: the guest sees what was received and what is left to pay on arrival.
   const paymentLines = paidAmount > 0
@@ -498,6 +514,7 @@ export function buildFicheHtml({ reservationRef, items, totalAmount, currency, l
   .total-row.sub .val{ font-size:16px; }
   .total-row.paid .val{ color:#1e6b3f; }
   .total-row.due{ padding-bottom:22px; }
+  .total-row.net{ padding-top:4px; }
   .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:28px; padding:18px 0 20px; border-top:1px solid var(--rule); }
   .two-col .field .v{ font-size:13.5px; line-height:1.6; font-weight:400; }
   .confirm-strip{
@@ -576,7 +593,8 @@ export function buildFicheHtml({ reservationRef, items, totalAmount, currency, l
         ${buildPrestationRows(t, lang, items)}
       </tbody>
     </table>
-    <div class="total-row">
+    ${discountLines}
+    <div class="total-row${discount > 0 ? " net" : ""}">
       <span class="lbl">${t.total}</span>
       <span class="val">${formatMoney(totalAmount, NUMBER_LOCALE[lang])} ${currency}</span>
     </div>

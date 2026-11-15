@@ -64,7 +64,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const lang = parseReservationLang(contact.lang);
   const currency = items.find((i) => !i._delete)?.currency ?? "MAD";
-  const totalAmount = sumMoney(items.filter((i) => !i._delete).map((i) => i.totalAmount));
+  const subtotal = sumMoney(items.filter((i) => !i._delete).map((i) => i.totalAmount));
+  // The discount survives an edit of the lines, capped at the new subtotal if lines were removed.
+  const existing = await db.reservation.findUnique({ where: { id }, select: { discount: true, discountNote: true } });
+  const discount = Math.min(existing?.discount ?? 0, subtotal);
+  const totalAmount = roundMoney(subtotal - discount);
 
   await db.$transaction(async (tx) => {
     await tx.reservation.update({
@@ -78,6 +82,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         channel: contact.channel,
         lang,
         totalAmount,
+        discount,
         currency,
       },
     });
@@ -132,11 +137,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     try {
       const reservationRef = `ADH-${id.slice(-8).toUpperCase()}`;
       const paidAmount = await reservationPaid(id);
-      const html = buildFicheHtml({ reservationRef, items: freshItems, totalAmount, currency, lang, paidAmount });
+      const html = buildFicheHtml({ reservationRef, items: freshItems, totalAmount, currency, lang, paidAmount, discount, discountNote: existing?.discountNote });
       const pdf = await generateFichePdf(html);
       const reservation = await db.reservation.findUnique({ where: { id }, select: { accessToken: true } });
       const manageUrl = reservation ? reservationManageUrl(reservation.accessToken) : null;
-      await sendReservationConfirmedEmail(contact.email, contact.firstName, freshItems, totalAmount, currency, pdf, manageUrl, lang);
+      await sendReservationConfirmedEmail(contact.email, contact.firstName, freshItems, totalAmount, currency, pdf, manageUrl, lang, discount);
     } catch (err) {
       console.error("Failed to send reservation-updated confirmation email:", err);
     }
