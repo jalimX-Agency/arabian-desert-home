@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CHANNELS, channelLabel, statusOptions } from "../_lib/reservation-utils";
+import { CHANNELS, channelLabel, statusLabel } from "../_lib/reservation-utils";
 import { formatMoney, sumMoney } from "@/lib/money";
 import { RESERVATION_LANGS, RESERVATION_LANG_LABEL, type ReservationLang } from "@/lib/reservation-lang";
 import {
@@ -161,7 +161,7 @@ export function NewReservationDialog({ open, onOpenChange, onCreated }: NewReser
                 <Select value={status} onValueChange={setStatus}>
                   <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {statusOptions.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                    {["pending", "confirmed"].map((s) => <SelectItem key={s} value={s}>{statusLabel[s]}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

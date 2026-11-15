@@ -185,6 +185,13 @@ model Reservation {
   discount     Float     @default(0)
   /// Optional reason shown to the guest (e.g. "Fidélité", "Geste commercial").
   discountNote String?
+  /// Advance asked of the guest when the admin accepted the request (status "awaiting_payment"),
+  /// in the reservation currency: 50 % of the total, less what was already received.
+  depositAmount   Float?
+  /// Proof of that advance (transfer receipt) uploaded by the guest from their manage page.
+  /// Stored on R2 under a random key; cleared when the admin asks for the advance again.
+  depositProofUrl String?
+  depositProofAt  DateTime?
   /// Language the guest booked in (fr | en | es | it): picks the language of every
   /// email and of the fiche PDF sent to them. Existing rows default to French.
   lang        String    @default("fr")
@@ -493,4 +500,12 @@ model Payment {
   createdAt     DateTime    @default(now())
 
   @@index([reservationId])
+}
+
+// Small key/value store for settings the admin edits from "Paramètres" (e.g. the bank
+// details shown to guests who must pay an advance). Values are JSON strings.
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }

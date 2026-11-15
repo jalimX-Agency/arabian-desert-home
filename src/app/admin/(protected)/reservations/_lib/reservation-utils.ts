@@ -49,9 +49,19 @@ export interface ReservationGroup {
   items: Booking[];
 }
 
-export const statusOptions = ["pending", "confirmed", "cancelled"];
+/** Life of a request: pending → awaiting_payment (advance asked) → payment_review (guest sent the proof) → confirmed. */
+export const statusOptions = ["pending", "awaiting_payment", "payment_review", "confirmed", "cancelled"];
+export const statusLabel: Record<string, string> = {
+  pending: "En attente",
+  awaiting_payment: "Paiement en attente",
+  payment_review: "Paiement en vérification",
+  confirmed: "Confirmée",
+  cancelled: "Annulée",
+};
 export const statusColors: Record<string, string> = {
   pending: "bg-yellow-50 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/20",
+  awaiting_payment: "bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-500/20",
+  payment_review: "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20",
   confirmed: "bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/20",
   cancelled: "bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/20",
 };

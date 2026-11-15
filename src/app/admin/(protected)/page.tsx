@@ -29,8 +29,18 @@ interface Stats {
   error?: string;
 }
 
+const STATUS_LABEL: Record<string, string> = {
+  pending: "En attente",
+  awaiting_payment: "Paiement en attente",
+  payment_review: "Paiement à vérifier",
+  confirmed: "Confirmée",
+  cancelled: "Annulée",
+};
+
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
+  awaiting_payment: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+  payment_review: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
   confirmed: "bg-green-500/10 text-green-600 dark:text-green-400",
   cancelled: "bg-red-500/10 text-red-600 dark:text-red-400",
 };
@@ -151,7 +161,7 @@ export default function AdminDashboardPage() {
                   <div className="flex items-center gap-3 shrink-0">
                     <span className="text-sm text-amber-600 dark:text-amber-400">{formatMoney(b.totalAmount)} {b.currency}</span>
                     <span className={`text-[10px] px-2 py-1 rounded-full uppercase tracking-widest ${statusColors[b.status] ?? "bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60"}`}>
-                      {b.status}
+                      {STATUS_LABEL[b.status] ?? b.status}
                     </span>
                   </div>
                 </div>

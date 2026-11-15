@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   statusOptions,
+  statusLabel,
   serviceTypeOptions,
   serviceTypeLabel,
   CHANNELS,
@@ -184,7 +185,7 @@ export function ReservationToolbar({
           <SelectContent>
             <SelectItem value="all">Tous les statuts</SelectItem>
             {statusOptions.map((s) => (
-              <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
+              <SelectItem key={s} value={s}>{statusLabel[s] ?? s}</SelectItem>
             ))}
           </SelectContent>
         </Select>
