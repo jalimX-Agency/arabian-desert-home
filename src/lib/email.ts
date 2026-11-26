@@ -7,6 +7,7 @@ import { reveillonLine } from "@/lib/reveillon";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = "Arabian Desert Home <noreply@arabiandeserthome.ma>";
+const TO = "info@arabiandeserthome.ma";
 const SITE_URL = "https://www.arabiandeserthome.ma";
 
 /** The guest's private "manage my reservation" link — the token in it is the only auth. */
@@ -75,7 +76,7 @@ export async function sendReviewRequestEmail(to: string, firstName: string, lang
   const t = REVIEW_I18N[lang];
   await resend.emails.send({
     from: FROM,
-    to,
+    to: TO,
     subject: t.subject,
     html: `
       <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a">
