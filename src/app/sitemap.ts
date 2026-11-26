@@ -19,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/les-activites", priority: 0.8 },
     { path: "/les-experiences", priority: 0.8 },
     { path: "/day-pass", priority: 0.8 },
+    { path: "/reveillon-31-decembre", priority: 0.9 },
     { path: "/les-evenements", priority: 0.7 },
     { path: "/restaurant", priority: 0.7 },
     { path: "/blog", priority: 0.8 },
@@ -36,7 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static routes that currently exist in each non-French locale — extend as more phases ship.
   const LOCALE_READY_PATHS = [
     "/", "/desert-agafay", "/les-tentes", "/les-activites", "/les-experiences", "/day-pass", "/blog",
-    "/reservez-votre-sejour", "/les-evenements", "/restaurant", "/apropo", "/contact", "/politique-de-confidentialite", "/conditions-generales",
+    "/reservez-votre-sejour", "/reveillon-31-decembre", "/les-evenements", "/restaurant", "/apropo", "/contact", "/politique-de-confidentialite", "/conditions-generales",
   ];
   const NON_FR_LOCALES = ["en", "es", "it"];
 

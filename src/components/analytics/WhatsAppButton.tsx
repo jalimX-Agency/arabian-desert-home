@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { WhatsAppIcon } from "@/components/arabian/WhatsAppIcon";
 import { isPrivatePath, languageFromPath, type SiteLanguage } from "@/lib/analytics";
+import { REVEILLON_PATH, REVEILLON_WHATSAPP_MESSAGE } from "@/lib/reveillon";
 
 /** The camp's WhatsApp line, same number as the footer and the contact page. */
 const WHATSAPP_NUMBER = "212667370206";
@@ -39,8 +40,11 @@ export function WhatsAppButton() {
   const pathname = usePathname();
   if (isPrivatePath(pathname)) return null;
 
-  const c = COPY[languageFromPath(pathname)];
-  const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(c.message)}`;
+  const lang = languageFromPath(pathname);
+  const c = COPY[lang];
+  // On the New Year's Eve page the message is about that night.
+  const message = pathname?.includes(REVEILLON_PATH) ? REVEILLON_WHATSAPP_MESSAGE[lang] : c.message;
+  const href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
   return (
     <a

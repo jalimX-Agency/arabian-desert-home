@@ -1,9 +1,8 @@
 import { db } from "@/lib/db";
-import { sendReservationConfirmation, sendReservationNotification, reservationManageUrl } from "@/lib/email";
 import { priceCartItem, type CartItemInput } from "@/lib/reservation-item";
 import { parseReservationLang } from "@/lib/reservation-lang";
-import { isLeadSource } from "@/lib/lead-source";
-import { countryFromHeader, deviceFromUserAgent } from "@/lib/visit";
+import { createGuestReservation } from "@/lib/create-reservation";
+import { dayIsReveillon, stayTouchesReveillon } from "@/lib/reveillon";
 
 export async function POST(request: Request) {
   try {
@@ -34,6 +33,11 @@ export async function POST(request: Request) {
       return Response.json({ error: "Transport must be added to a stay or an activity" }, { status: 400 });
     }
 
+    // The night of 31 Dec (and anything dated the 31st) is sold from the New Year's Eve page only.
+    if (items.some((item) => stayTouchesReveillon(item.checkIn, item.checkOut) || dayIsReveillon(item.date))) {
+      return Response.json({ error: "Le 31 décembre se réserve depuis la page du réveillon.", code: "reveillon" }, { status: 400 });
+    }
+
     // Hidden activities can still be booked from the admin, never from the public form.
     const activityIds = items.filter((item) => item.serviceType === "activity" && item.activityId).map((item) => item.activityId!);
     if (activityIds.length > 0) {
@@ -48,65 +52,14 @@ export async function POST(request: Request) {
       return Response.json({ error: e instanceof Error ? e.message : "Invalid item" }, { status: 400 });
     }
 
-    const totalAmount = priced.reduce((sum, p) => sum + p.totalAmount, 0);
-    const currency = priced[0].currency;
-
-    const reservation = await db.reservation.create({
-      data: {
-        firstName, lastName, email, phone,
-        specialReqs: specialReqs || null,
-        totalAmount,
-        currency,
-        lang,
-        source: isLeadSource(rawSource) ? rawSource : null,
-        items: {
-          create: priced.map((p) => ({
-            firstName, lastName, email, phone,
-            serviceType: p.serviceType,
-            suiteId: p.suiteId,
-            activityId: p.activityId,
-            dayPassId: p.dayPassId,
-            checkIn: p.checkIn,
-            checkOut: p.checkOut,
-            date: p.date,
-            quantity: p.quantity,
-            guests: p.guests,
-            children: p.children,
-            experiences: p.experiences,
-            label: p.label ?? null,
-            transportId: p.transportId ?? null,
-            specialReqs: specialReqs || null,
-            totalAmount: p.totalAmount,
-            currency: p.currency,
-            status: "pending",
-          })),
-        },
-      },
-      include: {
-        items: { include: { suite: true, activity: true, dayPass: true } },
-      },
-    });
-
-    // Anonymous count of the request by source, whatever the visitor's cookie choice.
-    await db.leadEvent
-      .create({
-        data: {
-          kind: "form",
-          source: isLeadSource(rawSource) ? rawSource : "direct",
-          page: "/reservez-votre-sejour",
-          lang,
-          country: countryFromHeader(request.headers.get("x-vercel-ip-country")),
-          device: deviceFromUserAgent(request.headers.get("user-agent")),
-        },
-      })
-      .catch(() => {});
-
-    const manageUrl = reservationManageUrl(reservation.accessToken);
-
-    Promise.allSettled([
-      sendReservationConfirmation(email, firstName, reservation.items, totalAmount, currency, manageUrl, lang),
-      sendReservationNotification(reservation.items, totalAmount, currency, specialReqs, lang),
-    ]);
+    const { reservation, manageUrl } = await createGuestReservation({
+      firstName, lastName, email, phone,
+      specialReqs: specialReqs || null,
+      lang,
+      source: rawSource,
+      page: "/reservez-votre-sejour",
+      priced,
+    }, request.headers);
 
     return Response.json({ success: true, reservation, manageUrl }, { status: 201 });
   } catch {

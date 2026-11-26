@@ -39,6 +39,9 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage, pickLocalized } from "@/lib/i18n/context";
+import { useReveillonRedirect } from "@/components/reveillon/useReveillonRedirect";
+import { reveillonHref } from "@/lib/reveillon";
+import { useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics";
 import { currentLeadSource } from "@/lib/lead-source";
 import { parseISODay, parseTentPicks, readStayFromQuery, toISODay } from "@/lib/tent-stay";
@@ -714,6 +717,9 @@ export function ReservationContent() {
   const primaryActivity = primaryType === "activity" ? activities.find((a) => a.id === activityId) : undefined;
   const canAddTransport = transports.length > 0 && transportDate !== undefined && !primaryActivity?.transportIncluded;
   const selectedTransport = canAddTransport ? transports.find((o) => o.id === transportId) : undefined;
+  // The night of 31 Dec (and anything dated the 31st) is sold from the New Year's Eve page only.
+  useReveillonRedirect(language, { checkIn, checkOut }, [primaryDate, addOnDate, ...addOns.map((a) => a.date)]);
+  const router = useRouter();
   const transportCopy = TRANSPORT_COPY[language];
 
   function getTransportCartItems(): CartItem[] {
@@ -788,6 +794,8 @@ export function ReservationContent() {
         });
         setStep(5);
       } else {
+        const err = await res.json().catch(() => ({}));
+        if (err.code === "reveillon") { router.push(reveillonHref(language)); return; }
         toast({ title: t("booking2.errorTitle"), description: t("booking2.errorDesc"), variant: "destructive" });
       }
     } catch {

@@ -673,3 +673,9 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* New Year's Eve page: the programme marquee under the hero (two copies, slid by half). */
+@keyframes nye-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}

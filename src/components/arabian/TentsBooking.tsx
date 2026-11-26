@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { BedDouble, CalendarDays, Check, ChevronLeft, ChevronRight, Info, Maximize2, Users, Wind } from "lucide-react";
 import { pickLocalized, useLanguage, withLocale, type Language } from "@/lib/i18n/context";
+import { useReveillonRedirect } from "@/components/reveillon/useReveillonRedirect";
 import {
   addDaysISO,
   bookingQuery,
@@ -243,6 +244,8 @@ export function TentsBooking({ suites }: { suites: TentSuite[] }) {
   const hydrated = useRef(false);
 
   const nights = nightsBetweenISO(stay.checkIn, stay.checkOut);
+  // The night of 31 Dec is sold from the New Year's Eve page only.
+  useReveillonRedirect(language, stay);
   const hasDates = nights > 0;
 
   // A stay carried over from another page (or a shared link) fills the search.
