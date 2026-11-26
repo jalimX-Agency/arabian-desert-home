@@ -8,6 +8,8 @@ import {
 } from "@/lib/email";
 import { priceCartItem } from "@/lib/reservation-item";
 import { parseReservationLang } from "@/lib/reservation-lang";
+import { calendarDay } from "@/lib/calendar-day";
+import { dayIsReveillon, stayTouchesReveillon } from "@/lib/reveillon";
 
 // Token-gated, not admin-gated: the access token in the URL IS the auth —
 // this is the guest's own "manage my reservation" link from their
@@ -125,6 +127,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ to
       }
       if (outDate <= inDate) return fail("checkout_before_checkin", "La date de départ doit être après la date d'arrivée");
       if (isInPast(inDate)) return fail("date_in_past", "La date d'arrivée ne peut pas être dans le passé");
+      if (stayTouchesReveillon(calendarDay(inDate).toISOString(), calendarDay(outDate).toISOString())) {
+        return fail("reveillon", "La nuit du 31 décembre se réserve depuis la page du réveillon");
+      }
       if (item.checkIn?.getTime() === inDate.getTime() && item.checkOut?.getTime() === outDate.getTime()) {
         return fail("same_dates", "Les nouvelles dates sont identiques aux dates actuelles");
       }
@@ -133,6 +138,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ to
       const newDate = new Date(date);
       if (Number.isNaN(newDate.getTime())) return fail("invalid_date", "Date invalide");
       if (isInPast(newDate)) return fail("date_in_past", "La date ne peut pas être dans le passé");
+      if (dayIsReveillon(calendarDay(newDate).toISOString())) {
+        return fail("reveillon", "Le 31 décembre se réserve depuis la page du réveillon");
+      }
       if (item.date?.getTime() === newDate.getTime()) {
         return fail("same_dates", "La nouvelle date est identique à la date actuelle");
       }

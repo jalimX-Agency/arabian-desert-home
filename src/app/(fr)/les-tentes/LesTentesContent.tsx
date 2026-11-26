@@ -2,10 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { MessageCircle, Sparkles } from "lucide-react";
+import { MessageCircle, PartyPopper, Sparkles } from "lucide-react";
 import { pickLocalized, useLanguage } from "@/lib/i18n/context";
 import { TentsBooking, type TentSuite } from "@/components/arabian/TentsBooking";
 import { currentTentOffer, type TentOffer } from "@/lib/tent-offer";
+import Link from "next/link";
+import { isReveillonOpen, reveillonHref } from "@/lib/reveillon";
+
+/** Link to the New Year's Eve page: the night of 31 Dec is sold there, not in the form below. */
+const REVEILLON_LINK = {
+  fr: "Réveillon du 31 décembre : soirée + nuit sous les étoiles",
+  en: "New Year's Eve, 31 December: evening + night under the stars",
+  es: "Nochevieja, 31 de diciembre: velada + noche bajo las estrellas",
+  it: "Capodanno, 31 dicembre: serata + notte sotto le stelle",
+} as const;
 
 type OfferSuite = TentSuite & { price: number; nameEn?: string; seasonalPrices?: { startDate: string; endDate: string; price: number }[] };
 
@@ -108,6 +118,15 @@ export function LesTentesContent({ suites }: { suites: TentSuite[] }) {
                 <Sparkles className="w-4 h-4 mt-0.5 shrink-0" />
                 <span>{offerText}</span>
               </p>
+            )}
+            {isReveillonOpen() && (
+              <Link
+                href={reveillonHref(language)}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-amber hover:bg-amber/90 px-4 py-2.5 text-sm font-semibold text-black transition-colors"
+              >
+                <PartyPopper className="w-4 h-4" />
+                {REVEILLON_LINK[language]}
+              </Link>
             )}
             <a
               href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(o.message)}`}

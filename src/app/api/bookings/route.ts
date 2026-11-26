@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { priceCartItem, type CartItemInput } from "@/lib/reservation-item";
 import { parseReservationLang } from "@/lib/reservation-lang";
 import { createGuestReservation } from "@/lib/create-reservation";
+import { dayIsReveillon, stayTouchesReveillon } from "@/lib/reveillon";
 
 export async function POST(request: Request) {
   try {
@@ -30,6 +31,11 @@ export async function POST(request: Request) {
     // Transport is an extra on a stay or an activity, never booked on its own.
     if (items.every((item) => item.serviceType === "transport")) {
       return Response.json({ error: "Transport must be added to a stay or an activity" }, { status: 400 });
+    }
+
+    // The night of 31 Dec (and anything dated the 31st) is sold from the New Year's Eve page only.
+    if (items.some((item) => stayTouchesReveillon(item.checkIn, item.checkOut) || dayIsReveillon(item.date))) {
+      return Response.json({ error: "Le 31 décembre se réserve depuis la page du réveillon.", code: "reveillon" }, { status: 400 });
     }
 
     // Hidden activities can still be booked from the admin, never from the public form.

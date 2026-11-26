@@ -60,3 +60,23 @@ export interface ReveillonOffer {
   transport: { id: string; name: string; priceEur: number } | null;
   open: boolean;
 }
+
+/**
+ * The night of 31 Dec is sold only from the New Year's Eve page. A stay "touches" it when it
+ * includes that night (check-in on or before the 31st, check-out after it); checking out on the
+ * 31st is fine. Anything dated the 31st (activity, day pass, transfer) touches it too.
+ * Days are calendar days as "YYYY-MM-DD", so plain string comparison is enough.
+ */
+export function stayTouchesReveillon(checkIn?: string | null, checkOut?: string | null): boolean {
+  if (!checkIn || !checkOut || !isReveillonOpen()) return false;
+  return checkIn.slice(0, 10) <= REVEILLON_DATE && checkOut.slice(0, 10) > REVEILLON_DATE;
+}
+
+export function dayIsReveillon(date?: string | null): boolean {
+  return !!date && isReveillonOpen() && date.slice(0, 10) === REVEILLON_DATE;
+}
+
+/** The New Year's Eve page in the visitor's language. */
+export function reveillonHref(lang: string): string {
+  return lang === "fr" ? REVEILLON_PATH : `/${lang}${REVEILLON_PATH}`;
+}
