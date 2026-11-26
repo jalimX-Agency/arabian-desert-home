@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from "fs";
 import path from "path";
 import type { Booking, Suite, Activity, DayPass } from "@prisma/client";
 import { formatMoney, roundMoney } from "@/lib/money";
+import { reveillonLine } from "@/lib/reveillon";
 
 export type FicheLang = "fr" | "en" | "es" | "it";
 
@@ -235,8 +236,15 @@ function getServiceTypeLabel(t: FicheDict, serviceType: string, lang: FicheLang 
   return serviceType;
 }
 
+/** The New Year's Eve wording of a line (soirée, or a tent over the night of 31 Dec), if any. */
+function nyeLine(t: FicheDict, lang: FicheLang, b: FicheBooking) {
+  return reveillonLine(b, pickName(lang, b.suite?.name ?? t.none, b.suite?.nameEn, b.suite?.nameEs, b.suite?.nameIt), lang);
+}
+
 function getServiceName(t: FicheDict, lang: FicheLang, b: FicheBooking): string {
+  const nye = nyeLine(t, lang, b);
   const base =
+    nye ? nye.name :
     b.serviceType === "suite" ? pickName(lang, b.suite?.name ?? t.none, b.suite?.nameEn, b.suite?.nameEs, b.suite?.nameIt) :
     b.serviceType === "activity" ? pickName(lang, b.activity?.name ?? t.none, b.activity?.nameEn, b.activity?.nameEs, b.activity?.nameIt) :
     b.serviceType === "daypass" ? pickName(lang, b.dayPass?.name ?? t.none, b.dayPass?.nameEn, b.dayPass?.nameEs, b.dayPass?.nameIt) :
@@ -285,10 +293,12 @@ function buildPrestationRows(t: FicheDict, lang: FicheLang, items: FicheBooking[
           : b.date
           ? formatDateLong(b.date, lang)
           : t.none;
+      const nye = nyeLine(t, lang, b);
       const sub =
-        b.serviceType === "suite"
+        (b.serviceType === "suite"
           ? `<span class="item-sub">${b.quantity > 1 ? `${b.quantity} ${t.tents}` : `1 ${t.tent}`}</span>`
-          : "";
+          : "") +
+        (nye ? `<span class="item-sub item-nye">✦ ${escapeHtml(nye.includes)}</span>` : "");
       const pax = b.children > 0 ? `${b.guests} +${b.children}` : `${b.guests}`;
       return `
         <tr>
@@ -506,6 +516,7 @@ export function buildFicheHtml({ reservationRef, items, totalAmount, currency, l
   .item-type{ font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold-deep); display:block; margin-bottom:3px; }
   .item-name{ font-weight:600; color:var(--ink); }
   .item-sub{ display:block; color:var(--ink-soft); font-size:12px; margin-top:2px; }
+  .item-nye{ color:var(--gold-deep); font-size:11px; line-height:1.45; margin-top:4px; }
   .amount{ font-weight:600; color:var(--ink); }
   .total-row{ display:flex; justify-content:flex-end; align-items:baseline; gap:16px; padding:12px 0 22px; }
   .total-row .lbl{ font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--ink-soft); }
