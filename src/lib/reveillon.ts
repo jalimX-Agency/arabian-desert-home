@@ -80,3 +80,70 @@ export function dayIsReveillon(date?: string | null): boolean {
 export function reveillonHref(lang: string): string {
   return lang === "fr" ? REVEILLON_PATH : `/${lang}${REVEILLON_PATH}`;
 }
+
+type Lang4 = "fr" | "en" | "es" | "it";
+type DayLike = string | Date | null | undefined;
+const dayOf = (d: DayLike) => (!d ? null : typeof d === "string" ? d.slice(0, 10) : d.toISOString().slice(0, 10));
+
+/** A stay that includes the night of 31 Dec 2026, its price covering the soirée. Unlike
+ *  stayTouchesReveillon, this stays true after the event: documents must keep saying it. */
+export function stayIncludesReveillonNight(checkIn: DayLike, checkOut: DayLike): boolean {
+  const a = dayOf(checkIn), b = dayOf(checkOut);
+  return !!a && !!b && a <= REVEILLON_DATE && b > REVEILLON_DATE;
+}
+
+const LINE_COPY: Record<Lang4, {
+  soiree: string;
+  oneNight: (tent: string) => string;
+  longStay: (tent: string) => string;
+  includesSoiree: string;
+  includesNight: string;
+}> = {
+  fr: {
+    soiree: "Réveillon du 31 décembre · Soirée",
+    oneNight: (t) => `Réveillon du 31 décembre · Soirée + nuit en ${t}`,
+    longStay: (t) => `${t} · Réveillon du 31 décembre inclus`,
+    includesSoiree: "Dîner 4 services servi à table, animation (troupe folklorique, gnawa, danseuses, DJ, cracheurs de feu), boissons sans alcool et bûche du réveillon",
+    includesNight: "Soirée du réveillon incluse (dîner 4 services, animation, boissons sans alcool, bûche) + petit-déjeuner du 1er janvier",
+  },
+  en: {
+    soiree: "New Year's Eve, 31 December · Evening",
+    oneNight: (t) => `New Year's Eve, 31 December · Evening + night in a ${t}`,
+    longStay: (t) => `${t} · New Year's Eve (31 December) included`,
+    includesSoiree: "Four-course dinner served at the table, entertainment (folk troupe, gnawa, dancers, DJ, fire-breathers), soft drinks and Yule log",
+    includesNight: "New Year's Eve evening included (four-course dinner, entertainment, soft drinks, Yule log) + breakfast on 1 January",
+  },
+  es: {
+    soiree: "Nochevieja, 31 de diciembre · Velada",
+    oneNight: (t) => `Nochevieja, 31 de diciembre · Velada + noche en ${t}`,
+    longStay: (t) => `${t} · Nochevieja (31 de diciembre) incluida`,
+    includesSoiree: "Cena de 4 platos servida en la mesa, animación (grupo folclórico, gnawa, bailarinas, DJ, escupefuegos), bebidas sin alcohol y tronco de Navidad",
+    includesNight: "Velada de Nochevieja incluida (cena de 4 platos, animación, bebidas sin alcohol, tronco) + desayuno del 1 de enero",
+  },
+  it: {
+    soiree: "Capodanno, 31 dicembre · Serata",
+    oneNight: (t) => `Capodanno, 31 dicembre · Serata + notte in ${t}`,
+    longStay: (t) => `${t} · Capodanno (31 dicembre) incluso`,
+    includesSoiree: "Cena di 4 portate servita al tavolo, intrattenimento (gruppo folkloristico, gnawa, ballerine, DJ, mangiafuoco), bevande analcoliche e tronchetto",
+    includesNight: "Serata di Capodanno inclusa (cena di 4 portate, intrattenimento, bevande analcoliche, tronchetto) + colazione del 1° gennaio",
+  },
+};
+
+/**
+ * How a reservation line reads when it is part of New Year's Eve: the soirée line and any
+ * tent stay over the night of 31 Dec get an explicit name and what is included, in the
+ * guest's language. Returns null for every other line, which keeps its usual name.
+ */
+export function reveillonLine(
+  item: { serviceType: string; label?: string | null; checkIn?: DayLike; checkOut?: DayLike },
+  tentName: string,
+  lang: string,
+): { name: string; includes: string } | null {
+  const t = LINE_COPY[(lang in LINE_COPY ? lang : "fr") as Lang4];
+  if (item.serviceType === "custom" && item.label === SOIREE_LABEL) return { name: t.soiree, includes: t.includesSoiree };
+  if (item.serviceType === "suite" && stayIncludesReveillonNight(item.checkIn, item.checkOut)) {
+    const nights = Math.round((Date.parse(dayOf(item.checkOut)!) - Date.parse(dayOf(item.checkIn)!)) / 86_400_000);
+    return { name: nights <= 1 ? t.oneNight(tentName) : t.longStay(tentName), includes: t.includesNight };
+  }
+  return null;
+}

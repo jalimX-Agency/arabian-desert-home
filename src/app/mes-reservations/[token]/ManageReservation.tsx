@@ -19,6 +19,7 @@ import { rangeOverlapsClosure } from "@/lib/availability";
 import { useLanguage, type Language } from "@/lib/i18n/context";
 import { LANG_LOCALE } from "@/lib/reservation-lang";
 import { formatMoney } from "@/lib/money";
+import { reveillonLine } from "@/lib/reveillon";
 
 /** A catalogue name with the camp's own translations. */
 interface LocalizedName {
@@ -383,7 +384,16 @@ function errorText(c: Copy, data: { code?: string; error?: string }): string {
   return (data.code && c.errors[data.code]) || c.errors.generic;
 }
 
+/** The tent's own name, translated (used inside the New Year's Eve wording too). */
+function suiteName(item: ReservationItem, language: Language): string {
+  const row = item.suite;
+  if (!row) return "";
+  return ({ fr: row.name, en: row.nameEn, es: row.nameEs, it: row.nameIt }[language]) || row.name;
+}
+
 function itemName(item: ReservationItem, language: Language): string {
+  const nye = reveillonLine(item, suiteName(item, language), language);
+  if (nye) return nye.name;
   const row = item.suite ?? item.activity ?? item.dayPass;
   if (!row) return item.label || "—";
   const translated = { fr: row.name, en: row.nameEn, es: row.nameEs, it: row.nameIt }[language];
@@ -711,6 +721,10 @@ export function ManageReservation() {
                       <div className="flex-1 min-w-0">
                         <p className="luxury-label text-amber/70 text-[10px] mb-1">{c.service[item.serviceType as keyof Copy["service"]] ?? (item.serviceType === "custom" ? "Service" : item.serviceType)}</p>
                         <p className="font-serif text-lg mb-1">{itemName(item, language)}</p>
+                        {(() => {
+                          const nye = reveillonLine(item, suiteName(item, language), language);
+                          return nye ? <p className="text-xs text-amber mb-1.5 leading-relaxed">✦ {nye.includes}</p> : null;
+                        })()}
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" />{itemDates(item, locale)}</span>
                           <span className="flex items-center gap-1"><Users className="w-3 h-3" />{item.guests}</span>

@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { db } from "@/lib/db";
 import { formatMoney as formatAmount } from "@/lib/money";
 import { LANG_LOCALE, RESERVATION_LANG_LABEL, type ReservationLang } from "@/lib/reservation-lang";
+import { reveillonLine } from "@/lib/reveillon";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = "Arabian Desert Home <noreply@arabiandeserthome.ma>";
@@ -388,7 +389,10 @@ function localizedName(row: NamedRow | null | undefined, lang: ReservationLang):
 }
 
 function getServiceName(booking: BookingWithRelations, lang: ReservationLang = "fr"): string {
+  // New Year's Eve lines say so explicitly: a plain "Tente Double" would read like a normal night.
+  const nye = reveillonLine(booking, localizedName(booking.suite, lang), lang);
   const base =
+    nye ? nye.name :
     booking.serviceType === "suite" ? localizedName(booking.suite, lang) :
     booking.serviceType === "activity" ? localizedName(booking.activity, lang) :
     booking.serviceType === "daypass" ? localizedName(booking.dayPass, lang) :
@@ -442,6 +446,7 @@ function buildItemBlock(booking: BookingWithRelations, index: number, lang: Rese
   const t = BOOKING_I18N[lang].item;
   const serviceName = getServiceName(booking, lang);
   const serviceLabel = getServiceTypeLabel(booking.serviceType, lang);
+  const nye = reveillonLine(booking, localizedName(booking.suite, lang), lang);
   return `
     <div style="${index > 0 ? "border-top:1px solid #e8dfc8;margin-top:16px;padding-top:16px" : ""}">
       <table style="width:100%;border-collapse:collapse;font-size:14px">
@@ -451,7 +456,9 @@ function buildItemBlock(booking: BookingWithRelations, index: number, lang: Rese
         ${booking.children > 0 ? `<tr><td style="padding:6px 0;color:#888">${t.children}</td><td style="padding:6px 0">${booking.children}</td></tr>` : ""}
         <tr><td style="padding:6px 0;color:#888">${t.subtotal}</td><td style="padding:6px 0;font-weight:600">${formatMoney(booking.totalAmount, lang)} ${booking.currency}</td></tr>
       </table>
-      ${booking.experiences ? `<p style="color:#888;font-size:12px;margin:8px 0 2px">${t.experiences}</p><p style="font-size:13px;margin:0">${booking.experiences}</p>` : ""}
+      ${nye
+        ? `<p style="font-size:13px;color:#8a6414;background:#fdf6e7;border-radius:6px;padding:8px 10px;margin:8px 0 0">✦ ${nye.includes}</p>`
+        : booking.experiences ? `<p style="color:#888;font-size:12px;margin:8px 0 2px">${t.experiences}</p><p style="font-size:13px;margin:0">${booking.experiences}</p>` : ""}
     </div>
   `;
 }

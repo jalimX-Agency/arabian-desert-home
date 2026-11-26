@@ -15,6 +15,7 @@ import { serviceTypeOptions, serviceTypeLabel } from "../_lib/reservation-utils"
 import type { EditableItem, ServiceType, Catalog } from "../_lib/item-types";
 import { MoneyInput } from "@/components/admin/MoneyInput";
 import { formatMoney } from "@/lib/money";
+import { reveillonLine } from "@/lib/reveillon";
 
 interface ItemCardProps {
   item: EditableItem;
@@ -28,6 +29,12 @@ export function ItemCard({ item, catalog, computedPrice, onChange, onRemove }: I
   const cancelledByClient = item.status === "cancelled";
   return (
     <div className={`rounded-xl border p-4 space-y-3 ${cancelledByClient ? "border-red-200 dark:border-red-500/30 bg-red-50/40 dark:bg-red-500/[0.04]" : "border-gray-200 dark:border-white/10"}`}>
+      {reveillonLine(item, "", "fr") && (
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-400 uppercase tracking-widest">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+          Réveillon 31 décembre : soirée incluse
+        </div>
+      )}
       {cancelledByClient && (
         <div className="flex items-center gap-1.5 text-[11px] font-medium text-red-600 dark:text-red-400 uppercase tracking-widest">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
