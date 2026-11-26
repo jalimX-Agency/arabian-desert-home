@@ -9,7 +9,7 @@ export const REVEILLON_PATH = "/reveillon-31-decembre";
 
 /** Seats for the soirée alone (guests who do not sleep at the camp). */
 export const SOIREE_SEATS = 40;
-export const SOIREE_PRICE_EUR = 130;
+export const SOIREE_PRICE_EUR = 84;
 /** Children pay half; any age, but under-12s must come with an adult. */
 export const SOIREE_CHILD_PERCENT = 50;
 
@@ -30,7 +30,7 @@ export const REVEILLON_WHATSAPP_MESSAGE: Record<"fr" | "en" | "es" | "it", strin
 };
 
 const MAD_PER_EUR = 10.77;
-/** Indicative MAD amount, rounded to the hundred like the printed offer (130 € → 1 400 MAD). */
+/** Indicative MAD amount, rounded to the hundred like the printed offer (84 € → 900 MAD). */
 export function eurToMad(eur: number): number {
   return Math.round((eur * MAD_PER_EUR) / 100) * 100;
 }
