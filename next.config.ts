@@ -56,7 +56,10 @@ const nextConfig: NextConfig = {
   // binaries under bin/ since they're only referenced dynamically at
   // runtime, not via static import — force them into the function bundle.
   outputFileTracingIncludes: {
-    "/api/admin/reservations/[id]": ["./node_modules/@sparticuz/chromium/bin/**"],
+    // Every route that renders a PDF (fiche, devis, day plan, confirmations sent after a
+    // payment, a discount or a validated advance) needs the binaries, not only this one.
+    "/api/admin/**": ["./node_modules/@sparticuz/chromium/bin/**"],
+    "/api/devis/**": ["./node_modules/@sparticuz/chromium/bin/**"],
   },
   images: {
     remotePatterns: [

@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { CookieBanner } from "@/components/analytics/CookieBanner";
 import { WhatsAppButton } from "@/components/analytics/WhatsAppButton";
+import { ReveillonPromo } from "@/components/reveillon/ReveillonPromo";
 import { earlyTagScript } from "@/lib/analytics";
 
 const cinzel = Cinzel({
@@ -128,6 +129,7 @@ export default function RootLayout({
               {children}
               <Toaster />
               <WhatsAppButton />
+              <ReveillonPromo />
               <CookieBanner />
               <GoogleAnalytics />
             </LanguageProvider>
