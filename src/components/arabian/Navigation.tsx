@@ -28,7 +28,7 @@ import {
 const LOCALE_READY_PREFIXES = [
   "/les-tentes", "/les-activites", "/les-experiences", "/day-pass", "/blog", "/desert-agafay",
   "/restaurant", "/contact", "/apropo", "/les-evenements", "/reservez-votre-sejour",
-  "/politique-de-confidentialite", "/conditions-generales",
+  "/politique-de-confidentialite", "/conditions-generales", "/reveillon-31-decembre",
 ];
 const NON_FR_LOCALES: Language[] = ["en", "es", "it"];
 
